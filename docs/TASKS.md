@@ -1,148 +1,167 @@
 # TASKS.md
 
-## Status Geral
+## Status geral
 
-**Fase atual:** 2 — Módulo de Treino  
-**Bloqueio imediato:** validar `window.db.update` (merge parcial vs substituição total)
-
----
-
-## 🔴 Bloqueante: validar window.db.update
-
-**Por quê:** se `window.db.update` faz substituição total do registro (em vez de merge parcial), a função `moverExercicio` em `treino-plano.html` vai apagar todos os campos do exercício ao salvar apenas `{ ordem, updated_at }`.
-
-**Como testar:**
-1. Abrir `http://10.0.0.188:5000/treino-plano.html`
-2. Criar exercício com todos os campos preenchidos (nome, séries, reps, carga, descanso)
-3. Clicar ▲ ou ▼ para reordenar
-4. Verificar se os outros campos continuam intactos
-
-**Se for substituição total:** precisamos ajustar `moverExercicio` para ler o registro completo antes de atualizar.
+**Fase atual:** M (Migração para Supabase)
+**Bloqueio:** nenhum. Pode-se começar a Fase M0 imediatamente.
+**Próxima ação:** criar projeto no Supabase e executar o schema SQL.
 
 ---
 
-## Fase 2 — Tarefas em ordem de execução
+## Fase M0 — Infraestrutura (sem código ainda)
 
-### ✅ Concluídas (aguardam "funcionou")
+### Supabase
+- [ ] Criar conta em supabase.com
+- [ ] Criar projeto (nome: `sistema-pessoal`, região: South America — São Paulo)
+- [ ] Anotar `Project URL` e `anon public key` (Settings → API)
+- [ ] Executar `supabase/migrations/001_schema_inicial.sql` no SQL Editor do Supabase
+- [ ] Criar Storage bucket `shape-photos` (público)
+- [ ] Criar Storage bucket `documentos` (privado)
+- [ ] Criar primeiro usuário via Authentication → Users → Invite user
 
-- [x] `treino-plano.html` gerado — CRUD divisões + exercícios
-- [x] `treino-academia.html` gerado — Modo Academia mobile
+### Vercel
+- [ ] Criar conta em vercel.com
+- [ ] Conectar repositório GitHub (criar repo se não existir)
+- [ ] Configurar root directory: `frontend/`
+- [ ] Fazer deploy
 
-### 🔄 Próximas (em ordem)
+### Arquivo de schema SQL a criar
+Localização: `supabase/migrations/001_schema_inicial.sql`
 
-#### 3. app.py — atualizar
-
-- [ ] Adicionar tabela `agenda` em `init_db()`:
-  ```sql
-  CREATE TABLE IF NOT EXISTS agenda (
-    uuid TEXT PRIMARY KEY,
-    data TEXT NOT NULL,
-    treino_uuid TEXT,
-    google_event_id TEXT,
-    titulo TEXT,
-    updated_at TEXT NOT NULL,
-    deleted INTEGER DEFAULT 0
-  )
-  ```
-- [ ] Adicionar endpoint `POST /api/upload/shape`:
-  - Aceita `multipart/form-data` com campo `file`
-  - Salva em `backend/uploads/shape/`
-  - Retorna `{ path: "uploads/shape/nome_do_arquivo.jpg" }`
-- [ ] ~~Google Calendar OAuth~~ → **DEFERIDO** (ver seção Decisões de Escopo)
-
-#### 4. db.js — atualizar
-
-- [ ] Adicionar store `agenda` com os mesmos campos da tabela SQLite
-- [ ] Verificar se a versão do IndexedDB (schema version) precisa ser incrementada para adicionar o store
-
-#### 5. treino.html — criar
-
-- [ ] Sub-nav (Calendário ativo)
-- [ ] Calendário semanal: 7 dias × lista de divisões disponíveis
-  - Cada dia: dropdown ou clique para atribuir divisão → escreve em `agenda`
-- [ ] Calendário mensal: grid CSS, células coloridas por status
-  - Verde: `sessao_treino` concluída no dia
-  - Azul: sessão concluída + PR detectado
-  - Vermelho: `agenda` no passado sem sessão
-  - Cinza claro: `agenda` no futuro
-- [ ] Seção cardio: form registro (tipo, duração, distância, obs) + tabela histórico
-- [ ] Radar chart `type: 'radar'` com Chart.js
-  - Disciplina, Força, Resistência (fórmulas em FEATURES.md)
-- [ ] Galeria de fotos de shape (imagens em rolagem)
-- [ ] ~~Integração Google Calendar~~ → **DEFERIDA**
-
-#### 6. treino-shape.html — criar
-
-- [ ] Form: data, peso (kg), caminho da foto (texto), observações
-- [ ] Gráfico de linha: evolução de peso (Chart.js)
-- [ ] Tabela de histórico: data, peso, observações
-- [ ] Exibir `<img src="foto_path">` quando caminho preenchido
-- [ ] ~~Upload real via POST /api/upload/shape~~ → path de texto por ora
+Deve incluir:
+- Todas as tabelas com `user_id`, `updated_at TIMESTAMPTZ`, `deleted BOOLEAN`
+- `ALTER TABLE ... ENABLE ROW LEVEL SECURITY` em todas
+- `CREATE POLICY "user_own_data"` em todas
+- Índices: `CREATE INDEX ON series_executadas(exercicio_uuid)` e `CREATE INDEX ON agenda(data)`
 
 ---
 
-## Bugs Conhecidos
+## Fase M1 — Auth + Core JS (primeiro código)
+
+### Novos arquivos a criar
+
+**`frontend/assets/supabase.js`**
+- Inicializar `supabase.createClient(URL, KEY)`
+- Exportar como `window.sb`
+- Helper `window.getUserId()` → retorna `session.user.id`
+- Helper `window.now()` → retorna `new Date().toISOString()`
+
+**`frontend/assets/auth.js`**
+- Verificar `window.sb.auth.getSession()` ao carregar
+- Se sem sessão: `window.location.href = '/login.html'`
+- Exportar `window.currentUser` com dados da sessão
+
+**`frontend/assets/sm2.js`**
+- Função `calcularSM2(ef, repeticoes, intervalo, qualidade)` → retorna novos valores
+- Exportar como `window.calcularSM2`
+
+**`frontend/login.html`**
+- Campo email + campo senha
+- Botão entrar (chama `window.sb.auth.signInWithPassword`)
+- Feedback de erro
+- Sem nav, sem sub-nav (é a tela pública)
+
+### Arquivos a adaptar
+
+**`frontend/index.html`**
+- Substituir chamadas `window.db.list(...)` por `window.sb.from(...).select(...)`
+- Adicionar `<script src="assets/supabase.js">` e `<script src="assets/auth.js">`
+- Remover `<script src="assets/db.js">`, `api.js`, `sync.js`
+- Botão "Sincronizar" removido da nav (Realtime substitui)
+
+**`frontend/treino-plano.html`**
+- Mesma adaptação de chamadas de dados
+- CRUD: insert, update (soft delete) via Supabase JS
+- Reordenação: update `{ ordem }` via Supabase JS
+
+**`frontend/treino-academia.html`**
+- Mesma adaptação
+- Sessão salva incrementalmente via Supabase (network-first)
+- Offline: escrita enfileirada no IndexedDB (SW processa depois)
+
+### Arquivos a eliminar
+- `frontend/assets/db.js` → deletar
+- `frontend/assets/api.js` → deletar
+- `frontend/assets/sync.js` → deletar
+- `backend/` → deletar pasta inteira
+- `iniciar.bat` → deletar
+
+---
+
+## Fase M2 — Service Worker + Storage
+
+**`frontend/sw.js`**
+- Cache First: CSS, fontes, ícones, Supabase JS, Chart.js
+- Network First com fallback: dados da API Supabase
+- Fila de escrita offline (IndexedDB) para `treino-academia.html`
+- Background sync ao reconectar
+
+**`frontend/manifest.json`**
+- Adicionar `"service_worker": { "src": "/sw.js" }`
+- Atualizar `"start_url"` para URL do Vercel
+
+**Upload de arquivos**
+- `treino-shape.html` → upload via `window.sb.storage.from('shape-photos').upload(...)`
+- Salvar path retornado em `shape.foto_path`
+- Exibir via `getPublicUrl(path)`
+
+---
+
+## Fase M3 — Realtime
+
+**Em `treino-plano.html`**
+```javascript
+window.sb.channel('treinos').on('postgres_changes', {
+  event: '*', schema: 'public', table: 'treinos'
+}, () => renderTreinos()).subscribe()
+```
+
+**Em `treino-academia.html`**
+- Não é prioridade para esta página (uso offline, single-device)
+- Adicionar apenas na tela de seleção de treino
+
+---
+
+## Fase 2 — Continua após Fase M
+
+| # | Arquivo | Dependências | Status |
+|---|---|---|---|
+| 1 | `treino.html` | Fase M completa + schema `agenda` | ⏳ |
+| 2 | `treino-shape.html` | Fase M2 (Storage) | ⏳ |
+
+---
+
+## Backlog (pós-MVP)
+
+- [ ] Notificações push (Service Worker Push API) — lembrete de treino
+- [ ] Exportação de dados CSV/JSON via Supabase
+- [ ] Google Calendar OAuth via Supabase Edge Function
+- [ ] Gráfico de evolução de carga por exercício
+- [ ] Volume semanal por grupo muscular
+- [ ] Dashboard analytics avançado
+- [ ] Modo múltiplos usuários (RLS já suporta, basta criar contas)
+
+---
+
+## Bugs conhecidos (da fase LAN — verificar se persistem)
 
 | Bug | Severidade | Ação |
 |---|---|---|
-| `window.db.update` comportamento não confirmado | 🔴 Alta | Testar antes de avançar |
-| `treino-academia.html` importa Chart.js CDN sem usar | 🟡 Média | Remover `<script src="cdnjs.../chart.umd.min.js">` da página |
-| `treino-academia.html` não testado no celular real | 🔴 Alta | Testar após treino-plano.html funcionar |
-| `foto_path` em `shape` com path absoluto Windows quebra em mobile | 🟡 Média | Documentado, aceitável para MVP |
+| `window.db.update` comportamento incerto | 🔴 Irrelevante após migração | `db.js` será eliminado |
+| `treino-academia.html` importa Chart.js CDN sem usar | 🟡 Fix ao adaptar para Supabase | Remover a tag na adaptação |
+| `treino-academia.html` não testado no celular | 🔴 Alta | Testar após Fase M2 (com SW) |
 
 ---
 
-## Backlog (pós-MVP Fase 2)
-
-### Técnico
-- [ ] Sistema de migração de schema (IndexedDB version bump + SQLite ALTER TABLE)
-- [ ] Índice em `series_executadas.exercicio_uuid` (performance com histórico longo)
-- [ ] Modularização do `app.py` com Flask Blueprints
-- [ ] Testes automatizados do fluxo de sync
-- [ ] Remover Chart.js CDN de páginas que não usam gráficos
-
-### Funcionalidades
-- [ ] Google Calendar OAuth via Flask (quando houver HTTPS na LAN ou no MVP v2)
-- [ ] Upload real de fotos de shape (`POST /api/upload/shape`)
-- [ ] Gráfico de evolução de carga por exercício (linha temporal)
-- [ ] Volume semanal por grupo muscular
-- [ ] Exportação de dados em CSV/JSON
-- [ ] Histórico de sessões com detalhamento por exercício
-
----
-
-## Decisões de Escopo
-
-### ✅ Incluído no MVP
-
-| Decisão | Justificativa |
-|---|---|
-| Agenda **manual** (tabela `agenda` sem Google Calendar) | Zero dependência externa, funciona offline, zero risco de falha OAuth |
-| Foto de shape via **texto de caminho** | Funciona sem endpoint de upload no MVP |
-| **Radar chart** via Chart.js nativo | `type: 'radar'` já está no Chart.js — sem dependência nova |
-| **PR** calculado em memória (não persistido como flag) | Sem campo novo no schema; calculado retroativamente para o calendário |
-
-### ❌ Deferido
-
-| Decisão | Motivo técnico | Alternativa no MVP |
-|---|---|---|
-| Google Calendar OAuth | OAuth 2.0 exige `redirect_uri` `https://` ou `localhost`. LAN usa IP (`10.0.0.188`). Exige: endpoint `/auth/google`, `/auth/callback`, armazenamento de token, rota `/google/calendar/events`, tratamento de refresh token. Alto risco de bloqueio OAuth pela policy do Google. | Agenda manual |
-| Upload real de arquivo | Novo endpoint Flask + gestão de pasta + path relativo vs absoluto + MIME validation | Campo texto |
-| Sistema ENEM integrado | Já existe standalone e funcional; integração exige migração de localStorage → IndexedDB | Manter separado |
-| Módulo Biblioteca | TMDB + Google Books requerem API keys, CORS handling, tratamento de resultados | Fase 4 |
-| Módulo Revisão Espaçada UI | Backend pronto; UI é uma fase inteira | Fase 5 |
-| Módulos Olimpíadas / Escola | Sem prioridade para o MVP | Fase 3 |
-
----
-
-## Checklist de MVP Fase 2
+## Checklist de conclusão da Fase M
 
 ```
-[ ] treino-plano.html: criar divisão, adicionar exercício, reordenar — funcionando no browser
-[ ] treino-academia.html: selecionar treino, completar série, timer toca — funcionando no celular offline
-[ ] app.py: tabela agenda criada, endpoint upload criado
-[ ] db.js: store agenda adicionado
-[ ] treino.html: calendário semanal funciona, agenda manual funciona, calendário mensal colore
-[ ] treino-shape.html: registrar peso, ver gráfico de evolução
-[ ] sync: dados criados no celular aparecem no PC após sincronizar
+[ ] URL pública acessível com HTTPS
+[ ] Login funciona
+[ ] index.html carrega dados do Supabase
+[ ] treino-plano.html: criar divisão e exercício funcionam
+[ ] treino-academia.html: funciona offline (Service Worker ativo)
+[ ] Mudança no PC aparece no celular automaticamente (Realtime)
+[ ] Upload de foto funciona no treino-shape.html
+[ ] sm2.js: calcularSM2 retorna valores corretos para qualidade 0, 1, 2, 3
 ```

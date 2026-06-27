@@ -1,130 +1,146 @@
 # AI_CONTEXT.md
 
-> **Leia este arquivo primeiro.** Tudo que uma IA precisa para continuar o projeto sem reabrir decisões já tomadas.
+> **Leia este arquivo primeiro.** Tudo que uma IA precisa para continuar o projeto sem reabrir decisões já tomadas. Para decisões detalhadas com alternativas consideradas, ver `DECISIONS.md`.
 
 ---
 
 ## Projeto
 
-**Sistema Pessoal** — gestão pessoal offline-first em LAN doméstica.  
-**Desenvolvedor:** Gabriel, 18 anos, estudante (Pernambuco, BR).  
-**Editor:** VS Code · Windows  
-**Servidor LAN:** `http://10.0.0.188:5000`  
-**Linguagem de comunicação:** Português · tom direto · sem rodeios
+**Sistema Pessoal** — gestão pessoal online, multi-dispositivo.
+**Desenvolvedor:** Gabriel, 18 anos, estudante (Pernambuco, BR).
+**Editor:** VS Code · Windows
+**Comunicação:** Português · tom direto · sem rodeios
 
 ---
 
-## Stack (imutável — não propor alterações)
+## Stack atual (pós-migração — não propor alterações)
 
-| Camada | Tecnologia | Versão |
+| Camada | Tecnologia | Detalhe |
 |---|---|---|
-| Backend | Python | 3.14.3 |
-| Web framework | Flask | 3.1.3 |
-| CORS | flask-cors | 6.0.5 |
-| Banco | SQLite | WAL mode |
-| Frontend | HTML/CSS/JS puro | — |
-| Persistência offline | IndexedDB | — |
-| Gráficos | Chart.js | 4.5.0 (CDN) |
+| Banco de dados | PostgreSQL | via Supabase (cloud) |
+| Auth | Supabase Auth | JWT, email+senha |
+| Storage de arquivos | Supabase Storage | imagens, PDFs |
+| Sync / Realtime | Supabase Realtime | Postgres Changes via WebSocket |
+| Frontend | HTML/CSS/JS puro | sem framework, sem bundler |
+| Offline | Service Worker + IndexedDB | SW gerencia cache; IndexedDB é cache, não primário |
+| Gráficos | Chart.js | 4.5.0 via CDN (só em páginas online) |
 | Fontes | JetBrains Mono + Syne | self-hosted .woff2 |
+| Frontend hosting | Vercel ou Cloudflare Pages | HTTPS automático, CDN global |
+| SM-2 (revisão espaçada) | JavaScript puro | ~25 linhas, roda no frontend |
 
-**Sem:** framework JS · bundler · ORM · npm · TypeScript · Service Worker
+**Eliminados:** Flask · SQLite · `app.py` · `iniciar.bat` · `db.js` · `api.js` · `sync.js` · `requirements.txt`
 
 ---
 
 ## Identidade Visual (imutável)
 
 ```css
---bg:      #0d0d0d   /* fundo global */
---surface: #1a1a1a   /* cards */
---border:  #2a2a2a   /* bordas */
---accent:  #b8f566   /* destaque */
---text:    #e0e0e0   /* texto */
+--bg:      #0d0d0d
+--surface: #1a1a1a
+--border:  #2a2a2a
+--accent:  #b8f566
+--text:    #e0e0e0
 
-Dados / números : JetBrains Mono
-Títulos         : Syne
-Gráficos        : Chart.js
+Dados/números : JetBrains Mono
+Títulos       : Syne
+Gráficos      : Chart.js
 ```
 
 ---
 
-## Decisões Arquiteturais (bloqueadas)
-1. **Offline-first:** celular usa IndexedDB autônomo na academia sem rede. Flask só para sync via WiFi.
-2. **Sync bidirecional:** last-write-wins por `updated_at` ISO 8601. `POST /api/sync` implementado e funcional.
-3. **IDs client-side:** `crypto.randomUUID()` sempre no frontend. Nunca gerado pelo servidor.
-4. **Soft delete universal:** toda tabela tem `deleted INTEGER DEFAULT 0`. Nunca DELETE físico.
-5. **Sem Service Worker:** HTTPS em LAN exige setup manual. Cache nativo do browser substitui.
-6. **Flask serve estáticos:** `frontend/` é a raiz. Celular acessa `http://10.0.0.188:5000/pagina.html`.
-7. **CRUD genérico:** 5 rotas (`/api/<table>`) cobrem todas as 20+ tabelas. Não criar rotas por entidade.
-8. **Camadas frontend:**
-   - `db.js` → única interface com IndexedDB
-   - `api.js` → única interface com Flask (só `sync.js` chama)
-   - `sync.js` → orquestra sync e injeta botão "Sincronizar" na `.nav`
-   - Páginas HTML → **nunca** chamam `api.js` diretamente
+## Decisões arquiteturais (ver DECISIONS.md para detalhes)
+
+1. **Supabase como backend completo** — PostgreSQL + Auth + Storage + Realtime. Flask eliminado.
+2. **Frontend HTML/CSS/JS puro** — sem React, Vue, Next.js. `style.css` aproveitado 100%.
+3. **UUIDs client-side** — `crypto.randomUUID()` sempre no frontend.
+4. **Soft delete universal** — `deleted BOOLEAN DEFAULT FALSE` em toda tabela. Nunca DELETE físico.
+5. **Service Worker habilitado** — HTTPS disponível com hosting online. SW para offline e cache.
+6. **IndexedDB como cache** — não é mais fonte de verdade. SW gerencia.
+7. **SM-2 em JavaScript** — sem backend customizado necessário.
+8. **Agenda manual** — sem Google Calendar OAuth no MVP.
 
 ---
 
-## Estrutura de Arquivos
+## Estrutura de arquivos (estado pós-migração)
 
 ```
 sistema-pessoal/
-├── backend/
-│   ├── app.py                  # 674+ linhas: 20 tabelas, CRUD genérico, sync, SM-2
-│   └── requirements.txt        # flask==3.1.3, flask-cors==6.0.5
 ├── frontend/
 │   ├── assets/
-│   │   ├── style.css           # 1105+ linhas: componentes completos, mobile-first
-│   │   ├── api.js              # wrapper HTTP — só sync.js usa
-│   │   ├── db.js               # IndexedDB — window.db exposto globalmente
-│   │   ├── sync.js             # sync + botão na nav
-│   │   ├── fonts/              # 10 .woff2: JetBrains Mono (5 pesos) + Syne (5 pesos)
+│   │   ├── style.css           # 1105+ linhas — IMUTÁVEL, zero mudança na migração
+│   │   ├── supabase.js         # NEW: cliente Supabase + helpers globais
+│   │   ├── auth.js             # NEW: verificação de sessão, redirect para login
+│   │   ├── sm2.js              # NEW: algoritmo SM-2 em JavaScript puro
+│   │   ├── fonts/              # 10 .woff2 — imutável
 │   │   └── icons/              # icon-192.png + icon-512.png
-│   ├── index.html              # Dashboard ✅
-│   ├── treino-plano.html       # CRUD divisões/exercícios ✅
-│   ├── treino-academia.html    # Modo Academia mobile ✅
-│   ├── treino.html             # Hub calendário 🔄 pendente
-│   ├── treino-shape.html       # Shape + peso 🔄 pendente
-│   ├── manifest.json           # PWA
-│   └── docs/                   # Esta pasta
-└── iniciar.bat                 # Inicia Flask + abre browser
+│   ├── sw.js                   # NEW: Service Worker (cache + offline queue)
+│   ├── login.html              # NEW: tela de autenticação
+│   ├── index.html              # atualizado: usa Supabase JS
+│   ├── treino-plano.html       # atualizado: usa Supabase JS
+│   ├── treino-academia.html    # atualizado: usa Supabase JS + SW cache
+│   ├── treino.html             # pendente
+│   ├── treino-shape.html       # pendente
+│   ├── manifest.json           # atualizado: registro do SW
+│   └── docs/
+│       ├── AI_CONTEXT.md       # este arquivo
+│       ├── ARCHITECTURE.md
+│       ├── ROADMAP.md
+│       ├── FEATURES.md
+│       ├── TASKS.md
+│       └── DECISIONS.md
+└── supabase/
+    └── migrations/
+        └── 001_schema_inicial.sql   # schema PostgreSQL completo
 ```
 
 ---
 
-## Interface window.db
+## Interface Supabase JS (substitui window.db)
 
 ```javascript
-await window.db.list(table)                   // → array com TODOS os registros (inclui deleted=1)
-await window.db.create(table, record)         // → cria e retorna o registro
-await window.db.update(table, uuid, changes)  // → comportamento ASSUMIDO: merge parcial
-await window.db.delete(table, uuid)           // → comportamento ASSUMIDO: deleted=1 + updated_at=now
-```
+// Importado via CDN em cada página:
+// <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+// <script src="assets/supabase.js"></script>
+// window.sb é o cliente configurado
 
-> ⚠️ **`window.db.update` não validado em produção.** Sempre passar `updated_at: new Date().toISOString()` explicitamente. Sempre filtrar `!deleted` ao listar — `list()` retorna tudo.
+// CRUD básico
+const { data, error } = await window.sb.from('treinos').select('*').eq('deleted', false)
+const { data, error } = await window.sb.from('treinos').insert({ uuid, nome, user_id, ... })
+const { data, error } = await window.sb.from('treinos').update({ nome }).eq('uuid', uuid)
+const { data, error } = await window.sb.from('treinos').update({ deleted: true }).eq('uuid', uuid)
 
----
+// Auth
+const { data: { session } } = await window.sb.auth.getSession()
+const { error } = await window.sb.auth.signInWithPassword({ email, password })
+await window.sb.auth.signOut()
 
-## API Flask
+// Storage
+const { data, error } = await window.sb.storage.from('shape-photos').upload(path, file)
+const { data } = window.sb.storage.from('shape-photos').getPublicUrl(path)
 
-```
-GET    /api/<table>                       lista (suporta ?campo=valor como filtro)
-POST   /api/<table>                       cria (retorna 201 + registro)
-GET    /api/<table>/<uuid>                busca um
-PUT    /api/<table>/<uuid>                atualiza
-DELETE /api/<table>/<uuid>                soft delete
-POST   /api/sync                          sync bidirecional
-GET    /api/revisao_espacada/hoje         cards SM-2 vencidos
-POST   /api/revisao_espacada/<uuid>/avaliar  processa avaliação (body: {qualidade: 0-3})
-GET    /api/dashboard                     resumo agregado
-```
-
-**Pendente (a implementar no app.py):**
-```
-POST   /api/upload/shape     upload de foto de shape
+// Realtime
+window.sb.channel('treinos').on('postgres_changes', { event: '*', schema: 'public', table: 'treinos' }, callback).subscribe()
 ```
 
 ---
 
-## Padrão de Página Nova
+## Schema PostgreSQL (convenções)
+
+```sql
+-- Todo registro tem obrigatoriamente:
+uuid       TEXT PRIMARY KEY,   -- gerado no cliente com crypto.randomUUID()
+user_id    UUID NOT NULL REFERENCES auth.users(id),
+updated_at TIMESTAMPTZ DEFAULT NOW(),
+deleted    BOOLEAN DEFAULT FALSE
+
+-- RLS obrigatório em toda tabela:
+ALTER TABLE <table> ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "user_own_data" ON <table> FOR ALL USING (auth.uid() = user_id);
+```
+
+---
+
+## Padrão de página nova
 
 ```html
 <!DOCTYPE html>
@@ -139,84 +155,80 @@ POST   /api/upload/shape     upload de foto de shape
   <nav class="nav"><!-- copiar de página existente --></nav>
   <main class="container"><!-- conteúdo --></main>
 
-  <!-- Chart.js: incluir SOMENTE em páginas com gráficos e SOMENTE uso PC/WiFi -->
-  <!-- NUNCA incluir em páginas offline-critical (ex: treino-academia.html) -->
+  <!-- Supabase JS (CDN — ok em páginas online) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Chart.js SOMENTE em páginas com gráficos -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
-  <script src="assets/db.js"></script>
-  <script src="assets/api.js"></script>
-  <script src="assets/sync.js"></script>
+  <script src="assets/supabase.js"></script>  <!-- window.sb configurado aqui -->
+  <script src="assets/auth.js"></script>       <!-- redireciona para login se sem sessão -->
   <script>
     'use strict';
     document.addEventListener('DOMContentLoaded', inicializar);
-    async function inicializar() { /* lógica da página */ }
+    async function inicializar() {
+      // auth.js já verificou sessão antes de chegar aqui
+    }
   </script>
 </body>
 </html>
 ```
 
-**Convenções obrigatórias:**
+---
+
+## Convenções de código
+
 ```javascript
-uuid:       crypto.randomUUID()           // sempre client-side
-updated_at: new Date().toISOString()      // sempre explícito em create/update
-deleted:    0                             // sempre em create
+// IDs: sempre client-side
+uuid: crypto.randomUUID()
 
-// Soft delete (nunca window.db.delete diretamente para cascade)
-await window.db.update(table, uuid, { deleted: 1, updated_at: new Date().toISOString() })
+// user_id: sempre da sessão
+const { data: { session } } = await window.sb.auth.getSession()
+user_id: session.user.id
 
-// HTML escape obrigatório em innerHTML (copiar esta função)
+// Soft delete
+await window.sb.from('treinos').update({ deleted: true, updated_at: new Date().toISOString() }).eq('uuid', uuid)
+
+// Listar (sempre filtrar deleted)
+const { data } = await window.sb.from('treinos').select('*').eq('deleted', false).eq('user_id', userId)
+
+// HTML escape (obrigatório em innerHTML)
 function esc(s) {
   if (s == null) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
     .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
 }
 
-// parseInt/parseFloat com fallback null (nunca NaN no banco)
-const v = parseInt(el.value, 10);
-const result = isNaN(v) ? null : v;
+// Inputs numéricos
+function intOrNull(id) {
+  const v = parseInt(document.getElementById(id).value, 10);
+  return isNaN(v) ? null : v;
+}
 ```
 
 ---
 
-## Como Adicionar Tabela Nova
-
-1. Adicionar em `init_db()` no `app.py` com `uuid, ..., updated_at, deleted`
-2. Adicionar store correspondente em `db.js`
-3. Endpoint genérico `/api/<table>` já funciona automaticamente
-4. `POST /api/sync` já sincroniza se a tabela seguir o padrão
-
----
-
-## Regras de Geração de Código
-
-1. Um arquivo completo por resposta — sem cortes, sem placeholders
-2. Aguardar "funcionou" antes do próximo arquivo
-3. Avisar se arquivo > 400 linhas antes de gerar
-4. Validar lógica internamente antes de entregar
-5. Comunicação em português, direto
-
----
-
-## Status dos Módulos
+## Status dos módulos
 
 | Módulo | Arquivo(s) | Status |
 |---|---|---|
-| Dashboard | `index.html` | ✅ Completo |
-| Treino — Plano | `treino-plano.html` | ✅ Gerado, aguarda teste |
-| Treino — Academia | `treino-academia.html` | ✅ Gerado, aguarda teste |
+| Dashboard | `index.html` | ✅ Completo (precisa adaptar para Supabase JS) |
+| Treino — Plano | `treino-plano.html` | ✅ Gerado (precisa adaptar para Supabase JS) |
+| Treino — Academia | `treino-academia.html` | ✅ Gerado (precisa adaptar para Supabase JS) |
 | Treino — Hub | `treino.html` | 🔄 Pendente |
 | Treino — Shape | `treino-shape.html` | 🔄 Pendente |
-| Backend Fase 2 | `app.py` updates | 🔄 Pendente |
-| IndexedDB Fase 2 | `db.js` updates | 🔄 Pendente |
+| Auth | `login.html` + `auth.js` | 🔄 Pendente (Fase M1) |
+| Supabase client | `supabase.js` | 🔄 Pendente (Fase M1) |
+| SM-2 | `sm2.js` | 🔄 Pendente (Fase M1) |
+| Service Worker | `sw.js` | 🔄 Pendente (Fase M2) |
 | Estudos | múltiplos | ⏳ Fase 3 |
 | Biblioteca | `biblioteca.html` | ⏳ Fase 4 |
 | Revisão Espaçada | `revisao.html` | ⏳ Fase 5 |
 
 ---
 
-## Bugs Conhecidos e Resoluções
+## Regras de geração de código
 
-| Problema | Solução |
-|---|---|
-| Windows `UnicodeEncodeError` (cp1252) | `sys.stdout.reconfigure(encoding='utf-8')` no início do `app.py` |
-| `window.db` undefined ao abrir HTML pelo sistema de arquivos | Abrir via `http://10.0.0.188:5000/pagina.html`, não pelo explorador |
-| `treino-academia.html` inclui CDN Chart.js sem usar | Remover a tag — página é offline-critical |
+1. Um arquivo completo por resposta — sem cortes, sem placeholders
+2. Aguardar "funcionou" antes do próximo arquivo
+3. Avisar se arquivo > 400 linhas antes de gerar
+4. Validar lógica internamente antes de entregar
+5. Não propor alterações de stack sem nova informação relevante

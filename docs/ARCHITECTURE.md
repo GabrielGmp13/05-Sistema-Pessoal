@@ -1,168 +1,155 @@
 # ARCHITECTURE.md
 
-## Diagrama do Sistema
+## Diagrama do sistema
 
 ```
-┌─────────────────────────────┐     ┌───────────────────────────────────┐
-│     Celular (academia)      │     │           PC (casa)               │
-│                             │     │                                   │
-│  HTML/CSS/JS (cacheado)     │     │  HTML/CSS/JS (servido pelo Flask) │
-│  IndexedDB (autônomo)       │◄────►│  Flask + SQLite                  │
-│  Offline-first              │ WiFi │  Fonte de verdade                 │
-└─────────────────────────────┘     └───────────────────────────────────┘
-          POST /api/sync (last-write-wins por updated_at)
+[Qualquer dispositivo — PC, celular, tablet]
+         Browser (HTTPS)
+              │
+    ┌─────────┼──────────────┐
+    │         │              │
+    ▼         ▼              ▼
+ Vercel   Supabase       Supabase
+(frontend) (PostgreSQL   (Storage)
+  CDN      + Auth        imagens,
+           + Realtime)   PDFs
 ```
 
-O celular carrega o frontend **uma vez** via WiFi. O browser cacheia. Na academia opera 100% offline com IndexedDB. Ao retornar para WiFi, `sync.js` sincroniza automaticamente.
+**Sem servidor customizado.** O frontend (HTML/CSS/JS estático) é servido pelo CDN do Vercel. Todos os dados, auth, arquivos e sync em tempo real passam pelo Supabase.
+
+Offline: Service Worker cacheia assets e dados recentes. Escritas offline são enfileiradas e sincronizadas quando a conexão retornar.
 
 ---
 
-## Backend (app.py)
+## Supabase: componentes utilizados
 
-### Estrutura geral
+### PostgreSQL
+Banco de dados relacional. Schema idêntico ao SQLite anterior, com adições:
+- `user_id UUID` em toda tabela (para RLS)
+- Tipos nativos: `BOOLEAN`, `TIMESTAMPTZ`, `UUID`
+- Row Level Security ativa em todas as tabelas
 
-```python
-import sys
-sys.stdout.reconfigure(encoding='utf-8')  # fix Windows cp1252
+### Supabase Auth
+- Email + senha
+- JWT gerado automaticamente
+- `auth.uid()` disponível em políticas RLS
+- `session.user.id` disponível no frontend via JS
 
-from flask import Flask, request, jsonify
-from flask_cors import CORS
-import sqlite3, uuid, json
-from datetime import datetime
+### Supabase Storage
+- Bucket `shape-photos` — fotos de shape (público ou privado)
+- Bucket `documentos` — PDFs e arquivos pessoais
+- CDN automático para servir arquivos
 
-app = Flask(__name__, static_folder='../frontend', static_url_path='')
-CORS(app)
-
-DB_PATH = 'dados.db'
-
-def init_db():
-    # Cria todas as tabelas com IF NOT EXISTS
-    # WAL mode: PRAGMA journal_mode=WAL
-    pass
-
-# ── Rotas genéricas (cobrem todas as tabelas) ──
-@app.route('/api/<table>', methods=['GET'])        # lista
-@app.route('/api/<table>', methods=['POST'])       # cria
-@app.route('/api/<table>/<uuid>', methods=['GET']) # busca um
-@app.route('/api/<table>/<uuid>', methods=['PUT']) # atualiza
-@app.route('/api/<table>/<uuid>', methods=['DELETE']) # soft delete
-
-# ── Rotas especiais ──
-@app.route('/api/sync', methods=['POST'])          # sync bidirecional
-@app.route('/api/revisao_espacada/hoje')           # SM-2: cards vencidos
-@app.route('/api/revisao_espacada/<uuid>/avaliar', methods=['POST'])  # SM-2: avalia
-@app.route('/api/dashboard')                       # resumo agregado
-```
-
-### Algoritmo SM-2
-
-Implementado em `app.py`. Campos nos registros de revisão:
-- `easiness_factor` (float, começa em 2.5)
-- `repetition_count` (int)
-- `next_review_date` (ISO date)
-
-Avaliação recebe `qualidade` (0–3). Qualidade < 2 reinicia a contagem.
+### Supabase Realtime
+- Subscrições a `postgres_changes` por tabela
+- Qualquer dispositivo recebe atualizações instantaneamente
+- Substitui todo o sistema de sync manual anterior
 
 ---
 
-## Banco de Dados
+## Schema PostgreSQL
 
 ### Convenção universal
 
-Todo registro em qualquer tabela tem obrigatoriamente:
 ```sql
-uuid       TEXT PRIMARY KEY,   -- gerado no cliente com crypto.randomUUID()
-updated_at TEXT NOT NULL,      -- ISO 8601: '2024-01-15T14:30:00.000Z'
-deleted    INTEGER DEFAULT 0   -- 0 = ativo, 1 = soft deleted
+-- Todo registro tem obrigatoriamente:
+uuid        TEXT PRIMARY KEY,
+user_id     UUID NOT NULL REFERENCES auth.users(id),
+updated_at  TIMESTAMPTZ DEFAULT NOW(),
+deleted     BOOLEAN DEFAULT FALSE
+
+-- RLS em toda tabela:
+ALTER TABLE <table> ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "user_own_data" ON <table>
+  FOR ALL USING (auth.uid() = user_id);
 ```
 
-**Nunca usar DELETE físico.** Sempre soft delete.
-
-### Schema: tabelas documentadas
+### Tabelas do módulo Treino
 
 ```sql
--- ── Treino ─────────────────────────────────────────────────────
-
-CREATE TABLE IF NOT EXISTS treinos (
+CREATE TABLE treinos (
   uuid        TEXT PRIMARY KEY,
+  user_id     UUID NOT NULL REFERENCES auth.users(id),
   nome        TEXT NOT NULL,
   descricao   TEXT,
-  updated_at  TEXT NOT NULL,
-  deleted     INTEGER DEFAULT 0
+  updated_at  TIMESTAMPTZ DEFAULT NOW(),
+  deleted     BOOLEAN DEFAULT FALSE
 );
 
-CREATE TABLE IF NOT EXISTS exercicios (
+CREATE TABLE exercicios (
   uuid               TEXT PRIMARY KEY,
-  treino_uuid        TEXT NOT NULL,
+  user_id            UUID NOT NULL REFERENCES auth.users(id),
+  treino_uuid        TEXT NOT NULL REFERENCES treinos(uuid),
   nome               TEXT NOT NULL,
   series_alvo        INTEGER,
   reps_alvo          INTEGER,
-  carga_alvo         REAL,
+  carga_alvo         NUMERIC,
   descanso_segundos  INTEGER,
   ordem              INTEGER,
-  updated_at         TEXT NOT NULL,
-  deleted            INTEGER DEFAULT 0
+  updated_at         TIMESTAMPTZ DEFAULT NOW(),
+  deleted            BOOLEAN DEFAULT FALSE
 );
 
-CREATE TABLE IF NOT EXISTS sessoes_treino (
+CREATE TABLE sessoes_treino (
   uuid        TEXT PRIMARY KEY,
-  treino_uuid TEXT NOT NULL,
-  data_inicio TEXT NOT NULL,   -- ISO 8601
-  data_fim    TEXT,            -- NULL enquanto sessão em andamento
+  user_id     UUID NOT NULL REFERENCES auth.users(id),
+  treino_uuid TEXT NOT NULL REFERENCES treinos(uuid),
+  data_inicio TIMESTAMPTZ NOT NULL,
+  data_fim    TIMESTAMPTZ,
   observacoes TEXT,
-  updated_at  TEXT NOT NULL,
-  deleted     INTEGER DEFAULT 0
+  updated_at  TIMESTAMPTZ DEFAULT NOW(),
+  deleted     BOOLEAN DEFAULT FALSE
 );
 
-CREATE TABLE IF NOT EXISTS series_executadas (
+CREATE TABLE series_executadas (
   uuid            TEXT PRIMARY KEY,
-  sessao_uuid     TEXT NOT NULL,
-  exercicio_uuid  TEXT NOT NULL,
+  user_id         UUID NOT NULL REFERENCES auth.users(id),
+  sessao_uuid     TEXT NOT NULL REFERENCES sessoes_treino(uuid),
+  exercicio_uuid  TEXT NOT NULL REFERENCES exercicios(uuid),
   serie_numero    INTEGER,
-  carga_real      REAL,
+  carga_real      NUMERIC,
   reps_real       INTEGER,
-  concluida       INTEGER DEFAULT 0,
-  data_hora       TEXT,
-  updated_at      TEXT NOT NULL,
-  deleted         INTEGER DEFAULT 0
+  concluida       BOOLEAN DEFAULT FALSE,
+  data_hora       TIMESTAMPTZ,
+  updated_at      TIMESTAMPTZ DEFAULT NOW(),
+  deleted         BOOLEAN DEFAULT FALSE
 );
 
-CREATE TABLE IF NOT EXISTS shape (
+CREATE TABLE shape (
   uuid        TEXT PRIMARY KEY,
-  data        TEXT NOT NULL,   -- YYYY-MM-DD
-  peso        REAL,
-  foto_path   TEXT,            -- caminho local do arquivo (MVP: texto livre)
+  user_id     UUID NOT NULL REFERENCES auth.users(id),
+  data        DATE NOT NULL,
+  peso        NUMERIC,
+  foto_path   TEXT,  -- path no Supabase Storage, ex: "shape-photos/2024-01-15.jpg"
   observacoes TEXT,
-  updated_at  TEXT NOT NULL,
-  deleted     INTEGER DEFAULT 0
+  updated_at  TIMESTAMPTZ DEFAULT NOW(),
+  deleted     BOOLEAN DEFAULT FALSE
 );
 
-CREATE TABLE IF NOT EXISTS cardio (
+CREATE TABLE cardio (
   uuid             TEXT PRIMARY KEY,
-  data             TEXT NOT NULL,
-  tipo             TEXT,        -- corrida, bike, natação, etc.
+  user_id          UUID NOT NULL REFERENCES auth.users(id),
+  data             DATE NOT NULL,
+  tipo             TEXT,
   duracao_minutos  INTEGER,
-  distancia_km     REAL,
+  distancia_km     NUMERIC,
   observacoes      TEXT,
-  updated_at       TEXT NOT NULL,
-  deleted          INTEGER DEFAULT 0
+  updated_at       TIMESTAMPTZ DEFAULT NOW(),
+  deleted          BOOLEAN DEFAULT FALSE
 );
 
--- ── Agenda (a criar no app.py — Fase 2) ────────────────────────
-
-CREATE TABLE IF NOT EXISTS agenda (
-  uuid             TEXT PRIMARY KEY,
-  data             TEXT NOT NULL,    -- YYYY-MM-DD
-  treino_uuid      TEXT,             -- NULL se dia sem treino ou não atribuído
-  google_event_id  TEXT,             -- NULL no MVP (deferido)
-  titulo           TEXT,
-  updated_at       TEXT NOT NULL,
-  deleted          INTEGER DEFAULT 0
+CREATE TABLE agenda (
+  uuid            TEXT PRIMARY KEY,
+  user_id         UUID NOT NULL REFERENCES auth.users(id),
+  data            DATE NOT NULL,
+  treino_uuid     TEXT REFERENCES treinos(uuid),
+  titulo          TEXT,
+  updated_at      TIMESTAMPTZ DEFAULT NOW(),
+  deleted         BOOLEAN DEFAULT FALSE
 );
 
--- ── Demais 13 tabelas ───────────────────────────────────────────
--- Pendente de documentação (estudos, biblioteca, revisão, etc.)
--- Schemas existem no app.py mas não foram documentados aqui ainda.
+-- Demais tabelas (estudos, biblioteca, revisão): pendente de documentação
+-- Schemas existem na migração SQL mas não foram detalhados aqui ainda
 ```
 
 ---
@@ -173,144 +160,163 @@ CREATE TABLE IF NOT EXISTS agenda (
 
 ```
 Página HTML
-    │ usa exclusivamente
+    │ importa
     ▼
-window.db (db.js)          ← IndexedDB abstraction
-    │ sincronizado por
+supabase.js       ← window.sb (Supabase JS client configurado)
+    │ usa
     ▼
-window.sync (sync.js)
-    │ usa exclusivamente
-    ▼
-window.api (api.js)        ← HTTP abstraction
-    │ chama
-    ▼
-Flask /api/*               ← REST endpoints
-    │ persiste em
-    ▼
-SQLite (WAL mode)
+Supabase Cloud    ← PostgreSQL + Auth + Storage + Realtime
 ```
 
-**Regra cardinal:** páginas HTML **nunca** importam ou chamam `api.js`. Toda comunicação com Flask passa exclusivamente por `sync.js`.
+```
+Página HTML (offline)
+    │ servida por
+    ▼
+Service Worker    ← cache de assets + dados recentes
+    │ usa como cache
+    ▼
+IndexedDB         ← dados em cache (não é fonte de verdade)
+```
 
-### Sub-navegação de módulo
-
-Páginas do módulo Treino usam uma sub-nav padrão:
+### Carregamento de scripts em cada página
 
 ```html
-<nav class="sub-nav">
-  <a class="sub-nav-link [active]" href="treino.html">Calendário</a>
-  <a class="sub-nav-link [active]" href="treino-plano.html">Plano de Treino</a>
-  <a class="sub-nav-link [active]" href="treino-academia.html">Modo Academia</a>
-  <a class="sub-nav-link [active]" href="treino-shape.html">Shape</a>
-</nav>
+<!-- Supabase JS (CDN) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Chart.js SOMENTE em páginas com gráficos -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
+<!-- Config do cliente Supabase -->
+<script src="assets/supabase.js"></script>
+<!-- Verificação de auth (redireciona para login.html se sem sessão) -->
+<script src="assets/auth.js"></script>
 ```
 
-### Classes CSS principais (style.css)
-
-```
-Layout:     .container  .nav  .nav-link  .nav-brand  .nav-link.active
-Cards:      .card
-Botões:     .btn  .btn-primary  .btn-secondary
-Formulário: .form-control  .label  .form-group
-Tabela:     .table
-```
-
----
-
-## Sincronização
-
-### Fluxo completo
-
-```
-1. Usuário clica "Sincronizar" (botão injetado por sync.js)
-2. Para cada tabela:
-   a. GET /api/<table> → registros do servidor
-   b. window.db.list(table) → registros locais
-   c. Merge por uuid:
-      - updated_at servidor > local → atualizar IndexedDB
-      - updated_at local > servidor → PUT /api/<table>/<uuid>
-      - Existe no local, não no servidor → POST /api/<table>
-      - deleted=1 no local → DELETE /api/<table>/<uuid>
-3. Conflito → last-write-wins (maior updated_at prevalece)
-```
-
-### Garantias do padrão
-
-- Toda operação de escrita inclui `updated_at: new Date().toISOString()`
-- Soft deletes são sincronizados (o registro vai para o servidor com `deleted=1`)
-- UUIDs client-side eliminam conflitos de chave primária
-
----
-
-## Dependências Externas
-
-| Dependência | Tipo | Necessária offline? | Onde |
-|---|---|---|---|
-| Chart.js 4.5.0 | CDN JS | **Não** — apenas páginas PC/WiFi | `<script>` em páginas com gráficos |
-| JetBrains Mono | self-hosted .woff2 | **Sim** | `frontend/assets/fonts/` |
-| Syne | self-hosted .woff2 | **Sim** | `frontend/assets/fonts/` |
-| Google Calendar API | OAuth REST | Não | Deferido para Fase 4+ |
-| TMDB API | REST + API key | Não | Deferido para Fase 4 |
-| Google Books API | REST + API key | Não | Deferido para Fase 4 |
-
-> ⚠️ **Regra:** nunca adicionar dependência CDN em páginas que o celular usa offline (`treino-academia.html` é o caso principal). Chart.js em CDN já foi incluído incorretamente nessa página — deve ser removido.
-
----
-
-## Convenções de Código
+### supabase.js — responsabilidades
 
 ```javascript
-// ── IDs ──────────────────────────────────────────────────────────
-uuid: crypto.randomUUID()                    // sempre no cliente
+// 1. Criar e exportar o cliente Supabase
+const SUPABASE_URL = '...'
+const SUPABASE_ANON_KEY = '...'
+window.sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
-// ── Timestamps ───────────────────────────────────────────────────
-updated_at: new Date().toISOString()         // sempre explícito
-
-// ── Soft delete (preferir sobre window.db.delete) ────────────────
-await window.db.update(table, uuid, {
-  deleted: 1,
-  updated_at: new Date().toISOString()
-});
-
-// ── Parsing de inputs numéricos ──────────────────────────────────
-function intOrNull(id) {
-  const v = parseInt(document.getElementById(id).value, 10);
-  return isNaN(v) ? null : v;
-}
-function floatOrNull(id) {
-  const v = parseFloat(document.getElementById(id).value);
-  return isNaN(v) ? null : v;
+// 2. Helper: userId da sessão ativa
+window.getUserId = async () => {
+  const { data: { session } } = await window.sb.auth.getSession()
+  return session?.user?.id
 }
 
-// ── HTML escape (obrigatório em innerHTML) ────────────────────────
-function esc(s) {
-  if (s == null) return '';
-  return String(s)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
-    .replace(/'/g,'&#039;');
-}
+// 3. Helper: timestamp ISO para updated_at
+window.now = () => new Date().toISOString()
+```
 
-// ── Filtrar deletados (list() retorna tudo) ───────────────────────
-const ativos = (await window.db.list('treinos')).filter(t => !t.deleted);
+### auth.js — responsabilidades
 
-// ── Inicialização de página ───────────────────────────────────────
-'use strict';
-document.addEventListener('DOMContentLoaded', inicializar);
-async function inicializar() { /* ... */ }
+```javascript
+// Verificar sessão ao carregar qualquer página protegida
+// Se sem sessão: redirecionar para login.html
+// Se com sessão: continuar normalmente
 ```
 
 ---
 
-## Performance
+## Service Worker
 
-| Situação | Impacto | Mitigação atual |
+Estratégia de cache por tipo de recurso:
+
+| Recurso | Estratégia | Motivo |
 |---|---|---|
-| `window.db.list('series_executadas')` em usuário com histórico longo | Lento (scan completo) | Cache em memória (`maxCargas`) carregado uma vez por sessão |
-| Múltiplas chamadas `window.db.update` em cascade delete | N writes sequenciais | Aceitável para volumes pequenos |
-| Chart.js CDN em WiFi fraca | Timeout de carregamento | Usar apenas em páginas PC; nunca em `treino-academia.html` |
+| CSS, fontes, ícones | Cache First | Assets estáticos que não mudam |
+| Supabase JS, Chart.js | Cache First | Bibliotecas de terceiros estáveis |
+| Dados do Supabase | Network First com fallback | Sempre preferir dado atualizado |
+| Assets de Storage (fotos) | Stale While Revalidate | Fotos raramente mudam |
 
-**Otimizações futuras (backlog):**
-- Índice SQLite em `series_executadas.exercicio_uuid`
-- `window.db.list` com filtro nativo (evitar scan completo + filtro JS)
-- Cache de max cargas persistente em IndexedDB (evitar recalcular a cada sessão)
+Fila de escrita offline:
+- Operações de escrita offline são salvas em IndexedDB
+- SW detecta reconexão e processa a fila
+- Aplicável principalmente a `treino-academia.html` (uso sem internet)
+
+---
+
+## Realtime (sync multi-dispositivo)
+
+```javascript
+// Exemplo: qualquer mudança na tabela treinos atualiza a UI automaticamente
+window.sb.channel('treinos-changes')
+  .on('postgres_changes', {
+    event: '*',
+    schema: 'public',
+    table: 'treinos',
+    filter: `user_id=eq.${userId}`
+  }, (payload) => {
+    renderTreinos()  // re-render da lista
+  })
+  .subscribe()
+```
+
+Não é necessário polling, sync manual ou botão "Sincronizar". As mudanças propagam em tempo real.
+
+---
+
+## Armazenamento de arquivos
+
+```javascript
+// Upload de foto de shape
+const filePath = `${userId}/${data}-shape.jpg`
+const { error } = await window.sb.storage.from('shape-photos').upload(filePath, file)
+
+// URL pública para exibir
+const { data: urlData } = window.sb.storage.from('shape-photos').getPublicUrl(filePath)
+const url = urlData.publicUrl  // usar em <img src="">
+```
+
+---
+
+## SM-2 em JavaScript
+
+```javascript
+// sm2.js — algoritmo completo, sem servidor
+function calcularSM2(ef, repeticoes, intervalo, qualidade) {
+  // qualidade: 0 (blackout) → 3 (perfeito)
+  if (qualidade >= 2) {
+    if (repeticoes === 0)     intervalo = 1
+    else if (repeticoes === 1) intervalo = 6
+    else                       intervalo = Math.round(intervalo * ef)
+    repeticoes++
+  } else {
+    repeticoes = 0
+    intervalo = 1
+  }
+  ef = Math.max(1.3, ef + 0.1 - (3 - qualidade) * (0.08 + (3 - qualidade) * 0.02))
+  const proxima = new Date()
+  proxima.setDate(proxima.getDate() + intervalo)
+  return { ef, repeticoes, intervalo, proxima_revisao: proxima.toISOString().split('T')[0] }
+}
+```
+
+Resultado salvo diretamente na tabela de revisão via Supabase JS.
+
+---
+
+## Dependências externas
+
+| Dependência | Tipo | Offline? | Onde |
+|---|---|---|---|
+| Supabase JS v2 | CDN script | SW cacheia | Todas as páginas |
+| Chart.js 4.5.0 | CDN script | SW cacheia | Páginas com gráficos |
+| JetBrains Mono | self-hosted .woff2 | SW cacheia | Todas as páginas |
+| Syne | self-hosted .woff2 | SW cacheia | Todas as páginas |
+| Supabase (PostgreSQL) | Cloud API | Dados em cache no SW | — |
+| Supabase Storage | Cloud CDN | Fotos em cache no SW | Páginas com imagens |
+
+---
+
+## Custos (Supabase Free Tier)
+
+| Recurso | Limite free | Estimativa de uso |
+|---|---|---|
+| Banco de dados | 500MB | Anos de dados pessoais |
+| Storage | 1GB | Centenas de fotos de shape + PDFs |
+| Bandwidth | 5GB/mês | Muito abaixo para uso pessoal |
+| Auth | 50.000 MAU | 1 usuário |
+| Realtime | 200 conexões simultâneas | 1-3 dispositivos |
+| **Total** | **$0/mês** | — |
