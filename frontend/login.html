@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Entrar — Sistema Pessoal</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 380px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem 2rem 2.25rem;
+    }
+
+    .login-logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 0.2rem;
+    }
+
+    .login-sub {
+      font-size: 0.78rem;
+      color: #555;
+      margin-bottom: 2rem;
+    }
+
+    .login-erro {
+      background: rgba(200,50,50,0.08);
+      border: 1px solid rgba(200,50,50,0.28);
+      border-radius: 6px;
+      color: #e06060;
+      font-size: 0.8rem;
+      padding: 0.6rem 0.85rem;
+      margin-bottom: 1rem;
+      line-height: 1.4;
+    }
+    .login-erro.hidden { display: none; }
+
+    .fg { margin-bottom: 1rem; }
+
+    .btn-entrar {
+      display: block;
+      width: 100%;
+      padding: 0.875rem;
+      background: var(--accent);
+      color: #0d0d0d;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 1.25rem;
+      transition: opacity 0.13s;
+      letter-spacing: 0.01em;
+    }
+    .btn-entrar:hover:not(:disabled) { opacity: 0.88; }
+    .btn-entrar:disabled { opacity: 0.45; cursor: default; }
+
+    .login-spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(0,0,0,0.3);
+      border-top-color: #0d0d0d;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      margin-right: 0.4rem;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <div class="login-card">
+    <div class="login-logo">Sistema Pessoal</div>
+    <div class="login-sub">Acesse sua conta</div>
+
+    <div class="login-erro hidden" id="erro" role="alert"></div>
+
+    <div class="fg">
+      <label class="label" for="email">Email</label>
+      <input type="email" class="form-control" id="email"
+             placeholder="seu@email.com" autocomplete="email"
+             onkeydown="if(event.key==='Enter')document.getElementById('senha').focus()">
+    </div>
+
+    <div class="fg">
+      <label class="label" for="senha">Senha</label>
+      <input type="password" class="form-control" id="senha"
+             placeholder="••••••••" autocomplete="current-password"
+             onkeydown="if(event.key==='Enter')entrar()">
+    </div>
+
+    <button class="btn-entrar" id="btn-entrar" onclick="entrar()">
+      Entrar
+    </button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/supabase.js"></script>
+  <script>
+    'use strict';
+
+    // Se já tiver sessão ativa, vai direto para o dashboard
+    (async () => {
+      const session = await window.getSession();
+      if (session) window.location.replace('/index.html');
+    })();
+
+    async function entrar() {
+      const email = document.getElementById('email').value.trim();
+      const senha = document.getElementById('senha').value;
+      const btn   = document.getElementById('btn-entrar');
+      const erro  = document.getElementById('erro');
+
+      // Validação local
+      if (!email || !senha) {
+        mostrarErro('Preencha email e senha.');
+        return;
+      }
+
+      // Estado: carregando
+      btn.disabled    = true;
+      btn.innerHTML   = '<span class="login-spinner"></span>Entrando...';
+      erro.classList.add('hidden');
+
+      const { error } = await window.sb.auth.signInWithPassword({
+        email,
+        password: senha
+      });
+
+      if (error) {
+        mostrarErro(traduzirErro(error.message));
+        btn.disabled  = false;
+        btn.innerHTML = 'Entrar';
+        // Focar no campo de senha para nova tentativa
+        document.getElementById('senha').focus();
+        document.getElementById('senha').select();
+        return;
+      }
+
+      // Login bem-sucedido
+      window.location.replace('/index.html');
+    }
+
+    function mostrarErro(msg) {
+      const el = document.getElementById('erro');
+      el.textContent = msg;
+      el.classList.remove('hidden');
+    }
+
+    function traduzirErro(msg) {
+      if (msg.includes('Invalid login credentials'))
+        return 'Email ou senha incorretos.';
+      if (msg.includes('Email not confirmed'))
+        return 'Confirme seu email antes de entrar.';
+      if (msg.includes('Too many requests'))
+        return 'Muitas tentativas. Aguarde antes de tentar novamente.';
+      if (msg.includes('User not found'))
+        return 'Nenhuma conta encontrada com este email.';
+      return `Erro ao entrar: ${msg}`;
+    }
+  </script>
+</body>
+</html>
