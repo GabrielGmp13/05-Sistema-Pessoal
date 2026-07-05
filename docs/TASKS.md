@@ -2,93 +2,64 @@
 
 ## Status geral
 
-**Fase atual:** M (Migração para Supabase)
-**Bloqueio:** nenhum. Pode-se começar a Fase M0 imediatamente.
-**Próxima ação:** criar projeto no Supabase e executar o schema SQL.
+**Fase atual:** M1 (Auth + Core JS) — todos os arquivos gerados, pendente testes
+**Bloqueio:** nenhum.
+**Próxima ação:** testar `treino-plano.html` e `treino-academia.html` com dados reais. Após confirmação: executar limpeza (remover arquivos LAN) e fazer deploy no Vercel.
 
 ---
 
-## Fase M0 — Infraestrutura (sem código ainda)
+## Fase M0 — Infraestrutura ✅ Supabase completo · 🔄 Vercel deferido
 
 ### Supabase
-- [ ] Criar conta em supabase.com
-- [ ] Criar projeto (nome: `sistema-pessoal`, região: South America — São Paulo)
-- [ ] Anotar `Project URL` e `anon public key` (Settings → API)
-- [ ] Executar `supabase/migrations/001_schema_inicial.sql` no SQL Editor do Supabase
-- [ ] Criar Storage bucket `shape-photos` (público)
-- [ ] Criar Storage bucket `documentos` (privado)
-- [ ] Criar primeiro usuário via Authentication → Users → Invite user
+- [x] Criar conta em supabase.com
+- [x] Criar projeto
+- [x] Anotar `Project URL` e `anon public key`
+- [x] Executar `supabase/migrations/001_schema_inicial.sql` no SQL Editor — **executado e verificado pelo usuário**
+- [x] Buckets criados via SQL: `shape`, `documentos`, `capas` — **todos privados** (revisão de escopo, DEC-010 — substitui o plano original de `shape-photos` público)
+- [x] Criar primeiro usuário (criado direto via email+senha; login testado e funcionando)
 
-### Vercel
+### GitHub
+- [x] Repositório criado como privado
+- [x] Projeto enviado (push feito)
+
+### Vercel — deferido intencionalmente
 - [ ] Criar conta em vercel.com
-- [ ] Conectar repositório GitHub (criar repo se não existir)
+- [ ] Conectar repositório GitHub
 - [ ] Configurar root directory: `frontend/`
 - [ ] Fazer deploy
 
-### Arquivo de schema SQL a criar
-Localização: `supabase/migrations/001_schema_inicial.sql`
-
-Deve incluir:
-- Todas as tabelas com `user_id`, `updated_at TIMESTAMPTZ`, `deleted BOOLEAN`
-- `ALTER TABLE ... ENABLE ROW LEVEL SECURITY` em todas
-- `CREATE POLICY "user_own_data"` em todas
-- Índices: `CREATE INDEX ON series_executadas(exercicio_uuid)` e `CREATE INDEX ON agenda(data)`
+> Decisão do usuário: só fazer o deploy no Vercel depois que o núcleo da migração (M1) estiver validado localmente via Live Server. Não é um item esquecido — é sequenciamento deliberado.
 
 ---
 
-## Fase M1 — Auth + Core JS (primeiro código)
+## Fase M1 — Auth + Core JS 🔄 Em andamento
 
-### Novos arquivos a criar
+### Arquivos criados
 
-**`frontend/assets/supabase.js`**
-- Inicializar `supabase.createClient(URL, KEY)`
-- Exportar como `window.sb`
-- Helper `window.getUserId()` → retorna `session.user.id`
-- Helper `window.now()` → retorna `new Date().toISOString()`
+- [x] **`frontend/assets/supabase.js`** — cliente Supabase + helpers (`getSession`, `getUserId`, `now`, `getSignedUrl`, `uploadFile`, `deleteFile`, `softDelete`, `sbErr`)
+- [x] **`frontend/assets/auth.js`** — `window.authReady` (promise), redirect automático para `login.html`, expõe `window.currentUser`
+- [x] **`frontend/assets/sm2.js`** — `calcularSM2()` (função pura) + `avaliarCard()` (integrado ao Supabase)
+- [x] **`frontend/login.html`** — testado com conta real criada no Supabase. Login bem-sucedido.
+- [x] **`frontend/index.html`** — dashboard com 4 cards (treinos na semana, revisões pendentes, peso atual, streak) + gráfico semanal de séries + botão de logout. **Gerado — pendente teste/confirmação do usuário.**
 
-**`frontend/assets/auth.js`**
-- Verificar `window.sb.auth.getSession()` ao carregar
-- Se sem sessão: `window.location.href = '/login.html'`
-- Exportar `window.currentUser` com dados da sessão
+### Pendente
 
-**`frontend/assets/sm2.js`**
-- Função `calcularSM2(ef, repeticoes, intervalo, qualidade)` → retorna novos valores
-- Exportar como `window.calcularSM2`
+- [ ] **Testar `index.html`** end-to-end: login → redirect → dashboard carrega dados reais do Supabase
+- [x] **`frontend/treino-plano.html`** — Supabase JS. CRUD de divisões e exercícios com reordenação por `ordem`. ✅ Gerado — aguardando teste/confirmação.
+- [x] **`frontend/treino-academia.html`** — Supabase JS. Sessão salva incrementalmente, timer de descanso (90s), detecção de PR, sem Chart.js. ✅ Gerado — aguardando teste/confirmação.
+  - ⚠️ Verificar: `window.softDelete` em `removerSerie` usa desestruturação `{error}` — checar se o helper retorna esse formato (ver `AI_CONTEXT.md` → Notas Operacionais)
+  - Offline: sem fila de escrita por enquanto (Fase M2 com Service Worker)
 
-**`frontend/login.html`**
-- Campo email + campo senha
-- Botão entrar (chama `window.sb.auth.signInWithPassword`)
-- Feedback de erro
-- Sem nav, sem sub-nav (é a tela pública)
-
-### Arquivos a adaptar
-
-**`frontend/index.html`**
-- Substituir chamadas `window.db.list(...)` por `window.sb.from(...).select(...)`
-- Adicionar `<script src="assets/supabase.js">` e `<script src="assets/auth.js">`
-- Remover `<script src="assets/db.js">`, `api.js`, `sync.js`
-- Botão "Sincronizar" removido da nav (Realtime substitui)
-
-**`frontend/treino-plano.html`**
-- Mesma adaptação de chamadas de dados
-- CRUD: insert, update (soft delete) via Supabase JS
-- Reordenação: update `{ ordem }` via Supabase JS
-
-**`frontend/treino-academia.html`**
-- Mesma adaptação
-- Sessão salva incrementalmente via Supabase (network-first)
-- Offline: escrita enfileirada no IndexedDB (SW processa depois)
-
-### Arquivos a eliminar
-- `frontend/assets/db.js` → deletar
-- `frontend/assets/api.js` → deletar
-- `frontend/assets/sync.js` → deletar
-- `backend/` → deletar pasta inteira
-- `iniciar.bat` → deletar
+### Limpeza — fazer só depois dos dois itens acima confirmados
+- [ ] Deletar `frontend/assets/db.js`
+- [ ] Deletar `frontend/assets/api.js`
+- [ ] Deletar `frontend/assets/sync.js`
+- [ ] Deletar pasta `backend/` inteira
+- [ ] Deletar `iniciar.bat`
 
 ---
 
-## Fase M2 — Service Worker + Storage
+## Fase M2 — Service Worker + Storage 🔄 Pendente
 
 **`frontend/sw.js`**
 - Cache First: CSS, fontes, ícones, Supabase JS, Chart.js
@@ -97,17 +68,16 @@ Deve incluir:
 - Background sync ao reconectar
 
 **`frontend/manifest.json`**
-- Adicionar `"service_worker": { "src": "/sw.js" }`
-- Atualizar `"start_url"` para URL do Vercel
+- Adicionar registro do Service Worker
+- Atualizar `start_url` quando o Vercel estiver no ar
 
 **Upload de arquivos**
-- `treino-shape.html` → upload via `window.sb.storage.from('shape-photos').upload(...)`
-- Salvar path retornado em `shape.foto_path`
-- Exibir via `getPublicUrl(path)`
+- Bucket `shape` já existe — falta a UI de upload em `treino-shape.html`
+- Fluxo: `window.uploadFile('shape', path, file)` → salvar `path` em `shape.foto_path` → exibir via `window.getSignedUrl('shape', path)`
 
 ---
 
-## Fase M3 — Realtime
+## Fase M3 — Realtime 🔄 Pendente
 
 **Em `treino-plano.html`**
 ```javascript
@@ -117,17 +87,16 @@ window.sb.channel('treinos').on('postgres_changes', {
 ```
 
 **Em `treino-academia.html`**
-- Não é prioridade para esta página (uso offline, single-device)
-- Adicionar apenas na tela de seleção de treino
+- Não é prioridade (uso offline, single-device durante o treino)
 
 ---
 
 ## Fase 2 — Continua após Fase M
 
-| # | Arquivo | Dependências | Status |
+| # | Arquivo | Dependências | Status da dependência |
 |---|---|---|---|
-| 1 | `treino.html` | Fase M completa + schema `agenda` | ⏳ |
-| 2 | `treino-shape.html` | Fase M2 (Storage) | ⏳ |
+| 1 | `treino.html` | M1 completo | Tabela `agenda` já existe (não é mais bloqueio) |
+| 2 | `treino-shape.html` | M2 (UI de upload) | Bucket `shape` já existe (não é mais bloqueio); falta só a página |
 
 ---
 
@@ -143,25 +112,27 @@ window.sb.channel('treinos').on('postgres_changes', {
 
 ---
 
-## Bugs conhecidos (da fase LAN — verificar se persistem)
+## Bugs conhecidos
 
-| Bug | Severidade | Ação |
+| Bug | Severidade | Status |
 |---|---|---|
-| `window.db.update` comportamento incerto | 🔴 Irrelevante após migração | `db.js` será eliminado |
-| `treino-academia.html` importa Chart.js CDN sem usar | 🟡 Fix ao adaptar para Supabase | Remover a tag na adaptação |
-| `treino-academia.html` não testado no celular | 🔴 Alta | Testar após Fase M2 (com SW) |
+| Live Server serve da raiz em vez de `frontend/` (causava "Cannot GET /index.html") | 🔴 Alta | ✅ Resolvido — `liveServer.settings.root` = `/frontend` |
+| `treino-academia.html` importa Chart.js CDN sem usar | 🟡 Média | 🔄 Corrigir durante adaptação para Supabase |
+| `treino-academia.html` não testado em celular real | 🔴 Alta | 🔄 Testar depois da adaptação + Fase M2 |
+| `window.db.update` tinha comportamento de merge não confirmado | — | Irrelevante — `db.js` será removido |
 
 ---
 
 ## Checklist de conclusão da Fase M
 
 ```
-[ ] URL pública acessível com HTTPS
-[ ] Login funciona
-[ ] index.html carrega dados do Supabase
-[ ] treino-plano.html: criar divisão e exercício funcionam
-[ ] treino-academia.html: funciona offline (Service Worker ativo)
-[ ] Mudança no PC aparece no celular automaticamente (Realtime)
-[ ] Upload de foto funciona no treino-shape.html
-[ ] sm2.js: calcularSM2 retorna valores corretos para qualidade 0, 1, 2, 3
+[ ] URL pública acessível com HTTPS (Vercel)
+[x] Login funciona
+[x] index.html: testado e confirmado pelo usuário
+[ ] treino-plano.html: testado e confirmado pelo usuário
+[ ] treino-academia.html (Supabase): testado e confirmado pelo usuário
+[ ] treino-academia.html (offline): funciona com Service Worker ativo — Fase M2
+[ ] Mudança no PC aparece no celular automaticamente (Realtime) — Fase M3
+[ ] Upload de foto funciona no treino-shape.html — Fase M2
+[x] sm2.js: calcularSM2 implementado e integrado via avaliarCard
 ```

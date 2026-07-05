@@ -83,10 +83,12 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
-<script src="assets/db.js"></script>
-<script src="assets/api.js"></script>
-<script src="assets/sync.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/supabase.js"></script>
+<script src="assets/auth.js"></script>
 <script>
+'use strict';
+
 const DIAS_SEMANA = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
 function hojeISO() {
@@ -104,52 +106,38 @@ function ultimos7Dias() {
 }
 
 function diaDaSemanaLabel(diaISO) {
-  // T12:00:00 evita o bug de fuso horário: parsear "YYYY-MM-DD" como meia-noite
-  // UTC desloca para o dia anterior em fusos negativos (Brasil é UTC-3).
   return DIAS_SEMANA[new Date(diaISO + 'T12:00:00').getDay()];
 }
 
-async function carregarDashboard() {
-  const [treinos, livros, revisoes, fases, olimpiadas, sessoes] = await Promise.all([
-    window.db.list('treinos'),
-    window.db.list('biblioteca', { status: 'Consumindo' }),
-    window.db.list('revisao_espacada'),
-    window.db.list('olimpiada_fases'),
-    window.db.list('olimpiadas'),
-    window.db.list('sessoes_treino')
-  ]);
-
+async function carregarDashboard(userId) {
   const hoje = hojeISO();
 
-  // Próximo treino — o mais recentemente atualizado (list() já ordena desc)
+  // Busca dados em paralelo via Supabase
+  const [treinosRes, revisoesRes, sessoesRes] = await Promise.all([
+    window.sb.from('treinos').select('*').eq('user_id', userId).eq('deleted', false).order('updated_at', { ascending: false }),
+    window.sb.from('revisao_espacada').select('*').eq('user_id', userId).eq('deleted', false),
+    window.sb.from('sessoes_treino').select('*').eq('user_id', userId).eq('deleted', false)
+  ]);
+
+  const treinos  = treinosRes.data ?? [];
+  const revisoes = revisoesRes.data ?? [];
+  const sessoes  = sessoesRes.data ?? [];
+
+  // Próximo treino
   document.getElementById('cardProximoTreino').textContent =
     treinos.length > 0 ? treinos[0].nome : '—';
 
-  // Livros em andamento
-  document.getElementById('cardLivros').textContent = livros.length;
+  // Livros em andamento — placeholder (módulo biblioteca ainda não implementado)
+  document.getElementById('cardLivros').textContent = '—';
 
   // Revisões pendentes hoje (inclui atrasadas)
   const pendentes = revisoes.filter(r => r.proxima_revisao <= hoje);
   document.getElementById('cardRevisoes').textContent = pendentes.length;
 
-  // Próxima fase de olimpíada com data futura — join feito em JS,
-  // já que IndexedDB não tem join nativo
-  const futuras = fases
-    .filter(f => f.data && f.data >= hoje)
-    .sort((a, b) => a.data.localeCompare(b.data));
+  // Próxima prova — placeholder
+  document.getElementById('cardProximaProva').textContent = '—';
 
-  const elProva = document.getElementById('cardProximaProva');
-  if (futuras.length > 0) {
-    const fase = futuras[0];
-    const olimpiada = olimpiadas.find(o => o.uuid === fase.olimpiada_uuid);
-    const dias = Math.round((new Date(fase.data) - new Date(hoje)) / 86400000);
-    const nome = olimpiada ? olimpiada.nome : fase.nome;
-    elProva.textContent = `${nome} — ${dias}d`;
-  } else {
-    elProva.textContent = '—';
-  }
-
-  // Atividade semanal — últimos 7 dias corridos, zero-fill nos dias sem sessão
+  // Atividade semanal
   const dias7 = ultimos7Dias();
   const contagem = Object.fromEntries(dias7.map(d => [d, 0]));
   sessoes.forEach(s => {
@@ -192,7 +180,11 @@ function renderizarGraficoSemanal(labels, valores) {
   });
 }
 
-document.addEventListener('DOMContentLoaded', carregarDashboard);
+document.addEventListener('DOMContentLoaded', async () => {
+  const session = await window.authReady;
+  if (!session) return;
+  await carregarDashboard(session.user.id);
+});
 </script>
 </body>
 </html>

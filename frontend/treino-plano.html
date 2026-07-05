@@ -327,13 +327,13 @@
     <p class="modal-title" id="titulo-modal-treino">Nova Divisão</p>
     <div class="fg">
       <label class="label">Nome<span class="req">*</span></label>
-      <input type="text" class="form-control" id="treino-nome"
+      <input type="text" class="form-input" id="treino-nome"
              placeholder="ex: Treino A — Peito + Tríceps"
              onkeydown="if(event.key==='Enter')salvarTreino()">
     </div>
     <div class="fg">
       <label class="label">Descrição<span class="opt">(opcional)</span></label>
-      <textarea class="form-control" id="treino-desc" rows="2"
+      <textarea class="form-textarea" id="treino-desc" rows="2"
                 placeholder="Notas rápidas sobre esta divisão"></textarea>
     </div>
     <div class="modal-footer">
@@ -349,31 +349,31 @@
     <p class="modal-title" id="titulo-modal-exercicio">Novo Exercício</p>
     <div class="fg">
       <label class="label">Nome<span class="req">*</span></label>
-      <input type="text" class="form-control" id="ex-nome"
+      <input type="text" class="form-input" id="ex-nome"
              placeholder="ex: Supino Reto com Barra"
              onkeydown="if(event.key==='Enter')document.getElementById('ex-series').focus()">
     </div>
     <div class="form-row-2 fg">
       <div>
         <label class="label">Séries alvo</label>
-        <input type="number" class="form-control" id="ex-series"
+        <input type="number" class="form-input" id="ex-series"
                min="1" max="30" placeholder="4" inputmode="numeric">
       </div>
       <div>
         <label class="label">Reps alvo</label>
-        <input type="number" class="form-control" id="ex-reps"
+        <input type="number" class="form-input" id="ex-reps"
                min="1" max="200" placeholder="10" inputmode="numeric">
       </div>
     </div>
     <div class="form-row-2 fg">
       <div>
         <label class="label">Carga alvo (kg)</label>
-        <input type="number" class="form-control" id="ex-carga"
+        <input type="number" class="form-input" id="ex-carga"
                min="0" step="0.5" placeholder="60" inputmode="decimal">
       </div>
       <div>
         <label class="label">Descanso (seg)</label>
-        <input type="number" class="form-control" id="ex-descanso"
+        <input type="number" class="form-input" id="ex-descanso"
                min="0" max="600" placeholder="90" inputmode="numeric">
       </div>
     </div>
@@ -398,22 +398,25 @@
 </div>
 
 <!-- ── Scripts ────────────────────────────────────────────────────── -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
-<script src="assets/db.js"></script>
-<script src="assets/api.js"></script>
-<script src="assets/sync.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/supabase.js"></script>
+<script src="assets/auth.js"></script>
 <script>
 'use strict';
 
 // ── Estado ───────────────────────────────────────────────────────────
-let treinoList    = [];    // cache de treinos não-deletados
-let treinoAtivo   = null;  // { uuid, nome, descricao } selecionado
-let exercicioList = [];    // cache de exercícios do treinoAtivo, ordenado
-let editTreinoId  = null;  // uuid em edição ou null (criação)
-let editExId      = null;  // uuid em edição ou null (criação)
+let userId      = null;
+let treinoList    = [];
+let treinoAtivo   = null;
+let exercicioList = [];
+let editTreinoId  = null;
+let editExId      = null;
 
 // ── Boot ─────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
+  const session = await window.authReady;
+  if (!session) return;
+  userId = session.user.id;
   await renderTreinos();
   document.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
@@ -425,9 +428,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // ── Treinos — render ─────────────────────────────────────────────────
 async function renderTreinos() {
-  const el   = document.getElementById('lista-treinos');
-  const todos = await window.db.list('treinos');
-  treinoList  = todos.filter(t => !t.deleted);
+  const el = document.getElementById('lista-treinos');
+  const { data, error } = await window.sb
+    .from('treinos')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('deleted', false)
+    .order('updated_at', { ascending: true });
+
+  if (error) { console.error('[treino-plano] carregar treinos:', error.message); return; }
+  treinoList = data ?? [];
 
   if (treinoList.length === 0) {
     el.innerHTML = `<div class="empty">Nenhuma divisão criada.<br>Clique em "+ Nova" para começar.</div>`;
@@ -456,8 +466,13 @@ async function renderTreinos() {
 
 // ── Treinos — selecionar ─────────────────────────────────────────────
 async function selecionarTreino(uuid) {
-  const todos = await window.db.list('treinos');
-  treinoAtivo = todos.find(t => t.uuid === uuid) || null;
+  const { data } = await window.sb
+    .from('treinos')
+    .select('*')
+    .eq('uuid', uuid)
+    .single();
+
+  treinoAtivo = data || null;
   await renderTreinos();
   await renderExercicios();
 }
@@ -491,19 +506,26 @@ async function salvarTreino() {
   if (!nome) { document.getElementById('treino-nome').focus(); return; }
 
   const descricao = document.getElementById('treino-desc').value.trim();
-  const now       = new Date().toISOString();
+  const now = window.now();
 
   if (editTreinoId) {
-    await window.db.update('treinos', editTreinoId, { nome, descricao, updated_at: now });
+    await window.sb
+      .from('treinos')
+      .update({ nome, descricao, updated_at: now })
+      .eq('uuid', editTreinoId);
     if (treinoAtivo && treinoAtivo.uuid === editTreinoId) {
-      treinoAtivo.nome     = nome;
+      treinoAtivo.nome = nome;
       treinoAtivo.descricao = descricao;
     }
   } else {
-    await window.db.create('treinos', {
-      uuid: crypto.randomUUID(), nome, descricao,
-      updated_at: now, deleted: 0
-    });
+    await window.sb
+      .from('treinos')
+      .insert({
+        uuid: crypto.randomUUID(),
+        user_id: userId,
+        nome, descricao,
+        updated_at: now, deleted: false
+      });
   }
 
   fecharModalTreino();
@@ -516,11 +538,15 @@ async function renderExercicios() {
   const painel = document.getElementById('painel-exercicios');
   if (!treinoAtivo) return;
 
-  const todos    = await window.db.list('exercicios');
-  exercicioList  = todos
-    .filter(e => e.treino_uuid === treinoAtivo.uuid && !e.deleted)
-    .sort((a, b) => (a.ordem ?? 9999) - (b.ordem ?? 9999));
+  const { data, error } = await window.sb
+    .from('exercicios')
+    .select('*')
+    .eq('treino_uuid', treinoAtivo.uuid)
+    .eq('deleted', false)
+    .order('ordem', { ascending: true });
 
+  if (error) { console.error('[treino-plano] carregar exercícios:', error.message); return; }
+  exercicioList = data ?? [];
   const n = exercicioList.length;
 
   painel.innerHTML = `
@@ -575,13 +601,12 @@ async function moverEx(uuid, dir) {
   const tgt = idx + dir;
   if (tgt < 0 || tgt >= exercicioList.length) return;
 
-  const now = new Date().toISOString();
-  // Normaliza ordens se algum registro não tiver o campo definido
+  const now = window.now();
   const orA = exercicioList[idx].ordem ?? idx;
   const orB = exercicioList[tgt].ordem ?? tgt;
 
-  await window.db.update('exercicios', exercicioList[idx].uuid, { ordem: orB, updated_at: now });
-  await window.db.update('exercicios', exercicioList[tgt].uuid, { ordem: orA, updated_at: now });
+  await window.sb.from('exercicios').update({ ordem: orB, updated_at: now }).eq('uuid', exercicioList[idx].uuid);
+  await window.sb.from('exercicios').update({ ordem: orA, updated_at: now }).eq('uuid', exercicioList[tgt].uuid);
   await renderExercicios();
 }
 
@@ -620,24 +645,28 @@ async function salvarExercicio() {
   const reps_alvo         = intOrNull('ex-reps');
   const carga_alvo        = floatOrNull('ex-carga');
   const descanso_segundos = intOrNull('ex-descanso');
-  const now               = new Date().toISOString();
+  const now               = window.now();
 
   if (editExId) {
-    await window.db.update('exercicios', editExId, {
-      nome, series_alvo, reps_alvo, carga_alvo, descanso_segundos, updated_at: now
-    });
+    await window.sb
+      .from('exercicios')
+      .update({ nome, series_alvo, reps_alvo, carga_alvo, descanso_segundos, updated_at: now })
+      .eq('uuid', editExId);
   } else {
     const maxOrdem = exercicioList.length
       ? Math.max(...exercicioList.map(e => e.ordem ?? 0))
       : -1;
-    await window.db.create('exercicios', {
-      uuid: crypto.randomUUID(),
-      treino_uuid: treinoAtivo.uuid,
-      nome, series_alvo, reps_alvo, carga_alvo, descanso_segundos,
-      ordem: maxOrdem + 1,
-      updated_at: now,
-      deleted: 0
-    });
+    await window.sb
+      .from('exercicios')
+      .insert({
+        uuid: crypto.randomUUID(),
+        user_id: userId,
+        treino_uuid: treinoAtivo.uuid,
+        nome, series_alvo, reps_alvo, carga_alvo, descanso_segundos,
+        ordem: maxOrdem + 1,
+        updated_at: now,
+        deleted: false
+      });
   }
 
   fecharModalExercicio();
@@ -657,13 +686,23 @@ function pedirExcluirTreino(uuid) {
 }
 
 async function excluirTreino(uuid) {
-  const now   = new Date().toISOString();
-  await window.db.update('treinos', uuid, { deleted: 1, updated_at: now });
+  const now = window.now();
+  await window.sb
+    .from('treinos')
+    .update({ deleted: true, updated_at: now })
+    .eq('uuid', uuid);
 
-  // Cascata: soft-delete todos os exercícios desta divisão
-  const todos = await window.db.list('exercicios');
-  for (const e of todos.filter(x => x.treino_uuid === uuid && !x.deleted)) {
-    await window.db.update('exercicios', e.uuid, { deleted: 1, updated_at: now });
+  const { data } = await window.sb
+    .from('exercicios')
+    .select('uuid')
+    .eq('treino_uuid', uuid)
+    .eq('deleted', false);
+
+  for (const e of data ?? []) {
+    await window.sb
+      .from('exercicios')
+      .update({ deleted: true, updated_at: now })
+      .eq('uuid', e.uuid);
   }
 
   if (treinoAtivo && treinoAtivo.uuid === uuid) {
@@ -690,9 +729,10 @@ function pedirExcluirEx(uuid) {
 }
 
 async function excluirEx(uuid) {
-  await window.db.update('exercicios', uuid, {
-    deleted: 1, updated_at: new Date().toISOString()
-  });
+  await window.sb
+    .from('exercicios')
+    .update({ deleted: true, updated_at: window.now() })
+    .eq('uuid', uuid);
   await renderExercicios();
 }
 
@@ -704,8 +744,8 @@ function fecharConfirm() {
 function esc(s) {
   if (s == null) return '';
   return String(s)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+    .replace(/&/g,'&').replace(/</g,'<')
+    .replace(/>/g,'>').replace(/"/g,'"')
     .replace(/'/g,'&#039;');
 }
 

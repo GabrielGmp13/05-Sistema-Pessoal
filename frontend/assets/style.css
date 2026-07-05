@@ -125,6 +125,20 @@ ul, ol { list-style: none; }
 button, input, select, textarea { font: inherit; color: inherit; }
 h1,h2,h3,h4 { font-family: var(--font-title); font-weight: 700; }
 
+/* ── Container (alias para páginas sem sidebar) ─────────────── */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--s4);
+}
+
+@media (min-width: 768px) {
+  .container {
+    margin-left: var(--nav-w);
+    padding: var(--s6);
+  }
+}
+
 /* ── Layout ────────────────────────────────────────────────────────────────── */
 .app-layout {
   display: flex;
@@ -397,7 +411,8 @@ h1,h2,h3,h4 { font-family: var(--font-title); font-weight: 700; }
 
 .form-input,
 .form-select,
-.form-textarea {
+.form-textarea,
+.form-control {
   background: var(--surface-2);
   border: 1px solid var(--border-2);
   border-radius: var(--r-md);
@@ -415,13 +430,15 @@ h1,h2,h3,h4 { font-family: var(--font-title); font-weight: 700; }
 
 .form-input:focus,
 .form-select:focus,
-.form-textarea:focus {
+.form-textarea:focus,
+.form-control:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-dim);
 }
 
 .form-input::placeholder,
-.form-textarea::placeholder { color: var(--text-3); }
+.form-textarea::placeholder,
+.form-control::placeholder { color: var(--text-3); }
 
 .form-select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");

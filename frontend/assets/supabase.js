@@ -77,13 +77,14 @@ window.deleteFile = async (bucket, path) => {
 // ── Database helpers ─────────────────────────────────────────
 
 // Soft delete genérico (usa updated_at para o sync)
+// Retorna { error } para compatibilidade com desestruturação: const { error } = await window.softDelete(...)
 window.softDelete = async (table, uuid) => {
   const { error } = await window.sb
     .from(table)
     .update({ deleted: true, updated_at: window.now() })
     .eq('uuid', uuid);
   if (error) console.error(`[db] softDelete ${table}/${uuid}:`, error.message);
-  return !error;
+  return { error };
 };
 
 // ── Error handler padronizado ────────────────────────────────
