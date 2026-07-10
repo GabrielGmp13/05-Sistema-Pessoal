@@ -45,10 +45,8 @@ Sistema de gestão pessoal online, multi-dispositivo, para uso pessoal de longo 
 - Lógica de negócio (timer, PR detection, modais) — ~80%
 - Schema das tabelas — 100% (já migrado para PostgreSQL e executado)
 
-### O que ainda existe no disco mas será eliminado
-`app.py`, `requirements.txt`, `iniciar.bat`, `db.js`, `api.js`, `sync.js` continuam no repositório. **Remoção agora desbloqueada** — pode ser feita após confirmar que `treino-plano.html` e `treino-academia.html` estão funcionando via Supabase. Não apagar antes da confirmação dos testes.
-
----
+### Arquivos LAN removidos
+`app.py`, `database.db`, `requirements.txt`, `iniciar.bat`, `db.js`, `api.js`, `sync.js` e a pasta `backend/` foram removidos do projeto.
 
 ## Fase 1 — Fundação ✅ COMPLETA (arquitetura LAN — aproveitada na migração)
 
@@ -62,16 +60,16 @@ Sistema de gestão pessoal online, multi-dispositivo, para uso pessoal de longo 
 
 ---
 
-## Fase 2 — Módulo de Treino 🔄 PARCIALMENTE COMPLETA
+## Fase 2 — Módulo de Treino ✅ COMPLETA
 
 **Objetivo:** sistema completo de gestão de treino físico.
 
 | Arquivo | Descrição | Status |
 |---|---|---|
-| `treino-plano.html` | CRUD divisões + exercícios | ✅ Gerado — aguardando teste/confirmação |
-| `treino-academia.html` | Modo Academia mobile | ✅ Gerado — aguardando teste/confirmação |
-| `treino.html` | Hub: calendário + radar chart | ⏳ Após Fase M1 (tabela `agenda` já existe no schema) |
-| `treino-shape.html` | Shape: fotos (Supabase Storage) + gráfico peso | ⏳ Após Fase M2 (bucket `shape` já existe; falta UI de upload) |
+| `treino-plano.html` | CRUD divisões + exercícios | ⚠️ Implementado — verificar nomes de coluna (ver DATABASE.md → Gotchas) |
+| `treino-academia.html` | Modo Academia mobile | ✅ Implementado e corrigido (auditoria M1) |
+| `treino.html` | Hub: calendário + radar chart | ✅ Implementado |
+| `treino-shape.html` | Shape: fotos (Supabase Storage) + gráfico peso | ✅ Implementado |
 
 ### Funcionalidades (inalteradas — só a camada de dados muda)
 - CRUD de divisões e exercícios
@@ -84,12 +82,14 @@ Sistema de gestão pessoal online, multi-dispositivo, para uso pessoal de longo 
 
 ---
 
-## Fase 3 — Módulo de Estudos ⏳ PLANEJADA
+## Fase 3 — Módulo de Estudos 🔄 EM ANDAMENTO
 
-**Arquivos:** `enem.html`, `olimpiadas.html`, `escola.html`
-**Migração futura:** `supabase/migrations/002_estudos.sql`
+**Arquivo:** `estudos.html` (página única com filtro por tipo — ver DEC-013)
+**Migração:** `supabase/migrations/002_estudos.sql` — ✅ criado · 🔄 execução no Supabase ainda não confirmada
 
-Sistema ENEM standalone existente (`C:\Gabriel Oliveira\04-Educacional\Enem\`, 13 páginas localStorage): decidir se integra ao sistema principal ou permanece separado.
+Sistema ENEM standalone anterior foi descontinuado; todo o conteúdo passa a viver no módulo de Estudos via Supabase (ver DEC-012).
+
+Schema completo (5 tabelas) documentado em `DATABASE.md`.
 
 ---
 
@@ -111,13 +111,11 @@ Funcionalidades: status de leitura/visualização (lendo, pausado, concluído, a
 
 ---
 
-## Fase 5 — Revisão Espaçada ⏳ PLANEJADA
+## Fase 5 — Revisão Espaçada ⚠️ IMPLEMENTADA — bug de schema pendente
 
-**Arquivo:** `revisao.html`
+**Arquivo:** `revisao.html` — implementado
 
-Backend pronto: tabela `revisao_espacada` já existe no schema; `sm2.js` já implementa `calcularSM2` e `avaliarCard`. Esta fase é apenas a interface — listar cards vencidos do dia e capturar a avaliação de qualidade (0–3).
-
----
+⚠️ A página foi gerada assumindo colunas (`frente`, `verso`, `intervalo`, `fator`) diferentes das reais (`pergunta`, `resposta`, `intervalo_dias`, `ef`), e uma assinatura de `calcularSM2()` incompatível com a de `sm2.js`. Ver `DATABASE.md` → Gotchas para o mapeamento completo. Correção pendente.
 
 ## Fase 6 — Integrações Externas ⏳ FUTURO
 

@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Treino — Sistema Pessoal</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <style>
+    /* ── Layout ──────────────────────────────────── */
+    .hub-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+    .hub-full { grid-column: 1 / -1; }
+
+    @media (max-width: 680px) {
+      .hub-wrap { grid-template-columns: 1fr; }
+      .hub-full { grid-column: 1; }
+    }
+
+    /* ── Page header ─────────────────────────────── */
+    .page-header { margin-bottom: 1.25rem; }
+    .page-header h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.4rem;
+      margin: 0 0 .2rem;
+      color: var(--text);
+    }
+    .page-header p { margin: 0; font-size: .82rem; color: #555; }
+
+    /* ── Nav cards ───────────────────────────────── */
+    .hub-nav {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: .75rem;
+      margin-bottom: 1.25rem;
+    }
+    @media (max-width: 400px) {
+      .hub-nav { grid-template-columns: 1fr; }
+    }
+
+    .hub-nav-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: .3rem;
+      padding: .9rem .5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      text-decoration: none;
+      transition: border-color .15s;
+    }
+    .hub-nav-card:hover { border-color: var(--accent); }
+    .hub-nav-card:hover .hub-nav-icon { color: var(--accent); }
+
+    .hub-nav-icon {
+      font-size: 1.4rem;
+      line-height: 1;
+      color: #555;
+      transition: color .15s;
+    }
+    .hub-nav-label {
+      font-size: .78rem;
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+    }
+
+    /* ── Calendário ──────────────────────────────── */
+    .cal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: .9rem;
+    }
+    .cal-titulo {
+      font-family: 'Syne', sans-serif;
+      font-size: .95rem;
+      color: var(--text);
+      margin: 0;
+    }
+    .btn-mes {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      cursor: pointer;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .9rem;
+      transition: border-color .12s;
+    }
+    .btn-mes:hover { border-color: var(--accent); }
+
+    .cal-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+      margin-bottom: 4px;
+    }
+    .cal-wd {
+      text-align: center;
+      font-size: .65rem;
+      font-family: 'JetBrains Mono', monospace;
+      color: #444;
+      padding: .2rem 0;
+    }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 3px;
+    }
+
+    .cal-cell {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .78rem;
+      color: #444;
+      background: var(--bg);
+      border: 1px solid transparent;
+    }
+    .cal-vazio { background: transparent; border-color: transparent; }
+    .cal-hoje  { border-color: #444; color: var(--text); }
+
+    .cal-verde   { background: rgba(34,197,94,.18);  color: #4ade80; border-color: rgba(34,197,94,.3); }
+    .cal-azul    { background: rgba(99,179,237,.18); color: #63b3ed; border-color: rgba(99,179,237,.3); }
+    .cal-vermelho { background: rgba(239,68,68,.12); color: #f87171; border-color: rgba(239,68,68,.2); }
+    .cal-cinza   { background: rgba(100,100,100,.1); color: #888;    border-color: rgba(100,100,100,.2); }
+
+    /* prioridade: hoje + cor */
+    .cal-hoje.cal-verde    { border-color: #4ade80; }
+    .cal-hoje.cal-azul     { border-color: #63b3ed; }
+    .cal-hoje.cal-vermelho { border-color: #f87171; }
+
+    .cal-legenda {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .4rem .9rem;
+      margin-top: .75rem;
+    }
+    .leg-item {
+      display: flex;
+      align-items: center;
+      gap: .3rem;
+      font-size: .68rem;
+      color: #666;
+    }
+    .leg-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .leg-dot-verde    { background: #4ade80; }
+    .leg-dot-azul     { background: #63b3ed; }
+    .leg-dot-vermelho { background: #f87171; }
+    .leg-dot-cinza    { background: #666; }
+
+    /* ── Radar ───────────────────────────────────── */
+    .radar-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .radar-canvas-wrap {
+      width: 100%;
+      max-width: 240px;
+    }
+    .radar-metricas {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      margin-top: .75rem;
+      gap: .5rem;
+    }
+    .metrica-item {
+      flex: 1;
+      text-align: center;
+    }
+    .metrica-val {
+      display: block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.3rem;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .metrica-label {
+      display: block;
+      font-size: .65rem;
+      color: #555;
+      margin-top: .15rem;
+      letter-spacing: .03em;
+    }
+    .radar-nota {
+      font-size: .68rem;
+      color: #444;
+      text-align: center;
+      margin-top: .6rem;
+    }
+
+    /* ── Agenda ──────────────────────────────────── */
+    .sec-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: .85rem;
+    }
+    .sec-header h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: .95rem;
+      margin: 0;
+      color: var(--text);
+    }
+
+    .agenda-lista { display: flex; flex-direction: column; gap: .4rem; margin-bottom: .85rem; }
+
+    .agenda-item {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      padding: .5rem .65rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+    }
+    .agenda-data {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .75rem;
+      color: #888;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .agenda-nome {
+      flex: 1;
+      font-size: .85rem;
+      color: var(--text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .btn-del-agenda {
+      background: none;
+      border: none;
+      color: #3a3a3a;
+      cursor: pointer;
+      font-size: .75rem;
+      padding: .1rem .25rem;
+      border-radius: 3px;
+      transition: color .12s;
+      flex-shrink: 0;
+    }
+    .btn-del-agenda:hover { color: #ff6b6b; }
+
+    /* Form agendar */
+    .agenda-form {
+      display: flex;
+      gap: .5rem;
+      flex-wrap: wrap;
+    }
+    .agenda-form select,
+    .agenda-form input[type="date"] {
+      flex: 1;
+      min-width: 100px;
+    }
+    .btn-agendar {
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      border-radius: 7px;
+      padding: .5rem .9rem;
+      font-size: .82rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: filter .12s;
+    }
+    .btn-agendar:hover   { filter: brightness(1.1); }
+    .btn-agendar:disabled { opacity: .4; cursor: default; filter: none; }
+
+    /* ── Vazio / loading ─────────────────────────── */
+    .vazio {
+      text-align: center;
+      color: #444;
+      font-size: .82rem;
+      padding: 1.25rem;
+      line-height: 1.6;
+    }
+    .vazio a { color: var(--accent); }
+    #loading {
+      text-align: center;
+      padding: 3rem;
+      color: #555;
+      font-size: .9rem;
+    }
+
+    /* ── Toast ───────────────────────────────────── */
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(56px);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .6rem 1.2rem;
+      font-size: .82rem;
+      color: var(--text);
+      z-index: 200;
+      opacity: 0;
+      transition: transform .2s ease, opacity .2s ease;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .toast.ok   { border-color: var(--accent); }
+    .toast.erro { border-color: #ff6b6b; }
+  </style>
+</head>
+<body>
+
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">SP</a>
+    <div class="nav-links">
+      <a href="treino-plano.html">Plano</a>
+      <a href="treino-academia.html">Academia</a>
+      <a href="index.html">Dashboard</a>
+    </div>
+  </nav>
+
+  <main class="container">
+
+    <div class="page-header">
+      <h1>Treino</h1>
+      <p>Calendário, agenda e métricas do mês</p>
+    </div>
+
+    <div id="loading">Carregando…</div>
+
+    <div id="conteudo" style="display:none">
+
+      <!-- ── Atalhos ────────────────────────────── -->
+      <nav class="hub-nav" aria-label="Módulos de treino">
+        <a href="treino-plano.html" class="hub-nav-card">
+          <span class="hub-nav-icon">📋</span>
+          <span class="hub-nav-label">Plano</span>
+        </a>
+        <a href="treino-academia.html" class="hub-nav-card">
+          <span class="hub-nav-icon">🏋️</span>
+          <span class="hub-nav-label">Academia</span>
+        </a>
+        <a href="treino-shape.html" class="hub-nav-card">
+          <span class="hub-nav-icon">📸</span>
+          <span class="hub-nav-label">Shape</span>
+        </a>
+      </nav>
+
+      <div class="hub-wrap">
+
+        <!-- ── Calendário ─────────────────────── -->
+        <section class="card hub-full">
+          <div class="cal-header">
+            <button class="btn-mes" id="btn-prev" title="Mês anterior">‹</button>
+            <h2 class="cal-titulo" id="cal-titulo"></h2>
+            <button class="btn-mes" id="btn-next" title="Próximo mês">›</button>
+          </div>
+
+          <div class="cal-weekdays">
+            <div class="cal-wd">D</div><div class="cal-wd">S</div>
+            <div class="cal-wd">T</div><div class="cal-wd">Q</div>
+            <div class="cal-wd">Q</div><div class="cal-wd">S</div>
+            <div class="cal-wd">S</div>
+          </div>
+
+          <div id="cal-grid" class="cal-grid"></div>
+
+          <div class="cal-legenda">
+            <span class="leg-item"><span class="leg-dot leg-dot-verde"></span>Treino feito</span>
+            <span class="leg-item"><span class="leg-dot leg-dot-azul"></span>PR batido</span>
+            <span class="leg-item"><span class="leg-dot leg-dot-vermelho"></span>Planejado e não feito</span>
+            <span class="leg-item"><span class="leg-dot leg-dot-cinza"></span>Agendado</span>
+          </div>
+        </section>
+
+        <!-- ── Agenda ─────────────────────────── -->
+        <section class="card">
+          <div class="sec-header">
+            <h2>Agenda do mês</h2>
+          </div>
+          <div id="agenda-lista" class="agenda-lista"></div>
+          <div class="agenda-form">
+            <select id="sel-treino-agenda"></select>
+            <input type="date" id="input-data-agenda">
+            <button id="btn-agendar" class="btn-agendar">+ Agendar</button>
+          </div>
+        </section>
+
+        <!-- ── Radar ──────────────────────────── -->
+        <section class="card">
+          <div class="sec-header">
+            <h2>Métricas do mês</h2>
+          </div>
+          <div class="radar-wrap">
+            <div class="radar-canvas-wrap">
+              <canvas id="radar-chart"></canvas>
+            </div>
+            <div class="radar-metricas">
+              <div class="metrica-item">
+                <span class="metrica-val" id="val-disciplina">—</span>
+                <span class="metrica-label">Disciplina</span>
+              </div>
+              <div class="metrica-item">
+                <span class="metrica-val" id="val-forca">—</span>
+                <span class="metrica-label">Força</span>
+              </div>
+              <div class="metrica-item">
+                <span class="metrica-val" id="val-resistencia">—</span>
+                <span class="metrica-label">Resistência</span>
+              </div>
+            </div>
+            <p class="radar-nota">
+              Disciplina: sessões / meta (12×/mês) ·
+              Força: % sessões com PR ·
+              Resistência: séries / meta (60/mês)
+            </p>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
+  <script src="assets/supabase.js"></script>
+  <script src="assets/auth.js"></script>
+  <script>
+    'use strict';
+
+    // ── Estado ────────────────────────────────────
+    let userId       = null;
+    let treinos      = [];
+    let sessoes      = [];        // sessoes_treino do mês exibido
+    let seriesMes    = [];        // series_executadas das sessões do mês
+    let sessionsComPR = new Set();
+    let agenda       = [];        // agenda do mês exibido
+    let mesAtual, anoAtual;
+    let radarChart   = null;
+
+    // ── Bootstrap ─────────────────────────────────
+    document.addEventListener('DOMContentLoaded', async () => {
+      const session = await window.authReady;
+      if (!session) return;
+      await inicializar(session.user.id);
+    });
+
+    async function inicializar(uid) {
+      userId = uid;
+      const hoje = new Date();
+      mesAtual = hoje.getMonth();
+      anoAtual = hoje.getFullYear();
+
+      await carregarTreinos();
+      await carregarDadosMes(mesAtual, anoAtual);
+
+      document.getElementById('loading').style.display  = 'none';
+      document.getElementById('conteudo').style.display = '';
+
+      renderCalendario();
+      renderAgenda();
+      renderRadar();
+      bindEventos();
+    }
+
+    // ── Utilitários ───────────────────────────────
+    function esc(s) {
+      if (s == null) return '';
+      return String(s)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+        .replace(/'/g,'&#039;');
+    }
+
+    function toast(msg, tipo = 'ok') {
+      document.querySelectorAll('.toast').forEach(t => t.remove());
+      const el = document.createElement('div');
+      el.className   = `toast ${tipo}`;
+      el.textContent = msg;
+      document.body.appendChild(el);
+      requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
+      setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 250); }, 3000);
+    }
+
+    // Converte Date → 'YYYY-MM-DD'
+    function toDateStr(date) {
+      return [
+        date.getFullYear(),
+        String(date.getMonth() + 1).padStart(2, '0'),
+        String(date.getDate()).padStart(2, '0')
+      ].join('-');
+    }
+
+    function mesNome(mes, ano) {
+      const nomes = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
+                     'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+      return `${nomes[mes]} ${ano}`;
+    }
+
+    // ── Carregar treinos ──────────────────────────
+    async function carregarTreinos() {
+      const { data, error } = await window.sb
+        .from('treinos')
+        .select('uuid, nome')
+        .eq('user_id', userId)
+        .eq('deleted', false)
+        .order('updated_at', { ascending: true });
+
+      if (error) { console.error('treinos:', error.message); return; }
+      treinos = data ?? [];
+
+      const sel = document.getElementById('sel-treino-agenda');
+      if (treinos.length === 0) {
+        sel.innerHTML = '<option value="" disabled selected>Nenhuma divisão cadastrada</option>';
+      } else {
+        sel.innerHTML = treinos.map(t =>
+          `<option value="${esc(t.uuid)}">${esc(t.nome)}</option>`
+        ).join('');
+      }
+    }
+
+    // ── Carregar dados do mês ─────────────────────
+    async function carregarDadosMes(mes, ano) {
+      const inicioMes  = new Date(ano, mes, 1);
+      const fimMes     = new Date(ano, mes + 1, 1);
+      const ultimoDia  = new Date(ano, mes + 1, 0);
+
+      // Sessões do mês
+      const { data: sessoesData, error: errSes } = await window.sb
+        .from('sessoes_treino')
+        .select('uuid, treino_uuid, data_inicio')
+        .eq('user_id', userId)
+        .eq('deleted', false)
+        .gte('data_inicio', inicioMes.toISOString())
+        .lt('data_inicio',  fimMes.toISOString());
+
+      if (errSes) { console.error('sessoes:', errSes.message); sessoes = []; }
+      else sessoes = sessoesData ?? [];
+
+      const sessaoIds = sessoes.map(s => s.uuid);
+      seriesMes    = [];
+      sessionsComPR = new Set();
+
+      if (sessaoIds.length > 0) {
+        // Séries das sessões deste mês
+        const { data: seriesData, error: errSer } = await window.sb
+          .from('series_executadas')
+          .select('uuid, sessao_uuid, exercicio_uuid, carga_real')
+          .eq('user_id', userId)
+          .eq('deleted', false)
+          .in('sessao_uuid', sessaoIds);
+
+        if (!errSer) seriesMes = seriesData ?? [];
+
+        // Máximo histórico por exercício (todas as séries do usuário)
+        // — necessário para detectar PR corretamente
+        const exercicioIds = [...new Set(seriesMes.map(s => s.exercicio_uuid).filter(Boolean))];
+
+        if (exercicioIds.length > 0) {
+          const { data: maxData } = await window.sb
+            .from('series_executadas')
+            .select('exercicio_uuid, carga_real')
+            .eq('user_id', userId)
+            .eq('deleted', false)
+            .in('exercicio_uuid', exercicioIds);
+
+          const maxPorEx = {};
+          (maxData ?? []).forEach(s => {
+            if (s.carga_real == null) return;
+            const atual = maxPorEx[s.exercicio_uuid];
+            if (atual == null || s.carga_real > atual) {
+              maxPorEx[s.exercicio_uuid] = s.carga_real;
+            }
+          });
+
+          // Sessão tem PR se contiver qualquer série com carga igual ao máximo histórico
+          seriesMes.forEach(s => {
+            if (s.carga_real != null && s.carga_real === maxPorEx[s.exercicio_uuid]) {
+              sessionsComPR.add(s.sessao_uuid);
+            }
+          });
+        }
+      }
+
+      // Agenda do mês
+      // NOTA: coluna `data` assumida como DATE (PostgreSQL) → string 'YYYY-MM-DD' no Supabase
+      const { data: agendaData, error: errAg } = await window.sb
+        .from('agenda')
+        .select('uuid, treino_uuid, data')
+        .eq('user_id', userId)
+        .eq('deleted', false)
+        .gte('data', toDateStr(inicioMes))
+        .lte('data', toDateStr(ultimoDia));
+
+      if (!errAg) agenda = agendaData ?? [];
+      else { console.error('agenda:', errAg.message); agenda = []; }
+    }
+
+    // ── Calendário ────────────────────────────────
+    function renderCalendario() {
+      document.getElementById('cal-titulo').textContent = mesNome(mesAtual, anoAtual);
+
+      const hojeStr = toDateStr(new Date());
+
+      // Mapa de dias com tipo de cor
+      const diasMap = {};
+
+      sessoes.forEach(s => {
+        const dia = toDateStr(new Date(s.data_inicio));
+        diasMap[dia] = sessionsComPR.has(s.uuid) ? 'azul' : 'verde';
+      });
+
+      agenda.forEach(a => {
+        if (!diasMap[a.data]) {
+          diasMap[a.data] = a.data < hojeStr ? 'vermelho' : 'cinza';
+        }
+      });
+
+      const primeiroDia = new Date(anoAtual, mesAtual, 1).getDay(); // 0 = Dom
+      const ultimoDia  = new Date(anoAtual, mesAtual + 1, 0).getDate();
+
+      const grid = document.getElementById('cal-grid');
+      grid.innerHTML = '';
+
+      // Células vazias antes do primeiro dia
+      for (let i = 0; i < primeiroDia; i++) {
+        const c = document.createElement('div');
+        c.className = 'cal-cell cal-vazio';
+        grid.appendChild(c);
+      }
+
+      // Dias do mês
+      for (let d = 1; d <= ultimoDia; d++) {
+        const dStr   = toDateStr(new Date(anoAtual, mesAtual, d));
+        const tipo   = diasMap[dStr] ?? null;
+        const isHoje = dStr === hojeStr;
+
+        const c = document.createElement('div');
+        const classes = ['cal-cell'];
+        if (tipo)   classes.push(`cal-${tipo}`);
+        if (isHoje) classes.push('cal-hoje');
+        c.className   = classes.join(' ');
+        c.textContent = d;
+        grid.appendChild(c);
+      }
+    }
+
+    // ── Agenda ────────────────────────────────────
+    function renderAgenda() {
+      const lista = document.getElementById('agenda-lista');
+      const hojeStr = toDateStr(new Date());
+
+      const proximas = [...agenda]
+        .filter(a => a.data >= hojeStr)
+        .sort((a, b) => a.data.localeCompare(b.data));
+
+      if (proximas.length === 0) {
+        lista.innerHTML = '<p class="vazio">Nenhum treino agendado no restante do mês.</p>';
+        return;
+      }
+
+      lista.innerHTML = proximas.map(a => {
+        const treino = treinos.find(t => t.uuid === a.treino_uuid);
+        // 'T12:00:00' força meio-dia para evitar problema de fuso ao criar Date de DATE string
+        const dataParsed = new Date(`${a.data}T12:00:00`);
+        const dataFmt = dataParsed.toLocaleDateString('pt-BR', {
+          weekday: 'short', day: 'numeric', month: 'short'
+        });
+        return `
+          <div class="agenda-item">
+            <span class="agenda-data">${esc(dataFmt)}</span>
+            <span class="agenda-nome">${esc(treino?.nome ?? '—')}</span>
+            <button class="btn-del-agenda"
+              data-uuid="${esc(a.uuid)}"
+              title="Remover agendamento">✕</button>
+          </div>`;
+      }).join('');
+    }
+
+    async function agendarTreino() {
+      const treinoUuid = document.getElementById('sel-treino-agenda').value;
+      const data       = document.getElementById('input-data-agenda').value;
+
+      if (!treinoUuid) { toast('Selecione uma divisão.', 'erro'); return; }
+      if (!data)        { toast('Informe a data.', 'erro'); return; }
+
+      const btn = document.getElementById('btn-agendar');
+      btn.disabled = true;
+
+      const { error } = await window.sb
+        .from('agenda')
+        .insert({
+          uuid:        crypto.randomUUID(),
+          user_id:     userId,
+          treino_uuid: treinoUuid,
+          data,
+          updated_at:  window.now()
+        });
+
+      btn.disabled = false;
+
+      if (error) { console.error(error); toast('Erro ao agendar.', 'erro'); return; }
+
+      document.getElementById('input-data-agenda').value = '';
+      toast('Treino agendado.');
+
+      await carregarDadosMes(mesAtual, anoAtual);
+      renderCalendario();
+      renderAgenda();
+    }
+
+    async function deletarAgenda(uuid) {
+      await window.softDelete('agenda', uuid);
+      agenda = agenda.filter(a => a.uuid !== uuid);
+      renderCalendario();
+      renderAgenda();
+      toast('Agendamento removido.');
+    }
+
+    // ── Radar chart ───────────────────────────────
+    function calcularMetricas() {
+      // Disciplina: sessões no mês / meta de 12 (3×/semana × 4) — escala 0-100
+      const disciplina = Math.round(Math.min(100, (sessoes.length / 12) * 100));
+
+      // Força: % das sessões do mês em que houve ao menos 1 PR
+      const sessoesComPRCount = sessoes.filter(s => sessionsComPR.has(s.uuid)).length;
+      const forca = sessoes.length > 0
+        ? Math.round((sessoesComPRCount / sessoes.length) * 100)
+        : 0;
+
+      // Resistência: total de séries no mês / meta de 60 — escala 0-100
+      const resistencia = Math.round(Math.min(100, (seriesMes.length / 60) * 100));
+
+      return { disciplina, forca, resistencia };
+    }
+
+    function renderRadar() {
+      const { disciplina, forca, resistencia } = calcularMetricas();
+
+      // Atualiza valores numéricos
+      document.getElementById('val-disciplina').textContent  = `${disciplina}%`;
+      document.getElementById('val-forca').textContent       = `${forca}%`;
+      document.getElementById('val-resistencia').textContent = `${resistencia}%`;
+
+      const dados = [disciplina, forca, resistencia];
+
+      if (radarChart) {
+        radarChart.data.datasets[0].data = dados;
+        radarChart.update();
+        return;
+      }
+
+      const ctx = document.getElementById('radar-chart').getContext('2d');
+      radarChart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: ['Disciplina', 'Força', 'Resistência'],
+          datasets: [{
+            data: dados,
+            backgroundColor: 'rgba(184,245,102,.12)',
+            borderColor:     '#b8f566',
+            borderWidth:     2,
+            pointBackgroundColor: '#b8f566',
+            pointBorderColor:     '#b8f566',
+            pointRadius: 4,
+            pointHoverRadius: 6,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          scales: {
+            r: {
+              min: 0,
+              max: 100,
+              ticks: {
+                stepSize: 25,
+                color: '#444',
+                backdropColor: 'transparent',
+                font: { family: "'JetBrains Mono', monospace", size: 9 }
+              },
+              grid:        { color: '#2a2a2a' },
+              angleLines:  { color: '#2a2a2a' },
+              pointLabels: {
+                color: '#e0e0e0',
+                font: { family: "'Syne', sans-serif", size: 11 }
+              }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: ctx => `${ctx.raw}%`
+              },
+              backgroundColor: '#1a1a1a',
+              borderColor:     '#2a2a2a',
+              borderWidth:     1,
+              titleColor:      '#e0e0e0',
+              bodyColor:       '#b8f566',
+            }
+          }
+        }
+      });
+    }
+
+    // ── Eventos ───────────────────────────────────
+    function bindEventos() {
+      // Navegação de mês
+      document.getElementById('btn-prev').addEventListener('click', async () => {
+        mesAtual--;
+        if (mesAtual < 0) { mesAtual = 11; anoAtual--; }
+        await carregarDadosMes(mesAtual, anoAtual);
+        renderCalendario();
+        renderAgenda();
+        renderRadar();
+      });
+
+      document.getElementById('btn-next').addEventListener('click', async () => {
+        mesAtual++;
+        if (mesAtual > 11) { mesAtual = 0; anoAtual++; }
+        await carregarDadosMes(mesAtual, anoAtual);
+        renderCalendario();
+        renderAgenda();
+        renderRadar();
+      });
+
+      // Agendar
+      document.getElementById('btn-agendar').addEventListener('click', agendarTreino);
+
+      // Enter na data para agendar
+      document.getElementById('input-data-agenda')
+        .addEventListener('keydown', e => { if (e.key === 'Enter') agendarTreino(); });
+
+      // Deletar agenda (delegação)
+      document.getElementById('agenda-lista').addEventListener('click', e => {
+        const btn = e.target.closest('.btn-del-agenda');
+        if (btn) deletarAgenda(btn.dataset.uuid);
+      });
+    }
+  </script>
+
+</body>
+</html>

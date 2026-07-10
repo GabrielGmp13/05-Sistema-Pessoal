@@ -224,3 +224,52 @@ O valor real do módulo é o tracking pessoal — o que foi lido/assistido, quan
 
 ### Impacto
 As tabelas do módulo Biblioteca (a serem criadas em `supabase/migrations/003_biblioteca.sql`, ainda não executado) terão os campos `capa_url TEXT` e `capa_path TEXT` (nullable, mutuamente exclusivos na prática). O bucket `capas` permanece pequeno (2MB por arquivo) porque upload manual é exceção, não regra.
+
+## DEC-012 — Sistema ENEM standalone integra ao Sistema Pessoal via Supabase
+
+**Data:** Fase 3 (planejamento do módulo de Estudos)
+**Status:** ✅ Aprovada
+
+### Contexto
+Existe um sistema ENEM standalone anterior ao projeto atual (`C:\Gabriel Oliveira\04-Educacional\Enem\`, 13 páginas com localStorage) usado para guardar provas antes da criação do Sistema Pessoal. O ROADMAP (Fase 3) deixava em aberto se esse sistema seria integrado ou manteria-se separado.
+
+### Decisão
+O sistema ENEM standalone não será mantido como projeto separado. Todo o conteúdo de estudos (matérias, questões, desempenho, documentos) passa a viver no Supabase, dentro do módulo de Estudos do Sistema Pessoal (schema `002_estudos.sql`).
+
+### Alternativas consideradas
+
+| Alternativa | Descartada por |
+|---|---|
+| Manter o sistema ENEM separado (localStorage) | Duplica esforço de manutenção, sem sync multi-dispositivo, sem backup real (localStorage é por navegador/dispositivo), fora do padrão arquitetural do Sistema Pessoal. |
+| Importar dados do localStorage antigo automaticamente | Sem ferramenta/rotina de migração planejada; o volume é pequeno o suficiente para recriar manualmente conforme a necessidade. |
+
+### Justificativa
+Consistência arquitetural (um único backend, um único fluxo de sync) supera o custo de recriar o conteúdo manualmente. O sistema antigo era uma solução temporária pré-Supabase.
+
+### Impacto
+O sistema ENEM standalone é descontinuado como projeto ativo. Nenhuma migração automática de dados está planejada.
+
+---
+
+## DEC-013 — Módulo de Estudos: uma página única em vez de três
+
+**Data:** Fase 3
+**Status:** ✅ Aprovada
+
+### Contexto
+O ROADMAP original previa três arquivos separados — `enem.html`, `escola.html`, `olimpiadas.html` — cada um repetindo a mesma estrutura de CRUD (matérias, assuntos, anotações, documentos, sessões de questões), diferindo apenas no filtro de tipo de matéria.
+
+### Decisão
+Uma única página `estudos.html`, com filtro de tipo (pills: Todas | ENEM | Escola | Olimpíadas | Concurso) sobre a coluna `materias.tipo`.
+
+### Alternativas consideradas
+
+| Alternativa | Descartada por |
+|---|---|
+| Três arquivos separados | ~900 linhas de código quase idênticas replicadas 3x; qualquer correção precisaria ser aplicada em triplicado. |
+
+### Justificativa
+O schema já modela o tipo como um campo (`materias.tipo`), não como tabelas separadas — a camada de apresentação segue a mesma lógica. Uma página única também permite ver todas as matérias juntas quando necessário.
+
+### Impacto
+`ROADMAP.md` Fase 3 atualizado para refletir uma única página.
