@@ -54,3 +54,39 @@ Histórico de mudanças por marco.
 - Biblioteca CSS completa (~1100 linhas, 100% reaproveitada na migração)
 - PWA manifest + ícones + fontes self-hosted
 - Dashboard básico
+## 2026-07-10 — `estudos.html` gerado (não testado)
+
+- `estudos.html` implementado: página única com filtro por tipo (Todas/ENEM/Escola/Olimpíadas/Concurso), CRUD de `materias` e `assuntos` (com slider de progresso), `anotacoes` (gerais ou por assunto), upload de `documentos_estudo` via bucket `documentos` (signed URL, PDF até 50MB) e registro de `sessoes_questoes` com % de acerto
+- **Gerado antes da confirmação de execução de `002_estudos.sql` no Supabase** — a pedido explícito do usuário, apesar do risco sinalizado. Página não testada contra o schema real. Ver `TASKS_NOW.md` para a pendência de validação.
+
+## 2026-07-11 — Módulo de Estudos: schema executado no Supabase
+
+- `002_estudos.sql` executado com sucesso no SQL Editor do Supabase ("Success. No rows returned")
+- 5 tabelas confirmadas no Table Editor: `materias`, `assuntos`, `anotacoes`, `documentos_estudo`, `sessoes_questoes`
+- Tentativa acidental de re-executar `001_schema_inicial.sql` — travou em `CREATE POLICY "user_own_data" ON treinos` (policy já existia). Sem impacto: execução interrompida no primeiro erro, nenhuma tabela alterada. Nenhuma ação corretiva necessária.
+- Pendência: validar `estudos.html` (gerado antes da confirmação do SQL) contra o schema agora confirmado no banco
+
+## 2026-07-11 — `estudos.html` validado contra o schema real
+
+- Validação linha por linha de `estudos.html` (1335 linhas) contra o schema confirmado no Supabase
+- Nenhuma incompatibilidade de coluna/tabela encontrada nas 5 tabelas (`materias`, `assuntos`, `anotacoes`, `documentos_estudo`, `sessoes_questoes`) — diferente do padrão de bug visto em `revisao.html`
+- Conformidade confirmada: `esc()` em toda interpolação de innerHTML, nenhum `confirm()` nativo, `softDelete()` usado corretamente, FKs com sufixo `_uuid`
+- Observações não bloqueantes registradas: filtro de tipo na UI não cobre `materias.tipo = 'outro'`; `mudarAba()` usa `event` global implícito
+
+## 2026-07-11 — `revisao.html` corrigido, `treino-plano.html` verificado
+
+- `revisao.html`: nomes de coluna corrigidos via Cline+DeepSeek — `frente`→`pergunta`, `verso`→`resposta`, `intervalo`→`intervalo_dias`, `fator`→`ef` em `mostrarCardAtual()`, `avaliarCard()`, `criarCard()` e `renderListaCards()`. Chamada de `calcularSM2()` corrigida para a assinatura real de `sm2.js`. Bug ativo desde a Fase 5 — encerrado.
+- `treino-plano.html`: verificado via Cline+DeepSeek — já usava `treino_uuid` corretamente e não continha `grupo_muscular`. Nenhuma alteração necessária.
+
+## 2026-07-11 — Módulo Biblioteca: escopo definido e schema criado
+
+- Planejamento formal da Fase 4 iniciado, seguindo `MODULE_TEMPLATE.md`
+- Decisões de escopo tomadas em sequência:
+  - Estrutura de tabelas: separadas por tipo de mídia (`livros`, `filmes`, `series`, `mangas`, `podcasts`), não tabela única — registrado em DEC-014, contrastando deliberadamente com DEC-013 (Estudos)
+  - Avaliação: nota 1-10 + comentário livre
+  - Tags: tabela `tags` compartilhada + junção many-to-many por tipo (`livros_tags`, `filmes_tags`, `series_tags`, `mangas_tags`, `podcasts_tags`)
+  - Filmes e séries separados em tabelas distintas (não combinados)
+  - IDs externos adicionados para refresh futuro de metadados: `tmdb_id` (filmes/séries), `google_books_id` (livros), `mal_id` (mangás)
+  - Mangás passam a ter API definida — MyAnimeList/Jikan (gratuita, sem key) — revertendo a premissa original de DEC-011 de que mangás seriam sempre manuais; atualização registrada como nota em DEC-011
+- `003_biblioteca.sql` criado: 11 tabelas, todas com RLS + policy `user_own_data`, seguindo a convenção universal (`uuid`, `user_id`, `updated_at`, `deleted`)
+- Execução da migration no Supabase ainda pendente — `biblioteca.html` só será gerado após confirmação, seguindo a disciplina de `MODULE_TEMPLATE.md` (mesmo cuidado que faltou originalmente em `estudos.html`)

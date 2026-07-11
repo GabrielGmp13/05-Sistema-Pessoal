@@ -30,7 +30,7 @@ Chaves estrangeiras seguem `<tabela_singular>_uuid` (ex: `treino_uuid`, `materia
 | Arquivo | Status | Conteúdo |
 |---|---|---|
 | `001_schema_inicial.sql` | ✅ Executado e verificado no Supabase | 8 tabelas do núcleo (treino, shape, cardio, agenda, revisão) |
-| `002_estudos.sql` | 🔄 Criado no projeto — execução no Supabase SQL Editor ainda não confirmada | 5 tabelas do módulo de Estudos |
+| `002_estudos.sql` | ✅ Executado e verificado no Supabase (2026-07-11) | 5 tabelas do módulo de Estudos |
 | `003_biblioteca.sql` | ⏳ Planejado (Fase 4) | Catálogo de mídia — ver DEC-011 |
 
 **Convenção para novas migrações:** numeração sequencial de 3 dígitos + nome do módulo em snake_case (`00N_nome-modulo.sql`). Depois de rodar no SQL Editor, atualizar a tabela acima e a seção correspondente deste documento.
@@ -230,7 +230,7 @@ Buckets e políticas detalhados em `ARCHITECTURE.md` → Supabase Storage e `DEC
 | `exercicios` | `grupo_muscular` | *(não existe)* | Mesmo arquivo |
 | `sessoes_treino` | `treino_id`, `data` | `treino_uuid`, `data_inicio` | `treino-academia.html` — já corrigido na auditoria M1 |
 | `series_executadas` | `exercicio_id`, `sessao_id`, `serie_num`, `peso`, `repeticoes` | `exercicio_uuid`, `sessao_uuid`, `serie_numero`, `carga_real`, `reps_real` | `treino-academia.html` — já corrigido |
-| `revisao_espacada` | `frente`, `verso`, `intervalo`, `fator` | `pergunta`, `resposta`, `intervalo_dias`, `ef` | `revisao.html` — **não corrigido, bug ativo** |
-| `sm2.js` | `calcularSM2(intervalo, fator, qualidade)` → `{novoIntervalo, novoFator, proximaRevisao}` | `calcularSM2(ef, repeticoes, intervaloDias, qualidade)` → `{ef, repeticoes, intervaloDias, proximaRevisao}` | `revisao.html` — **não corrigido, bug ativo** |
+| `revisao_espacada` | `frente`, `verso`, `intervalo`, `fator` | `pergunta`, `resposta`, `intervalo_dias`, `ef` | `revisao.html` — **corrigido em 2026-07-11** |
+| `sm2.js` | `calcularSM2(intervalo, fator, qualidade)` → `{novoIntervalo, novoFator, proximaRevisao}` | `calcularSM2(ef, repeticoes, intervaloDias, qualidade)` → `{ef, repeticoes, intervaloDias, proximaRevisao}` | `revisao.html` — **corrigido em 2026-07-11** |
 
-**Ação recomendada:** antes de considerar a Fase 5 concluída, reescrever as queries e chamadas de `calcularSM2` em `revisao.html` usando os nomes reais desta tabela. Ver `TASKS_NOW.md`.
+**Status:** `revisao.html` corrigido em 2026-07-11 (via Cline+DeepSeek) — todas as colunas e a assinatura de `calcularSM2()` foram ajustadas para os nomes reais. `treino-plano.html` verificado na mesma data: já usava `treino_uuid` corretamente e não referenciava `grupo_muscular`, nenhuma alteração necessária. Ver `CHANGELOG.md`.

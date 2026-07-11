@@ -85,38 +85,30 @@ Sistema de gestão pessoal online, multi-dispositivo, para uso pessoal de longo 
 ## Fase 3 — Módulo de Estudos 🔄 EM ANDAMENTO
 
 **Arquivo:** `estudos.html` (página única com filtro por tipo — ver DEC-013)
-**Migração:** `supabase/migrations/002_estudos.sql` — ✅ criado · 🔄 execução no Supabase ainda não confirmada
+**Migração:** `supabase/migrations/002_estudos.sql` — ✅ criado · ✅ executado e confirmado no Supabase (2026-07-11)
 
 Sistema ENEM standalone anterior foi descontinuado; todo o conteúdo passa a viver no módulo de Estudos via Supabase (ver DEC-012).
 
 Schema completo (5 tabelas) documentado em `DATABASE.md`.
 
 ---
+## Fase 4 — Biblioteca 🔄 EM ANDAMENTO
 
-## Fase 4 — Biblioteca ⏳ PLANEJADA
+**Arquivo:** `biblioteca.html` (não iniciado)
+**Migração:** `supabase/migrations/003_biblioteca.sql` — ✅ criada · ⏳ execução pendente
 
-**Arquivo:** `biblioteca.html`
-**Migração futura:** `supabase/migrations/003_biblioteca.sql`
+Schema: 11 tabelas (`livros`, `filmes`, `series`, `mangas`, `podcasts`, `tags`,
+5 tabelas de junção `*_tags`) — ver DEC-014.
 
-**Escopo revisado (DEC-011):** catálogo pessoal de mídia, no estilo Skoob / Letterboxd / MyAnimeList. O sistema **não** armazena arquivos de mídia (livros, filmes, séries, músicas) — apenas identificação, metadados, notas, avaliações, datas, progresso, comentários, categorias e tags.
+APIs de metadados (buscadas ao vivo, não persistidas): TMDB (filmes/séries),
+Google Books (livros), MyAnimeList/Jikan (mangás). Podcasts seguem manuais —
+sem API definida ainda.
 
-| Mídia | API de metadados | Origem da capa |
-|---|---|---|
-| Livros | Google Books API | URL da API; upload manual para `capas` só se a API não tiver capa |
-| Filmes / Séries | TMDB API | URL da API; upload manual para `capas` só se a API não tiver capa |
-| Mangás | Manual | Upload manual para `capas` (sem API definida ainda) |
-| Podcasts | Manual | Upload manual para `capas` (sem API definida ainda) |
+## Fase 5 — Revisão Espaçada ✅ COMPLETA
 
-Funcionalidades: status de leitura/visualização (lendo, pausado, concluído, abandonado), avaliações, notas pessoais.
+**Arquivo:** `revisao.html` — implementado e corrigido
 
----
-
-## Fase 5 — Revisão Espaçada ⚠️ IMPLEMENTADA — bug de schema pendente
-
-**Arquivo:** `revisao.html` — implementado
-
-⚠️ A página foi gerada assumindo colunas (`frente`, `verso`, `intervalo`, `fator`) diferentes das reais (`pergunta`, `resposta`, `intervalo_dias`, `ef`), e uma assinatura de `calcularSM2()` incompatível com a de `sm2.js`. Ver `DATABASE.md` → Gotchas para o mapeamento completo. Correção pendente.
-
+A página havia sido gerada assumindo colunas (`frente`, `verso`, `intervalo`, `fator`) diferentes das reais (`pergunta`, `resposta`, `intervalo_dias`, `ef`), e uma assinatura de `calcularSM2()` incompatível com a de `sm2.js`. Corrigido em 2026-07-11 (via Cline+DeepSeek) — ver `DATABASE.md` → Gotchas e `CHANGELOG.md` para o detalhamento.
 ## Fase 6 — Integrações Externas ⏳ FUTURO
 
 | Integração | Finalidade | Via |

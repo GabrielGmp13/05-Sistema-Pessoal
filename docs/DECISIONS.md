@@ -273,3 +273,33 @@ O schema já modela o tipo como um campo (`materias.tipo`), não como tabelas se
 
 ### Impacto
 `ROADMAP.md` Fase 3 atualizado para refletir uma única página.
+
+## DEC-014 — Biblioteca: tabelas separadas por tipo de mídia (não tabela única)
+
+**Data:** Fase 4 (planejamento)
+**Status:** ✅ Aprovada
+
+### Contexto
+DEC-013 (Estudos) usou tabela única + campo `tipo` porque as categorias tinham
+estrutura idêntica. Biblioteca tem tipos com campos genuinamente distintos
+(autor vs. diretor, páginas vs. temporada/episódio vs. volume).
+
+### Decisão
+Tabelas separadas: `livros`, `filmes`, `series`, `mangas`, `podcasts`, mais `tags`
+compartilhada e uma tabela de junção many-to-many por tipo (`livros_tags`, etc.).
+
+### Justificativa
+Evita colunas nullable irrelevantes por tipo. Custo: 11 tabelas no total.
+
+### Impacto
+`003_biblioteca.sql`. Nenhuma FK genérica — tags usam junção por tipo porque as
+tabelas de obra são fisicamente separadas.
+
+---
+
+**Atualização em DEC-011 (2026-07-11):** a premissa original de "mangás: sem API
+definida, sempre manual" está superada. Mangás agora integram com a API
+MyAnimeList/Jikan (gratuita, sem autenticação) — mesmo padrão de `capa_url` prioritária
+sobre `capa_path` usado em livros/filmes/séries. Campo `mal_id` adicionado à tabela
+`mangas` para permitir refresh futuro de metadados (volumes, sinopse, nota da
+comunidade) buscados ao vivo na API, sem persistir no banco.

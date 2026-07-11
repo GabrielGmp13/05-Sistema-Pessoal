@@ -7,22 +7,34 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 ## Status geral
 
 **Fase atual:** Fase 3 — Módulo de Estudos (em andamento)
-**Bloqueio:** nenhum bloqueio duro, mas há 2 bugs conhecidos pendentes (ver abaixo)
-**Próxima ação:** rodar `002_estudos.sql` no Supabase SQL Editor, depois gerar `estudos.html`
-
+**Bloqueio:** nenhum — os 3 bugs/riscos conhecidos anteriores foram resolvidos ou descartados
+**Próxima ação:** deploy no Vercel (Fase M) ou avançar Fase 3 (confirmar RLS nas 5 tabelas de Estudos)
 ---
 
 ## 🔴 Bugs conhecidos — prioridade alta
 
-- [ ] **`revisao.html`** usa nomes de coluna incompatíveis com o schema real (`frente`/`verso`/`intervalo`/`fator` em vez de `pergunta`/`resposta`/`intervalo_dias`/`ef`) e uma assinatura de `calcularSM2()` diferente da implementada em `sm2.js`. Ver `DATABASE.md` → Gotchas para o mapeamento completo antes de corrigir.
-- [ ] **`treino-plano.html`** — verificar se ainda referencia `treino_id` (deveria ser `treino_uuid`) e `grupo_muscular` (coluna que não existe). O resumo de correções do DeepSeek não menciona ter corrigido isso.
+## 🔴 Bugs conhecidos — prioridade alta
 
+- [x] ~~`revisao.html`~~ — resolvido em 2026-07-11 (via Cline+DeepSeek). Colunas corrigidas em `mostrarCardAtual()`, `avaliarCard()`, `criarCard()` e `renderListaCards()`: `frente`→`pergunta`, `verso`→`resposta`, `intervalo`→`intervalo_dias`, `fator`→`ef`. Chamada de `calcularSM2()` corrigida para a assinatura real (`ef, repeticoes, intervaloDias, qualidade`).
+- [x] ~~`treino-plano.html`~~ — verificado em 2026-07-11 (via Cline+DeepSeek). Nenhuma correção necessária: já usa `treino_uuid` corretamente (linha 544) e não referencia `grupo_muscular`.
+- [x] ~~`estudos.html` não validado~~ — resolvido em 2026-07-11. Migration executada e página validada linha por linha contra o schema real; nenhuma incompatibilidade encontrada nas 5 tabelas. Observações menores (não bloqueantes): filtro de tipo na UI não cobre `tipo = 'outro'`; `mudarAba()` usa `event` global implícito em vez de parâmetro explícito.
 ## Fase 3 — Módulo de Estudos
 
 - [x] Desenhar schema (`materias`, `assuntos`, `anotacoes`, `documentos_estudo`, `sessoes_questoes`)
 - [x] Criar `002_estudos.sql`
-- [ ] Rodar `002_estudos.sql` no Supabase SQL Editor
-- [ ] Gerar `estudos.html` (página única com filtro por tipo — ver DEC-013)
+- [x] Rodar `002_estudos.sql` no Supabase SQL Editor (2026-07-11 — sucesso, 5 tabelas confirmadas no Table Editor)
+- [x] Validar `estudos.html` contra o schema real (2026-07-11 — validado linha por linha, nenhuma incompatibilidade encontrada nas 5 tabelas)
+- [ ] Confirmar RLS + policy `user_own_data` ativa nas 5 tabelas novas
+
+## Fase 4 — Biblioteca
+
+- [x] Definir escopo (estrutura de tabelas, avaliação, tags, API de mangás)
+- [x] Criar `003_biblioteca.sql`
+- [ ] Rodar `003_biblioteca.sql` no Supabase SQL Editor
+- [ ] Confirmar RLS + policy `user_own_data` nas 11 tabelas novas
+- [ ] Gerar `biblioteca.html`
+- [ ] Integrar TMDB, Google Books, Jikan (fetch direto no frontend)
+
 
 ## Pendências da Fase M (migração)
 

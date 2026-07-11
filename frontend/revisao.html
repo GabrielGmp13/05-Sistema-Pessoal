@@ -661,15 +661,15 @@
       document.getElementById('progresso-texto').textContent = `${indice} / ${fila.length}`;
 
       // Conteúdo
-      document.getElementById('card-frente').textContent = card.frente ?? '';
+      document.getElementById('card-frente').textContent = card.pergunta ?? '';
 
       // Intervalo atual (informativo)
-      const dias = card.intervalo ?? 0;
+      const dias = card.intervalo_dias ?? 0;
       document.getElementById('card-intervalo').textContent =
         dias > 0 ? `intervalo atual: ${dias}d` : 'card novo';
 
       // Reset verso
-      document.getElementById('card-verso').textContent = card.verso ?? '';
+      document.getElementById('card-verso').textContent = card.resposta ?? '';
       document.getElementById('verso-wrap').style.display  = 'none';
       document.getElementById('btn-revelar').style.display = '';
     }
@@ -690,10 +690,11 @@
 
       // Calcular novos valores SM-2
       // NOTA: window.calcularSM2 exportado por sm2.js
-      // Assinatura esperada: calcularSM2(intervalo, fator, qualidade) → { novoIntervalo, novoFator, proximaRevisao }
-      const { novoIntervalo, novoFator, proximaRevisao } = window.calcularSM2(
-        card.intervalo ?? 0,
-        card.fator     ?? 2.5,
+      // Assinatura real: calcularSM2(ef, repeticoes, intervaloDias, qualidade) → { ef, repeticoes, intervaloDias, proximaRevisao }
+      const { ef: novoEf, repeticoes: novasRepeticoes, intervaloDias: novoIntervaloDias, proximaRevisao } = window.calcularSM2(
+        card.ef            ?? 2.5,
+        card.repeticoes    ?? 0,
+        card.intervalo_dias ?? 1,
         qualidade
       );
 
@@ -705,8 +706,9 @@
       const { error } = await window.sb
         .from('revisao_espacada')
         .update({
-          intervalo:        novoIntervalo,
-          fator:            novoFator,
+          ef:               novoEf,
+          repeticoes:       novasRepeticoes,
+          intervalo_dias:   novoIntervaloDias,
           proxima_revisao:  proximaStr,
           updated_at:       window.now()
         })
@@ -770,10 +772,10 @@
         .insert({
           uuid:            crypto.randomUUID(),
           user_id:         userId,
-          frente,
-          verso,
-          intervalo:       0,
-          fator:           2.5,
+          pergunta:        frente,
+          resposta:        verso,
+          intervalo_dias:  0,
+          ef:              2.5,
           proxima_revisao: hojeStr,   // novo card: revisão começa hoje
           updated_at:      window.now()
         });
@@ -824,13 +826,13 @@
         return `
           <div class="card-item">
             <div class="card-item-textos">
-              <span class="card-frente-preview">${esc(c.frente)}</span>
+              <span class="card-frente-preview">${esc(c.pergunta)}</span>
               <div class="card-meta">
                 <span class="card-meta-item${vence ? ' card-proxima-hoje' : ''}">
                   ${vence ? '⚡ Vence hoje' : `próxima: ${proximaLabel}`}
                 </span>
                 <span class="card-meta-item">
-                  ${c.intervalo ?? 0}d · f ${(c.fator ?? 2.5).toFixed(1)}
+                  ${c.intervalo_dias ?? 0}d · ef ${(c.ef ?? 2.5).toFixed(1)}
                 </span>
               </div>
             </div>

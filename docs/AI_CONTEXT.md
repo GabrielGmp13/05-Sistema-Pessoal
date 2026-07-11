@@ -18,8 +18,8 @@ Qualquer IA que retomar este projeto assume o papel de **codificador principal**
 ## Estado atual
 
 **Fase:** Fase 3 — Módulo de Estudos (em andamento)
-**Módulos completos:** Fundação, Auth, Dashboard, Treino (plano + academia + hub + shape)
-**Módulo com bug conhecido:** Revisão Espaçada (`revisao.html`) — incompatibilidade de schema, ver `DATABASE.md` → Gotchas
+**Módulos completos:** Fundação, Auth, Dashboard, Treino (plano + academia + hub + shape), Revisão Espaçada, Estudos
+**Bug corrigido:** Revisão Espaçada (`revisao.html`) — incompatibilidade de schema corrigida em 2026-07-11, ver `DATABASE.md` → Gotchas
 **Próxima tarefa imediata:** ver `TASKS_NOW.md`
 
 ---

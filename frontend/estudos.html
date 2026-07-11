@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estudos — Sistema Pessoal</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  /* ===== Estudos — estilos próprios da página (prefixo .est-) ===== */
+
+  .est-tipos {
+    display: flex;
+    gap: .5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+  .est-pill {
+    padding: .4rem .9rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: #888;
+    font-size: .8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color .12s, color .12s;
+  }
+  .est-pill:hover { border-color: var(--accent); color: var(--text); }
+  .est-pill.ativo {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--bg);
+  }
+
+  .est-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 1.5rem;
+    align-items: start;
+  }
+  @media (max-width: 720px) {
+    .est-layout { grid-template-columns: 1fr; }
+  }
+
+  .est-col-materias {
+    display: flex;
+    flex-direction: column;
+    gap: .7rem;
+  }
+
+  .est-materia-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: border-color .12s, transform .12s;
+    border-left: 4px solid var(--materia-cor, var(--accent));
+  }
+  .est-materia-card:hover { transform: translateY(-2px); }
+  .est-materia-card.selecionada { border-color: var(--accent); }
+
+  .est-materia-nome {
+    font-family: 'Syne', sans-serif;
+    font-size: .95rem;
+    font-weight: 700;
+    margin-bottom: .25rem;
+  }
+  .est-materia-tipo {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .65rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+  }
+  .est-materia-progresso-wrap {
+    margin-top: .6rem;
+    height: 5px;
+    background: var(--bg);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .est-materia-progresso-bar {
+    height: 100%;
+    background: var(--materia-cor, var(--accent));
+    transition: width .3s;
+  }
+  .est-materia-progresso-txt {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .65rem;
+    color: #555;
+    margin-top: .3rem;
+  }
+
+  .est-btn-nova-materia {
+    width: 100%;
+    padding: .7rem;
+    border-radius: 8px;
+    border: 1px dashed var(--border);
+    background: transparent;
+    color: #888;
+    font-weight: 700;
+    cursor: pointer;
+    transition: border-color .12s, color .12s;
+  }
+  .est-btn-nova-materia:hover { border-color: var(--accent); color: var(--accent); }
+
+  .est-col-detalhe {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    min-height: 300px;
+  }
+
+  .est-detalhe-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .est-detalhe-titulo {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+  .est-detalhe-acoes { display: flex; gap: .4rem; }
+
+  .est-tabs {
+    display: flex;
+    gap: .3rem;
+    margin-bottom: 1.2rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .est-tab {
+    padding: .55rem 1rem;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: #888;
+    font-size: .82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color .12s, border-color .12s;
+  }
+  .est-tab:hover { color: var(--text); }
+  .est-tab.ativa { color: var(--accent); border-color: var(--accent); }
+
+  .est-lista { display: flex; flex-direction: column; gap: .6rem; }
+
+  .est-assunto-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .8rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: .7rem .9rem;
+  }
+  .est-assunto-nome { font-size: .85rem; flex: 1; }
+  .est-assunto-progresso {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    min-width: 140px;
+  }
+  .est-assunto-progresso input[type="range"] { flex: 1; accent-color: var(--accent); }
+  .est-assunto-progresso-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .7rem;
+    color: #888;
+    min-width: 32px;
+    text-align: right;
+  }
+
+  .est-anotacao-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: .9rem 1rem;
+  }
+  .est-anotacao-titulo {
+    font-weight: 700;
+    font-size: .85rem;
+    margin-bottom: .3rem;
+  }
+  .est-anotacao-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .65rem;
+    color: #555;
+    margin-bottom: .5rem;
+  }
+  .est-anotacao-conteudo {
+    font-size: .82rem;
+    color: #ccc;
+    white-space: pre-wrap;
+    line-height: 1.5;
+  }
+  .est-anotacao-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: .4rem;
+    margin-top: .6rem;
+  }
+
+  .est-doc-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .8rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: .7rem .9rem;
+  }
+  .est-doc-info { display: flex; flex-direction: column; gap: .15rem; flex: 1; min-width: 0; }
+  .est-doc-nome {
+    font-size: .85rem;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .est-doc-tipo {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .65rem;
+    color: #888;
+    text-transform: uppercase;
+  }
+  .est-doc-acoes { display: flex; gap: .4rem; flex-shrink: 0; }
+
+  .est-sessao-item {
+    display: grid;
+    grid-template-columns: 90px 1fr auto;
+    align-items: center;
+    gap: .8rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: .7rem .9rem;
+  }
+  .est-sessao-data {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .7rem;
+    color: #888;
+  }
+  .est-sessao-info { min-width: 0; }
+  .est-sessao-fonte {
+    font-size: .82rem;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .est-sessao-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .65rem;
+    color: #555;
+    margin-top: .15rem;
+  }
+  .est-sessao-percentual {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: .95rem;
+  }
+  .est-sessao-percentual.bom { color: #4ade80; }
+  .est-sessao-percentual.medio { color: #fb923c; }
+  .est-sessao-percentual.ruim { color: #ff6b6b; }
+
+  .est-vazio {
+    text-align: center;
+    padding: 2.5rem 1rem;
+    color: #555;
+    font-size: .85rem;
+  }
+  .est-vazio-cta { margin-top: .8rem; }
+
+  .est-form-row { display: flex; gap: .6rem; }
+  .est-form-row > * { flex: 1; }
+
+  .est-cor-picker {
+    display: flex;
+    gap: .4rem;
+    flex-wrap: wrap;
+  }
+  .est-cor-opcao {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+  }
+  .est-cor-opcao.selecionada { border-color: var(--text); }
+
+  .est-upload-area {
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+    color: #888;
+    font-size: .8rem;
+    cursor: pointer;
+    transition: border-color .12s;
+  }
+  .est-upload-area:hover { border-color: var(--accent); }
+  .est-upload-area.arrastando { border-color: var(--accent); color: var(--accent); }
+
+  .est-progress-inline {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .7rem;
+    color: var(--accent);
+  }
+
+  .est-loading {
+    text-align: center;
+    padding: 2rem;
+    color: #555;
+    font-size: .85rem;
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html" class="nav-logo">SP</a>
+  <div class="nav-links">
+    <a href="index.html">Dashboard</a>
+    <a href="treino.html">Treino</a>
+    <a href="estudos.html" class="ativo">Estudos</a>
+  </div>
+</nav>
+
+<div class="container">
+  <h1 style="font-family:'Syne',sans-serif; font-size:1.4rem; margin-bottom:1rem;">Estudos</h1>
+
+  <div class="est-tipos" id="filtroTipos">
+    <button class="est-pill ativo" data-tipo="todas">Todas</button>
+    <button class="est-pill" data-tipo="enem">ENEM</button>
+    <button class="est-pill" data-tipo="escola">Escola</button>
+    <button class="est-pill" data-tipo="olimpiada">Olimpíadas</button>
+    <button class="est-pill" data-tipo="concurso">Concurso</button>
+  </div>
+
+  <div class="est-layout">
+    <!-- Coluna esquerda: lista de matérias -->
+    <div class="est-col-materias" id="listaMaterias">
+      <div class="est-loading">Carregando matérias...</div>
+    </div>
+
+    <!-- Coluna direita: detalhe da matéria selecionada -->
+    <div class="est-col-detalhe" id="painelDetalhe">
+      <div class="est-vazio">
+        Selecione uma matéria à esquerda, ou crie uma nova para começar.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Modal: Nova/Editar Matéria ===== -->
+<div class="modal-overlay" id="modalMateria" style="display:none;">
+  <div class="modal">
+    <div class="modal-header">
+      <span id="modalMateriaTitulo">Nova matéria</span>
+      <button class="btn-icon" onclick="fecharModal('modalMateria')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="materiaUuid">
+      <div class="form-group">
+        <label>Nome</label>
+        <input type="text" id="materiaNome" class="form-control" placeholder="Ex: Matemática, Física...">
+      </div>
+      <div class="form-group">
+        <label>Tipo</label>
+        <select id="materiaTipo" class="form-control">
+          <option value="enem">ENEM</option>
+          <option value="escola" selected>Escola</option>
+          <option value="olimpiada">Olimpíadas</option>
+          <option value="concurso">Concurso</option>
+          <option value="outro">Outro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Cor</label>
+        <div class="est-cor-picker" id="corPicker"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="fecharModal('modalMateria')">Cancelar</button>
+      <button class="btn-salvar" onclick="salvarMateria()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Modal: Excluir Matéria ===== -->
+<div class="modal-overlay" id="modalExcluirMateria" style="display:none;">
+  <div class="modal">
+    <div class="modal-header">
+      <span>Excluir matéria</span>
+      <button class="btn-icon" onclick="fecharModal('modalExcluirMateria')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p>Isso vai excluir a matéria e ocultar todos os assuntos, anotações, documentos e sessões vinculados a ela. Essa ação pode ser desfeita apenas manualmente no banco.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="fecharModal('modalExcluirMateria')">Cancelar</button>
+      <button class="btn-danger" onclick="confirmarExcluirMateria()">Excluir</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Modal: Novo/Editar Assunto ===== -->
+<div class="modal-overlay" id="modalAssunto" style="display:none;">
+  <div class="modal">
+    <div class="modal-header">
+      <span id="modalAssuntoTitulo">Novo assunto</span>
+      <button class="btn-icon" onclick="fecharModal('modalAssunto')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="assuntoUuid">
+      <div class="form-group">
+        <label>Nome</label>
+        <input type="text" id="assuntoNome" class="form-control" placeholder="Ex: Funções, Termoquímica...">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="fecharModal('modalAssunto')">Cancelar</button>
+      <button class="btn-salvar" onclick="salvarAssunto()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Modal: Excluir item genérico (assunto/anotação/documento/sessão) ===== -->
+<div class="modal-overlay" id="modalExcluirItem" style="display:none;">
+  <div class="modal">
+    <div class="modal-header">
+      <span>Excluir</span>
+      <button class="btn-icon" onclick="fecharModal('modalExcluirItem')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p>Tem certeza que deseja excluir este item?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="fecharModal('modalExcluirItem')">Cancelar</button>
+      <button class="btn-danger" onclick="confirmarExcluirItem()">Excluir</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Modal: Nova/Editar Anotação ===== -->
+<div class="modal-overlay" id="modalAnotacao" style="display:none;">
+  <div class="modal">
+    <div class="modal-header">
+      <span id="modalAnotacaoTitulo">Nova anotação</span>
+      <button class="btn-icon" onclick="fecharModal('modalAnotacao')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="anotacaoUuid">
+      <div class="form-group">
+        <label>Assunto (opcional)</label>
+        <select id="anotacaoAssunto" class="form-control">
+          <option value="">Anotação geral da matéria</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Título (opcional)</label>
+        <input type="text" id="anotacaoTitulo" class="form-control" placeholder="Título da anotação">
+      </div>
+      <div class="form-group">
+        <label>Conteúdo</label>
+        <textarea id="anotacaoConteudo" class="form-control" rows="6" placeholder="Escreva aqui..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="fecharModal('modalAnotacao')">Cancelar</button>
+      <button class="btn-salvar" onclick="salvarAnotacao()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Modal: Upload de Documento ===== -->
+<div class="modal-overlay" id="modalDocumento" style="display:none;">
+  <div class="modal">
+    <div class="modal-header">
+      <span>Novo documento</span>
+      <button class="btn-icon" onclick="fecharModal('modalDocumento')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Nome</label>
+        <input type="text" id="documentoNome" class="form-control" placeholder="Ex: Prova ENEM 2023 - Dia 1">
+      </div>
+      <div class="form-group">
+        <label>Tipo</label>
+        <select id="documentoTipo" class="form-control">
+          <option value="apostila">Apostila</option>
+          <option value="prova">Prova</option>
+          <option value="gabarito">Gabarito</option>
+          <option value="resumo">Resumo</option>
+          <option value="exercicios">Exercícios</option>
+          <option value="outro" selected>Outro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Assunto (opcional)</label>
+        <select id="documentoAssunto" class="form-control">
+          <option value="">Documento geral da matéria</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Arquivo (PDF, até 50MB)</label>
+        <div class="est-upload-area" id="uploadArea" onclick="document.getElementById('inputArquivo').click()">
+          <span id="uploadTexto">Clique para escolher um PDF ou arraste aqui</span>
+        </div>
+        <input type="file" id="inputArquivo" accept="application/pdf" style="display:none;">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="fecharModal('modalDocumento')">Cancelar</button>
+      <button class="btn-salvar" id="btnUploadDocumento" onclick="salvarDocumento()">Enviar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Modal: Nova Sessão de Questões ===== -->
+<div class="modal-overlay" id="modalSessao" style="display:none;">
+  <div class="modal">
+    <div class="modal-header">
+      <span id="modalSessaoTitulo">Nova sessão de questões</span>
+      <button class="btn-icon" onclick="fecharModal('modalSessao')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="sessaoUuid">
+      <div class="form-group">
+        <label>Fonte</label>
+        <input type="text" id="sessaoFonte" class="form-control" placeholder="Ex: ENEM 2022 - Caderno Azul">
+      </div>
+      <div class="form-group">
+        <label>Assunto (opcional)</label>
+        <select id="sessaoAssunto" class="form-control">
+          <option value="">Sessão geral da matéria</option>
+        </select>
+      </div>
+      <div class="est-form-row">
+        <div class="form-group">
+          <label>Total de questões</label>
+          <input type="number" id="sessaoTotal" class="form-control" inputmode="numeric" min="1">
+        </div>
+        <div class="form-group">
+          <label>Acertos</label>
+          <input type="number" id="sessaoAcertos" class="form-control" inputmode="numeric" min="0">
+        </div>
+      </div>
+      <div class="est-form-row">
+        <div class="form-group">
+          <label>Data</label>
+          <input type="date" id="sessaoData" class="form-control">
+        </div>
+        <div class="form-group">
+          <label>Tempo (min, opcional)</label>
+          <input type="number" id="sessaoTempo" class="form-control" inputmode="numeric" min="0">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Observações (opcional)</label>
+        <textarea id="sessaoObs" class="form-control" rows="3"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="fecharModal('modalSessao')">Cancelar</button>
+      <button class="btn-salvar" onclick="salvarSessao()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/supabase.js"></script>
+<script src="assets/auth.js"></script>
+<script>
+/* ============================================================
+   estudos.html — Módulo de Estudos (página única, DEC-013)
+   Tabelas: materias, assuntos, anotacoes, documentos_estudo, sessoes_questoes
+   Ver DATABASE.md antes de alterar qualquer nome de coluna.
+   ============================================================ */
+
+const CORES_MATERIA = ['#b8f566', '#63b3ed', '#fb923c', '#f87171', '#c084fc', '#4ade80', '#fbbf24', '#f472b6'];
+
+let userId = null;
+let materias = [];
+let tipoAtivo = 'todas';
+let materiaSelecionadaUuid = null;
+let abaAtiva = 'assuntos'; // assuntos | anotacoes | documentos | sessoes
+
+// Cache dos dados filhos da matéria selecionada
+let assuntosAtual = [];
+let anotacoesAtual = [];
+let documentosAtual = [];
+let sessoesAtual = [];
+
+// Estado de exclusão pendente (genérico)
+let exclusaoPendente = null; // { tabela, uuid, callback }
+let corSelecionadaModal = CORES_MATERIA[0];
+let arquivoSelecionado = null;
+
+function esc(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+function toast(msg, tipo = 'ok') {
+  const container = document.getElementById('toastContainer');
+  const el = document.createElement('div');
+  el.className = `toast ${tipo}`;
+  el.textContent = msg;
+  container.appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+
+function abrirModal(id) { document.getElementById(id).style.display = 'flex'; }
+function fecharModal(id) { document.getElementById(id).style.display = 'none'; }
+
+// ============================================================
+// Inicialização
+// ============================================================
+
+(async function init() {
+  const session = await window.authReady;
+  if (!session) return;
+  userId = await window.getUserId();
+
+  montarColorPicker();
+
+  document.querySelectorAll('#filtroTipos .est-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#filtroTipos .est-pill').forEach(b => b.classList.remove('ativo'));
+      btn.classList.add('ativo');
+      tipoAtivo = btn.dataset.tipo;
+      renderListaMaterias();
+    });
+  });
+
+  configurarUpload();
+
+  await carregarMaterias();
+})();
+
+function montarColorPicker() {
+  const picker = document.getElementById('corPicker');
+  picker.innerHTML = CORES_MATERIA.map(cor => `
+    <div class="est-cor-opcao ${cor === corSelecionadaModal ? 'selecionada' : ''}"
+         style="background:${cor}" data-cor="${cor}" onclick="selecionarCor('${cor}')"></div>
+  `).join('');
+}
+
+function selecionarCor(cor) {
+  corSelecionadaModal = cor;
+  document.querySelectorAll('.est-cor-opcao').forEach(el => {
+    el.classList.toggle('selecionada', el.dataset.cor === cor);
+  });
+}
+
+// ============================================================
+// Matérias
+// ============================================================
+
+async function carregarMaterias() {
+  const { data, error } = await window.sb
+    .from('materias')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('deleted', false)
+    .order('nome', { ascending: true });
+
+  if (window.sbErr(error, 'carregarMaterias')) {
+    document.getElementById('listaMaterias').innerHTML = `<div class="est-vazio">Erro ao carregar matérias.</div>`;
+    return;
+  }
+
+  materias = data || [];
+  renderListaMaterias();
+}
+
+function renderListaMaterias() {
+  const container = document.getElementById('listaMaterias');
+  const filtradas = tipoAtivo === 'todas' ? materias : materias.filter(m => m.tipo === tipoAtivo);
+
+  let html = '';
+
+  if (filtradas.length === 0) {
+    html += `<div class="est-vazio">Nenhuma matéria ${tipoAtivo === 'todas' ? '' : 'nesse filtro'} ainda.</div>`;
+  } else {
+    // progresso agregado por matéria vem do carregamento de assuntos sob demanda;
+    // aqui mostramos só o que já temos em cache, se a matéria já foi aberta antes
+    html += filtradas.map(m => renderCardMateria(m)).join('');
+  }
+
+  html += `<button class="est-btn-nova-materia" onclick="abrirModalNovaMateria()">+ Nova matéria</button>`;
+  container.innerHTML = html;
+
+  container.querySelectorAll('.est-materia-card').forEach(card => {
+    card.addEventListener('click', () => selecionarMateria(card.dataset.uuid));
+  });
+}
+
+function renderCardMateria(m) {
+  const selecionada = m.uuid === materiaSelecionadaUuid ? 'selecionada' : '';
+  const cor = m.cor || '#b8f566';
+  return `
+    <div class="est-materia-card ${selecionada}" data-uuid="${esc(m.uuid)}" style="--materia-cor:${esc(cor)}">
+      <div class="est-materia-nome">${esc(m.nome)}</div>
+      <div class="est-materia-tipo">${esc(rotuloTipo(m.tipo))}</div>
+    </div>
+  `;
+}
+
+function rotuloTipo(tipo) {
+  const mapa = { enem: 'ENEM', escola: 'Escola', olimpiada: 'Olimpíadas', concurso: 'Concurso', outro: 'Outro' };
+  return mapa[tipo] || tipo;
+}
+
+function abrirModalNovaMateria() {
+  document.getElementById('modalMateriaTitulo').textContent = 'Nova matéria';
+  document.getElementById('materiaUuid').value = '';
+  document.getElementById('materiaNome').value = '';
+  document.getElementById('materiaTipo').value = 'escola';
+  corSelecionadaModal = CORES_MATERIA[Math.floor(Math.random() * CORES_MATERIA.length)];
+  montarColorPicker();
+  abrirModal('modalMateria');
+}
+
+function abrirModalEditarMateria(m) {
+  document.getElementById('modalMateriaTitulo').textContent = 'Editar matéria';
+  document.getElementById('materiaUuid').value = m.uuid;
+  document.getElementById('materiaNome').value = m.nome;
+  document.getElementById('materiaTipo').value = m.tipo;
+  corSelecionadaModal = m.cor || CORES_MATERIA[0];
+  montarColorPicker();
+  abrirModal('modalMateria');
+}
+
+async function salvarMateria() {
+  const uuid = document.getElementById('materiaUuid').value || crypto.randomUUID();
+  const nome = document.getElementById('materiaNome').value.trim();
+  const tipo = document.getElementById('materiaTipo').value;
+
+  if (!nome) { toast('Dê um nome para a matéria.', 'erro'); return; }
+
+  const payload = {
+    uuid, user_id: userId, nome, tipo, cor: corSelecionadaModal,
+    updated_at: window.now(), deleted: false
+  };
+
+  const { error } = await window.sb.from('materias').upsert(payload);
+  if (window.sbErr(error, 'salvarMateria')) { toast('Erro ao salvar matéria.', 'erro'); return; }
+
+  toast('Matéria salva.');
+  fecharModal('modalMateria');
+  await carregarMaterias();
+  if (materiaSelecionadaUuid === uuid) {
+    const m = materias.find(x => x.uuid === uuid);
+    if (m) renderDetalheMateria(m);
+  }
+}
+
+function pedirExclusaoMateria() {
+  if (!materiaSelecionadaUuid) return;
+  abrirModal('modalExcluirMateria');
+}
+
+async function confirmarExcluirMateria() {
+  const { error } = await window.softDelete('materias', materiaSelecionadaUuid);
+  if (error) { toast('Erro ao excluir matéria.', 'erro'); return; }
+
+  toast('Matéria excluída.');
+  fecharModal('modalExcluirMateria');
+  materiaSelecionadaUuid = null;
+  document.getElementById('painelDetalhe').innerHTML = `
+    <div class="est-vazio">Selecione uma matéria à esquerda, ou crie uma nova para começar.</div>
+  `;
+  await carregarMaterias();
+}
+
+// ============================================================
+// Seleção de matéria + painel de detalhe
+// ============================================================
+
+async function selecionarMateria(uuid) {
+  materiaSelecionadaUuid = uuid;
+  abaAtiva = 'assuntos';
+  renderListaMaterias();
+
+  const m = materias.find(x => x.uuid === uuid);
+  if (!m) return;
+
+  document.getElementById('painelDetalhe').innerHTML = `<div class="est-loading">Carregando...</div>`;
+
+  await Promise.all([
+    carregarAssuntos(uuid),
+    carregarAnotacoes(uuid),
+    carregarDocumentos(uuid),
+    carregarSessoes(uuid)
+  ]);
+
+  renderDetalheMateria(m);
+}
+
+function renderDetalheMateria(m) {
+  const painel = document.getElementById('painelDetalhe');
+  painel.innerHTML = `
+    <div class="est-detalhe-header">
+      <div>
+        <div class="est-detalhe-titulo">${esc(m.nome)}</div>
+        <div class="est-materia-tipo">${esc(rotuloTipo(m.tipo))}</div>
+      </div>
+      <div class="est-detalhe-acoes">
+        <button class="btn-icon" onclick='abrirModalEditarMateria(${JSON.stringify(m).replace(/'/g, "&#39;")})'>✎</button>
+        <button class="btn-icon" style="border-color:#ff6b6b;" onclick="pedirExclusaoMateria()">🗑</button>
+      </div>
+    </div>
+
+    <div class="est-tabs">
+      <button class="est-tab ${abaAtiva === 'assuntos' ? 'ativa' : ''}" onclick="mudarAba('assuntos')">Assuntos</button>
+      <button class="est-tab ${abaAtiva === 'anotacoes' ? 'ativa' : ''}" onclick="mudarAba('anotacoes')">Anotações</button>
+      <button class="est-tab ${abaAtiva === 'documentos' ? 'ativa' : ''}" onclick="mudarAba('documentos')">Documentos</button>
+      <button class="est-tab ${abaAtiva === 'sessoes' ? 'ativa' : ''}" onclick="mudarAba('sessoes')">Questões</button>
+    </div>
+
+    <div id="abaConteudo"></div>
+  `;
+
+  renderAbaAtiva();
+}
+
+function mudarAba(aba) {
+  abaAtiva = aba;
+  const m = materias.find(x => x.uuid === materiaSelecionadaUuid);
+  if (!m) return;
+  document.querySelectorAll('.est-tab').forEach(t => t.classList.remove('ativa'));
+  event.target.classList.add('ativa');
+  renderAbaAtiva();
+}
+
+function renderAbaAtiva() {
+  if (abaAtiva === 'assuntos') renderAbaAssuntos();
+  else if (abaAtiva === 'anotacoes') renderAbaAnotacoes();
+  else if (abaAtiva === 'documentos') renderAbaDocumentos();
+  else if (abaAtiva === 'sessoes') renderAbaSessoes();
+}
+
+// ============================================================
+// Assuntos
+// ============================================================
+
+async function carregarAssuntos(materiaUuid) {
+  const { data, error } = await window.sb
+    .from('assuntos')
+    .select('*')
+    .eq('materia_uuid', materiaUuid)
+    .eq('deleted', false)
+    .order('nome', { ascending: true });
+
+  if (window.sbErr(error, 'carregarAssuntos')) { assuntosAtual = []; return; }
+  assuntosAtual = data || [];
+}
+
+function renderAbaAssuntos() {
+  const el = document.getElementById('abaConteudo');
+  let html = `<div class="est-lista">`;
+
+  if (assuntosAtual.length === 0) {
+    html += `<div class="est-vazio">Nenhum assunto cadastrado ainda.
+      <div class="est-vazio-cta"><button class="btn-sm" onclick="abrirModalNovoAssunto()">+ Novo assunto</button></div>
+    </div>`;
+  } else {
+    html += assuntosAtual.map(a => `
+      <div class="est-assunto-item">
+        <span class="est-assunto-nome">${esc(a.nome)}</span>
+        <div class="est-assunto-progresso">
+          <input type="range" min="0" max="100" value="${a.progresso ?? 0}"
+                 oninput="atualizarProgressoVisual('${esc(a.uuid)}', this.value)"
+                 onchange="salvarProgressoAssunto('${esc(a.uuid)}', this.value)">
+          <span class="est-assunto-progresso-num" id="progNum-${esc(a.uuid)}">${a.progresso ?? 0}%</span>
+        </div>
+        <button class="btn-icon" onclick='abrirModalEditarAssunto(${JSON.stringify(a).replace(/'/g, "&#39;")})'>✎</button>
+        <button class="btn-icon" style="border-color:#ff6b6b;" onclick="pedirExclusaoItem('assuntos', '${esc(a.uuid)}')">🗑</button>
+      </div>
+    `).join('');
+    html += `<button class="est-btn-nova-materia" onclick="abrirModalNovoAssunto()">+ Novo assunto</button>`;
+  }
+
+  html += `</div>`;
+  el.innerHTML = html;
+}
+
+function atualizarProgressoVisual(uuid, valor) {
+  const label = document.getElementById(`progNum-${uuid}`);
+  if (label) label.textContent = `${valor}%`;
+}
+
+async function salvarProgressoAssunto(uuid, valor) {
+  const { error } = await window.sb
+    .from('assuntos')
+    .update({ progresso: Number(valor), updated_at: window.now() })
+    .eq('uuid', uuid);
+
+  if (window.sbErr(error, 'salvarProgressoAssunto')) { toast('Erro ao salvar progresso.', 'erro'); return; }
+
+  const a = assuntosAtual.find(x => x.uuid === uuid);
+  if (a) a.progresso = Number(valor);
+}
+
+function abrirModalNovoAssunto() {
+  document.getElementById('modalAssuntoTitulo').textContent = 'Novo assunto';
+  document.getElementById('assuntoUuid').value = '';
+  document.getElementById('assuntoNome').value = '';
+  abrirModal('modalAssunto');
+}
+
+function abrirModalEditarAssunto(a) {
+  document.getElementById('modalAssuntoTitulo').textContent = 'Editar assunto';
+  document.getElementById('assuntoUuid').value = a.uuid;
+  document.getElementById('assuntoNome').value = a.nome;
+  abrirModal('modalAssunto');
+}
+
+async function salvarAssunto() {
+  const uuid = document.getElementById('assuntoUuid').value || crypto.randomUUID();
+  const nome = document.getElementById('assuntoNome').value.trim();
+  if (!nome) { toast('Dê um nome para o assunto.', 'erro'); return; }
+
+  const existente = assuntosAtual.find(x => x.uuid === uuid);
+  const payload = {
+    uuid, user_id: userId, materia_uuid: materiaSelecionadaUuid, nome,
+    progresso: existente ? existente.progresso : 0,
+    updated_at: window.now(), deleted: false
+  };
+
+  const { error } = await window.sb.from('assuntos').upsert(payload);
+  if (window.sbErr(error, 'salvarAssunto')) { toast('Erro ao salvar assunto.', 'erro'); return; }
+
+  toast('Assunto salvo.');
+  fecharModal('modalAssunto');
+  await carregarAssuntos(materiaSelecionadaUuid);
+  renderAbaAssuntos();
+}
+
+// ============================================================
+// Anotações
+// ============================================================
+
+async function carregarAnotacoes(materiaUuid) {
+  const { data, error } = await window.sb
+    .from('anotacoes')
+    .select('*')
+    .eq('materia_uuid', materiaUuid)
+    .eq('deleted', false)
+    .order('updated_at', { ascending: false });
+
+  if (window.sbErr(error, 'carregarAnotacoes')) { anotacoesAtual = []; return; }
+  anotacoesAtual = data || [];
+}
+
+function nomeAssunto(assuntoUuid) {
+  if (!assuntoUuid) return null;
+  const a = assuntosAtual.find(x => x.uuid === assuntoUuid);
+  return a ? a.nome : null;
+}
+
+function renderAbaAnotacoes() {
+  const el = document.getElementById('abaConteudo');
+  let html = `<div class="est-lista">`;
+
+  if (anotacoesAtual.length === 0) {
+    html += `<div class="est-vazio">Nenhuma anotação ainda.
+      <div class="est-vazio-cta"><button class="btn-sm" onclick="abrirModalNovaAnotacao()">+ Nova anotação</button></div>
+    </div>`;
+  } else {
+    html += anotacoesAtual.map(a => {
+      const assunto = nomeAssunto(a.assunto_uuid);
+      return `
+        <div class="est-anotacao-card">
+          ${a.titulo ? `<div class="est-anotacao-titulo">${esc(a.titulo)}</div>` : ''}
+          <div class="est-anotacao-meta">${assunto ? esc(assunto) : 'Geral'} · ${new Date(a.updated_at).toLocaleDateString('pt-BR')}</div>
+          <div class="est-anotacao-conteudo">${esc(a.conteudo)}</div>
+          <div class="est-anotacao-footer">
+            <button class="btn-icon" onclick='abrirModalEditarAnotacao(${JSON.stringify(a).replace(/'/g, "&#39;")})'>✎</button>
+            <button class="btn-icon" style="border-color:#ff6b6b;" onclick="pedirExclusaoItem('anotacoes', '${esc(a.uuid)}')">🗑</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+    html += `<button class="est-btn-nova-materia" onclick="abrirModalNovaAnotacao()">+ Nova anotação</button>`;
+  }
+
+  html += `</div>`;
+  el.innerHTML = html;
+}
+
+function preencherSelectAssuntos(selectId, valorAtual) {
+  const select = document.getElementById(selectId);
+  const opcoes = assuntosAtual.map(a =>
+    `<option value="${esc(a.uuid)}" ${a.uuid === valorAtual ? 'selected' : ''}>${esc(a.nome)}</option>`
+  ).join('');
+  select.innerHTML = select.querySelector('option[value=""]').outerHTML + opcoes;
+  if (valorAtual) select.value = valorAtual;
+}
+
+function abrirModalNovaAnotacao() {
+  document.getElementById('modalAnotacaoTitulo').textContent = 'Nova anotação';
+  document.getElementById('anotacaoUuid').value = '';
+  document.getElementById('anotacaoTitulo').value = '';
+  document.getElementById('anotacaoConteudo').value = '';
+  preencherSelectAssuntos('anotacaoAssunto', '');
+  abrirModal('modalAnotacao');
+}
+
+function abrirModalEditarAnotacao(a) {
+  document.getElementById('modalAnotacaoTitulo').textContent = 'Editar anotação';
+  document.getElementById('anotacaoUuid').value = a.uuid;
+  document.getElementById('anotacaoTitulo').value = a.titulo || '';
+  document.getElementById('anotacaoConteudo').value = a.conteudo;
+  preencherSelectAssuntos('anotacaoAssunto', a.assunto_uuid || '');
+  abrirModal('modalAnotacao');
+}
+
+async function salvarAnotacao() {
+  const uuid = document.getElementById('anotacaoUuid').value || crypto.randomUUID();
+  const titulo = document.getElementById('anotacaoTitulo').value.trim();
+  const conteudo = document.getElementById('anotacaoConteudo').value.trim();
+  const assuntoUuid = document.getElementById('anotacaoAssunto').value || null;
+
+  if (!conteudo) { toast('Escreva algum conteúdo.', 'erro'); return; }
+
+  const payload = {
+    uuid, user_id: userId, materia_uuid: materiaSelecionadaUuid,
+    assunto_uuid: assuntoUuid, titulo: titulo || null, conteudo,
+    updated_at: window.now(), deleted: false
+  };
+
+  const { error } = await window.sb.from('anotacoes').upsert(payload);
+  if (window.sbErr(error, 'salvarAnotacao')) { toast('Erro ao salvar anotação.', 'erro'); return; }
+
+  toast('Anotação salva.');
+  fecharModal('modalAnotacao');
+  await carregarAnotacoes(materiaSelecionadaUuid);
+  renderAbaAnotacoes();
+}
+
+// ============================================================
+// Documentos
+// ============================================================
+
+async function carregarDocumentos(materiaUuid) {
+  const { data, error } = await window.sb
+    .from('documentos_estudo')
+    .select('*')
+    .eq('materia_uuid', materiaUuid)
+    .eq('deleted', false)
+    .order('updated_at', { ascending: false });
+
+  if (window.sbErr(error, 'carregarDocumentos')) { documentosAtual = []; return; }
+  documentosAtual = data || [];
+}
+
+function rotuloTipoDoc(tipo) {
+  const mapa = { apostila: 'Apostila', prova: 'Prova', gabarito: 'Gabarito', resumo: 'Resumo', exercicios: 'Exercícios', outro: 'Outro' };
+  return mapa[tipo] || tipo;
+}
+
+function renderAbaDocumentos() {
+  const el = document.getElementById('abaConteudo');
+  let html = `<div class="est-lista">`;
+
+  if (documentosAtual.length === 0) {
+    html += `<div class="est-vazio">Nenhum documento enviado ainda.
+      <div class="est-vazio-cta"><button class="btn-sm" onclick="abrirModalNovoDocumento()">+ Novo documento</button></div>
+    </div>`;
+  } else {
+    html += documentosAtual.map(d => {
+      const assunto = nomeAssunto(d.assunto_uuid);
+      return `
+        <div class="est-doc-item">
+          <div class="est-doc-info">
+            <span class="est-doc-nome">${esc(d.nome)}</span>
+            <span class="est-doc-tipo">${esc(rotuloTipoDoc(d.tipo))}${assunto ? ' · ' + esc(assunto) : ''}</span>
+          </div>
+          <div class="est-doc-acoes">
+            <button class="btn-icon" onclick="abrirDocumento('${esc(d.uuid)}')">↗</button>
+            <button class="btn-icon" style="border-color:#ff6b6b;" onclick="pedirExclusaoItem('documentos_estudo', '${esc(d.uuid)}')">🗑</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+    html += `<button class="est-btn-nova-materia" onclick="abrirModalNovoDocumento()">+ Novo documento</button>`;
+  }
+
+  html += `</div>`;
+  el.innerHTML = html;
+}
+
+async function abrirDocumento(uuid) {
+  const doc = documentosAtual.find(d => d.uuid === uuid);
+  if (!doc || !doc.arquivo_path) { toast('Arquivo não encontrado.', 'erro'); return; }
+
+  const url = await window.getSignedUrl('documentos', doc.arquivo_path);
+  if (!url) { toast('Erro ao gerar link do arquivo.', 'erro'); return; }
+
+  window.open(url, '_blank');
+}
+
+function configurarUpload() {
+  const area = document.getElementById('uploadArea');
+  const input = document.getElementById('inputArquivo');
+
+  input.addEventListener('change', () => {
+    if (input.files.length > 0) definirArquivoSelecionado(input.files[0]);
+  });
+
+  area.addEventListener('dragover', (e) => { e.preventDefault(); area.classList.add('arrastando'); });
+  area.addEventListener('dragleave', () => area.classList.remove('arrastando'));
+  area.addEventListener('drop', (e) => {
+    e.preventDefault();
+    area.classList.remove('arrastando');
+    if (e.dataTransfer.files.length > 0) definirArquivoSelecionado(e.dataTransfer.files[0]);
+  });
+}
+
+function definirArquivoSelecionado(file) {
+  if (file.type !== 'application/pdf') { toast('Apenas arquivos PDF são aceitos.', 'erro'); return; }
+  if (file.size > 50 * 1024 * 1024) { toast('Arquivo maior que 50MB.', 'erro'); return; }
+
+  arquivoSelecionado = file;
+  document.getElementById('uploadTexto').textContent = file.name;
+
+  if (!document.getElementById('documentoNome').value) {
+    document.getElementById('documentoNome').value = file.name.replace(/\.pdf$/i, '');
+  }
+}
+
+function abrirModalNovoDocumento() {
+  document.getElementById('documentoNome').value = '';
+  document.getElementById('documentoTipo').value = 'outro';
+  preencherSelectAssuntos('documentoAssunto', '');
+  arquivoSelecionado = null;
+  document.getElementById('uploadTexto').textContent = 'Clique para escolher um PDF ou arraste aqui';
+  document.getElementById('inputArquivo').value = '';
+  abrirModal('modalDocumento');
+}
+
+async function salvarDocumento() {
+  const nome = document.getElementById('documentoNome').value.trim();
+  const tipo = document.getElementById('documentoTipo').value;
+  const assuntoUuid = document.getElementById('documentoAssunto').value || null;
+
+  if (!nome) { toast('Dê um nome para o documento.', 'erro'); return; }
+  if (!arquivoSelecionado) { toast('Escolha um arquivo PDF.', 'erro'); return; }
+
+  const btn = document.getElementById('btnUploadDocumento');
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+
+  const uuid = crypto.randomUUID();
+  const filePath = `${userId}/${uuid}.pdf`;
+
+  const path = await window.uploadFile('documentos', filePath, arquivoSelecionado);
+
+  btn.disabled = false;
+  btn.textContent = 'Enviar';
+
+  if (!path) { toast('Erro ao enviar arquivo.', 'erro'); return; }
+
+  const payload = {
+    uuid, user_id: userId, materia_uuid: materiaSelecionadaUuid,
+    assunto_uuid: assuntoUuid, nome, arquivo_path: path, tipo,
+    updated_at: window.now(), deleted: false
+  };
+
+  const { error } = await window.sb.from('documentos_estudo').upsert(payload);
+  if (window.sbErr(error, 'salvarDocumento')) { toast('Arquivo enviado, mas houve erro ao salvar o registro.', 'erro'); return; }
+
+  toast('Documento enviado.');
+  fecharModal('modalDocumento');
+  await carregarDocumentos(materiaSelecionadaUuid);
+  renderAbaDocumentos();
+}
+
+// ============================================================
+// Sessões de questões
+// ============================================================
+
+async function carregarSessoes(materiaUuid) {
+  const { data, error } = await window.sb
+    .from('sessoes_questoes')
+    .select('*')
+    .eq('materia_uuid', materiaUuid)
+    .eq('deleted', false)
+    .order('data_estudo', { ascending: false });
+
+  if (window.sbErr(error, 'carregarSessoes')) { sessoesAtual = []; return; }
+  sessoesAtual = data || [];
+}
+
+function classePercentual(pct) {
+  if (pct >= 70) return 'bom';
+  if (pct >= 50) return 'medio';
+  return 'ruim';
+}
+
+function renderAbaSessoes() {
+  const el = document.getElementById('abaConteudo');
+  let html = `<div class="est-lista">`;
+
+  if (sessoesAtual.length === 0) {
+    html += `<div class="est-vazio">Nenhuma sessão de questões registrada ainda.
+      <div class="est-vazio-cta"><button class="btn-sm" onclick="abrirModalNovaSessao()">+ Nova sessão</button></div>
+    </div>`;
+  } else {
+    html += sessoesAtual.map(s => {
+      const pct = s.total_questoes > 0 ? Math.round((s.total_acertos / s.total_questoes) * 100) : 0;
+      const dataFmt = new Date(s.data_estudo + 'T00:00:00').toLocaleDateString('pt-BR');
+      return `
+        <div class="est-sessao-item">
+          <span class="est-sessao-data">${dataFmt}</span>
+          <div class="est-sessao-info">
+            <div class="est-sessao-fonte">${esc(s.fonte || 'Sem fonte')}</div>
+            <div class="est-sessao-meta">${s.total_acertos}/${s.total_questoes} acertos${s.tempo_minutos ? ' · ' + s.tempo_minutos + 'min' : ''}</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:.6rem;">
+            <span class="est-sessao-percentual ${classePercentual(pct)}">${pct}%</span>
+            <button class="btn-icon" style="border-color:#ff6b6b;" onclick="pedirExclusaoItem('sessoes_questoes', '${esc(s.uuid)}')">🗑</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+    html += `<button class="est-btn-nova-materia" onclick="abrirModalNovaSessao()">+ Nova sessão</button>`;
+  }
+
+  html += `</div>`;
+  el.innerHTML = html;
+}
+
+function abrirModalNovaSessao() {
+  document.getElementById('modalSessaoTitulo').textContent = 'Nova sessão de questões';
+  document.getElementById('sessaoUuid').value = '';
+  document.getElementById('sessaoFonte').value = '';
+  document.getElementById('sessaoTotal').value = '';
+  document.getElementById('sessaoAcertos').value = '';
+  document.getElementById('sessaoData').value = new Date().toISOString().slice(0, 10);
+  document.getElementById('sessaoTempo').value = '';
+  document.getElementById('sessaoObs').value = '';
+  preencherSelectAssuntos('sessaoAssunto', '');
+  abrirModal('modalSessao');
+}
+
+async function salvarSessao() {
+  const uuid = document.getElementById('sessaoUuid').value || crypto.randomUUID();
+  const fonte = document.getElementById('sessaoFonte').value.trim();
+  const assuntoUuid = document.getElementById('sessaoAssunto').value || null;
+  const total = Number(document.getElementById('sessaoTotal').value);
+  const acertos = Number(document.getElementById('sessaoAcertos').value || 0);
+  const data = document.getElementById('sessaoData').value;
+  const tempo = document.getElementById('sessaoTempo').value ? Number(document.getElementById('sessaoTempo').value) : null;
+  const obs = document.getElementById('sessaoObs').value.trim() || null;
+
+  if (!total || total <= 0) { toast('Informe o total de questões.', 'erro'); return; }
+  if (acertos > total) { toast('Acertos não pode ser maior que o total.', 'erro'); return; }
+  if (!data) { toast('Informe a data.', 'erro'); return; }
+
+  const payload = {
+    uuid, user_id: userId, materia_uuid: materiaSelecionadaUuid,
+    assunto_uuid: assuntoUuid, documento_uuid: null, fonte: fonte || null,
+    total_questoes: total, total_acertos: acertos, data_estudo: data,
+    tempo_minutos: tempo, observacoes: obs,
+    updated_at: window.now(), deleted: false
+  };
+
+  const { error } = await window.sb.from('sessoes_questoes').upsert(payload);
+  if (window.sbErr(error, 'salvarSessao')) { toast('Erro ao salvar sessão.', 'erro'); return; }
+
+  toast('Sessão salva.');
+  fecharModal('modalSessao');
+  await carregarSessoes(materiaSelecionadaUuid);
+  renderAbaSessoes();
+}
+
+// ============================================================
+// Exclusão genérica (assuntos / anotações / documentos_estudo / sessoes_questoes)
+// ============================================================
+
+function pedirExclusaoItem(tabela, uuid) {
+  exclusaoPendente = { tabela, uuid };
+  abrirModal('modalExcluirItem');
+}
+
+async function confirmarExcluirItem() {
+  if (!exclusaoPendente) return;
+  const { tabela, uuid } = exclusaoPendente;
+
+  const { error } = await window.softDelete(tabela, uuid);
+  if (error) { toast('Erro ao excluir.', 'erro'); return; }
+
+  toast('Excluído.');
+  fecharModal('modalExcluirItem');
+  exclusaoPendente = null;
+
+  if (tabela === 'assuntos') { await carregarAssuntos(materiaSelecionadaUuid); renderAbaAssuntos(); }
+  else if (tabela === 'anotacoes') { await carregarAnotacoes(materiaSelecionadaUuid); renderAbaAnotacoes(); }
+  else if (tabela === 'documentos_estudo') { await carregarDocumentos(materiaSelecionadaUuid); renderAbaDocumentos(); }
+  else if (tabela === 'sessoes_questoes') { await carregarSessoes(materiaSelecionadaUuid); renderAbaSessoes(); }
+}
+
+// Fechar modais no backdrop e Esc
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.style.display = 'none';
+  });
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay').forEach(o => o.style.display = 'none');
+  }
+});
+</script>
+</body>
+</html>
