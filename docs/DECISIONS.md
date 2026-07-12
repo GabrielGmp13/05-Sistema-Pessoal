@@ -303,3 +303,24 @@ MyAnimeList/Jikan (gratuita, sem autenticação) — mesmo padrão de `capa_url`
 sobre `capa_path` usado em livros/filmes/séries. Campo `mal_id` adicionado à tabela
 `mangas` para permitir refresh futuro de metadados (volumes, sinopse, nota da
 comunidade) buscados ao vivo na API, sem persistir no banco.
+
+## DEC-015 — GRANT explícito obrigatório em toda migration
+
+**Data:** 2026-07-11 (Fase 4, durante validação pós-execução de `003_biblioteca.sql`)
+**Status:** ✅ Aprovada
+
+### Contexto
+Após executar `003_biblioteca.sql`, todas as 11 tabelas novas (e, na investigação, também as tabelas antigas de `001` e `002`) apareceram com o badge "API DISABLED" no dashboard do Supabase. Investigação revelou que o Supabase mudou o comportamento padrão para projetos criados a partir de 2026-05-30: GRANT para `anon`/`authenticated` deixou de ser automático. RLS e policies continuam funcionando normalmente, mas sem GRANT explícito a tabela fica inacessível via Data API (`supabase-js`, REST, GraphQL) — erro 42501 mesmo com policy válida.
+
+### Decisão
+Toda migration SQL do projeto passa a incluir, por tabela, além de `ENABLE ROW LEVEL SECURITY` e `CREATE POLICY`:
+```sql
+GRANT SELECT, INSERT, UPDATE, DELETE ON <table> TO authenticated;
+```
+Nunca conceder GRANT para `anon` (o sistema exige login em toda tela).
+
+### Justificativa
+Sem essa linha, qualquer migration futura vai reproduzir o mesmo problema silenciosamente — a tabela existe, a policy existe, mas a API não responde, e o erro só aparece em teste real do frontend, não no SQL Editor (que roda como `postgres`, sem restrição).
+
+### Impacto
+`DATABASE.md` → Convenção universal atualizada. GRANT retroativo já aplicado nas tabelas existentes (`001`, `002`, `003`) em 2026-07-11.

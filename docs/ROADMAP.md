@@ -95,7 +95,7 @@ Schema completo (5 tabelas) documentado em `DATABASE.md`.
 ## Fase 4 — Biblioteca 🔄 EM ANDAMENTO
 
 **Arquivo:** `biblioteca.html` (não iniciado)
-**Migração:** `supabase/migrations/003_biblioteca.sql` — ✅ criada · ⏳ execução pendente
++ **Migração:** `supabase/migrations/003_biblioteca.sql` — ✅ criada · ✅ executada e confirmada no Supabase (2026-07-11)
 
 Schema: 11 tabelas (`livros`, `filmes`, `series`, `mangas`, `podcasts`, `tags`,
 5 tabelas de junção `*_tags`) — ver DEC-014.

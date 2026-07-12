@@ -7,11 +7,9 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 ## Status geral
 
 **Fase atual:** Fase 3 — Módulo de Estudos (em andamento)
+**Fase atual:** Fase 4 — Biblioteca (em andamento)
 **Bloqueio:** nenhum — os 3 bugs/riscos conhecidos anteriores foram resolvidos ou descartados
-**Próxima ação:** deploy no Vercel (Fase M) ou avançar Fase 3 (confirmar RLS nas 5 tabelas de Estudos)
----
-
-## 🔴 Bugs conhecidos — prioridade alta
+**Próxima ação:** testar `biblioteca.html` (gerado em 2026-07-12) contra o Supabase real, depois integrar TMDB/Google Books/Jikan
 
 ## 🔴 Bugs conhecidos — prioridade alta
 
@@ -28,12 +26,13 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 
 ## Fase 4 — Biblioteca
 
-- [x] Definir escopo (estrutura de tabelas, avaliação, tags, API de mangás)
-- [x] Criar `003_biblioteca.sql`
-- [ ] Rodar `003_biblioteca.sql` no Supabase SQL Editor
-- [ ] Confirmar RLS + policy `user_own_data` nas 11 tabelas novas
-- [ ] Gerar `biblioteca.html`
-- [ ] Integrar TMDB, Google Books, Jikan (fetch direto no frontend)
+ [x] Definir escopo (estrutura de tabelas, avaliação, tags, API de mangás)
+ [x] Criar `003_biblioteca.sql`
+ [x] Rodar `003_biblioteca.sql` no Supabase SQL Editor (2026-07-11 — sucesso, 11 tabelas confirmadas no Table Editor)
+ [x] Confirmar RLS + policy `user_own_data` ativa nas 11 tabelas novas (2026-07-11 — confirmado via pg_policies)
+ [x] Gerar `biblioteca.html` (2026-07-12) — CRUD dos 5 tipos, tags, upload manual de capa
+ [ ] Testar `biblioteca.html` end-to-end contra o Supabase real (nunca testado em uso real)
+ [ ] Integrar TMDB, Google Books, Jikan (fetch direto no frontend)
 
 
 ## Pendências da Fase M (migração)

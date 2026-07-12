@@ -17,11 +17,14 @@ deleted     BOOLEAN DEFAULT FALSE            -- soft delete universal, nunca DEL
 ALTER TABLE <table> ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "user_own_data" ON <table>
   FOR ALL USING (auth.uid() = user_id);
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON <table> TO authenticated;
 ```
 
 Chaves estrangeiras seguem `<tabela_singular>_uuid` (ex: `treino_uuid`, `materia_uuid`), nunca `_id`. Essa é a causa mais comum de bug neste projeto até agora — ver seção Gotchas.
-
+**GRANT é obrigatório em toda migration, não opcional.** Projetos Supabase criados a partir de 2026-05-30 não recebem GRANT automático em nenhuma tabela nova, mesmo com RLS e policy corretos — sem o GRANT explícito para `authenticated`, a tabela fica inacessível via Data API (badge "API DISABLED" no dashboard) e o `supabase-js` recebe erro 42501 mesmo com policies válidas. RLS e GRANT são camadas independentes: GRANT decide se o papel alcança a tabela; RLS decide quais linhas ele vê dentro dela.
 Índices parciais `WHERE NOT deleted` existem nas tabelas principais para acelerar as queries que sempre filtram registros ativos.
+
 
 ---
 
@@ -31,7 +34,7 @@ Chaves estrangeiras seguem `<tabela_singular>_uuid` (ex: `treino_uuid`, `materia
 |---|---|---|
 | `001_schema_inicial.sql` | ✅ Executado e verificado no Supabase | 8 tabelas do núcleo (treino, shape, cardio, agenda, revisão) |
 | `002_estudos.sql` | ✅ Executado e verificado no Supabase (2026-07-11) | 5 tabelas do módulo de Estudos |
-| `003_biblioteca.sql` | ⏳ Planejado (Fase 4) | Catálogo de mídia — ver DEC-011 |
+| `003_biblioteca.sql` | ✅ Executado e verificado no Supabase (2026-07-11) | 11 tabelas do módulo Biblioteca — ver DEC-011, DEC-014 |
 
 **Convenção para novas migrações:** numeração sequencial de 3 dígitos + nome do módulo em snake_case (`00N_nome-modulo.sql`). Depois de rodar no SQL Editor, atualizar a tabela acima e a seção correspondente deste documento.
 
@@ -214,8 +217,130 @@ updated_at       TIMESTAMPTZ DEFAULT NOW(),
 deleted          BOOLEAN DEFAULT FALSE
 ```
 
----
+## Schema — `003_biblioteca.sql`
 
+Convenção de status por tipo (texto livre, sem CHECK constraint — validação fica no frontend):
+- `livros`/`mangas`: `quero_ler` | `lendo` | `lido` | `pausado` | `abandonado`
+- `filmes`: `quero_ver` | `assistido` | `abandonado`
+- `series`: `quero_ver` | `assistindo` | `assistido` | `pausado` | `abandonado`
+- `podcasts`: `quero_ouvir` | `ouvindo` | `concluido` | `pausado` | `abandonado`
+
+### `livros`
+```sql
+uuid             TEXT PRIMARY KEY,
+user_id          UUID NOT NULL REFERENCES auth.users(id),
+titulo           TEXT NOT NULL,
+autor            TEXT,
+isbn             TEXT,
+google_books_id  TEXT,
+capa_url         TEXT,   -- prioritária, vem da API
+capa_path        TEXT,   -- fallback, upload manual no bucket 'capas'
+paginas_total    INTEGER,
+pagina_atual     INTEGER DEFAULT 0,
+status           TEXT DEFAULT 'quero_ler',
+nota             INTEGER,  -- 1-10
+comentario       TEXT,
+data_inicio      DATE,
+data_fim         DATE,
+updated_at       TIMESTAMPTZ DEFAULT NOW(),
+deleted          BOOLEAN DEFAULT FALSE
+```
+
+### `filmes`
+```sql
+uuid        TEXT PRIMARY KEY,
+user_id     UUID NOT NULL REFERENCES auth.users(id),
+titulo      TEXT NOT NULL,
+diretor     TEXT,
+tmdb_id     TEXT,
+capa_url    TEXT,
+capa_path   TEXT,
+status      TEXT DEFAULT 'quero_ver',
+nota        INTEGER,
+comentario  TEXT,
+data_inicio DATE,
+data_fim    DATE,
+updated_at  TIMESTAMPTZ DEFAULT NOW(),
+deleted     BOOLEAN DEFAULT FALSE
+```
+
+### `series`
+```sql
+uuid             TEXT PRIMARY KEY,
+user_id          UUID NOT NULL REFERENCES auth.users(id),
+titulo           TEXT NOT NULL,
+diretor          TEXT,   -- reaproveita o mesmo campo de filmes (direção/criação)
+tmdb_id          TEXT,
+capa_url         TEXT,
+capa_path        TEXT,
+temporada_atual  INTEGER DEFAULT 1,
+episodio_atual   INTEGER DEFAULT 0,
+status           TEXT DEFAULT 'quero_ver',
+nota             INTEGER,
+comentario       TEXT,
+data_inicio      DATE,
+data_fim         DATE,
+updated_at       TIMESTAMPTZ DEFAULT NOW(),
+deleted          BOOLEAN DEFAULT FALSE
+```
+
+### `mangas`
+```sql
+uuid             TEXT PRIMARY KEY,
+user_id          UUID NOT NULL REFERENCES auth.users(id),
+titulo           TEXT NOT NULL,
+autor            TEXT,
+mal_id           TEXT,   -- MyAnimeList/Jikan
+capa_url         TEXT,
+capa_path        TEXT,
+capitulo_atual   INTEGER DEFAULT 0,
+status           TEXT DEFAULT 'quero_ler',
+nota             INTEGER,
+comentario       TEXT,
+data_inicio      DATE,
+data_fim         DATE,
+updated_at       TIMESTAMPTZ DEFAULT NOW(),
+deleted          BOOLEAN DEFAULT FALSE
+```
+
+### `podcasts`
+```sql
+uuid            TEXT PRIMARY KEY,
+user_id         UUID NOT NULL REFERENCES auth.users(id),
+titulo          TEXT NOT NULL,
+capa_path       TEXT,   -- sem capa_url: podcasts não têm API de metadados definida ainda
+episodio_atual  INTEGER DEFAULT 0,
+status          TEXT DEFAULT 'ouvindo',
+nota            INTEGER,
+comentario      TEXT,
+data_inicio     DATE,
+data_fim        DATE,
+updated_at      TIMESTAMPTZ DEFAULT NOW(),
+deleted         BOOLEAN DEFAULT FALSE
+```
+> Única tabela de mídia sem `capa_url` e sem campo de autor/diretor — confirma a ausência de API prevista no ROADMAP.
+
+### `tags`
+```sql
+uuid       TEXT PRIMARY KEY,
+user_id    UUID NOT NULL REFERENCES auth.users(id),
+nome       TEXT NOT NULL,
+updated_at TIMESTAMPTZ DEFAULT NOW(),
+deleted    BOOLEAN DEFAULT FALSE
+```
+
+### Tabelas de junção (`*_tags`)
+Todas seguem o mesmo padrão — `uuid`, `user_id`, `<tipo_singular>_uuid`, `tag_uuid`, `updated_at`, `deleted`:
+
+| Tabela | FK do item |
+|---|---|
+| `livros_tags` | `livro_uuid` |
+| `filmes_tags` | `filme_uuid` |
+| `series_tags` | `serie_uuid` |
+| `mangas_tags` | `manga_uuid` |
+| `podcasts_tags` | `podcast_uuid` |
+
+---
 ## Storage
 
 Buckets e políticas detalhados em `ARCHITECTURE.md` → Supabase Storage e `DECISIONS.md` → DEC-010. Resumo: 3 buckets, todos privados, sempre via signed URL, path `{user_id}/arquivo.ext`.
@@ -234,3 +359,5 @@ Buckets e políticas detalhados em `ARCHITECTURE.md` → Supabase Storage e `DEC
 | `sm2.js` | `calcularSM2(intervalo, fator, qualidade)` → `{novoIntervalo, novoFator, proximaRevisao}` | `calcularSM2(ef, repeticoes, intervaloDias, qualidade)` → `{ef, repeticoes, intervaloDias, proximaRevisao}` | `revisao.html` — **corrigido em 2026-07-11** |
 
 **Status:** `revisao.html` corrigido em 2026-07-11 (via Cline+DeepSeek) — todas as colunas e a assinatura de `calcularSM2()` foram ajustadas para os nomes reais. `treino-plano.html` verificado na mesma data: já usava `treino_uuid` corretamente e não referenciava `grupo_muscular`, nenhuma alteração necessária. Ver `CHANGELOG.md`.
+
+**Gotcha adicional (não é nome de coluna):** as migrations `001_schema_inicial.sql`, `002_estudos.sql` e `003_biblioteca.sql` foram executadas sem `GRANT` explícito para `authenticated`. Isso não impediu a criação das tabelas nem das policies, mas deixou todas as tabelas do projeto inacessíveis via Data API até a correção manual em 2026-07-11. GRANT foi aplicado retroativamente a todas as tabelas existentes via `GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO authenticated;`. Toda migration a partir de agora deve incluir a linha de GRANT por tabela.

@@ -90,3 +90,15 @@ Histórico de mudanças por marco.
   - Mangás passam a ter API definida — MyAnimeList/Jikan (gratuita, sem key) — revertendo a premissa original de DEC-011 de que mangás seriam sempre manuais; atualização registrada como nota em DEC-011
 - `003_biblioteca.sql` criado: 11 tabelas, todas com RLS + policy `user_own_data`, seguindo a convenção universal (`uuid`, `user_id`, `updated_at`, `deleted`)
 - Execução da migration no Supabase ainda pendente — `biblioteca.html` só será gerado após confirmação, seguindo a disciplina de `MODULE_TEMPLATE.md` (mesmo cuidado que faltou originalmente em `estudos.html`)
+
+## 2026-07-11 — Módulo Biblioteca: schema executado no Supabase
+
+- `003_biblioteca.sql` executado com sucesso no SQL Editor do Supabase ("Success. No rows returned")
+- 11 tabelas confirmadas no Table Editor: `livros`, `livros_tags`, `filmes`, `filmes_tags`, `series`, `series_tags`, `mangas`, `mangas_tags`, `podcasts`, `podcasts_tags`, `tags`
+- Pendência: confirmar RLS + policy `user_own_data` ativa nas 11 tabelas antes de gerar `biblioteca.html`
+
+ ## 2026-07-12 — `biblioteca.html` gerado e `DATABASE.md` atualizado
+ - `biblioteca.html` implementado: página única com filtro por tipo, CRUD dos 5 tipos via config compartilhada, tags (`tags` + 5 junções `*_tags`), upload manual de capa (bucket `capas`), soft delete
+ - Confirmado via `pg_policies` que as 11 tabelas têm RLS + `user_own_data` ativas antes da geração da página
+ - `DATABASE.md`: adicionada seção `Schema — 003_biblioteca.sql`; removidos marcadores de diff colados por engano, que duplicavam a seção `## Storage`
+ - Pendente: teste end-to-end de `biblioteca.html`; integração TMDB/Google Books/Jikan
