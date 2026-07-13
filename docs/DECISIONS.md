@@ -324,3 +324,40 @@ Sem essa linha, qualquer migration futura vai reproduzir o mesmo problema silenc
 
 ### Impacto
 `DATABASE.md` → Convenção universal atualizada. GRANT retroativo já aplicado nas tabelas existentes (`001`, `002`, `003`) em 2026-07-11.
+
++## DEC-016 — Podcasts ganham API de metadados (iTunes Search API)
++
++**Data:** 2026-07-13 (Fase 4, integração de APIs externas)
++**Status:** ✅ Aprovada
++
++### Contexto
++DEC-011 registrava podcasts como o único tipo da Biblioteca sem API de metadados
++definida, permanecendo 100% manual. Ao planejar a integração de TMDB/Google Books/
++Jikan, identificou-se que a iTunes Search API (`itunes.apple.com/search`) cobre
++podcasts sem necessidade de key, autenticação ou custo — mesmo padrão gratuito já
++usado para Jikan/MAL (mangás).
++
++### Decisão
++Podcasts passam a integrar com a iTunes Search API. Campos retornados usados:
++`trackId` (armazenado como `itunes_id`), `artworkUrl600` (armazenado como
++`capa_url`), `artistName` (autor/produtora do podcast).
++
++### Alternativas consideradas
++
++| Alternativa | Descartada por |
++|---|---|
++| Taddy API | Exige API key e tem foco em transcrição/episódios — funcionalidade muito além do escopo de catálogo (ver PROJECT_PRINCIPLES.md #11, escopo proporcional). |
++| Manter podcasts 100% manuais | Deixaria de aproveitar uma API gratuita já compatível com o padrão `capa_url` usado nos outros 4 tipos. |
++
++### Justificativa
++Mesmo padrão de prioridade já usado em livros/filmes/séries/mangás: `capa_url`
++da API tem prioridade sobre `capa_path` manual. Nenhuma dependência nova, nenhum
++custo, nenhuma autenticação.
++
++### Impacto
++`podcasts` ganha duas colunas novas via `004_podcasts_itunes.sql`: `itunes_id TEXT`
++e `capa_url TEXT`. `capa_path` permanece como fallback para os casos raros em que
++a iTunes API não retorna o podcast buscado.
++
++**Atualização em DEC-011:** a premissa de "podcasts: sem API, sempre manual" está
++superada, no mesmo espírito da atualização já feita para mangás em 2026-07-11.

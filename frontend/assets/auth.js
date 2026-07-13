@@ -20,7 +20,7 @@ window.authReady = (async () => {
   const { data: { session }, error } = await window.sb.auth.getSession();
 
   if (error || !session) {
-    window.location.replace('/login.html');
+    window.location.replace('../login.html');
     return null;
   }
 

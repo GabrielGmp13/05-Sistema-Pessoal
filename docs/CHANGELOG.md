@@ -102,3 +102,20 @@ Histórico de mudanças por marco.
  - Confirmado via `pg_policies` que as 11 tabelas têm RLS + `user_own_data` ativas antes da geração da página
  - `DATABASE.md`: adicionada seção `Schema — 003_biblioteca.sql`; removidos marcadores de diff colados por engano, que duplicavam a seção `## Storage`
  - Pendente: teste end-to-end de `biblioteca.html`; integração TMDB/Google Books/Jikan
+
+ ## 2026-07-13 — `biblioteca.html` testado end-to-end
+
+- Teste manual completo contra o Supabase real: login, CRUD dos 5 tipos (livros, filmes, séries, mangás, podcasts), edição persistente, soft delete (confirmado `deleted = true` via Table Editor), tags compartilhadas entre tipos (tabela `tags` + junções `*_tags`), upload manual de capa no bucket `capas`
+- Bug encontrado e corrigido: `<link rel="stylesheet" href="style.css">` apontava para caminho errado — corrigido para `assets/style.css` (ver DATABASE.md → Gotchas)
+- Confirmado: rejeição correta de upload > 2MB pelo bucket `capas` (limite do DEC-010); UI não oferece busca de capa via API para podcasts (não têm `capa_url` no schema)
+- Aviso não-bloqueante: "Tracking Prevention blocked access to storage" no Edge — comportamento do navegador para script de CDN de terceiros, sem impacto funcional
+- Melhoria registrada em BACKLOG.md: validar tamanho do arquivo no frontend antes do upload, evitando round-trip desnecessário ao Storage
+- Fase 4 (Biblioteca): testes completos. Próxima etapa: integração TMDB/Google Books/Jikan
+
+## 2026-07-13 — Podcasts ganham API de metadados (DEC-016) e schema atualizado
++
++- Decisão: podcasts passam a integrar com a iTunes Search API (gratuita, sem key) — revertendo a premissa original de DEC-011 de que podcasts seriam sempre manuais, mesmo padrão da atualização já feita para mangás em 2026-07-11 (DEC-016)
++- `004_podcasts_itunes.sql` criado e executado com sucesso no Supabase: colunas `itunes_id` e `capa_url` adicionadas à tabela `podcasts`. Confirmado no Table Editor.
++- `DATABASE.md` atualizado: migration `004` marcada como executada, schema de `podcasts` documentado com as duas colunas novas
++- Escopo de UX definido para a integração das 4 APIs (TMDB, Google Books, Jikan, iTunes) em `biblioteca.html`: busca dispara automaticamente com debounce enquanto o usuário digita o título; resultados aparecem em lista (capa + título) para escolha manual, nunca preenchimento automático do primeiro resultado
++- Pendente: gerar o código de integração em `biblioteca.html`

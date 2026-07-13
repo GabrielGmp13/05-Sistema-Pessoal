@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Biblioteca — Sistema Pessoal</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="assets/style.css">
 <style>
   /* ===== Biblioteca — classes prefixadas .bib- (page-specific), ver NAMING_CONVENTIONS.md ===== */
 
@@ -197,6 +197,30 @@
   }
   .bib-capa-preview img { width: 100%; height: 100%; object-fit: cover; }
 
+  .bib-busca-resultados {
+    margin-top: .4rem;
+    max-height: 220px;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+  }
+  .bib-busca-item {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .4rem .6rem;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+  }
+  .bib-busca-item:last-child { border-bottom: none; }
+  .bib-busca-item:hover { background: var(--surface); }
+  .bib-busca-item img {
+    width: 32px; height: 46px; object-fit: cover; border-radius: 4px; background: var(--surface); flex-shrink: 0;
+  }
+  .bib-busca-item span { font-size: .78rem; color: var(--text); line-height: 1.2; }
+  .bib-busca-loading { padding: .5rem .6rem; font-size: .75rem; color: #555; }
+
   .bib-loading { text-align: center; padding: 2rem; color: #555; font-size: .82rem; }
 
   @media (max-width: 680px) {
@@ -251,6 +275,7 @@
       <div class="bib-form-row">
         <label>Título *</label>
         <input type="text" id="bibTitulo" class="form-control" placeholder="Título">
+        <div id="bibBuscaResultados" class="bib-busca-resultados" style="display:none;"></div>
       </div>
 
       <div class="bib-form-row" id="bibAutorRow" style="display:none;">
@@ -424,9 +449,9 @@ const TIPOS = {
     tabela: 'podcasts', tabelaTags: 'podcasts_tags', fkTag: 'podcast_uuid',
     label: 'Podcast', labelPlural: 'Podcasts', icone: '🎙️',
     campoAutor: null, labelAutor: null,
-    temCapaUrl: false,
+    temCapaUrl: true,
     progresso: { atual: 'episodio_atual', atualLabel: 'Episódio atual', total: null, extra: null },
-    idExterno: null,
+    idExterno: { campo: 'itunes_id', label: 'iTunes ID' },
     status: [
       { v: 'quero_ouvir', l: 'Quero ouvir' },
       { v: 'ouvindo', l: 'Ouvindo' },
@@ -445,6 +470,70 @@ const CORES_STATUS = {
   pausado: '#fb923c',
   abandonado: '#ff6b6b'
 };
+
+// ============ Busca de metadados — TMDB, Google Books, Jikan, iTunes ============
+// COLOQUE SUA CHAVE do TMDB aqui (gratuita — cadastro em themoviedb.org/settings/api)
+const TMDB_API_KEY = '098ba4ea25ab03a61c92aaf306ef5e0b';
+
+const BUSCA_API = {
+  livros: async (q) => {
+    const r = await fetch('https://www.googleapis.com/books/v1/volumes?q=' + encodeURIComponent(q) + '&maxResults=8');
+    const data = await r.json();
+    return (data.items || []).map(item => ({
+      idExterno: item.id,
+      titulo: item.volumeInfo.title || '',
+      autor: (item.volumeInfo.authors || []).join(', '),
+      capaUrl: item.volumeInfo.imageLinks ? item.volumeInfo.imageLinks.thumbnail.replace('http://', 'https://') : ''
+    }));
+  },
+  filmes: async (q) => {
+    if (TMDB_API_KEY === 'COLOQUE_SUA_CHAVE_TMDB_AQUI') { toast('Configure TMDB_API_KEY no código antes de buscar filmes', 'erro'); return []; }
+    const r = await fetch('https://api.themoviedb.org/3/search/movie?query=' + encodeURIComponent(q) + '&api_key=' + TMDB_API_KEY + '&language=pt-BR');
+    const data = await r.json();
+    return (data.results || []).slice(0, 8).map(item => ({
+      idExterno: String(item.id),
+      titulo: item.title || '',
+      autor: '',
+      capaUrl: item.poster_path ? 'https://image.tmdb.org/t/p/w342' + item.poster_path : ''
+    }));
+  },
+  series: async (q) => {
+    if (TMDB_API_KEY === 'COLOQUE_SUA_CHAVE_TMDB_AQUI') { toast('Configure TMDB_API_KEY no código antes de buscar séries', 'erro'); return []; }
+    const r = await fetch('https://api.themoviedb.org/3/search/tv?query=' + encodeURIComponent(q) + '&api_key=' + TMDB_API_KEY + '&language=pt-BR');
+    const data = await r.json();
+    return (data.results || []).slice(0, 8).map(item => ({
+      idExterno: String(item.id),
+      titulo: item.name || '',
+      autor: '',
+      capaUrl: item.poster_path ? 'https://image.tmdb.org/t/p/w342' + item.poster_path : ''
+    }));
+  },
+  mangas: async (q) => {
+    const r = await fetch('https://api.jikan.moe/v4/manga?q=' + encodeURIComponent(q) + '&limit=8');
+    const data = await r.json();
+    return (data.data || []).map(item => ({
+      idExterno: String(item.mal_id),
+      titulo: item.title || '',
+      autor: (item.authors || []).map(a => a.name).join(', '),
+      capaUrl: item.images && item.images.jpg ? item.images.jpg.image_url : ''
+    }));
+  },
+  podcasts: async (q) => {
+    const r = await fetch('https://itunes.apple.com/search?term=' + encodeURIComponent(q) + '&entity=podcast&limit=8');
+    const data = await r.json();
+    return (data.results || []).map(item => ({
+      idExterno: String(item.trackId),
+      titulo: item.trackName || '',
+      autor: item.artistName || '',
+      capaUrl: item.artworkUrl600 || ''
+    }));
+  }
+};
+
+function debounce(fn, ms) {
+  let timer;
+  return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
+}
 
 let itens = [];
 let todasTags = [];
@@ -704,6 +793,62 @@ function selecionarTipoModal(tipo) {
   renderTagsBox(tipo, document.getElementById('bibItemUuid').value || null);
 }
 
+// ============ Busca de metadados na caixa de título ============
+
+let ultimoResultadoBusca = [];
+
+const dispararBuscaMetadados = debounce(async () => {
+  const titulo = document.getElementById('bibTitulo').value.trim();
+  const box = document.getElementById('bibBuscaResultados');
+  if (titulo.length < 3) { box.style.display = 'none'; box.innerHTML = ''; return; }
+
+  const buscaFn = BUSCA_API[tipoModalAtual];
+  if (!buscaFn) { box.style.display = 'none'; return; }
+
+  box.style.display = 'block';
+  box.innerHTML = '<div class="bib-busca-loading">Buscando...</div>';
+
+  let resultados = [];
+  try {
+    resultados = await buscaFn(titulo);
+  } catch (e) {
+    box.innerHTML = '<div class="bib-busca-loading">Erro na busca — tente de novo</div>';
+    return;
+  }
+
+  ultimoResultadoBusca = resultados;
+  if (resultados.length === 0) {
+    box.innerHTML = '<div class="bib-busca-loading">Nenhum resultado</div>';
+    return;
+  }
+
+  box.innerHTML = resultados.map((r, i) =>
+    '<div class="bib-busca-item" onclick="selecionarResultadoBusca(' + i + ')">' +
+    (r.capaUrl ? '<img src="' + esc(r.capaUrl) + '">' : '<div style="width:32px;height:46px;flex-shrink:0;"></div>') +
+    '<span>' + esc(r.titulo) + (r.autor ? ' — ' + esc(r.autor) : '') + '</span>' +
+    '</div>'
+  ).join('');
+}, 500);
+
+function selecionarResultadoBusca(i) {
+  const r = ultimoResultadoBusca[i];
+  if (!r) return;
+  const cfg = TIPOS[tipoModalAtual];
+
+  document.getElementById('bibTitulo').value = r.titulo;
+  if (cfg.campoAutor && r.autor) document.getElementById('bibAutor').value = r.autor;
+  if (cfg.idExterno) document.getElementById('bibIdExterno').value = r.idExterno || '';
+  if (cfg.temCapaUrl) document.getElementById('bibCapaUrl').value = r.capaUrl || '';
+  document.getElementById('bibCapaPreview').innerHTML = r.capaUrl ? '<img src="' + esc(r.capaUrl) + '">' : '🖼️';
+
+  document.getElementById('bibBuscaResultados').style.display = 'none';
+  document.getElementById('bibBuscaResultados').innerHTML = '';
+}
+
+document.getElementById('bibTitulo').addEventListener('input', dispararBuscaMetadados);
+
+
+
 function limparFormulario() {
   document.getElementById('bibTitulo').value = '';
   document.getElementById('bibAutor').value = '';
@@ -723,6 +868,8 @@ function limparFormulario() {
 function preencherFormulario(tipo, item) {
   const cfg = TIPOS[tipo];
   document.getElementById('bibTitulo').value = item.titulo || '';
+  document.getElementById('bibBuscaResultados').style.display = 'none';
+  document.getElementById('bibBuscaResultados').innerHTML = '';
   document.getElementById('bibAutor').value = cfg.campoAutor ? (item[cfg.campoAutor] || '') : '';
   document.getElementById('bibStatus').value = item.status || cfg.statusDefault;
   document.getElementById('bibNota').value = item.nota || '';
