@@ -113,9 +113,30 @@ Histórico de mudanças por marco.
 - Fase 4 (Biblioteca): testes completos. Próxima etapa: integração TMDB/Google Books/Jikan
 
 ## 2026-07-13 — Podcasts ganham API de metadados (DEC-016) e schema atualizado
-+
-+- Decisão: podcasts passam a integrar com a iTunes Search API (gratuita, sem key) — revertendo a premissa original de DEC-011 de que podcasts seriam sempre manuais, mesmo padrão da atualização já feita para mangás em 2026-07-11 (DEC-016)
-+- `004_podcasts_itunes.sql` criado e executado com sucesso no Supabase: colunas `itunes_id` e `capa_url` adicionadas à tabela `podcasts`. Confirmado no Table Editor.
-+- `DATABASE.md` atualizado: migration `004` marcada como executada, schema de `podcasts` documentado com as duas colunas novas
-+- Escopo de UX definido para a integração das 4 APIs (TMDB, Google Books, Jikan, iTunes) em `biblioteca.html`: busca dispara automaticamente com debounce enquanto o usuário digita o título; resultados aparecem em lista (capa + título) para escolha manual, nunca preenchimento automático do primeiro resultado
-+- Pendente: gerar o código de integração em `biblioteca.html`
+
+- Decisão: podcasts passam a integrar com a iTunes Search API (gratuita, sem key) — revertendo a premissa original de DEC-011 de que podcasts seriam sempre manuais, mesmo padrão da atualização já feita para mangás em 2026-07-11 (DEC-016)
+- `004_podcasts_itunes.sql` criado e executado com sucesso no Supabase: colunas `itunes_id` e `capa_url` adicionadas à tabela `podcasts`. Confirmado no Table Editor.
+- `DATABASE.md` atualizado: migration `004` marcada como executada, schema de `podcasts` documentado com as duas colunas novas
+- Escopo de UX definido para a integração das 4 APIs (TMDB, Google Books, Jikan, iTunes) em `biblioteca.html`: busca dispara automaticamente com debounce enquanto o usuário digita o título; resultados aparecem em lista (capa + título) para escolha manual, nunca preenchimento automático do primeiro resultado
+- Pendente: gerar o código de integração em `biblioteca.html`
+
+2026-07-13 — Integração de metadados concluída, bug de modal corrigido
+
+- Integração das 4 APIs implementada em `biblioteca.html`: Google Books (livros), TMDB (filmes/séries — requer `TMDB_API_KEY` própria, gratuita), Jikan/MyAnimeList (mangás), iTunes Search API (podcasts). Busca com debounce (500ms, mínimo 3 caracteres) no campo Título, resultados em lista com capa+título para escolha manual — testado e confirmado funcionando pelo usuário
+- Bug encontrado durante o teste: botões de adicionar item (FAB e o do estado vazio) não abriam o modal — sem erro no Console. Causa raiz: `abrirModal()`/`fecharModal()` setavam `display` inline via JS, mas `.modal-overlay` em `style.css` usa `opacity`/`pointer-events` controlados pela classe `.open` (linhas 625-641), nunca adicionada pelo JS. Corrigido via Cline+DeepSeek: `abrirModal()` e `fecharModal()` agora também adicionam/removem a classe `.open`
+- **Ação pendente**: auditar se `treino.html`, `treino-plano.html`, `treino-academia.html`, `treino-shape.html`, `revisao.html` e `estudos.html` têm o mesmo padrão de `abrirModal`/`fecharModal` e sofrem do mesmo bug — não testado ainda nessas páginas, ver `TASKS_NOW.md`
+- Fase 4 (Biblioteca): **completa**. Todas as tarefas planejadas (schema, RLS, GRANT, CRUD, tags, upload de capa, testes end-to-end, integração de APIs) concluídas.
+
+
+## 2026-07-13 — Auditoria de modais concluída em todas as páginas
+
+- Auditoria (via Cline+DeepSeek) do padrão `abrirModal`/`fecharModal` × classe `.open` (bug encontrado em `biblioteca.html` no mesmo dia) nas 6 páginas restantes do projeto:
+  - `treino.html` — OK, não possui modais
+  - `treino-plano.html` — OK, usa padrão próprio (`.hidden` + `classList`), não sofre do bug
+  - `treino-academia.html` — **corrigido**: `confirmar()`/`fecharModal()` só setavam `style.display`, sem tocar em `.open`
+  - `treino-shape.html` — **corrigido**: mesmo padrão de bug de `treino-academia.html`
+  - `revisao.html` — **corrigido**: `fecharModal()` e a abertura via `btn-novo-card` só setavam `style.display`, sem `.open`
+  - `estudos.html` — **corrigido**: `abrirModal()`/`fecharModal()` com o mesmo bug; handlers de clique no backdrop e tecla Escape também fechavam sem remover `.open`
+- Total: 4 páginas corrigidas (`treino-academia.html`, `treino-shape.html`, `revisao.html`, `estudos.html`), 2 já corretas (`treino.html`, `treino-plano.html`)
+- Todas as correções testadas manualmente (abrir/fechar cada modal) antes de finalizar
+- Auditoria de modais: **encerrada**. Nenhuma página do projeto tem mais o bug de classe `.open` faltando.

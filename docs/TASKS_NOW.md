@@ -6,16 +6,17 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 
 ## Status geral
 
-**Fase atual:** Fase 3 — Módulo de Estudos (em andamento)
-**Fase atual:** Fase 4 — Biblioteca (em andamento)
-**Bloqueio:** nenhum — os 3 bugs/riscos conhecidos anteriores foram resolvidos ou descartados
-**Próxima ação:** integrar TMDB, Google Books e Jikan em `biblioteca.html` (fetch direto no frontend)
+**Fase atual:** Fase 3 — Módulo de Estudos (pendência residual: confirmar RLS nas 5 tabelas)
+**Bloqueio:** nenhum — auditoria de modais concluída, nenhum bug conhecido em aberto
++**Próxima ação:** confirmar RLS + policy `user_own_data` nas 5 tabelas de Estudos (pendência residual da Fase 3), depois decidir próximo módulo via VISION.md
 
 ## 🔴 Bugs conhecidos — prioridade alta
 
 - [x] ~~`revisao.html`~~ — resolvido em 2026-07-11 (via Cline+DeepSeek). Colunas corrigidas em `mostrarCardAtual()`, `avaliarCard()`, `criarCard()` e `renderListaCards()`: `frente`→`pergunta`, `verso`→`resposta`, `intervalo`→`intervalo_dias`, `fator`→`ef`. Chamada de `calcularSM2()` corrigida para a assinatura real (`ef, repeticoes, intervaloDias, qualidade`).
 - [x] ~~`treino-plano.html`~~ — verificado em 2026-07-11 (via Cline+DeepSeek). Nenhuma correção necessária: já usa `treino_uuid` corretamente (linha 544) e não referencia `grupo_muscular`.
 - [x] ~~`estudos.html` não validado~~ — resolvido em 2026-07-11. Migration executada e página validada linha por linha contra o schema real; nenhuma incompatibilidade encontrada nas 5 tabelas. Observações menores (não bloqueantes): filtro de tipo na UI não cobre `tipo = 'outro'`; `mudarAba()` usa `event` global implícito em vez de parâmetro explícito.
+ - [x] ~~Auditoria de modais~~ — resolvida em 2026-07-13 (via Cline+DeepSeek). 4 páginas corrigidas (`treino-academia.html`, `treino-shape.html`, `revisao.html`, `estudos.html`), 2 já corretas (`treino.html`, `treino-plano.html`). Ver `CHANGELOG.md`.
+
 ## Fase 3 — Módulo de Estudos
 
 - [x] Desenhar schema (`materias`, `assuntos`, `anotacoes`, `documentos_estudo`, `sessoes_questoes`)
@@ -31,10 +32,10 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
  [x] Rodar `003_biblioteca.sql` no Supabase SQL Editor (2026-07-11 — sucesso, 11 tabelas confirmadas no Table Editor)
  [x] Confirmar RLS + policy `user_own_data` ativa nas 11 tabelas novas (2026-07-11 — confirmado via pg_policies)
  [x] Gerar `biblioteca.html` (2026-07-12) — CRUD dos 5 tipos, tags, upload manual de capa
-[x] Testar `biblioteca.html` end-to-end contra o Supabase real (2026-07-13 — login, CRUD dos 5 tipos, edição, soft delete, tags compartilhadas e upload de capa confirmados; ver CHANGELOG.md)
- [ ] Integrar TMDB, Google Books, Jikan (fetch direto no frontend)
-[x] Podcasts: schema atualizado (DEC-016, 004_podcasts_itunes.sql executado) — falta implementar no frontend
-
+ [x] Testar `biblioteca.html` end-to-end contra o Supabase real (2026-07-13 — login, CRUD dos 5 tipos, edição, soft delete, tags compartilhadas e upload de capa confirmados; ver CHANGELOG.md)
+ [x] Integrar TMDB, Google Books, Jikan e iTunes/podcasts (DEC-016) — fetch direto no frontend, testado e funcionando (2026-07-13)
+ [x] Podcasts: schema atualizado (DEC-016, 004_podcasts_itunes.sql executado) — falta implementar no frontend
+**Fase 4: concluída.**
 ## Pendências da Fase M (migração)
 
 - [ ] Deploy no Vercel — pronto para ser feito, ainda não realizado

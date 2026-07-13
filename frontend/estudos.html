@@ -626,8 +626,16 @@ function toast(msg, tipo = 'ok') {
   setTimeout(() => el.remove(), 3000);
 }
 
-function abrirModal(id) { document.getElementById(id).style.display = 'flex'; }
-function fecharModal(id) { document.getElementById(id).style.display = 'none'; }
+function abrirModal(id) {
+  const el = document.getElementById(id);
+  el.style.display = 'flex';
+  el.classList.add('open');
+}
+function fecharModal(id) {
+  const el = document.getElementById(id);
+  el.style.display = 'none';
+  el.classList.remove('open');
+}
 
 // ============================================================
 // Inicialização
@@ -1322,12 +1330,18 @@ async function confirmarExcluirItem() {
 // Fechar modais no backdrop e Esc
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
   overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) overlay.style.display = 'none';
+    if (e.target === overlay) {
+      overlay.style.display = 'none';
+      overlay.classList.remove('open');
+    }
   });
 });
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
-    document.querySelectorAll('.modal-overlay').forEach(o => o.style.display = 'none');
+    document.querySelectorAll('.modal-overlay').forEach(o => {
+      o.style.display = 'none';
+      o.classList.remove('open');
+    });
   }
 });
 </script>

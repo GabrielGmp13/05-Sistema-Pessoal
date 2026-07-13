@@ -865,11 +865,15 @@
     function confirmar(msg, fn) {
       document.getElementById('confirm-msg').textContent = msg;
       confirmFn = fn;
-      document.getElementById('modal-confirm').style.display = '';
+      const el = document.getElementById('modal-confirm');
+      el.style.display = '';
+      el.classList.add('open');
     }
 
     function fecharModal(id) {
-      document.getElementById(id).style.display = 'none';
+      const el = document.getElementById(id);
+      el.style.display = 'none';
+      el.classList.remove('open');
     }
 
     // ── Eventos ─────────────────────────────────────

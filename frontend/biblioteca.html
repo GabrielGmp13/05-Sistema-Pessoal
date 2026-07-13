@@ -559,8 +559,8 @@ function toast(msg, tipo) {
   setTimeout(() => el.remove(), 3000);
 }
 
-function abrirModal(id) { document.getElementById(id).style.display = 'flex'; }
-function fecharModal(id) { document.getElementById(id).style.display = 'none'; }
+function abrirModal(id) { const el = document.getElementById(id); el.style.display = 'flex'; el.classList.add('open'); }
+function fecharModal(id) { const el = document.getElementById(id); el.style.display = 'none'; el.classList.remove('open'); }
 
 // ============ Carregamento ============
 

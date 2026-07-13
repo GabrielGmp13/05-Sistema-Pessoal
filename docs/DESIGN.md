@@ -83,6 +83,14 @@ Foco: borda muda para `--accent` (herdado do `style.css`, não redefinido por p�
 .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; max-width: 320–420px; }
 ```
 Sempre com `.modal-header` (título + botão fechar `✕`), `.modal-body`, `.modal-footer` (botão fantasma + ação). Fecham via clique no backdrop, tecla Escape, ou botão `✕`.
+**Importante:** `.modal-overlay` controla visibilidade por **opacidade/pointer-events via classe `.open`**, não só por `display`. Qualquer função `abrirModal(id)`/`fecharModal(id)` numa página nova precisa fazer as duas coisas:
+```js
+function abrirModal(id) { const el = document.getElementById(id); el.style.display = 'flex'; el.classList.add('open'); }
+function fecharModal(id) { const el = document.getElementById(id); el.style.display = 'none'; el.classList.remove('open'); }
+```
+Esquecer a classe `.open` deixa o modal com `display: flex` mas invisível (`opacity: 0`, `pointer-events: none`) — sem erro no Console, porque não é um erro de JS. Bug real encontrado em `biblioteca.html`, corrigido em 2026-07-13 — ver `CHANGELOG.md` e auditar as demais páginas antes de assumir que estão corretas.
+
+**Exceção documentada:** `treino-plano.html` usa um padrão próprio de modal com classe `.hidden` em vez de `.open`/`opacity` — auditado em 2026-07-13, funciona corretamente, mas é uma inconsistência de convenção entre páginas (duas formas diferentes de controlar visibilidade de modal no projeto). Não é bug, não foi alterado; registrado aqui só para não confundir uma IA futura que for copiar o padrão de `treino-plano.html` para uma página nova esperando encontrar `.open`.
 
 ### Toast
 ```css
