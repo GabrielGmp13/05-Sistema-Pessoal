@@ -11,7 +11,7 @@ Visão macro de onde o Sistema Pessoal pretende chegar. Não é um roadmap detal
 | Dashboard | ✅ Implementado | `index.html` |
 | Treino | ✅ Implementado | Plano, academia, hub, shape — completo |
 | Revisão Espaçada | ✅ Implementado | Bug de schema corrigido em 2026-07-11, ver DATABASE.md → Gotchas |
-| Estudos | ✅ Implementado | Schema executado e `estudos.html` validado contra o schema real (2026-07-11) |
+| Estudos | ✅ Implementado | Schema executado, `estudos.html` validado (2026-07-11), RLS+GRANT confirmados (2026-07-13) |
 | Agenda | 🔄 Parcial | Hoje existe só dentro de `treino.html`; não é um módulo dedicado |
 | Biblioteca | ⏳ Planejada (Fase 4) | Catálogo de mídia, ver DEC-011 |
 | Hábitos | ⏳ Não iniciado | Sem tabela, sem decisão de escopo ainda |

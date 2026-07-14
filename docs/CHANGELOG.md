@@ -140,3 +140,35 @@ Histórico de mudanças por marco.
 - Total: 4 páginas corrigidas (`treino-academia.html`, `treino-shape.html`, `revisao.html`, `estudos.html`), 2 já corretas (`treino.html`, `treino-plano.html`)
 - Todas as correções testadas manualmente (abrir/fechar cada modal) antes de finalizar
 - Auditoria de modais: **encerrada**. Nenhuma página do projeto tem mais o bug de classe `.open` faltando.
+
+## 2026-07-13 — RLS de Estudos confirmada, Fase 3 encerrada
+
+- Pendência residual da Fase 3 (nunca verificada desde a execução de `002_estudos.sql` em 2026-07-11) resolvida
+- `pg_policies` confirmou policy `user_own_data` nas 5 tabelas (`materias`, `assuntos`, `anotacoes`, `documentos_estudo`, `sessoes_questoes`), todas com `cmd = ALL` e `qual = auth.uid() = user_id`
+- `information_schema.role_table_grants` confirmou GRANT completo (`SELECT`, `INSERT`, `UPDATE`, `DELETE`) para `authenticated` nas 5 tabelas
+- Observação não-bloqueante: `roles` das policies aparece como `{public}` em vez de `{authenticated}` — comportamento esperado do Supabase (a policy roda para qualquer role, mas o GRANT restrito a `authenticated` já impede acesso anônimo); mesmo padrão observado na Biblioteca
+- Fase 3 (Estudos): **concluída**
+
+## 2026-07-13 — Integração de podcasts/iTunes: verificada e finalizada
+
+- Revisão do `biblioteca.html` real mostrou que a integração de podcasts com a iTunes Search API já estava implementada de forma genérica (config-driven) desde a integração das 4 APIs — `TASKS_NOW.md`/`CHANGELOG.md` estavam desatualizados ao registrar isso como pendente
+- Lacuna real identificada: `artistName` (produtora/autor) retornado pela iTunes API era descartado, pois `podcasts.campoAutor = null` (tabela não tem coluna de autor)
+- Corrigido em `selecionarResultadoBusca()`: tipos sem `campoAutor` (hoje só podcasts) agora salvam `artistName` automaticamente em `comentario` (prefixo "Produtora: "), apenas quando o campo está vazio, para não sobrescrever anotações existentes
+- Testado pelo usuário: busca de podcast preenche `comentario` corretamente
+- Fecha a pendência "a definir" registrada em DEC-016
+
+## 2026-07-13 — Deploy no Vercel + incidente de deleção de usuário
+
+- `frontend/` publicado no Vercel (`GabrielGmp13/05-Sistema-Pessoal`, projeto `sistemapessoal`), Root Directory `frontend`, sem build step
+- Problema pós-deploy: sessão do Live Server não existia na URL do Vercel (domínio diferente); recuperação de senha por e-mail falhou inicialmente porque `Site URL`/`Redirect URLs` no Supabase ainda apontavam para `localhost:3000` — corrigido apontando para a URL do Vercel
+- Durante a tentativa de resolver o login, o usuário original foi deletado manualmente em Authentication → Users antes de criar um novo. Por causa de `ON DELETE CASCADE` em `user_id` (convenção universal do projeto, ver DATABASE.md), isso apagou em cascata todos os dados de todas as tabelas vinculados àquele usuário. Sem backup disponível no free tier do Supabase — perda irreversível, porém sem dados relevantes no caso real (dados de teste)
+- Gotcha documentado em `DATABASE.md` para evitar repetição
+- Login confirmado funcionando na URL do Vercel com o novo usuário (mesmo e-mail)
+- Pendente: testar acesso multi-dispositivo (celular) antes de fechar a Fase M
+
+## 2026-07-13 — Fase M encerrada: testes e2e e multi-dispositivo confirmados
+
+- `treino-plano.html`, `treino-academia.html` e `treino-shape.html` testados end-to-end contra o Supabase real na URL do Vercel — nenhum bug encontrado
+- Upload de foto confirmado funcionando via bucket `shape`
+- Acesso multi-dispositivo confirmado (celular + PC acessando os mesmos dados via URL pública)
+- Fase M (Migração para Supabase + deploy): **concluída**, restando apenas as sub-fases planejadas separadamente — M2 (Service Worker/offline) e M3 (Realtime)

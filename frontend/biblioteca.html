@@ -841,6 +841,12 @@ function selecionarResultadoBusca(i) {
   if (cfg.temCapaUrl) document.getElementById('bibCapaUrl').value = r.capaUrl || '';
   document.getElementById('bibCapaPreview').innerHTML = r.capaUrl ? '<img src="' + esc(r.capaUrl) + '">' : '🖼️';
 
+  // Tipos sem campo de autor dedicado (hoje: podcasts) recebem o autor/produtora da API em comentario
+  if (!cfg.campoAutor && r.autor) {
+    const comentarioEl = document.getElementById('bibComentario');
+    if (!comentarioEl.value.trim()) comentarioEl.value = 'Produtora: ' + r.autor;
+  }
+
   document.getElementById('bibBuscaResultados').style.display = 'none';
   document.getElementById('bibBuscaResultados').innerHTML = '';
 }

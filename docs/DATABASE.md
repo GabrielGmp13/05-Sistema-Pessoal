@@ -373,3 +373,25 @@ Buckets e políticas detalhados em `ARCHITECTURE.md` → Supabase Storage e `DEC
  editor. Corrigido em 2026-07-13. Verificar esse mesmo padrão de caminho
  relativo em qualquer página nova gerada a partir de agora — conferir contra
  a árvore real do projeto (`frontend/*.html` + `frontend/assets/*`), não por suposição.
+
+ **Gotcha adicional (deleção de usuário):** toda tabela usa `user_id UUID NOT NULL
+REFERENCES auth.users(id) ON DELETE CASCADE`. Isso significa que **apagar um
+usuário em Authentication → Users apaga em cascata todos os dados vinculados a
+ele em todas as tabelas do projeto, sem confirmação extra e sem backup no free
+tier do Supabase** (que não oferece point-in-time recovery). Confirmado na prática
+em 2026-07-13: o usuário original foi deletado manualmente durante um problema de
+login pós-deploy, e todas as tabelas (`treinos`, etc.) esvaziaram imediatamente,
+com o schema intacto. Não houve perda de dados relevantes no caso real, mas o
+comportamento é irreversível. **Nunca deletar um usuário em Authentication → Users
+sem certeza absoluta de que os dados vinculados a ele são descartáveis** — não há
+como recuperar depois. Se precisar trocar de conta/e-mail no futuro, preferir
+atualizar o e-mail do usuário existente (Authentication → Users → editar) em vez
+de apagar e recriar.
+
+**Auditoria de segurança pós-deploy (2026-07-13):** confirmado via `pg_policies` e
+`information_schema.role_table_grants` que as 24 tabelas do projeto (8 de `001`,
+5 de `002`, 11 de `003`) têm policy `user_own_data` ativa e GRANT completo
+(`SELECT`, `INSERT`, `UPDATE`, `DELETE`) para `authenticated`. Nenhuma tabela
+descoberta sem proteção. Também confirmado: cadastro público de novos usuários
+desabilitado em Authentication → Settings, e nenhuma ocorrência de `service_role`
+key em código do frontend.

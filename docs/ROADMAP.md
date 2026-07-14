@@ -20,12 +20,12 @@ Sistema de gestão pessoal online, multi-dispositivo, para uso pessoal de longo 
 | M3 — Realtime | Subscrições Postgres Changes em páginas principais | 🔄 Pendente |
 
 ### Critério de conclusão da Fase M
-- [ ] Sistema acessível via URL pública com HTTPS (Vercel)
-- [x] Login funciona (email + senha) — testado com usuário real
-- [ ] `treino-plano.html` testado e confirmado com Supabase
-- [ ] `treino-academia.html` testado com Supabase (offline = Fase M2 — Service Worker)
-- [ ] Dados sincronizados entre PC e celular automaticamente
-- [ ] Upload de foto funciona via Supabase Storage
+- [x] Sistema acessível via URL pública com HTTPS (Vercel) — deploy em 2026-07-13
+- [x] Login funciona (email + senha) — testado com usuário real na URL do Vercel (2026-07-13, após recriação do usuário — ver CHANGELOG)
+- [x] `treino-plano.html` testado e confirmado com Supabase (2026-07-13 — sem bugs encontrados)
+- [x] `treino-academia.html` testado com Supabase (2026-07-13 — sem bugs encontrados; offline continua pendente, Fase M2 — Service Worker)
+- [x] Dados sincronizados entre PC e celular automaticamente — confirmado via acesso multi-dispositivo (2026-07-13)
+- [x] Upload de foto funciona via Supabase Storage (`treino-shape.html`, bucket `shape` — 2026-07-13)
 
 ### O que já foi entregue (M0 + M1 completo)
 - Schema PostgreSQL completo executado e verificado (`001_schema_inicial.sql`): 8 tabelas, RLS em todas, 3 buckets privados, índices parciais
@@ -82,14 +82,10 @@ Sistema de gestão pessoal online, multi-dispositivo, para uso pessoal de longo 
 
 ---
 
-## Fase 3 — Módulo de Estudos 🔄 EM ANDAMENTO
+## Fase 3 — Módulo de Estudos ✅ COMPLETA
 
 **Arquivo:** `estudos.html` (página única com filtro por tipo — ver DEC-013)
-**Migração:** `supabase/migrations/002_estudos.sql` — ✅ criado · ✅ executado e confirmado no Supabase (2026-07-11)
-
-Sistema ENEM standalone anterior foi descontinuado; todo o conteúdo passa a viver no módulo de Estudos via Supabase (ver DEC-012).
-
-Schema completo (5 tabelas) documentado em `DATABASE.md`.
+**Migração:** `supabase/migrations/002_estudos.sql` — ✅ criado · ✅ executado e confirmado no Supabase (2026-07-11) · ✅ RLS + GRANT confirmados (2026-07-13)
 
 ---
 ## Fase 4 — Biblioteca 🔄 EM ANDAMENTO

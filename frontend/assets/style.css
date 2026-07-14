@@ -391,6 +391,34 @@ h1,h2,h3,h4 { font-family: var(--font-title); font-weight: 700; }
   color: var(--accent);
   border-color: var(--accent-mid);
 }
+
+.btn-icon {
+   background: none;
+   border: 1px solid var(--border);
+   border-radius: 6px;
+   padding: .4rem .6rem;
+   color: var(--text);
+   cursor: pointer;
+   transition: border-color .12s;
+ }
+.btn-icon:hover {
+   border-color: var(--accent);
+ }
+
+.btn-salvar {
+   background: var(--accent);
+   color: var(--bg);
+   border: none;
+   border-radius: 8px;
+   padding: .6rem 1.2rem;
+   font-weight: 700;
+   cursor: pointer;
+   transition: filter .12s;
+ }
+ .btn-salvar:hover {
+   filter: brightness(1.1);
+ }
+
 .btn-accent-outline:hover:not(:disabled) { background: var(--accent-dim); }
 
 /* ── Forms ─────────────────────────────────────────────────────────────────── */

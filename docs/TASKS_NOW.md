@@ -6,9 +6,9 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 
 ## Status geral
 
-**Fase atual:** Fase 3 — Módulo de Estudos (pendência residual: confirmar RLS nas 5 tabelas)
-**Bloqueio:** nenhum — auditoria de modais concluída, nenhum bug conhecido em aberto
-+**Próxima ação:** confirmar RLS + policy `user_own_data` nas 5 tabelas de Estudos (pendência residual da Fase 3), depois decidir próximo módulo via VISION.md
+**Fase atual:** Fase 3 — concluída. Fase 4 — concluída. Fase M — concluída (deploy + testes e2e).
+**Bloqueio:** nenhum
+**Próxima ação:** planejar próximo módulo novo via VISION.md, ou iniciar Fase M2 (Service Worker/offline) / Fase M3 (Realtime)
 
 ## 🔴 Bugs conhecidos — prioridade alta
 
@@ -23,7 +23,9 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] Criar `002_estudos.sql`
 - [x] Rodar `002_estudos.sql` no Supabase SQL Editor (2026-07-11 — sucesso, 5 tabelas confirmadas no Table Editor)
 - [x] Validar `estudos.html` contra o schema real (2026-07-11 — validado linha por linha, nenhuma incompatibilidade encontrada nas 5 tabelas)
-- [ ] Confirmar RLS + policy `user_own_data` ativa nas 5 tabelas novas
+- [x] Confirmar RLS + policy `user_own_data` ativa nas 5 tabelas novas (2026-07-13 — confirmado via `pg_policies` e `information_schema.role_table_grants`: 5/5 tabelas com policy `user_own_data` e GRANT completo para `authenticated`)
+
+**Fase 3: concluída.**
 
 ## Fase 4 — Biblioteca
 
@@ -34,14 +36,20 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
  [x] Gerar `biblioteca.html` (2026-07-12) — CRUD dos 5 tipos, tags, upload manual de capa
  [x] Testar `biblioteca.html` end-to-end contra o Supabase real (2026-07-13 — login, CRUD dos 5 tipos, edição, soft delete, tags compartilhadas e upload de capa confirmados; ver CHANGELOG.md)
  [x] Integrar TMDB, Google Books, Jikan e iTunes/podcasts (DEC-016) — fetch direto no frontend, testado e funcionando (2026-07-13)
- [x] Podcasts: schema atualizado (DEC-016, 004_podcasts_itunes.sql executado) — falta implementar no frontend
+ [x] Podcasts: schema atualizado (DEC-016, 004_podcasts_itunes.sql executado) e integração no frontend confirmada (2026-07-13) — artistName agora salvo em comentario
+
 **Fase 4: concluída.**
+
 ## Pendências da Fase M (migração)
 
-- [ ] Deploy no Vercel — pronto para ser feito, ainda não realizado
-- [ ] Teste final de `treino-plano.html` end-to-end com Supabase
-- [ ] Teste final de `treino-academia.html` end-to-end com Supabase
-- [ ] Validar upload de foto em `treino-shape.html` contra o bucket real
+- [x] Deploy no Vercel — feito em 2026-07-13 (projeto `sistemapessoal`, Root Directory `frontend`)
+- [x] Auditoria de segurança pós-deploy: RLS + GRANT confirmados nas 24 tabelas, cadastro público desabilitado, sem `service_role` exposta (2026-07-13)
+- [x] Testar acesso multi-dispositivo (celular) na URL do Vercel — confirmado (2026-07-13)
+- [x] Teste final de `treino-plano.html` end-to-end com Supabase — sem bugs encontrados (2026-07-13)
+- [x] Teste final de `treino-academia.html` end-to-end com Supabase — sem bugs encontrados (2026-07-13)
+- [x] Validar upload de foto em `treino-shape.html` contra o bucket real — confirmado (2026-07-13)
+
+**Fase M: concluída** (exceto Service Worker/offline = Fase M2, e Realtime = Fase M3, ambas planejadas separadamente).
 
 ## Fase M2 — Service Worker + Storage (não iniciada)
 

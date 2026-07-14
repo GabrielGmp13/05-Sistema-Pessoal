@@ -641,14 +641,20 @@ function fecharModal(id) {
 // Inicialização
 // ============================================================
 
-(async function init() {
-  const session = await window.authReady;
-  if (!session) return;
-  userId = await window.getUserId();
-
-  montarColorPicker();
+(function init() {
+  // Lê ?tipo= da URL (ex: estudos.html?tipo=enem) e pré-seleciona o filtro
+  const params = new URLSearchParams(window.location.search);
+  const tipoParam = params.get('tipo');
+  if (tipoParam && ['enem','escola','olimpiada','concurso','todas'].includes(tipoParam)) {
+    tipoAtivo = tipoParam;
+  }
 
   document.querySelectorAll('#filtroTipos .est-pill').forEach(btn => {
+    if (btn.dataset.tipo === tipoAtivo) {
+      btn.classList.add('ativo');
+    } else {
+      btn.classList.remove('ativo');
+    }
     btn.addEventListener('click', () => {
       document.querySelectorAll('#filtroTipos .est-pill').forEach(b => b.classList.remove('ativo'));
       btn.classList.add('ativo');
@@ -657,9 +663,15 @@ function fecharModal(id) {
     });
   });
 
-  configurarUpload();
+  (async () => {
+    const session = await window.authReady;
+    if (!session) return;
+    userId = await window.getUserId();
 
-  await carregarMaterias();
+    montarColorPicker();
+    configurarUpload();
+    await carregarMaterias();
+  })();
 })();
 
 function montarColorPicker() {

@@ -361,3 +361,11 @@ Sem essa linha, qualquer migration futura vai reproduzir o mesmo problema silenc
 +
 +**Atualização em DEC-011:** a premissa de "podcasts: sem API, sempre manual" está
 +superada, no mesmo espírito da atualização já feita para mangás em 2026-07-11.
++
++**Atualização (2026-07-13):** a pendência "a definir na implementação do frontend"
++sobre o campo `artistName` da iTunes API foi resolvida — `biblioteca.html` salva
++automaticamente `artistName` em `comentario` (prefixado como "Produtora: ...") ao
++selecionar um resultado de busca, apenas quando `comentario` está vazio. Nenhuma
++coluna nova foi criada — decisão deliberada para não adicionar uma coluna dedicada
++só para podcasts quando os outros 4 tipos não têm um campo equivalente de metadado
++secundário.
