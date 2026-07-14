@@ -17,10 +17,10 @@ Qualquer IA que retomar este projeto assume o papel de **codificador principal**
 
 ## Estado atual
 
-**Fase:** Fase 3 — Módulo de Estudos (em andamento)
-**Módulos completos:** Fundação, Auth, Dashboard, Treino (plano + academia + hub + shape), Revisão Espaçada, Estudos
-**Bug corrigido:** Revisão Espaçada (`revisao.html`) — incompatibilidade de schema corrigida em 2026-07-11, ver `DATABASE.md` → Gotchas
-**Próxima tarefa imediata:** ver `TASKS_NOW.md`
+**Fase:** Fase 7 — v2: migração para Next.js/React (planejamento)
+**v1:** congelada, todas as fases concluídas (ver ROADMAP.md)
+**Decisão-chave:** DEC-018 (reabre DEC-006) — frontend migra de HTML puro para Next.js/React
+**Próxima tarefa imediata:** ver TASKS_NOW.md
 
 ---
 
@@ -31,7 +31,8 @@ Qualquer IA que retomar este projeto assume o papel de **codificador principal**
 | Banco de dados | PostgreSQL via Supabase |
 | Auth | Supabase Auth (email+senha) |
 | Storage | Supabase Storage — 3 buckets privados |
-| Frontend | HTML/CSS/JS puro, sem framework |
+| Frontend | Next.js (React) + TypeScript — desde v2, ver DEC-018 |
+| Backend leve | API Routes (Next.js, serverless no Vercel) — só para segredo/lógica servidor |
 | Gráficos | Chart.js 4.5.0 (CDN) |
 | Offline | Service Worker (planejado — Fase M2) |
 | Hosting | Vercel (pronto para deploy) |

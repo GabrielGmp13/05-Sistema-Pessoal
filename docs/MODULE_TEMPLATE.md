@@ -17,9 +17,18 @@ O que está dentro e o que está deliberadamente fora. Se houver ambiguidade de 
 (ex: "isso vira upload de arquivo ou só um link?"), resolver aqui antes de codificar.
 
 **Páginas**
-| Arquivo | Descrição | Status |
+| Rota | Descrição | Status |
 |---|---|---|
-| `modulo.html` | ... | ⏳ / 🔄 / ✅ |
+| `app/modulo/page.tsx` | ... | ⏳ / 🔄 / ✅ |
+
+**Componentes**
+Lista dos componentes React novos que este módulo introduz, e se algum é
+reaproveitado de outro módulo (ex: `RatingEstrela` nascendo na Biblioteca,
+reaproveitável em outros catálogos futuros).
+
+**Precisa de API Route (segredo/servidor)?**
+Sim/Não. Se sim, listar qual API externa, qual variável de ambiente guarda o
+segredo, e o path da rota (`app/api/.../route.ts`).
 
 **Banco de dados**
 Tabelas novas (link para a seção correspondente em DATABASE.md) e se usa alguma
@@ -48,7 +57,7 @@ Também vale linkar para BACKLOG.md se a ideia for grande o suficiente.
 
 ---
 
-## Exemplo preenchido (Treino, resumido)
+## Exemplo preenchido (Treino, resumido)(v1, legado)
 
 ```markdown
 ### Módulo: Treino

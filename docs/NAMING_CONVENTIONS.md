@@ -8,6 +8,18 @@ Padrões observados e a seguir daqui em diante. Onde já existe inconsistência 
 
 `kebab-case`, prefixado pelo módulo quando há mais de uma página: `treino-plano.html`, `treino-academia.html`, `treino-shape.html`. Página única de um módulo não leva prefixo redundante: `revisao.html`, `estudos.html`, não `estudos-estudos.html`.
 
+## Páginas e componentes React (v2, desde DEC-018)
+
+- Componentes: `PascalCase.tsx` — `CardExercicio.tsx`, `ModalObra.tsx`, `RatingEstrela.tsx`.
+- Rotas (App Router): pasta em `kebab-case` seguindo a URL — `app/biblioteca/page.tsx`, `app/treino/plano/page.tsx`.
+- Hooks: `camelCase` prefixado com `use` — `useSessao.ts`, `useObra.ts`.
+- API Routes: `app/api/<recurso>/route.ts` — `app/api/tmdb/search/route.ts`.
+- Módulos de lógica (`lib/`): nome curto, sem prefixo — `lib/supabase.ts`, `lib/auth.ts`, `lib/sm2.ts` (mesma convenção que já existia para `assets/*.js`).
+
+## Classes CSS
+
+*(sem mudança na convenção em si — kebab-case, prefixo por escopo — mas o "onde é definida" agora é: `globals.css` = compartilhado, `Componente.module.css` ou classe local do componente = com prefixo/escopo do componente, mesmo espírito do padrão antigo por página)*
+
 ## Scripts (`assets/`)
 
 Nome curto, sem prefixo: `supabase.js`, `auth.js`, `sm2.js`.
@@ -36,14 +48,6 @@ Sempre conferir contra `DATABASE.md` antes de escrever uma query — ver os gotc
 
 `camelCase`: `userId`, `treinoAtivo`, `signedUrlsDoc`.
 
-## Classes CSS
-
-`kebab-case`. Regra: **o local onde a classe é definida decide se ela leva prefixo.**
-
-- Classe definida em `style.css` (compartilhada de verdade, usada por múltiplas páginas) → sem prefixo: `.btn-sm`, `.modal-overlay`, `.toast`, `.card`.
-- Classe definida dentro do `<style>` de uma página específica → leva o prefixo daquela página: `.rev-card` (revisão), `.cal-cell` (calendário em `treino.html`), `.ex-card` (academia).
-
-Motivo: cada página hoje tem seu próprio bloco `<style>` isolado, então não há colisão real agora. Mas se esse CSS um dia for consolidado em `style.css`, duas páginas com nomes genéricos parecidos (`.card-item`, por exemplo) colidiriam. O prefixo é a garantia barata contra isso — não muda nada no código existente, só orienta o que vem depois.
 
 ## Migrações SQL
 

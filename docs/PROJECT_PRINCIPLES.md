@@ -9,10 +9,13 @@ Princípios permanentes do Sistema Pessoal. Servem para impedir que futuras IAs 
 2. **Sem monetização, sem anúncios.** Não há e não haverá modelo de receita. Isso remove classes inteiras de complexidade (billing, planos, analytics de conversão) do escopo do projeto permanentemente.
 
 3. **Simplicidade acima de complexidade.** Entre uma solução simples e uma "inteligente", vence a simples. Ver DEC-002 (eliminação do Flask) e DEC-006 (sem framework front-end) como exemplos concretos dessa escolha em ação.
+> Nota (2026-07-14, DEC-018): simplicidade nunca deve ser usada para justificar
+> insegurança (ex: segredo exposto no frontend). Entre duas soluções seguras,
+> vence a mais simples — mas segurança não é barganhável por simplicidade.
 
 4. **Segurança acima de conveniência.** Storage sempre privado, sempre via signed URL (DEC-010). RLS em toda tabela sem exceção. Nunca trocar isolamento de dados por facilidade de implementação.
 
-5. **HTML/CSS/JS puro por decisão arquitetural, não por limitação.** Ver DEC-006. `style.css` já resolve praticamente tudo que um framework resolveria para este escopo. Não reabrir essa decisão sem uma limitação real e documentada.
+5. Frontend componentizado por decisão arquitetural (Next.js/React, DEC-018), não por modismo. A escolha de framework segue a mesma régua do item 3: resolve um problema real (reaproveitamento de componentes com estado aninhado, segredo protegido do navegador) que a alternativa mais simples (HTML puro) parou de resolver bem. Não reabrir essa decisão sem uma limitação real e documentada — mesma régua aplicada quando HTML puro foi escolhido em DEC-006.
 
 6. **Evitar dependências desnecessárias.** Cada biblioteca externa é uma superfície de manutenção a mais pelos próximos anos. Antes de adicionar uma dependência, perguntar se o problema pode ser resolvido com o que já está no stack.
 

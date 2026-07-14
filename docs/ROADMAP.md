@@ -9,6 +9,8 @@ Sistema de gestão pessoal online, multi-dispositivo, para uso pessoal de longo 
 ## Fase M — Migração para Supabase 🔄 EM ANDAMENTO
 
 **Objetivo:** Adaptar toda a arquitetura para hospedagem online antes de continuar o desenvolvimento de features.
+**Fase M: CONCLUÍDA** — M0 e M1 entregues e testados. M2 e M3 descartados do
+escopo (ver justificativa na tabela de sub-fases acima). Este projeto é considerado "terminado" na v1 sem essas duas sub-fases.
 
 ### Sub-fases
 
@@ -16,8 +18,8 @@ Sistema de gestão pessoal online, multi-dispositivo, para uso pessoal de longo 
 |---|---|---|
 | M0 — Infraestrutura | Projeto Supabase, schema PostgreSQL, buckets, repositório GitHub | ✅ Supabase completo · 🔄 Vercel deferido de propósito |
 | M1 — Auth + Core JS | `login.html`, `supabase.js`, `auth.js`, `sm2.js`, `treino-plano.html`, `treino-academia.html` | ✅ Todos os arquivos gerados — pendente testes e limpeza de arquivos LAN |
-| M2 — Storage + SW | Service Worker, upload real de arquivos | 🔄 Pendente |
-| M3 — Realtime | Subscrições Postgres Changes em páginas principais | 🔄 Pendente |
+| M2 — Storage + SW | Service Worker, upload real de arquivos | ⛔ Fora de escopo — uso real sempre terá wifi disponível (inclusive na academia), offline não é necessário. Reavaliar só se essa premissa mudar. |
+| M3 — Realtime | Subscrições Postgres Changes em páginas principais | ⛔ Fora de escopo — sync entre dispositivos já ocorre via banco central; a única diferença de Realtime é atualização automática sem reload, o que não importa no uso sequencial real (um dispositivo por vez). |
 
 ### Critério de conclusão da Fase M
 - [x] Sistema acessível via URL pública com HTTPS (Vercel) — deploy em 2026-07-13
@@ -91,7 +93,7 @@ Sistema de gestão pessoal online, multi-dispositivo, para uso pessoal de longo 
 ## Fase 4 — Biblioteca 🔄 EM ANDAMENTO
 
 **Arquivo:** `biblioteca.html` (não iniciado)
-+ **Migração:** `supabase/migrations/003_biblioteca.sql` — ✅ criada · ✅ executada e confirmada no Supabase (2026-07-11)
+**Migração:** `supabase/migrations/003_biblioteca.sql` — ✅ criada · ✅ executada e confirmada no Supabase (2026-07-11)
 
 Schema: 11 tabelas (`livros`, `filmes`, `series`, `mangas`, `podcasts`, `tags`,
 5 tabelas de junção `*_tags`) — ver DEC-014.
@@ -113,3 +115,24 @@ A página havia sido gerada assumindo colunas (`frente`, `verso`, `intervalo`, `
 | TMDB API | Metadados filmes/séries | Fetch no frontend |
 | Google Books API | Metadados livros | Fetch no frontend |
 | Notificações push | Lembretes de treino e revisão | Service Worker Push API |
+
+## Fase 7 — v2: Migração para Next.js/React 🔄 PLANEJAMENTO
+
+**Objetivo:** migrar o frontend de HTML puro para Next.js/React (DEC-018), de
+forma incremental, módulo por módulo.
+
+**Importante:** v1 é considerada congelada/concluída (ver Fases 1-6 e Fase M,
+todas ✅). Esta fase substitui a camada de apresentação, não corrige v1.
+
+**Escopo de features por módulo:** ainda não definido. Cada módulo migrado
+passa primeiro por `MODULE_TEMPLATE.md` completo — incluindo a nova pergunta
+"precisa de API Route?" — antes de qualquer linha de código. Nenhuma novidade
+de funcionalidade deve ser assumida como decidida até esse processo acontecer
+módulo a módulo.
+
+### Sub-fases
+
+| Sub-fase | Descrição | Status |
+|---|---|---|
+| 7.0 | Setup do projeto Next.js — estrutura de pastas, `lib/supabase.ts`, `lib/auth.ts`, layout base, CSS global migrado | ⏳ |
+| 7.N | Migração de cada módulo existente (Treino, Biblioteca, Estudos, Revisão, Agenda), uma por vez — ordem e escopo a definir | ⏳ |

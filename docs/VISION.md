@@ -11,9 +11,9 @@ Visão macro de onde o Sistema Pessoal pretende chegar. Não é um roadmap detal
 | Dashboard | ✅ Implementado | `index.html` |
 | Treino | ✅ Implementado | Plano, academia, hub, shape — completo |
 | Revisão Espaçada | ✅ Implementado | Bug de schema corrigido em 2026-07-11, ver DATABASE.md → Gotchas |
-| Estudos | ✅ Implementado | Schema executado, `estudos.html` validado (2026-07-11), RLS+GRANT confirmados (2026-07-13) |
-| Agenda | 🔄 Parcial | Hoje existe só dentro de `treino.html`; não é um módulo dedicado |
-| Biblioteca | ⏳ Planejada (Fase 4) | Catálogo de mídia, ver DEC-011 |
+| Biblioteca | ✅ v1 completa | Catálogo de mídia, ver DEC-011. Escopo de v2 não definido. |
+| Agenda | 🔄 Parcial | Hoje existe só dentro de `treino.html`; não é módulo dedicado. Escopo de v2 não definido. |
+| Estudos | ✅ v1 completa | Escopo de v2 não definido. |
 | Hábitos | ⏳ Não iniciado | Sem tabela, sem decisão de escopo ainda |
 | Metas | ⏳ Não iniciado | Sem tabela, sem decisão de escopo ainda |
 | Projetos | ⏳ Não iniciado | Sem tabela, sem decisão de escopo ainda |
@@ -30,3 +30,4 @@ Visão macro de onde o Sistema Pessoal pretende chegar. Não é um roadmap detal
 Quando um módulo novo entrar em planejamento, checar aqui primeiro se ele se sobrepõe a algo já existente (ex: um módulo de "Arquivos" futuro provavelmente deveria generalizar `documentos_estudo` em vez de criar uma tabela paralela). Ao começar a trabalhar um módulo listado como "não iniciado", usar `MODULE_TEMPLATE.md` para formalizar o escopo antes de escrever schema ou código.
 
 Este documento é atualizado quando um módulo muda de status ou quando surge um módulo novo na lista — não a cada tarefa concluída dentro de um módulo já em andamento (isso é `TASKS_NOW.md` e `CHANGELOG.md`).
+

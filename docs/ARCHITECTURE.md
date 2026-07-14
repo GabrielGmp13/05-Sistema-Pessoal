@@ -4,15 +4,14 @@
 
 ```
 [Qualquer dispositivo — PC, celular, tablet]
-         Browser (HTTPS)
-              │
-    ┌─────────┼──────────────┐
-    │         │              │
-    ▼         ▼              ▼
- Vercel   Supabase       Supabase
-(frontend) (PostgreSQL   (Storage
-  CDN      + Auth        privado —
-           + Realtime)   signed URLs)
+         Browser (HTTPS)  
+                           │
+    ┌──────────────────────┼──────────────┐
+    │                      │              │
+    ▼                      ▼              ▼
+Vercel                  Supabase       Supabase
+(frontend Next.js       (PostgreSQL    (Storage
+ + API Routes)           + Auth)        privado)
 ```
 
 **Sem servidor customizado.** O frontend (HTML/CSS/JS estático) é servido pelo CDN do Vercel. Todos os dados, auth, arquivos e sync em tempo real passam pelo Supabase.
@@ -68,29 +67,50 @@ Ver DEC-011 em `DECISIONS.md` para o raciocínio completo e alternativas conside
 
 ---
 
-## Frontend
+## Frontend (Next.js/React — desde v2, ver DEC-018)
 
 ### Hierarquia de camadas
 
 ```
-Página HTML
-    │ importa
-    ▼
-supabase.js       ← window.sb (Supabase JS client configurado)
-    │ usa
-    ▼
-Supabase Cloud    ← PostgreSQL + Auth + Storage + Realtime
-```
+Página/Componente (React, .tsx)
+│ importa
+▼
+lib/supabase.ts     ← client do Supabase, mesma responsabilidade do antigo supabase.js
+│ usa (client-side, para CRUD direto sob RLS)
+▼
+Supabase Cloud       ← PostgreSQL + Auth + Storage + Realtime
+Componente (React, .tsx)
+│ chama via fetch()
+▼
+app/api/**/route.ts  ← API Routes (server-side, roda no Vercel)
+│ usa segredo (env var server-only) + fala com API externa e/ou Supabase
+▼
+API externa (TMDB, Google Calendar, etc.) e/ou Supabase Cloud
 
 ```
-Página HTML (offline — ainda não implementado)
-    │ servida por
-    ▼
-Service Worker    ← cache de assets + dados recentes
-    │ usa como cache
-    ▼
-IndexedDB         ← dados em cache (não é fonte de verdade)
-```
+**Regra de decisão:** se a operação não precisa de segredo nem lógica exclusiva
+de servidor, o componente fala direto com o Supabase client (mesmo padrão de
+hoje, só que dentro de um componente React). Se precisa de uma chave de API ou
+processamento que não pode ser exposto no navegador, passa por uma API Route.
+
+### lib/supabase.ts — substitui supabase.js
+Mesmas funções, agora como módulo TypeScript importável: `getSession()`,
+`getUserId()`, `getSignedUrl()`, `uploadFile()`, `deleteFile()`,
+`softDelete()`, `sbErr()`.
+
+### lib/auth.ts — substitui auth.js
+Mesma responsabilidade (verificação de sessão + redirect), adaptado para
+Next.js (middleware ou hook, a definir na implementação).
+
+### API Routes — novo componente da arquitetura
+Rodam como funções serverless no Vercel (mesmo runtime do build do Next.js —
+não são Edge Functions do Supabase, ver DEC-018). Guardam segredo como
+variável de ambiente **sem prefixo `NEXT_PUBLIC_`** (variáveis com esse
+prefixo são expostas ao navegador — nunca usar para segredo).
+
+Exemplo de uso planejado: `app/api/tmdb/search/route.ts` recebe o termo de
+busca do componente React, chama `api.themoviedb.org` com a `TMDB_API_KEY`
+guardada só no servidor, devolve o resultado já formatado.
 
 ### Carregamento de scripts em cada página
 

@@ -35,7 +35,7 @@ Chaves estrangeiras seguem `<tabela_singular>_uuid` (ex: `treino_uuid`, `materia
 | `001_schema_inicial.sql` | ✅ Executado e verificado no Supabase | 8 tabelas do núcleo (treino, shape, cardio, agenda, revisão) |
 | `002_estudos.sql` | ✅ Executado e verificado no Supabase (2026-07-11) | 5 tabelas do módulo de Estudos |
 | `003_biblioteca.sql` | ✅ Executado e verificado no Supabase (2026-07-11) | 11 tabelas do módulo Biblioteca — ver DEC-011, DEC-014 |
-+| `004_podcasts_itunes.sql` | 🔄 Aguardando execução no Supabase | Adiciona `itunes_id` e `capa_url` à tabela `podcasts` — ver DEC-016 |
+| `004_podcasts_itunes.sql` | 🔄 Aguardando execução no Supabase | Adiciona `itunes_id` e `capa_url` à tabela `podcasts` — ver DEC-016 |
 
 **Convenção para novas migrações:** numeração sequencial de 3 dígitos + nome do módulo em snake_case (`00N_nome-modulo.sql`). Depois de rodar no SQL Editor, atualizar a tabela acima e a seção correspondente deste documento.
 
@@ -321,7 +321,7 @@ data_fim        DATE,
 updated_at      TIMESTAMPTZ DEFAULT NOW(),
 deleted         BOOLEAN DEFAULT FALSE
 ```
-+> Ganhou `itunes_id` e `capa_url` em 004_podcasts_itunes.sql (DEC-016). Segue sem campo de autor/diretor dedicado — `artistName` da iTunes API pode ser salvo em `comentario` ou descartado, a definir na implementação do frontend.
+> Ganhou `itunes_id` e `capa_url` em 004_podcasts_itunes.sql (DEC-016). Segue sem campo de autor/diretor dedicado — `artistName` da iTunes API pode ser salvo em `comentario` ou descartado, a definir na implementação do frontend.
 
 ### `tags`
 ```sql
@@ -365,16 +365,16 @@ Buckets e políticas detalhados em `ARCHITECTURE.md` → Supabase Storage e `DEC
 
 **Gotcha adicional (não é nome de coluna):** as migrations `001_schema_inicial.sql`, `002_estudos.sql` e `003_biblioteca.sql` foram executadas sem `GRANT` explícito para `authenticated`. Isso não impediu a criação das tabelas nem das policies, mas deixou todas as tabelas do projeto inacessíveis via Data API até a correção manual em 2026-07-11. GRANT foi aplicado retroativamente a todas as tabelas existentes via `GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO authenticated;`. Toda migration a partir de agora deve incluir a linha de GRANT por tabela.
 
- **Gotcha adicional (caminho de arquivo):** `biblioteca.html` foi gerado com
- `<link rel="stylesheet" href="style.css">`, mas o arquivo real fica em
- `frontend/assets/style.css` — como `biblioteca.html` já está dentro de
- `frontend/`, o caminho correto a partir dele é `assets/style.css`. O erro só
- aparece em teste real no navegador (MIME type incorreto no console), não no
- editor. Corrigido em 2026-07-13. Verificar esse mesmo padrão de caminho
- relativo em qualquer página nova gerada a partir de agora — conferir contra
- a árvore real do projeto (`frontend/*.html` + `frontend/assets/*`), não por suposição.
+**Gotcha adicional (caminho de arquivo):** `biblioteca.html` foi gerado com
+`<link rel="stylesheet" href="style.css">`, mas o arquivo real fica em
+`frontend/assets/style.css` — como `biblioteca.html` já está dentro de
+`frontend/`, o caminho correto a partir dele é `assets/style.css`. O erro só
+aparece em teste real no navegador (MIME type incorreto no console), não no
+editor. Corrigido em 2026-07-13. Verificar esse mesmo padrão de caminho
+relativo em qualquer página nova gerada a partir de agora — conferir contra
+a árvore real do projeto (`frontend/*.html` + `frontend/assets/*`), não por suposição.
 
- **Gotcha adicional (deleção de usuário):** toda tabela usa `user_id UUID NOT NULL
+**Gotcha adicional (deleção de usuário):** toda tabela usa `user_id UUID NOT NULL
 REFERENCES auth.users(id) ON DELETE CASCADE`. Isso significa que **apagar um
 usuário em Authentication → Users apaga em cascata todos os dados vinculados a
 ele em todas as tabelas do projeto, sem confirmação extra e sem backup no free

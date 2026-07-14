@@ -97,13 +97,13 @@ Histórico de mudanças por marco.
 - 11 tabelas confirmadas no Table Editor: `livros`, `livros_tags`, `filmes`, `filmes_tags`, `series`, `series_tags`, `mangas`, `mangas_tags`, `podcasts`, `podcasts_tags`, `tags`
 - Pendência: confirmar RLS + policy `user_own_data` ativa nas 11 tabelas antes de gerar `biblioteca.html`
 
- ## 2026-07-12 — `biblioteca.html` gerado e `DATABASE.md` atualizado
- - `biblioteca.html` implementado: página única com filtro por tipo, CRUD dos 5 tipos via config compartilhada, tags (`tags` + 5 junções `*_tags`), upload manual de capa (bucket `capas`), soft delete
- - Confirmado via `pg_policies` que as 11 tabelas têm RLS + `user_own_data` ativas antes da geração da página
- - `DATABASE.md`: adicionada seção `Schema — 003_biblioteca.sql`; removidos marcadores de diff colados por engano, que duplicavam a seção `## Storage`
- - Pendente: teste end-to-end de `biblioteca.html`; integração TMDB/Google Books/Jikan
+## 2026-07-12 — `biblioteca.html` gerado e `DATABASE.md` atualizado
+- `biblioteca.html` implementado: página única com filtro por tipo, CRUD dos 5 tipos via config compartilhada, tags (`tags` + 5 junções `*_tags`), upload manual de capa (bucket `capas`), soft delete
+- Confirmado via `pg_policies` que as 11 tabelas têm RLS + `user_own_data` ativas antes da geração da página
+- `DATABASE.md`: adicionada seção `Schema — 003_biblioteca.sql`; removidos marcadores de diff colados por engano, que duplicavam a seção `## Storage`
+- Pendente: teste end-to-end de `biblioteca.html`; integração TMDB/Google Books/Jikan
 
- ## 2026-07-13 — `biblioteca.html` testado end-to-end
+## 2026-07-13 — `biblioteca.html` testado end-to-end
 
 - Teste manual completo contra o Supabase real: login, CRUD dos 5 tipos (livros, filmes, séries, mangás, podcasts), edição persistente, soft delete (confirmado `deleted = true` via Table Editor), tags compartilhadas entre tipos (tabela `tags` + junções `*_tags`), upload manual de capa no bucket `capas`
 - Bug encontrado e corrigido: `<link rel="stylesheet" href="style.css">` apontava para caminho errado — corrigido para `assets/style.css` (ver DATABASE.md → Gotchas)
@@ -120,7 +120,7 @@ Histórico de mudanças por marco.
 - Escopo de UX definido para a integração das 4 APIs (TMDB, Google Books, Jikan, iTunes) em `biblioteca.html`: busca dispara automaticamente com debounce enquanto o usuário digita o título; resultados aparecem em lista (capa + título) para escolha manual, nunca preenchimento automático do primeiro resultado
 - Pendente: gerar o código de integração em `biblioteca.html`
 
-2026-07-13 — Integração de metadados concluída, bug de modal corrigido
+## 2026-07-13 — Integração de metadados concluída, bug de modal corrigido
 
 - Integração das 4 APIs implementada em `biblioteca.html`: Google Books (livros), TMDB (filmes/séries — requer `TMDB_API_KEY` própria, gratuita), Jikan/MyAnimeList (mangás), iTunes Search API (podcasts). Busca com debounce (500ms, mínimo 3 caracteres) no campo Título, resultados em lista com capa+título para escolha manual — testado e confirmado funcionando pelo usuário
 - Bug encontrado durante o teste: botões de adicionar item (FAB e o do estado vazio) não abriam o modal — sem erro no Console. Causa raiz: `abrirModal()`/`fecharModal()` setavam `display` inline via JS, mas `.modal-overlay` em `style.css` usa `opacity`/`pointer-events` controlados pela classe `.open` (linhas 625-641), nunca adicionada pelo JS. Corrigido via Cline+DeepSeek: `abrirModal()` e `fecharModal()` agora também adicionam/removem a classe `.open`
@@ -172,3 +172,36 @@ Histórico de mudanças por marco.
 - Upload de foto confirmado funcionando via bucket `shape`
 - Acesso multi-dispositivo confirmado (celular + PC acessando os mesmos dados via URL pública)
 - Fase M (Migração para Supabase + deploy): **concluída**, restando apenas as sub-fases planejadas separadamente — M2 (Service Worker/offline) e M3 (Realtime)
+
+## 2026-07-13 — Links do dashboard corrigidos + classes CSS faltantes no modal
+
+- Bug encontrado: links "Enem", "Olimpíadas" e "Escola" no dashboard
+  (`index.html`) apontavam para `enem.html`, `olimpiadas.html` e `escola.html`
+  — arquivos que nunca existiram, resíduo do plano pré-DEC-013 (3 páginas
+  separadas), nunca atualizado quando a decisão de página única foi tomada
+- Corrigido via Cline+DeepSeek: `index.html` agora linka
+  `estudos.html?tipo=enem`, `estudos.html?tipo=olimpiada` e
+  `estudos.html?tipo=escola`; `estudos.html` (`init()`) passou a ler o
+  parâmetro `?tipo=` da URL e pré-selecionar a pill de filtro correspondente
+  — comportamento novo registrado em DEC-017
+- Bug encontrado: classes `.btn-icon` e `.btn-salvar`, usadas no modal de
+  `biblioteca.html` e `estudos.html`, nunca haviam sido definidas em nenhum
+  CSS do projeto (nem `style.css`, nem os `<style>` internos das páginas) —
+  botão de fechar e botão de salvar apareciam sem estilo em todos os 5 tipos
+  da Biblioteca
+- Corrigido: `.btn-icon` e `.btn-salvar` adicionadas em
+  `frontend/assets/style.css` (linhas 395-420), seguindo os padrões já
+  descritos em `DESIGN.md` → Componentes → Botões
+- Testado pelo usuário: navegação Enem/Olimpíadas/Escola a partir do
+  dashboard confirmada funcionando; modal da Biblioteca com botões
+  corretamente estilizados
+
+## 2026-07-14 — v2: decisão de migrar para Next.js/React (DEC-018)
+
+- v1 declarada congelada — todas as fases planejadas (1 a 6 + Fase M) concluídas
+- Discussão de arquitetura para v2: identificado que chave TMDB exposta no frontend (`biblioteca.html`) é uma vulnerabilidade real, não só uma questão de gosto
+- Duas opções avaliadas para resolver segredo (Edge Functions do Supabase vs. API Routes do Next.js); decisão expandida para migração completa do frontend, já que as novidades planejadas para v2 (dados aninhados na Biblioteca, módulos por categoria no Treino, etc.) pedem componentização que HTML puro não sustenta bem
+- DEC-018 registrada: frontend migra para Next.js/React + TypeScript, com API Routes como camada de segredo/servidor. Reabre e supera DEC-006
+- `PROJECT_PRINCIPLES.md`, `ARCHITECTURE.md`, `NAMING_CONVENTIONS.md`, `MODULE_TEMPLATE.md`, `ROADMAP.md`, `VISION.md`, `AI_CONTEXT.md`, `TASKS_NOW.md` atualizados para refletir a decisão
+- Escopo de features de v2 ainda não fechado e não registrado em nenhum documento — só a decisão de arquitetura (DEC-018) está formalizada
+- Nenhuma linha de código gerada ainda — próximo passo é formalizar Fase 7.0 via `MODULE_TEMPLATE.md`

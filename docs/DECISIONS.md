@@ -103,9 +103,8 @@ IndexedDB não é mais a fonte de verdade. Passa a ser cache do Service Worker p
 ---
 
 ## DEC-006 — Frontend: HTML/CSS/JS puro, sem framework
-
 **Data:** Fase 1 (original)
-**Status:** ✅ Mantida após migração
+**Status:** ⚠️ Superada pelo DEC-018 (2026-07-14) — ver justificativa lá. Mantida aqui como registro histórico, não reescrever o texto abaixo.
 
 ### Decisão
 Manter HTML/CSS/JS puro. Não migrar para React, Vue ou Next.js.
@@ -325,47 +324,146 @@ Sem essa linha, qualquer migration futura vai reproduzir o mesmo problema silenc
 ### Impacto
 `DATABASE.md` → Convenção universal atualizada. GRANT retroativo já aplicado nas tabelas existentes (`001`, `002`, `003`) em 2026-07-11.
 
-+## DEC-016 — Podcasts ganham API de metadados (iTunes Search API)
-+
-+**Data:** 2026-07-13 (Fase 4, integração de APIs externas)
-+**Status:** ✅ Aprovada
-+
-+### Contexto
-+DEC-011 registrava podcasts como o único tipo da Biblioteca sem API de metadados
-+definida, permanecendo 100% manual. Ao planejar a integração de TMDB/Google Books/
-+Jikan, identificou-se que a iTunes Search API (`itunes.apple.com/search`) cobre
-+podcasts sem necessidade de key, autenticação ou custo — mesmo padrão gratuito já
-+usado para Jikan/MAL (mangás).
-+
-+### Decisão
-+Podcasts passam a integrar com a iTunes Search API. Campos retornados usados:
-+`trackId` (armazenado como `itunes_id`), `artworkUrl600` (armazenado como
-+`capa_url`), `artistName` (autor/produtora do podcast).
-+
-+### Alternativas consideradas
-+
-+| Alternativa | Descartada por |
-+|---|---|
-+| Taddy API | Exige API key e tem foco em transcrição/episódios — funcionalidade muito além do escopo de catálogo (ver PROJECT_PRINCIPLES.md #11, escopo proporcional). |
-+| Manter podcasts 100% manuais | Deixaria de aproveitar uma API gratuita já compatível com o padrão `capa_url` usado nos outros 4 tipos. |
-+
-+### Justificativa
-+Mesmo padrão de prioridade já usado em livros/filmes/séries/mangás: `capa_url`
-+da API tem prioridade sobre `capa_path` manual. Nenhuma dependência nova, nenhum
-+custo, nenhuma autenticação.
-+
-+### Impacto
-+`podcasts` ganha duas colunas novas via `004_podcasts_itunes.sql`: `itunes_id TEXT`
-+e `capa_url TEXT`. `capa_path` permanece como fallback para os casos raros em que
-+a iTunes API não retorna o podcast buscado.
-+
-+**Atualização em DEC-011:** a premissa de "podcasts: sem API, sempre manual" está
-+superada, no mesmo espírito da atualização já feita para mangás em 2026-07-11.
-+
-+**Atualização (2026-07-13):** a pendência "a definir na implementação do frontend"
-+sobre o campo `artistName` da iTunes API foi resolvida — `biblioteca.html` salva
-+automaticamente `artistName` em `comentario` (prefixado como "Produtora: ...") ao
-+selecionar um resultado de busca, apenas quando `comentario` está vazio. Nenhuma
-+coluna nova foi criada — decisão deliberada para não adicionar uma coluna dedicada
-+só para podcasts quando os outros 4 tipos não têm um campo equivalente de metadado
-+secundário.
+## DEC-016 — Podcasts ganham API de metadados (iTunes Search API)
+
+**Data:** 2026-07-13 (Fase 4, integração de APIs externas)
+**Status:** ✅ Aprovada
+
+### Contexto
+DEC-011 registrava podcasts como o único tipo da Biblioteca sem API de metadados
+definida, permanecendo 100% manual. Ao planejar a integração de TMDB/Google Books/
+Jikan, identificou-se que a iTunes Search API (`itunes.apple.com/search`) cobre
+podcasts sem necessidade de key, autenticação ou custo — mesmo padrão gratuito já
+usado para Jikan/MAL (mangás).
+
+### Decisão
+Podcasts passam a integrar com a iTunes Search API. Campos retornados usados:
+`trackId` (armazenado como `itunes_id`), `artworkUrl600` (armazenado como
+`capa_url`), `artistName` (autor/produtora do podcast).
+
+### Alternativas consideradas
+
+| Alternativa | Descartada por |
+|---|---|
+| Taddy API | Exige API key e tem foco em transcrição/episódios — funcionalidade muito além do escopo de catálogo (ver PROJECT_PRINCIPLES.md #11, escopo proporcional). |
+| Manter podcasts 100% manuais | Deixaria de aproveitar uma API gratuita já compatível com o padrão `capa_url` usado nos outros 4 tipos. |
+
+### Justificativa
+Mesmo padrão de prioridade já usado em livros/filmes/séries/mangás: `capa_url`
+da API tem prioridade sobre `capa_path` manual. Nenhuma dependência nova, nenhum
+custo, nenhuma autenticação.
+
+### Impacto
+`podcasts` ganha duas colunas novas via `004_podcasts_itunes.sql`: `itunes_id TEXT`
+e `capa_url TEXT`. `capa_path` permanece como fallback para os casos raros em que
+a iTunes API não retorna o podcast buscado.
+
+**Atualização em DEC-011:** a premissa de "podcasts: sem API, sempre manual" está
+superada, no mesmo espírito da atualização já feita para mangás em 2026-07-11.
+
+**Atualização (2026-07-13):** a pendência "a definir na implementação do frontend"
+sobre o campo `artistName` da iTunes API foi resolvida — `biblioteca.html` salva
+automaticamente `artistName` em `comentario` (prefixado como "Produtora: ...") ao
+selecionar um resultado de busca, apenas quando `comentario` está vazio. Nenhuma
+coluna nova foi criada — decisão deliberada para não adicionar uma coluna dedicada
+só para podcasts quando os outros 4 tipos não têm um campo equivalente de metadado
+secundário.
+
+## DEC-017 — Deep-link por tipo em estudos.html via querystring
+
+**Data:** 2026-07-13
+**Status:** ✅ Aprovada · ✅ Implementada
+
+### Contexto
+Os links "Enem", "Olimpíadas" e "Escola" no dashboard (`index.html`) apontavam
+para arquivos separados (`enem.html`, `olimpiadas.html`, `escola.html`) que
+nunca existiram — resíduo do plano original, descartado por DEC-013 em favor
+de uma página única `estudos.html` com filtro por tipo. Isso causava erro
+"não encontrado" ao clicar em qualquer um dos três links.
+
+### Decisão
+`estudos.html` passa a aceitar o parâmetro de URL `?tipo=` (`enem` | `olimpiada`
+| `escola`), lido em `init()` para pré-selecionar a pill de filtro
+correspondente. Sem parâmetro, ou com valor inválido, o comportamento
+permanece o padrão (filtro "Todas") — nenhuma quebra de compatibilidade com
+o uso direto da página.
+
+`index.html` atualizado para linkar `estudos.html?tipo=enem`,
+`estudos.html?tipo=olimpiada` e `estudos.html?tipo=escola` em vez dos arquivos
+inexistentes.
+
+### Alternativas consideradas
+
+| Alternativa | Descartada por |
+|---|---|
+| Remover os 3 links do dashboard, deixando só um link genérico para `estudos.html` | Perde a conveniência de acesso direto por tipo a partir do dashboard, que era a intenção original da navegação. |
+| Criar de fato 3 arquivos HTML separados | Contradiz DEC-013 diretamente — reabriria uma decisão já tomada sem justificativa nova. |
+
+### Justificativa
+Mantém DEC-013 intacta (uma página, um schema, um filtro) e resolve o problema
+real (navegação quebrada) com a menor superfície de mudança possível — um
+parâmetro de URL opcional, não um novo mecanismo de roteamento.
+
+### Impacto
+`estudos.html` → `init()` lê `window.location.search` e aplica o filtro antes
+
+## DEC-018 — Migração do frontend para Next.js/React + API Routes (reabre DEC-006)
+
+**Data:** 2026-07-14 (planejamento da v2)
+**Status:** ✅ Aprovada
+
+### Contexto
+A v2 traz um conjunto de novidades (treino com módulos por categoria e imagens,
+biblioteca com dados aninhados — temporadas dentro de anime/série, elenco,
+trilha sonora —, sistema de nota por estrela + favoritagem reaproveitado entre
+tipos, estudos separado em páginas próprias por sistema de revisão, agenda com
+integração Google Calendar) que exigem dois tipos de coisa que HTML/JS puro
+(DEC-006) não resolve bem:
+1. **Componentes reutilizáveis com estado aninhado** (card de exercício, card
+   de obra com lista de temporadas, widget de nota por estrela) — hoje isso é
+   feito manipulando `innerHTML` na mão, o que já é difícil de manter em
+   `biblioteca.html` e ficaria pior com dados aninhados.
+2. **Segredo de API protegido do navegador** (ex: `TMDB_API_KEY`, hoje exposta
+   no código-fonte de `biblioteca.html`; futuras integrações como Google
+   Calendar OAuth também exigem isso).
+
+Duas soluções foram avaliadas para o ponto 2 (Edge Functions do Supabase vs.
+API Routes do Next.js) — ver comparação abaixo. Como quase todos os módulos já
+vão ser reescritos por causa do ponto 1, decidiu-se resolver os dois problemas
+com a mesma migração, evitando manter dois runtimes serverless diferentes
+(Edge Functions do Supabase *e* API Routes do Next.js) fazendo o mesmo papel.
+
+### Decisão
+Frontend migra de HTML/CSS/JS puro para **Next.js (React) + TypeScript**.
+Toda lógica que hoje exigiria esconder segredo passa pelas **API Routes do
+Next.js** (funções serverless do próprio Next.js, rodando no Vercel) — não
+serão usadas Edge Functions do Supabase. Supabase continua responsável por
+100% do que já fazia bem: PostgreSQL, Auth, Storage, RLS, Realtime (quando/se
+implementado). Esta migração não tem relação com DEC-002 (eliminação do
+Flask) — não estamos voltando a manter servidor próprio; API Routes do
+Next.js são serverless, hospedadas pelo Vercel, sem manutenção de infra.
+
+### Alternativas consideradas
+
+| Alternativa | Descartada por |
+|---|---|
+| Manter HTML puro + Edge Functions do Supabase só para o segredo (DEC-018 inicial cogitada) | Resolve só o problema de segredo, não resolve o problema de componentização que motivou boa parte da v2; deixaria o projeto com dois backends serverless (Edge Functions + API Routes) se o framework entrasse depois de qualquer forma |
+| Backend próprio (Node/Express, FastAPI) com hospedagem separada | Reintroduz exatamente o que o DEC-002 eliminou: hospedagem própria, deploy separado, manutenção de servidor, cold start em free tier de terceiros |
+| Manter tudo em HTML puro, aceitar `innerHTML` mais complexo | Sustentável hoje, mas as novidades da v2 (dados aninhados, widgets reutilizados entre 5 tipos de mídia) tornam a manutenção desproporcionalmente mais difícil sem componentização |
+
+### Justificativa
+Migração motivada por necessidade real de UI (componentização), não por
+modismo — a segurança de segredo é resolvida "de graça" pela mesma mudança,
+via API Routes.
+
+### Impacto
+- Reabre DEC-006 (frontend HTML/CSS/JS puro) — **superada por esta decisão**.
+- `frontend/` deixa de ser HTML estático e passa a ser um projeto Next.js.
+- Deploy no Vercel passa a ter build step (hoje não tem — ver ROADMAP.md → Fase M).
+- `style.css` não é descartado: vira base de design tokens/CSS global do
+  projeto Next.js (ver DESIGN.md — sem mudança de paleta/tipografia, só de
+  onde o CSS é carregado).
+- `supabase.js`/`auth.js`/`sm2.js` são reescritos como módulos TypeScript
+  (`lib/supabase.ts`, `lib/auth.ts`, `lib/sm2.ts`), mesma responsabilidade.
+- Migração é **incremental por módulo**, não um "big bang" — ver ROADMAP.md
+  → Fase 7.
