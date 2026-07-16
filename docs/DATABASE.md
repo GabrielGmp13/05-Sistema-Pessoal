@@ -36,6 +36,7 @@ Chaves estrangeiras seguem `<tabela_singular>_uuid` (ex: `treino_uuid`, `materia
 | `002_estudos.sql` | ✅ Executado e verificado no Supabase (2026-07-11) | 5 tabelas do módulo de Estudos |
 | `003_biblioteca.sql` | ✅ Executado e verificado no Supabase (2026-07-11) | 11 tabelas do módulo Biblioteca — ver DEC-011, DEC-014 |
 | `004_podcasts_itunes.sql` | 🔄 Aguardando execução no Supabase | Adiciona `itunes_id` e `capa_url` à tabela `podcasts` — ver DEC-016 |
+| `005_treino_v2.sql` | ✅ Executado e verificado no Supabase (2026-07-15) | Reestrutura Treino: `modulos_treino` (novo), `treinos.modulo_uuid` (novo), `exercicios_forca`/`exercicios_cardio` (substituem `exercicios`), `execucoes_forca`/`execucoes_cardio` (substituem `series_executadas`). Descontinua `cardio`. Ver DEC-020 |
 
 **Convenção para novas migrações:** numeração sequencial de 3 dígitos + nome do módulo em snake_case (`00N_nome-modulo.sql`). Depois de rodar no SQL Editor, atualizar a tabela acima e a seção correspondente deste documento.
 
@@ -344,9 +345,90 @@ Todas seguem o mesmo padrão — `uuid`, `user_id`, `<tipo_singular>_uuid`, `tag
 | `podcasts_tags` | `podcast_uuid` |
 
 ---
+## Schema — `005_treino_v2.sql`
+
+### `modulos_treino`
+```sql
+uuid        TEXT PRIMARY KEY,
+user_id     UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+nome        TEXT NOT NULL,
+cor         TEXT,
+updated_at  TIMESTAMPTZ DEFAULT NOW(),
+deleted     BOOLEAN DEFAULT FALSE
+```
+> Seed de 7 módulos (Cardio, Força, Resistência, Hipertrofia, Flexibilidade,
+> Mobilidade, Potência) é responsabilidade do frontend no primeiro carregamento,
+> não da migration — ver DEC-020.
+
+### `treinos` (alterada)
+Ganhou a coluna `modulo_uuid TEXT REFERENCES modulos_treino(uuid)`. Demais colunas sem mudança (ver `001_schema_inicial.sql`).
+
+### `exercicios_forca` (substitui `exercicios`)
+```sql
+uuid               TEXT PRIMARY KEY,
+user_id            UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+treino_uuid        TEXT NOT NULL REFERENCES treinos(uuid),
+nome               TEXT NOT NULL,
+series_alvo        INTEGER,
+reps_alvo          INTEGER,
+carga_alvo         NUMERIC(6,2),
+descanso_segundos  INTEGER,
+imagem_path        TEXT,   -- path no bucket 'exercicios'
+ordem              INTEGER DEFAULT 0,
+updated_at         TIMESTAMPTZ DEFAULT NOW(),
+deleted            BOOLEAN DEFAULT FALSE
+```
+
++### `exercicios_cardio` (novo)
+```sql
+uuid                  TEXT PRIMARY KEY,
+user_id               UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+treino_uuid           TEXT NOT NULL REFERENCES treinos(uuid),
+nome                  TEXT NOT NULL,
+distancia_alvo_km     NUMERIC(6,3),
+duracao_alvo_minutos  INTEGER,
+imagem_path           TEXT,
+ordem                 INTEGER DEFAULT 0,
+updated_at            TIMESTAMPTZ DEFAULT NOW(),
+deleted               BOOLEAN DEFAULT FALSE
+```
+
+### `execucoes_forca` (substitui `series_executadas`)
+```sql
+uuid            TEXT PRIMARY KEY,
+user_id         UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+sessao_uuid     TEXT NOT NULL REFERENCES sessoes_treino(uuid),
+exercicio_uuid  TEXT NOT NULL REFERENCES exercicios_forca(uuid),
+serie_numero    INTEGER,
+carga_real      NUMERIC(6,2),  -- null = assume carga_alvo (regra de negócio no frontend)
+reps_real       INTEGER,       -- null = assume reps_alvo
+concluida       BOOLEAN DEFAULT FALSE,
+data_hora       TIMESTAMPTZ DEFAULT NOW(),
+updated_at      TIMESTAMPTZ DEFAULT NOW(),
+deleted         BOOLEAN DEFAULT FALSE
+```
+### `execucoes_cardio` (novo)
+```sql
+uuid                  TEXT PRIMARY KEY,
+user_id               UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+sessao_uuid           TEXT NOT NULL REFERENCES sessoes_treino(uuid),
+exercicio_uuid        TEXT NOT NULL REFERENCES exercicios_cardio(uuid),
+concluido             BOOLEAN DEFAULT FALSE,
+distancia_real_km     NUMERIC(6,3),  -- null = assume distancia_alvo_km
+duracao_real_minutos  INTEGER,       -- null = assume duracao_alvo_minutos
+data_hora             TIMESTAMPTZ DEFAULT NOW(),
+updated_at            TIMESTAMPTZ DEFAULT NOW(),
+deleted               BOOLEAN DEFAULT FALSE
+```
+
+### Tabelas descontinuadas
+`cardio`, `exercicios`, `series_executadas` — removidas em `005_treino_v2.sql`. Sem dados relevantes perdidos (uso de teste). Ver DEC-020.
+
 ## Storage
 
 Buckets e políticas detalhados em `ARCHITECTURE.md` → Supabase Storage e `DECISIONS.md` → DEC-010. Resumo: 3 buckets, todos privados, sempre via signed URL, path `{user_id}/arquivo.ext`.
+
+Bucket `exercicios` adicionado em `005_treino_v2.sql` (ver DEC-020) — mesmo padrão de privacidade e path.
 
 ---
 

@@ -7,7 +7,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 ## Status geral
 **Fase atual:** Fase 7 (v2) — planejamento da migração para Next.js/React (DEC-018)
 **Bloqueio:** nenhum
-**Próxima ação:** formalizar escopo da Fase 7.0 (setup do projeto Next.js) via MODULE_TEMPLATE.md antes de gerar qualquer código
+**Próxima ação:** gerar as páginas do módulo Treino v2 (`modulos`, `plano`, `academia`, `hub`, `shape`) — Fase 7.0 técnica concluída, nenhum bloqueio restante
 
 
 ## 🔴 Bugs conhecidos — prioridade alta
@@ -72,14 +72,24 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] Decisão: sistema ENEM standalone descontinuado, integrado ao Supabase (DEC-012)
 - [x] Decisão: `estudos.html` única em vez de 3 páginas separadas (DEC-013)
 
-## Fase 7.0 — Setup Next.js (não iniciada)
+## Fase 7.0 — Setup Next.js ✅ CONCLUÍDA
 
-- [ ] Definir estrutura de pastas do projeto Next.js (App Router) dentro de `frontend/`
-- [ ] Migrar `style.css` para CSS global do projeto (sem mudar paleta/tipografia — ver DESIGN.md)
-- [ ] Reescrever `supabase.js` → `lib/supabase.ts`
-- [ ] Reescrever `auth.js` → `lib/auth.ts` (adaptado para Next.js)
-- [ ] Configurar variáveis de ambiente server-only no Vercel (segredo nunca com prefixo `NEXT_PUBLIC_`)
-- [ ] Layout base + navbar como componente compartilhado
-- [ ] Escolher a primeira página a migrar como prova de conceito — decisão pendente, não presa a nenhum módulo específico ainda
+- [x] Estrutura de pastas definida: `frontend-v2/` (nova, separada de `frontend/`)
+- [x] Router: App Router
+- [x] Estilização: CSS Modules (Tailwind adiado para v3 — ver BACKLOG.md)
+- [x] Deploy: segundo projeto Vercel, URL própria, paralelo à produção
+- [x] Migrar tokens de `style.css` para `app/globals.css` (paleta, tipografia — migração por componente para CSS Modules acontece módulo a módulo, não de uma vez)
+- [x] Reescrever `supabase.js` → `lib/supabase.ts` (2026-07-15 — com correção de `createBrowserClient`, ver DEC-021)
+- [x] Reescrever `auth.js` → `middleware.ts` (2026-07-15 — decisão de usar middleware em vez de `lib/auth.ts`, ver DEC-021)
+- [x] `.env.local` configurado localmente (URL + anon key) — variáveis do projeto Vercel novo ficam pendentes até o deploy real da v2 (fora de escopo por ora)
+- [x] Login testado end-to-end com usuário real (2026-07-15)
 
-**Próxima ação:** concluir Fase 7.0. Escopo de features de cada módulo (Treino, Biblioteca, Estudos, Agenda, etc.) só entra em pauta depois, módulo a módulo, via `MODULE_TEMPLATE.md`.
+**Fase 7.0: concluída.**
+
+## Fase 7.1 — Módulo Treino (v2): planejamento
+
+- [x] Escopo definido via MODULE_TEMPLATE.md (hierarquia módulos → treinos → exercícios força/cardio)
+- [x] `005_treino_v2.sql` criada
+- [x] Rodar `005_treino_v2.sql` no Supabase SQL Editor (2026-07-15 — sucesso)
+- [x] Confirmar RLS + GRANT nas 6 tabelas + policy do bucket `exercicios` (2026-07-15 — confirmado via pg_tables/pg_policies/information_schema)
+- [ ] Gerar páginas Next.js (`modulos`, `plano`, `academia`, `hub`, `shape`) — desbloqueado, Fase 7.0 concluída

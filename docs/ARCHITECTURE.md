@@ -3,15 +3,18 @@
 ## Diagrama do sistema
 
 ```
-[Qualquer dispositivo — PC, celular, tablet]
-         Browser (HTTPS)  
-                           │
-    ┌──────────────────────┼──────────────┐
-    │                      │              │
-    ▼                      ▼              ▼
-Vercel                  Supabase       Supabase
-(frontend Next.js       (PostgreSQL    (Storage
- + API Routes)           + Auth)        privado)
+                   [Qualquer dispositivo — PC, celular, tablet]
+                                  Browser (HTTPS)  
+                                      │
+    ┌─────────────────────────────────┼────────────────────────┐
+    │                                 │                        │
+    ▼                                 ▼                        ▼
+Vercel — frontend-v2/              supabase                 supabase
+(Next.js + API Routes,        (PostgreSQL + Auth)        (storage privado)
+v2 em construção) · 
+projeto Vercel separado
+ do frontend/ (v1, produção)                                                                      
+ 
 ```
 
 **Sem servidor customizado.** O frontend (HTML/CSS/JS estático) é servido pelo CDN do Vercel. Todos os dados, auth, arquivos e sync em tempo real passam pelo Supabase.
@@ -45,6 +48,7 @@ Banco de dados relacional. ✅ Schema executado via `supabase/migrations/001_sch
 | `shape` | Fotos de shape | 10MB | JPEG, PNG, WebP |
 | `documentos` | PDFs de provas, apostilas, documentos pessoais | 50MB | PDF |
 | `capas` | Capas de obras da Biblioteca sem cobertura de API | 2MB | JPEG, PNG, WebP |
+| `exercicios` | Imagens/GIFs demonstrativos de exercícios (força e cardio) | 5MB | JPEG, PNG, WebP, GIF — 🔄 aguardando execução de 005_treino_v2.sql |
 
 Convenção de path obrigatória: `{user_id}/nome-do-arquivo.ext`. Storage Policies usam `(storage.foldername(name))[1] = auth.uid()::text` para isolar o acesso — cada usuário só vê seus próprios arquivos, mesmo dentro do mesmo bucket.
 
@@ -93,14 +97,26 @@ de servidor, o componente fala direto com o Supabase client (mesmo padrão de
 hoje, só que dentro de um componente React). Se precisa de uma chave de API ou
 processamento que não pode ser exposto no navegador, passa por uma API Route.
 
-### lib/supabase.ts — substitui supabase.js
+### lib/supabase.ts — substitui supabase.js ✅ implementado (Fase 7.0)
 Mesmas funções, agora como módulo TypeScript importável: `getSession()`,
 `getUserId()`, `getSignedUrl()`, `uploadFile()`, `deleteFile()`,
 `softDelete()`, `sbErr()`.
 
-### lib/auth.ts — substitui auth.js
-Mesma responsabilidade (verificação de sessão + redirect), adaptado para
-Next.js (middleware ou hook, a definir na implementação).
+**Gotcha real encontrado na implementação:** o client precisa ser criado com
+`createBrowserClient` do pacote `@supabase/ssr` — **não** `createClient` de
+`@supabase/supabase-js`. `createClient` guarda a sessão só em `localStorage`,
+invisível para `middleware.ts` (que roda no servidor e só lê sessão via
+cookies). Usar o client errado faz o login "funcionar" silenciosamente sem
+nunca autenticar de fato do ponto de vista do middleware — sem erro no
+Console, redireciona de volta pro login sem explicação. Encontrado e
+corrigido em 2026-07-15.
+
+### middleware.ts — substitui auth.js ✅ implementado (Fase 7.0, DEC-021)
+Protege toda rota por padrão (fail-safe), exceto as listadas em
+`ROTAS_PUBLICAS` (hoje só `/login`). Usa `createServerClient` de
+`@supabase/ssr` para ler a sessão via cookies e redireciona para `/login`
+quando ausente. Decisão de usar middleware em vez de hook por página — ver
+DEC-021.
 
 ### API Routes — novo componente da arquitetura
 Rodam como funções serverless no Vercel (mesmo runtime do build do Next.js —
@@ -112,7 +128,11 @@ Exemplo de uso planejado: `app/api/tmdb/search/route.ts` recebe o termo de
 busca do componente React, chama `api.themoviedb.org` com a `TMDB_API_KEY`
 guardada só no servidor, devolve o resultado já formatado.
 
-### Carregamento de scripts em cada página
+### Carregamento de scripts em cada página (v1 — `frontend/`, HTML puro)
+*As três subseções abaixo (scripts, `supabase.js`, `auth.js`) descrevem a
+implementação da v1. Na v2, os equivalentes são `lib/supabase.ts` e
+`middleware.ts`, documentados acima — mantidas aqui só como referência
+histórica enquanto a v1 continuar em produção.*
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

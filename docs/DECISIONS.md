@@ -467,3 +467,116 @@ via API Routes.
   (`lib/supabase.ts`, `lib/auth.ts`, `lib/sm2.ts`), mesma responsabilidade.
 - Migração é **incremental por módulo**, não um "big bang" — ver ROADMAP.md
   → Fase 7.
+
+  ## DEC-019 — Fase 7.0: estrutura de pastas, router e estilização da v2
+
+**Data:** 2026-07-14 (planejamento Fase 7)
+**Status:** ✅ Aprovada
+
+### Decisão
+- Projeto Next.js nasce em `frontend-v2/`, pasta nova e independente de `frontend/`
+  (v1). A v1 permanece intacta e em produção até a migração terminar módulo a
+  módulo — nenhuma substituição in-place.
+- Router: **App Router**.
+- Estilização: **CSS Modules** nesta migração. `style.css` (~1100 linhas) serve
+  de base, adaptado por componente. Tailwind é intenção registrada para uma
+  v3 futura — não entra em escopo agora (ver `BACKLOG.md`).
+- Deploy: **segundo projeto no Vercel**, apontando para `frontend-v2/`, com URL
+  própria (ex: `sistemapessoal-v2.vercel.app`), rodando em paralelo ao projeto
+  de produção (`frontend/`). Troca de domínio principal só acontece quando a
+  v2 estiver pronta para substituir a v1 de vez.
+
+### Justificativa
+Migrar dentro de `frontend/` arriscaria quebrar a v1 em produção durante o
+processo, que é incremental por módulo e pode levar tempo. Pasta + deploy
+separados eliminam esse risco: v1 continua servindo o uso real do dia a dia
+enquanto a v2 é construída e testada isoladamente.
+
+### Impacto
+- `ARCHITECTURE.md` e `AI_CONTEXT.md` atualizados para citar `frontend-v2/`.
+- Dois projetos Vercel a partir de agora — atenção redobrada em qual variável
+  de ambiente (`TMDB_API_KEY`, Supabase keys) está configurada em qual projeto.
+- `frontend/` só é removida/descontinuada quando todos os módulos estiverem
+  migrados e a v2 assumir o domínio principal — decisão futura, não agora.
+
+
+## DEC-020 — Treino v2: hierarquia módulos → treinos → exercícios (força/cardio separados)
+
+**Data:** 2026-07-15 (planejamento Fase 7.1)
+**Status:** ✅ Aprovada · 🔄 Migration criada, execução pendente
+
+### Contexto
+A v1 tinha `treinos` → `exercicios` direto, sem camada de categorização, e uma
+tabela `cardio` isolada que nunca ganhou tela. Ao planejar a v2, ficou claro que
+o usuário pensa o condicionamento físico em categorias livres (Força, Cardio,
+Flexibilidade, etc.) que agrupam treinos, e que exercícios de força (série/reps/
+carga) e cardio (distância/duração) têm natureza de dado diferente o bastante
+para não caber bem na mesma tabela.
+
+### Decisão
+Nova hierarquia: `modulos_treino` (CRUD livre do usuário) → `treinos` (ganha
+`modulo_uuid`) → `exercicios_forca` **ou** `exercicios_cardio` (tabelas separadas
+por natureza, não uma tabela genérica com campos nullable). Execução espelha a
+mesma separação: `execucoes_forca` (série a série, com PR — mesma lógica da v1)
+e `execucoes_cardio` (registro simples: concluído + tempo/km real opcional).
+`cardio`, `exercicios` e `series_executadas` são descontinuadas.
+
++### Alternativas consideradas
+
+| Alternativa | Descartada por |
+|---|---|
+| Uma tabela `exercicios` só, campos de força e cardio nullable | Rejeitada pelo usuário — natureza de dado divergente demais (mesmo raciocínio de DEC-014 na Biblioteca: tipos com campos genuinamente distintos ganham tabelas separadas). |
+| Módulos fixos (enum) | Usuário quer criar módulos livremente; lista fixa reabriria a decisão sem necessidade real. |
+| Seed de módulos via INSERT direto na migration com user_id fixo | Frágil — o projeto já perdeu dados por recriação de usuário (ver DATABASE.md → Gotchas, incidente de 2026-07-13). Seed fica a cargo do frontend no primeiro carregamento. |
+
+### Justificativa
+Espelha o próprio vocabulário do usuário ao descrever o uso real (módulo do dia
+→ treino específico → exercícios), e separa por natureza de dado em vez de forçar
+uma tabela genérica com muitos campos nulos — mesmo princípio já usado em DEC-014.
+
++### Impacto
+`005_treino_v2.sql` criada (execução pendente). Bucket novo `exercicios` (privado,
+5MB, aceita GIF). `treino-plano.html`/`treino-academia.html` (v1) não são
+afetados — só a v2 (Next.js) usa o schema novo. Seed de 7 módulos (Cardio, Força,
+Resistência, Hipertrofia, Flexibilidade, Mobilidade, Potência) implementado no
+frontend, não na migration.
+
+## DEC-021 — Proteção de rota via middleware do Next.js (não hook por página)
+
+**Data:** 2026-07-15 (Fase 7.0, execução técnica)
+**Status:** ✅ Aprovada · ✅ Implementada
+
+### Contexto
+`ARCHITECTURE.md` (DEC-018) deixava em aberto se `lib/auth.ts` seria um hook
+chamado no topo de cada página (mesmo espírito do `window.authReady` da v1)
+ou middleware do Next.js. Precisava fechar antes de gerar a primeira página
+protegida.
+
+### Decisão
+Middleware (`middleware.ts`, raiz do projeto). Protege toda rota por padrão;
+só as listadas explicitamente em `ROTAS_PUBLICAS` ficam de fora. Não existe
+`lib/auth.ts` como módulo separado — o middleware cobre essa responsabilidade
+sozinho.
+
+### Alternativas consideradas
+
+| Alternativa | Descartada por |
+|---|---|
+| Hook `useAuth()` chamado no topo de cada página | Opt-in por página — se uma página nova esquecer de chamar o hook, fica exposta sem redirect. Contraria PROJECT_PRINCIPLES.md #4 (segurança acima de conveniência): o padrão fail-safe (proteção por padrão, exceção explícita) é mais seguro que o padrão opt-in. |
+
+### Justificativa
+Middleware roda antes de qualquer página renderizar, sem exigir nenhuma ação
+do código de cada página — impossível esquecer de proteger uma rota nova
+por engano, o oposto do risco do hook.
+
+### Impacto
+`middleware.ts` implementado e testado (login + redirect confirmados
+funcionando em 2026-07-15). `ARCHITECTURE.md` atualizado. Nenhuma página
+precisa chamar nada para estar protegida — só rotas públicas precisam ser
+adicionadas manualmente em `ROTAS_PUBLICAS`.
+
+**Gotcha relacionado (não é decisão, é bug encontrado na implementação):**
+`lib/supabase.ts` precisa usar `createBrowserClient` de `@supabase/ssr`, não
+`createClient` de `@supabase/supabase-js` — o segundo guarda sessão em
+`localStorage`, invisível ao middleware (que lê cookies). Ver `ARCHITECTURE.md`
+→ lib/supabase.ts para o detalhe completo.

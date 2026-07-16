@@ -31,3 +31,7 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 ## Biblioteca
 
 - [ ] Validar tamanho do arquivo de capa no frontend antes do upload — **fora de escopo por ora**, sem prazo definido
+
+## v3 (futuro distante)
+
+- [ ] Migrar estilização de CSS Modules para Tailwind — decisão tomada durante planejamento da v2 (2026-07-14), fora de escopo da v2

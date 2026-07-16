@@ -1,0 +1,19 @@
+.container { max-width: 680px; margin: 0 auto; padding: 2rem 1rem; }
+.voltar { color: #888; text-decoration: none; font-size: .82rem; }
+.titulo { font-family: 'Syne', sans-serif; font-size: 1.4rem; margin: .5rem 0 1.25rem; }
+
+.formNovo { display: flex; flex-direction: column; gap: .5rem; margin-bottom: 1.5rem; }
+.input { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: .6rem; color: var(--text); }
+
+.btnSalvar { background: var(--accent); color: var(--bg); border: none; border-radius: 8px; padding: .6rem; font-weight: 700; cursor: pointer; }
+.btnGhost { border: 1px solid var(--border); color: #888; border-radius: 6px; padding: .4rem .7rem; text-decoration: none; font-size: .8rem; }
+.btnPrimario { background: var(--accent); color: var(--bg); border-radius: 6px; padding: .4rem .7rem; text-decoration: none; font-size: .8rem; font-weight: 700; }
+.btnDanger { border: 1px solid #ff6b6b; background: none; color: #ff6b6b; border-radius: 6px; padding: .4rem .7rem; font-size: .8rem; cursor: pointer; }
+
+.lista { display: flex; flex-direction: column; gap: .75rem; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.nome { font-weight: 700; }
+.desc { font-size: .8rem; color: #888; margin-top: .2rem; }
+.acoes { display: flex; gap: .5rem; flex-wrap: wrap; }
+.vazio { color: #555; font-size: .85rem; }
+.carregando { text-align: center; padding: 3rem 1rem; color: #888; }

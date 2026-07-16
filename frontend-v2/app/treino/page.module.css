@@ -1,0 +1,43 @@
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.titulo {
+  font-family: var(--font-titulo, 'Syne', sans-serif);
+  font-size: 1.4rem;
+  margin-bottom: 1.5rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left-width: 3px;
+  border-radius: 12px;
+  padding: 1.25rem 1rem;
+  text-decoration: none;
+  color: var(--text);
+  transition: transform 0.12s;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+.nome {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.carregando {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #888;
+}

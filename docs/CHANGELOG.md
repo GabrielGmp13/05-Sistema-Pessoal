@@ -205,3 +205,41 @@ Histórico de mudanças por marco.
 - `PROJECT_PRINCIPLES.md`, `ARCHITECTURE.md`, `NAMING_CONVENTIONS.md`, `MODULE_TEMPLATE.md`, `ROADMAP.md`, `VISION.md`, `AI_CONTEXT.md`, `TASKS_NOW.md` atualizados para refletir a decisão
 - Escopo de features de v2 ainda não fechado e não registrado em nenhum documento — só a decisão de arquitetura (DEC-018) está formalizada
 - Nenhuma linha de código gerada ainda — próximo passo é formalizar Fase 7.0 via `MODULE_TEMPLATE.md`
+
+## 2026-07-14 — Fase 7.0: estrutura da v2 definida (DEC-019)
+
+- Decisões de setup fechadas: `frontend-v2/` como pasta nova (v1 mantida intacta em `frontend/` até fim da migração), App Router, CSS Modules (Tailwind adiado para v3)
+- Deploy: segundo projeto Vercel, independente do de produção, com URL própria
+- `DECISIONS.md`, `ARCHITECTURE.md`, `TASKS_NOW.md`, `BACKLOG.md` atualizados
+- Fase 7.0 (planejamento): concluída. Execução técnica (criar o projeto Next.js de fato) ainda não iniciada — próximo passo é iniciar o planejamento do módulo Treino
+
+## 2026-07-15 — Treino v2: schema reestruturado (Fase 7.1, DEC-020)
+
+- Planejamento via MODULE_TEMPLATE.md: hierarquia `modulos_treino` → `treinos` → `exercicios_forca`/`exercicios_cardio`, separando por natureza de dado em vez de tabela genérica
+- `005_treino_v2.sql` criada e executada com sucesso no Supabase: `modulos_treino` (nova), `treinos.modulo_uuid` (nova coluna), `exercicios_forca`, `exercicios_cardio`, `execucoes_forca`, `execucoes_cardio` (novas); `cardio`, `exercicios`, `series_executadas` descontinuadas
+- Bucket `exercicios` criado (privado, 5MB, aceita JPEG/PNG/WebP/GIF)
+- Verificado via `pg_tables`, `pg_policies` e `information_schema.role_table_grants`: RLS ativa e policy `user_own_data` nas 5 tabelas novas, GRANT completo para `authenticated`; tabelas antigas confirmadas removidas
+- Seed de 7 módulos padrão (Cardio, Força, Resistência, Hipertrofia, Flexibilidade, Mobilidade, Potência) definido como responsabilidade do frontend, não da migration (evita repetir o incidente de perda de dados por `user_id` fixo em SQL — ver Gotchas em DATABASE.md)
+- Fase 7.1 (planejamento e schema): **concluída**. Páginas ainda não geradas.
+
+## 2026-07-15 — Fase 7.0 técnica concluída: projeto Next.js, auth e CSS global funcionando
+
+- Projeto `frontend-v2/` criado via `create-next-app` (TypeScript, App Router, sem Tailwind — CSS Modules conforme DEC-019, sem `src/`, sem React Compiler, sem AGENTS.md)
+- `@supabase/supabase-js` e `@supabase/ssr` instalados
+- `.env.local` configurado com `NEXT_PUBLIC_SUPABASE_URL`/`NEXT_PUBLIC_SUPABASE_ANON_KEY` (confirmado fora do Git via `.env*` já presente no `.gitignore` padrão do Next.js — nenhuma mudança necessária)
+- Decisão: proteção de rota via `middleware.ts` (fail-safe, protege tudo por padrão) em vez de hook por página — DEC-021
+- `lib/supabase.ts` implementado (equivalente TypeScript de `supabase.js`) — bug real encontrado e corrigido: client precisa ser `createBrowserClient` (`@supabase/ssr`), não `createClient` (`@supabase/supabase-js`), senão a sessão fica invisível para o middleware (login "funciona" mas nunca autentica do ponto de vista do servidor). Ver DEC-021 e `ARCHITECTURE.md`
+- `middleware.ts` implementado e testado — bloqueia rota sem sessão, redireciona para `/login`
+- `app/login/page.tsx` implementado e testado com usuário real (mesma conta da v1) — login confirmado funcionando após a correção do client
+- `app/globals.css` implementado com os tokens de `DESIGN.md` (paleta, tipografia). Bug encontrado e corrigido: `@font-face` assumia um arquivo único por família (`Syne.woff2`), mas os arquivos reais em `public/fonts/` são por peso (`syne-latin-400-normal.woff2` etc.) — corrigido para declarar um `@font-face` por peso
+- `app/layout.tsx` implementado — importa `globals.css`, metadata base
+- `app/page.tsx` — placeholder mínimo confirmando visualmente que login + middleware + CSS estão integrados (não é o dashboard final da v2; dashboard real fica para quando o módulo Dashboard for formalizado)
+- Fase 7.0 (setup técnico do Next.js): **concluída**
+
+## 2026-07-15 — Módulo Treino v2: planejamento fechado (Fase 7.1, DEC-020)
+
+- Planejamento via `MODULE_TEMPLATE.md`: hierarquia `modulos_treino` (CRUD livre) → `treinos` → `exercicios_forca`/`exercicios_cardio` (tabelas separadas por natureza de dado)
+- Decisões de escopo fechadas em conversa: módulos livres com seed inicial de 7 (Cardio, Força, Resistência, Hipertrofia, Flexibilidade, Mobilidade, Potência) implementado no frontend, não na migration; imagem de exercício via upload manual com suporte a GIF (bucket novo `exercicios`, 5MB); execução força mantém granularidade série a série com PR (mesma lógica da v1, mas salvamento em lote por exercício); execução cardio é registro simples (concluído + tempo/km real opcional)
+- Tabela `cardio` (existia desde `001_schema_inicial.sql`, nunca teve tela) descontinuada — absorvida pelo novo sistema de módulos
+- Páginas do Treino v2 ainda não geradas — dependiam da Fase 7.0 técnica (ver entrada acima), agora desbloqueadas
+```

@@ -134,5 +134,5 @@ módulo a módulo.
 
 | Sub-fase | Descrição | Status |
 |---|---|---|
-| 7.0 | Setup do projeto Next.js — estrutura de pastas, `lib/supabase.ts`, `lib/auth.ts`, layout base, CSS global migrado | ⏳ |
+| 7.0 | Setup do projeto Next.js — estrutura de pastas, `lib/supabase.ts`, `middleware.ts` (substitui `lib/auth.ts`, ver DEC-021), layout base, CSS global migrado | ✅ |
 | 7.N | Migração de cada módulo existente (Treino, Biblioteca, Estudos, Revisão, Agenda), uma por vez — ordem e escopo a definir | ⏳ |
