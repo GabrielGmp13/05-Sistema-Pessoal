@@ -1,0 +1,91 @@
+.wrapper {
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+  margin-top: 0.5rem;
+}
+
+.wrapper h4 {
+  font-family: var(--font-titulos, inherit);
+  font-size: 0.85rem;
+  color: var(--accent);
+  margin-bottom: 0.6rem;
+}
+
+.vazio {
+  color: #555;
+  font-size: 0.8rem;
+}
+
+.lista {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.lista li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.82rem;
+}
+
+.lista li button {
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  padding: 0 0.3rem;
+}
+
+.lista li button:hover {
+  color: #ff6b6b;
+}
+
+.linhaAdicionar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.linhaAdicionar input,
+.linhaAdicionar select {
+  flex: 1 1 120px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.45rem 0.6rem;
+  color: var(--text);
+  font-size: 0.82rem;
+  min-width: 0;
+}
+
+.linhaAdicionar input:focus,
+.linhaAdicionar select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.linhaAdicionar button {
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  border-radius: 6px;
+  padding: 0.45rem 0.75rem;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.linhaAdicionar button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}

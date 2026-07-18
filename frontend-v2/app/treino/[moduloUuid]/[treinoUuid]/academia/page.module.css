@@ -9,9 +9,11 @@
 
 .linhaSerie, .linhaCardio { display: flex; gap: .5rem; align-items: center; margin-bottom: .4rem; }
 .numSerie { width: 1.2rem; color: #888; font-size: .8rem; font-family: 'JetBrains Mono', monospace; }
+.numSerie { flex-shrink: 0; }
 .inputSerie { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: .5rem; color: var(--text); font-family: 'JetBrains Mono', monospace; }
-
+.inputSerie { min-width: 0; }
 .checkOff, .checkOn { width: 2.2rem; height: 2.2rem; border-radius: 6px; border: 1px solid var(--border); background: none; color: #555; cursor: pointer; }
+.checkOff, .checkOn { flex-shrink: 0; box-sizing: border-box; }
 .checkOn { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 700; }
 
 .btnSalvar { width: 100%; background: var(--accent); color: var(--bg); border: none; border-radius: 8px; padding: .8rem; font-weight: 700; cursor: pointer; margin-top: 1rem; }

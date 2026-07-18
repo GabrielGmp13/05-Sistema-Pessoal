@@ -580,3 +580,174 @@ adicionadas manualmente em `ROTAS_PUBLICAS`.
 `createClient` de `@supabase/supabase-js` — o segundo guarda sessão em
 `localStorage`, invisível ao middleware (que lê cookies). Ver `ARCHITECTURE.md`
 → lib/supabase.ts para o detalhe completo.
+
+
+**Atualização (DEC-022, 2026-07-16):** a premissa de "módulos livres,
+CRUD completo pelo usuário" foi revertida. Ver DEC-022 para o novo
+comportamento — módulos passam a ser fixos.
+
+---
+
+## DEC-022 — Módulos de treino passam a ser fixos (reabre parte da DEC-020)
+
+**Data:** 2026-07-16
+**Status:** ✅ Aprovada · ✅ Implementada
+
+### Contexto
+DEC-020 definiu `modulos_treino` como CRUD livre do usuário, descartando
+explicitamente a alternativa de módulos fixos ("usuário quer criar módulos
+livremente"). Na prática, ao planejar as páginas da v2, ficou claro que essa
+premissa estava errada: o usuário já definiu os 7 módulos como a divisão
+completa e definitiva de como ele categoriza treino (Cardio, Força,
+Resistência, Hipertrofia, Flexibilidade, Mobilidade, Potência) — não como
+um ponto de partida editável.
+
+### Decisão
+Os 7 módulos são fixos. Não há CRUD de módulo na v2 (sem criar, editar,
+renomear ou apagar módulo pela interface). A tabela `modulos_treino`
+continua existindo (schema já executado, ver DEC-020/DATABASE.md) e é
+populada automaticamente com as 7 linhas na primeira carga, caso esteja
+vazia — sem botão, sem interação do usuário (`seedModulosSeNecessario()`
+em `lib/modulos-treino.ts`).
+
+Se o usuário quiser um módulo novo no futuro, o processo é fora do sistema:
+contato direto com o desenvolvedor (que é o próprio usuário), que altera a
+seed manualmente. Não é uma funcionalidade do produto.
+
+**Decisão adicional de escopo (implementação):** um treino pode conter
+exercícios de força e cardio simultaneamente — o tipo é escolhido por
+exercício, não pelo módulo. O schema (`exercicios_forca`/`exercicios_cardio`)
+não força essa exclusão, e travar isso na UI seria complexidade sem
+necessidade real.
+
+### Justificativa
+O usuário chegou aos 7 módulos depois de já ter separado o que cada tipo de
+treino resolve na prática — não é uma lista provisória. CRUD de módulo seria
+complexidade sem uso real (princípio 3 e 11 de `PROJECT_PRINCIPLES.md`:
+simplicidade acima de complexidade, escopo proporcional).
+
+### Impacto
+- Nenhuma mudança de schema — `modulos_treino` continua igual.
+- `app/treino/page.tsx` não tem CRUD de módulo, só lista os 7 (funciona como hub/seleção).
+- Seed automático (client-side, `lib/modulos-treino.ts`) resolve a pergunta
+  em aberto sobre "seed automático vs. botão" — tabela vazia dispara o seed sozinha.
+
+## DEC-023 — Biblioteca v2: gêneros estruturados substituem tags livres, nota vira estrela
+
+**Data:** 2026-07-16
+**Status:** ✅ Aprovada · ✅ Executada (`006_biblioteca_v2_base.sql`, `007_remover_tags.sql`)
+
+### Contexto
+Planejamento da Biblioteca v2 (motivado por DEC-018) trouxe uma lista extensa
+de campos novos por tipo de mídia. Na base compartilhada (sub-fase B1),
+surgiram duas mudanças de fundo que afetam todos os 5 tipos existentes:
+1. Sistema de nota migra de escala 1-10 (inteiro) para 1-5 com meia estrela
+   (`NUMERIC(2,1)`), sem conversão de dados antigos — v2 nasce zerada.
+2. Sistema de gênero estruturado (`generos`, com campo de descrição/tooltip
+   — necessário para gêneros japoneses como Shounen/Seinen) substitui o
+   sistema de tags livres (`tags` + `*_tags`) herdado da DEC-014/v1.
+
+### Decisão
+- `nota` recriada como `NUMERIC(2,1)` em `livros`, `filmes`, `series`,
+  `mangas`, `podcasts`. Dados antigos descartados (usuário confirmou não ter
+  uso real acumulado ainda).
+- Tabela `generos` criada (estruturada, com `descricao` para tooltip) +
+  junções `livros_generos`, `filmes_generos`, `series_generos`,
+  `mangas_generos`, `podcasts_generos`.
+- Tags livres descontinuadas: `tags` e as 5 junções `*_tags` removidas do
+  banco via `DROP TABLE`.
+- Campos novos compartilhados adicionados às 5 tabelas: `favorito`,
+  `vezes_consumido`, `onde_consumi`, `valor_pago`, `banner_url`,
+  `banner_path`, `classificacao_indicativa`, `duracao_minutos`,
+  `link_imdb`, `link_mal`, `link_anilist`, `link_oficial`.
+- Deliberadamente fora de escopo (removido durante o planejamento):
+  "onde está disponível" via API de streaming, e campo "recomendaria".
+
+### Alternativas consideradas
+
+| Alternativa | Descartada por |
+|---|---|
+| Manter tags livres coexistindo com gêneros | Usuário não via uso real para tag livre depois que gênero estruturado cobre a necessidade; simplicidade (princípio 3) venceu |
+| Converter nota 1-10 para estrela via fórmula (nota/2) | Usuário optou por zerar — sem histórico real acumulado, conversão não trazia valor |
+| "Onde está disponível" via TMDB watch/providers | Cobertura de streaming no Brasil é inconsistente e exige manutenção contínua — desproporcional ao uso pessoal (princípio 11) |
+
+### Impacto
+`campos comuns em livros/filmes/series/mangas/podcasts`. `classificacao_indicativa`
+e `duracao_minutos` existem simetricamente nas 5 tabelas mesmo sabendo que
+nunca serão preenchidos em `livros`/`podcasts` — decisão deliberada de manter
+schema simétrico entre tipos em vez de criar exceção (princípio 7 — código
+simples e óbvio). Este é o primeiro passo do fatiamento da Biblioteca v2 em
+sub-fases B1–B6 — ver `ROADMAP.md` e `TASKS_NOW.md`.
+
+## DEC-024 — Biblioteca v2 (B2): elenco/trilha sonora como tabelas polimórficas reutilizáveis
+
+**Data:** 2026-07-16
+**Status:** ✅ Aprovada · ✅ Executada (`008_biblioteca_v2_b2.sql`, 2026-07-17)
+
+### Contexto
+Filmes e séries compartilham exatamente a mesma estrutura de elenco (ator,
+personagem, foto) e trilha sonora (nome, artista, links) — e a visão de
+produto já prevê que Animes (B3) vai reaproveitar o mesmo formato.
+
+### Decisão
+`elenco` e `trilha_sonora` nascem como tabelas únicas com FK polimórfica
+(`tipo_obra` + `obra_uuid`), mesmo padrão de exceção já documentado para
+`revisao_espacada.referencia_uuid` (ver NAMING_CONVENTIONS.md). Validação de
+`tipo_obra` fica no frontend, sem CHECK constraint — mesma convenção já usada
+para `status` nas tabelas de mídia.
+
+`series_temporadas` não guarda episódio por episódio — só contagem
+(`numero_episodios`). Granularidade por episódio com marcação de filler é
+exclusiva de Animes (B3), onde foi pedida explicitamente.
+
+### Alternativas consideradas
+
+| Alternativa | Descartada por |
+|---|---|
+| `elenco_filmes` + `elenco_series` (tabelas gêmeas, como DEC-014 fez pra tags) | DEC-014 usou tabelas separadas porque os *dados da obra* eram genuinamente distintos entre tipos; aqui a estrutura de elenco é idêntica entre filme/série/anime — duplicar a tabela só pra manter uma FK direta não compensa, dado que B3 vai precisar do mesmo formato de novo |
+| Tabela de episódios por temporada em séries comuns | Usuário não pediu granularidade por episódio pra séries — só pra animes (fillers). Adicionar sem necessidade real contraria princípio 11 (escopo proporcional) |
+
+### Impacto
+`008_biblioteca_v2_b2.sql` — aguardando execução no Supabase.
+
+## DEC-025 — Biblioteca v2 (B3): Animes como tabela própria, complementos viram filmes reais
+
+**Data:** 2026-07-16
+**Status:** ✅ Aprovada · ✅ Executada (`009_biblioteca_v2_b3.sql`, 2026-07-17)
+
+### Contexto
+B3 introduz a categoria Animes, com estrutura mais rica que qualquer outro
+tipo: temporadas com episódios granulares (marcação de filler), openings/
+endings, staff técnico de animação, dublagem (original + BR), complementos
+(filme/OVA/ONA/Special) e ordem de consumo cronológica.
+
+### Decisão
+- `animes` é tabela própria, não reaproveita `series` — nomes original e
+  traduzido, staff de animação (character designer, animador chefe,
+  compositor) além dos campos de produção já usados em filme/série.
+- `elenco` (criada na B2, DEC-024) ganha `dublador_original` e
+  `dublador_br` — anime usa essas duas colunas em vez de `ator`.
+- Complementos (filme/OVA/ONA/Special) **não são uma tabela própria**: são
+  linhas reais em `filmes`, com `anime_uuid` (FK opcional) e
+  `tipo_complemento` marcando a natureza. Um complemento é editável
+  normalmente na tela de Filmes da Biblioteca, e aparece também na página
+  do anime.
+- `animes_episodios` guarda granularidade por episódio (numero, arco,
+  filler, assistido) — diferente de `series_temporadas`, que só guarda
+  contagem. % de filler é calculada no frontend, não persistida.
+- `animes_ordem_consumo` usa referência polimórfica (`tipo_referencia` +
+  `referencia_uuid`, apontando para `animes_temporadas` ou `filmes`) —
+  mesmo padrão de exceção já usado em `elenco`/`trilha_sonora` (DEC-024).
+
+### Alternativas consideradas
+
+| Alternativa | Descartada por |
+|---|---|
+| Complementos como tabela própria (`animes_complementos`) | Contrariaria diretamente o pedido do usuário — ele quer que o complemento seja de fato um filme editável na tela de Filmes, não uma cópia paralela de dados |
+| `elenco_animes` separada (em vez de estender `elenco`) | Duplicaria estrutura quase idêntica só por causa de 2 colunas divergentes; estender foi mais simples (princípio 3) |
+| Guardar % de filler como coluna em `animes` | Valor derivado, recalculável a qualquer momento a partir de `animes_episodios` — persistir criaria risco de desatualização |
+
+### Impacto
+`009_biblioteca_v2_b3.sql` — aguardando execução no Supabase. `filmes` ganha
+2 colunas novas (`anime_uuid`, `tipo_complemento`), ambas nulas por padrão —
+filmes existentes não são afetados.

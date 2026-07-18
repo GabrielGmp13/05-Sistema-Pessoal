@@ -1,0 +1,46 @@
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.wrapper {
+  position: relative;
+}
+
+.chip, .chipAtivo {
+  border: 1px solid var(--border);
+  background: none;
+  color: #888;
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: border-color 0.12s;
+}
+
+.chipAtivo {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+  font-weight: 700;
+}
+
+.chip:hover {
+  border-color: var(--accent);
+}
+
+.tooltip {
+  position: absolute;
+  bottom: 130%;
+  left: 0;
+  z-index: 10;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 0.7rem;
+  font-size: 0.75rem;
+  color: var(--text);
+  width: 220px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}

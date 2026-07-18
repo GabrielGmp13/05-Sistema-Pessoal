@@ -30,7 +30,13 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 
 ## Biblioteca
 
-- [ ] Validar tamanho do arquivo de capa no frontend antes do upload — **fora de escopo por ora**, sem prazo definido
+## Treino v2
+
+- [ ] Substituir `confirm()` nativo do navegador por modal de confirmação (padrão `.open`) ao apagar treino — inconsistência com `DESIGN.md` introduzida na geração inicial das páginas v2, adiada por decisão explícita (2026-07-16)
+- [ ] Gráfico de evolução de peso em `app/treino/shape/page.tsx` — decisão de dependência (Chart.js via CDN solto vs. `react-chartjs-2`) ainda não tomada para v2
+- [ ] Upload de imagem/GIF de exercício (`imagem_path`, bucket `exercicios`) — CRUD de exercício ficou só textual na primeira leva
+- [ ] Reordenação de exercícios (`ordem`) via drag-and-drop ou setas — hoje `ordem` só reflete sequência de criação
+
 
 ## v3 (futuro distante)
 

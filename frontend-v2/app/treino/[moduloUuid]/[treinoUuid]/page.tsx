@@ -18,12 +18,12 @@ export default function PlanoTreinoPage() {
   const [cardio, setCardio] = useState<ExercicioCardio[]>([])
   const [tipoNovo, setTipoNovo] = useState<'forca' | 'cardio'>('forca')
   const [nome, setNome] = useState('')
-  const [series, setSeries] = useState(3)
-  const [reps, setReps] = useState(10)
-  const [carga, setCarga] = useState(0)
-  const [descanso, setDescanso] = useState(60)
-  const [distancia, setDistancia] = useState(0)
-  const [duracao, setDuracao] = useState(0)
+  const [series, setSeries] = useState('3')
+  const [reps, setReps] = useState('10')
+  const [carga, setCarga] = useState('')
+  const [descanso, setDescanso] = useState('60')
+  const [distancia, setDistancia] = useState('')
+  const [duracao, setDuracao] = useState('')
 
   const sb = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -52,11 +52,19 @@ export default function PlanoTreinoPage() {
 
     if (tipoNovo === 'forca') {
       await criarExercicioForca(sb, userId, treinoUuid, {
-        nome: nome.trim(), series_alvo: series, reps_alvo: reps, carga_alvo: carga, descanso_segundos: descanso, ordem,
+         nome: nome.trim(),
+         series_alvo: Number(series) || 0,
+         reps_alvo: Number(reps) || 0,
+         carga_alvo: Number(carga) || 0,
+         descanso_segundos: Number(descanso) || 0,
+         ordem,
       })
     } else {
       await criarExercicioCardio(sb, userId, treinoUuid, {
-        nome: nome.trim(), distancia_alvo_km: distancia || null, duracao_alvo_minutos: duracao || null, ordem,
+        nome: nome.trim(),
+        distancia_alvo_km: distancia ? Number(distancia) : null,
+        duracao_alvo_minutos: duracao ? Number(duracao) : null,
+       ordem,
       })
     }
     setNome('')
@@ -92,15 +100,15 @@ export default function PlanoTreinoPage() {
 
         {tipoNovo === 'forca' ? (
           <div className={styles.grid4}>
-            <label>Séries<input type="number" inputMode="numeric" value={series} onChange={(e) => setSeries(Number(e.target.value))} /></label>
-            <label>Reps<input type="number" inputMode="numeric" value={reps} onChange={(e) => setReps(Number(e.target.value))} /></label>
-            <label>Carga (kg)<input type="number" inputMode="decimal" value={carga} onChange={(e) => setCarga(Number(e.target.value))} /></label>
-            <label>Descanso (s)<input type="number" inputMode="numeric" value={descanso} onChange={(e) => setDescanso(Number(e.target.value))} /></label>
+            <label>Séries<input type="number" inputMode="numeric" value={series} onChange={(e) => setSeries(e.target.value)} onFocus={(e) => e.target.select()} /></label>
+            <label>Reps<input type="number" inputMode="numeric" value={reps} onChange={(e) => setReps(e.target.value)} onFocus={(e) => e.target.select()} /></label>
+            <label>Carga (kg)<input type="number" inputMode="decimal" value={carga} onChange={(e) => setCarga(e.target.value)} onFocus={(e) => e.target.select()} placeholder="0" /></label>
+            <label>Descanso (s)<input type="number" inputMode="numeric" value={descanso} onChange={(e) => setDescanso(e.target.value)} onFocus={(e) => e.target.select()} /></label>
           </div>
         ) : (
           <div className={styles.grid4}>
-            <label>Distância (km)<input type="number" inputMode="decimal" value={distancia} onChange={(e) => setDistancia(Number(e.target.value))} /></label>
-            <label>Duração (min)<input type="number" inputMode="numeric" value={duracao} onChange={(e) => setDuracao(Number(e.target.value))} /></label>
+            <label>Distância (km)<input type="number" inputMode="decimal" value={distancia} onChange={(e) => setDistancia(e.target.value)} onFocus={(e) => e.target.select()} placeholder="0" /></label>
+            <label>Duração (min)<input type="number" inputMode="numeric" value={duracao} onChange={(e) => setDuracao(e.target.value)} onFocus={(e) => e.target.select()} placeholder="0" /></label>
           </div>
         )}
 

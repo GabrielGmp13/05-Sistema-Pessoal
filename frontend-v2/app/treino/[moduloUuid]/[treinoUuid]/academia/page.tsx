@@ -134,9 +134,9 @@ export default function AcademiaPage() {
             <div key={i} className={styles.linhaSerie}>
               <span className={styles.numSerie}>{i + 1}</span>
               <input type="number" inputMode="decimal" className={styles.inputSerie} value={s.carga}
-                onChange={(e) => atualizarSerie(ex.uuid, i, 'carga', e.target.value)} placeholder="kg" />
+                onChange={(e) => atualizarSerie(ex.uuid, i, 'carga', e.target.value)} onFocus={(e) => e.target.select()} placeholder="kg" />
               <input type="number" inputMode="numeric" className={styles.inputSerie} value={s.reps}
-                onChange={(e) => atualizarSerie(ex.uuid, i, 'reps', e.target.value)} placeholder="reps" />
+                onChange={(e) => atualizarSerie(ex.uuid, i, 'reps', e.target.value)} onFocus={(e) => e.target.select()} placeholder="reps" />
               <button
                 className={s.concluida ? styles.checkOn : styles.checkOff}
                 onClick={() => atualizarSerie(ex.uuid, i, 'concluida', !s.concluida)}

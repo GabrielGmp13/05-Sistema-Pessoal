@@ -7,7 +7,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 ## Status geral
 **Fase atual:** Fase 7 (v2) — planejamento da migração para Next.js/React (DEC-018)
 **Bloqueio:** nenhum
-**Próxima ação:** gerar as páginas do módulo Treino v2 (`modulos`, `plano`, `academia`, `hub`, `shape`) — Fase 7.0 técnica concluída, nenhum bloqueio restante
+**Próxima ação:** gerar frontend da Biblioteca v2 sub-fase B1 (seed de gêneros + `lib/`) — schema confirmado no Supabase
 
 
 ## 🔴 Bugs conhecidos — prioridade alta
@@ -88,8 +88,36 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 
 ## Fase 7.1 — Módulo Treino (v2): planejamento
 
-- [x] Escopo definido via MODULE_TEMPLATE.md (hierarquia módulos → treinos → exercícios força/cardio)
-- [x] `005_treino_v2.sql` criada
-- [x] Rodar `005_treino_v2.sql` no Supabase SQL Editor (2026-07-15 — sucesso)
-- [x] Confirmar RLS + GRANT nas 6 tabelas + policy do bucket `exercicios` (2026-07-15 — confirmado via pg_tables/pg_policies/information_schema)
-- [ ] Gerar páginas Next.js (`modulos`, `plano`, `academia`, `hub`, `shape`) — desbloqueado, Fase 7.0 concluída
+- [x] Decisão: módulos fixos, sem CRUD de módulo (DEC-022, 2026-07-16)
+- [x] `lib/modulos-treino.ts` — seed automático dos 7 módulos + busca ordenada
+- [x] `lib/treino.ts` — CRUD de treinos e exercícios (força/cardio)
+- [x] `lib/execucoes.ts` — sessão, execuções força (lote) e cardio, detecção de PR
+- [x] `app/treino/page.tsx` — hub, lista os 7 módulos fixos
+- [x] `app/treino/[moduloUuid]/page.tsx` — CRUD de treinos dentro do módulo
+- [x] `app/treino/[moduloUuid]/[treinoUuid]/page.tsx` — CRUD de exercícios (força/cardio)
+- [x] `app/treino/[moduloUuid]/[treinoUuid]/academia/page.tsx` — modo execução, séries, detecção de PR
+- [x] `app/treino/shape/page.tsx` — fotos + peso via bucket `shape`
+ [x] **Teste end-to-end contra o Supabase real** (2026-07-16) — seed dos 7 módulos confirmado (sem duplicar em reload), CRUD de treino e exercícios confirmado, modo academia com detecção de PR confirmado (positivo e negativo), sessões fechando corretamente, shape (foto+peso) confirmado. 3 bugs encontrados e corrigidos nesta rodada (ver CHANGELOG)
+- [ ] Gráfico de evolução de peso em `shape` — ficou fora desta leva (Chart.js/react-chartjs-2 não decidido ainda para v2, ver observação no CHANGELOG)
+- [ ] Upload de imagem de exercício (`imagem_path`, bucket `exercicios`) — CRUD ficou só textual nesta leva
+- [ ] Reordenação de exercícios (`ordem`) — sem UI ainda, só ordem de criação
+
+**Fase 7.1: concluída.** Treino v2 funcional e testado. Pendências remanescentes (gráfico, upload de imagem, reordenação) viraram itens de polimento — ver BACKLOG.md.
+
+## Fase 7.2 — Módulo Biblioteca (v2): planejamento
+
+Escopo dividido em sub-fases (B1–B6), cada uma com migration própria confirmada
+antes de avançar — ver DEC-023 para B1.
+ [x] B1 — Base compartilhada: gêneros + campos comuns + remoção de tags (schema)
+  - [x] `006_biblioteca_v2_base.sql` executada e confirmada (2026-07-16)
+  - [x] `007_remover_tags.sql` executada e confirmada (2026-07-16)
+  - [x] Frontend B1 gerado: `lib/generos.ts`, `SeletorGenero.tsx`, `app/biblioteca/generos/page.tsx` — aguardando teste do usuário
+- [ ] B2 — Filmes + Séries: produção, elenco, trilha sonora, temporadas
+  - [x] `008_biblioteca_v2_b2.sql` gerada e executada com sucesso (2026-07-17, DEC-024)
+  - [ ] Frontend B2 (só após confirmação da migration)
+- [ ] B3 — Animes: tabela nova, staff, dublador BR, temporadas+episódios+filler, openings/endings, complementos (via filmes.anime_uuid), ordem de consumo
+  - [x] `009_biblioteca_v2_b3.sql` gerada e executada com sucesso (2026-07-17, DEC-025)
+  - [ ] Frontend B3 (só após confirmação da migration)
+- [ ] B4 — Mangás: nome original/traduzido, publicação, volumes por arco com cor
+- [ ] B5 — Livros: dados bibliográficos, leitura (progresso/velocidade), anotações, citações favoritas
+- [ ] B6 — Podcasts: reorganização de UI (campos migram de `comentario` solto pra campos próprios) — sem tabela nova

@@ -66,7 +66,8 @@ export async function getModulosTreino(
   }
 
   const ordem = MODULOS_PADRAO.map((m) => m.nome)
-  return (data ?? []).sort(
-    (a, b) => ordem.indexOf(a.nome) - ordem.indexOf(b.nome)
-  )
+  const lista: ModuloTreino[] = data ?? []
+ return lista.sort(
+   (a: ModuloTreino, b: ModuloTreino) => ordem.indexOf(a.nome) - ordem.indexOf(b.nome)
+ )
 }

@@ -37,6 +37,8 @@ Chaves estrangeiras seguem `<tabela_singular>_uuid` (ex: `treino_uuid`, `materia
 | `003_biblioteca.sql` | ✅ Executado e verificado no Supabase (2026-07-11) | 11 tabelas do módulo Biblioteca — ver DEC-011, DEC-014 |
 | `004_podcasts_itunes.sql` | 🔄 Aguardando execução no Supabase | Adiciona `itunes_id` e `capa_url` à tabela `podcasts` — ver DEC-016 |
 | `005_treino_v2.sql` | ✅ Executado e verificado no Supabase (2026-07-15) | Reestrutura Treino: `modulos_treino` (novo), `treinos.modulo_uuid` (novo), `exercicios_forca`/`exercicios_cardio` (substituem `exercicios`), `execucoes_forca`/`execucoes_cardio` (substituem `series_executadas`). Descontinua `cardio`. Ver DEC-020 |
+| `006_biblioteca_v2_base.sql` | ✅ Executado e verificado no Supabase (2026-07-16) | Biblioteca v2 sub-fase B1: tabela `generos` + 5 junções `*_generos`, campos comuns novos (favorito, nota-estrela, banner, links etc.) em `livros`/`filmes`/`series`/`mangas`/`podcasts`. Ver DEC-023 |
+| `007_remover_tags.sql` | ✅ Executado e verificado no Supabase (2026-07-16) | Remove `tags` e as 5 junções `*_tags`, descontinuadas em favor de `generos`. Ver DEC-023 |
 
 **Convenção para novas migrações:** numeração sequencial de 3 dígitos + nome do módulo em snake_case (`00N_nome-modulo.sql`). Depois de rodar no SQL Editor, atualizar a tabela acima e a seção correspondente deste documento.
 

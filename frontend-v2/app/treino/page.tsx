@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { createBrowserClient } from '@supabase/ssr'
-import { seedModulosSeNecessario, getModulosTreino, type ModuloTreino } from '@/lib/modulos-treino'
+import { seedModulosSeNecessario, getModulosTreino, type ModuloTreino } from '@/lib/modulos-treinos'
 import styles from './page.module.css'
 
 export default function TreinoHubPage() {

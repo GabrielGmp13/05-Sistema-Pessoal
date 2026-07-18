@@ -1,0 +1,148 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  z-index: 60;
+  padding: 2.5rem 3rem 0;
+}
+
+.painel {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px 14px 0 0;
+  width: 100%;
+  max-width: 900px;
+  height: calc(100vh - 2.5rem);
+  overflow-y: auto;
+}
+
+.btnFechar {
+  position: sticky;
+  top: 1rem;
+  left: calc(100% - 3rem);
+  z-index: 2;
+  background: rgba(13, 13, 13, 0.7);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 50%;
+  width: 2rem;
+  height: 2rem;
+  cursor: pointer;
+}
+
+.btnFechar:hover {
+  border-color: #ff6b6b;
+}
+
+.banner {
+  width: 100%;
+  height: 220px;
+  background-size: cover;
+  background-position: center;
+  margin-top: -2rem;
+}
+
+.conteudo {
+  padding: 1.5rem 2rem 3rem;
+}
+
+.titulo {
+  font-family: var(--font-titulos, inherit);
+  font-size: 1.6rem;
+  margin-bottom: 1.5rem;
+}
+
+.secao {
+  margin-bottom: 2rem;
+}
+
+.secao h2 {
+  font-family: var(--font-titulos, inherit);
+  font-size: 1rem;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+}
+
+.vazio {
+  color: #555;
+  font-size: 0.85rem;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.infoLabel {
+  font-size: 0.7rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.infoValor {
+  font-size: 0.9rem;
+}
+
+.scrollHorizontal {
+  display: flex;
+  gap: 0.85rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.cardAtor,
+.cardMusica,
+.cardTemporada {
+  flex: 0 0 auto;
+  width: 140px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.75rem;
+  font-size: 0.8rem;
+}
+
+.cardAtor p,
+.cardMusica p,
+.cardTemporada p {
+  color: #888;
+  margin-top: 0.2rem;
+}
+
+.fotoAtor {
+  width: 100%;
+  height: 110px;
+  border-radius: 6px;
+  background: var(--surface) center/cover no-repeat;
+  margin-bottom: 0.5rem;
+}
+
+.cardMusica a {
+  display: inline-block;
+  margin-top: 0.4rem;
+  color: var(--accent);
+  font-size: 0.75rem;
+}
+
+@media (max-width: 680px) {
+  .overlay {
+    padding: 0;
+  }
+  .painel {
+    height: 100vh;
+    border-radius: 0;
+    max-width: 100%;
+  }
+}

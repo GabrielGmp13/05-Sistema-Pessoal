@@ -243,3 +243,122 @@ Histórico de mudanças por marco.
 - Tabela `cardio` (existia desde `001_schema_inicial.sql`, nunca teve tela) descontinuada — absorvida pelo novo sistema de módulos
 - Páginas do Treino v2 ainda não geradas — dependiam da Fase 7.0 técnica (ver entrada acima), agora desbloqueadas
 ```
+
+## 2026-07-16 — DEC-022: módulos de treino fixos (reabre parte da DEC-020)
+
+- Decisão: os 7 módulos de treino (Cardio, Força, Resistência, Hipertrofia,
+  Flexibilidade, Mobilidade, Potência) passam a ser **fixos**, sem CRUD de
+  módulo pela interface — reverte a premissa de "CRUD livre" da DEC-020.
+  Módulo novo, se necessário no futuro, é ajuste manual feito pelo próprio
+  desenvolvedor, fora do produto. Ver DEC-022.
+- Decisão de implementação: um treino pode ter exercícios de força e cardio
+  ao mesmo tempo — tipo é escolhido por exercício, não por módulo.
+
+## 2026-07-16 — Treino v2: páginas Next.js geradas (Fase 7.1)
+
+- `lib/modulos-treino.ts`: seed automático dos 7 módulos fixos (roda se a
+  tabela estiver vazia para o usuário) + busca ordenada pela ordem canônica
+- `lib/treino.ts`: CRUD de `treinos`, `exercicios_forca`, `exercicios_cardio`
+  (soft delete em todos)
+- `lib/execucoes.ts`: criação/finalização de `sessoes_treino`, salvamento em
+  lote de `execucoes_forca`, registro simples de `execucoes_cardio`, cálculo
+  de recorde de carga para detecção de PR (mesma lógica da v1)
+- Páginas geradas: `app/treino/page.tsx` (hub), `app/treino/[moduloUuid]/page.tsx`
+  (treinos do módulo), `app/treino/[moduloUuid]/[treinoUuid]/page.tsx`
+  (exercícios), `.../academia/page.tsx` (modo execução com detecção de PR),
+  `app/treino/shape/page.tsx` (fotos + peso via bucket `shape`)
+- Dois bugs de TypeScript corrigidos durante a integração: mismatch de nome
+  de arquivo (`modulos-treino.ts` vs. `modulos-treinos.ts` no import),
+  parâmetros implícitos `any` em `.sort()` por falta de tipagem explícita do
+  retorno do Supabase client
+- Escopo deixado de fora desta leva, registrado em `TASKS_NOW.md`: gráfico
+  de evolução de peso (dependência de gráfico não decidida para v2), upload
+  de imagem de exercício (`imagem_path`), reordenação de exercícios (`ordem`)
+- Pendente: teste end-to-end contra o Supabase real
+
+## 2026-07-16 — Treino v2: teste end-to-end concluído, 3 bugs corrigidos
+
+- Teste manual completo contra o Supabase real: seed automático dos 7 módulos
+  fixos (confirmado idempotente — reload não duplica), CRUD de treino e de
+  exercícios força/cardio, modo academia (séries, cardio, finalização de
+  sessão), detecção de PR testada nos dois sentidos (carga menor não marca
+  PR, carga maior marca), shape (foto + peso) — todos confirmados funcionando
+- **Bug 1 (funcional):** campos numéricos de criação de exercício
+  (`series`, `reps`, `carga`, `descanso`, `distancia`, `duracao`) usavam
+  `useState<number>` com `Number(e.target.value)` a cada tecla — campo vazio
+  virava `0` e o zero "grudava" à esquerda ao digitar novo valor, impedindo
+  inserir números normalmente. Corrigido: estados viram string durante a
+  digitação, conversão para `Number` só no submit; `onFocus={select()}`
+  adicionado em todos os inputs numéricos do projeto (criação de exercício e
+  modo academia) para selecionar o valor existente ao focar
+- **Bug 2 (visual):** botões de check (`✓`) no modo academia vazavam a borda
+  do card em `.linhaSerie`/`.linhaCardio` — `.numSerie` e `.checkOff/checkOn`
+  sem `flex-shrink: 0`, inputs sem `min-width: 0`. Corrigido em
+  `academia/page.module.css`
+- **Observação registrada, não corrigida:** `confirm()` nativo do navegador
+  usado ao apagar treino contraria `DESIGN.md` ("nunca `confirm()` nativo").
+  Adiado deliberadamente para uma leva de polimento — ver BACKLOG.md
+
+## 2026-07-16 — Biblioteca v2: escopo definido (visão completa do usuário)
+
+- Planejamento formal da Fase 7.2 iniciado. Usuário forneceu especificação
+  detalhada categoria por categoria (livros, filmes, séries, animes, mangás,
+  podcasts), incluindo dados aninhados (temporadas, elenco, trilha sonora,
+  volumes por arco) e regras de exibição (campos vazios ocultos na
+  visualização, "Informação indisponível" só pra campos vindos de API)
+- Dado o volume de novidades, decisão de fatiar a migração em sub-fases
+  B1–B6 (uma migration por vez, confirmada antes de avançar) em vez de uma
+  migration única — ver DEC-023, DEC-024, DEC-025
+- Escopo revisado e reduzido em conjunto: removidos "onde está disponível"
+  (streaming, via API) e "recomendaria" — avaliados como desproporcionais
+  ao uso pessoal (risco de manutenção contínua sem benefício real)
+- Decisão: sistema de tags livres (`tags` + `*_tags`, da v1/DEC-014)
+  descontinuado — substituído inteiramente por gêneros estruturados
+
+## 2026-07-16 — Biblioteca v2 (B1): schema executado, frontend gerado
+
+- `006_biblioteca_v2_base.sql` executada com sucesso no Supabase: tabela
+  `generos` (com campo de descrição/tooltip) + 5 junções `*_generos`; campos
+  novos em `livros`/`filmes`/`series`/`mangas`/`podcasts` (`favorito`,
+  `vezes_consumido`, `onde_consumi`, `valor_pago`, `banner_url`/`banner_path`,
+  `classificacao_indicativa`, `duracao_minutos`, `link_imdb`, `link_mal`,
+  `link_anilist`, `link_oficial`); `nota` recriada como `NUMERIC(2,1)`
+  (escala 1-5 com meia estrela, substituindo 1-10) — dados antigos
+  descartados de propósito (usuário confirmou não ter uso real acumulado)
+- `007_remover_tags.sql` executada com sucesso: `tags` e as 5 junções
+  `*_tags` removidas do banco
+- Ver DEC-023 para o raciocínio completo
+- Frontend B1 gerado: `lib/generos.ts` (seed automático de gêneros padrão,
+  incluindo japoneses com tooltip — Shounen, Seinen, Isekai etc. — CRUD
+  completo, diferente do seed fixo do Treino porque gênero é editável pelo
+  usuário), `components/SeletorGenero.tsx` (chip multi-seleção com tooltip
+  na descrição, componente reutilizável pros próximos tipos de mídia),
+  `app/biblioteca/generos/page.tsx`
+- Bug de estrutura de pastas encontrado durante a integração: `components/`
+  e `app/biblioteca/` foram criados por engano dentro de `.next/` (pasta de
+  build gerada automaticamente pelo Next.js, recriada a cada build, fora do
+  Git) — corrigido movendo ambos para a raiz de `frontend-v2/`, mesmo nível
+  de `app/`, `lib/`, `middleware.ts`
+- Pendente: confirmar teste da tela `/biblioteca/generos` após a correção
+  de pasta (seed + CRUD)
+
+## 2026-07-17 — Biblioteca v2 (B2 e B3): schemas executados
+
+- `008_biblioteca_v2_b2.sql` executada com sucesso: colunas de produção em
+  `filmes` e `series` (roteirista, produtores, estúdio, distribuidora,
+  orçamento/bilheteria em filmes, tecnologias como IMAX/Dolby Vision);
+  tabela `series_temporadas` (contagem de episódios, nota IMDb, minha nota,
+  data assistida); tabelas reutilizáveis `elenco` e `trilha_sonora` com FK
+  polimórfica (`tipo_obra` + `obra_uuid`) — mesmo padrão de exceção já
+  documentado para `revisao_espacada.referencia_uuid`. Ver DEC-024
+- `009_biblioteca_v2_b3.sql` executada com sucesso: tabela `animes`
+  completa (nomes original/traduzido, staff de animação, produção, campos
+  comuns); `elenco` estendida com `dublador_original`/`dublador_br`;
+  `animes_temporadas` + `animes_episodios` (granularidade por episódio,
+  marcação de filler — % de filler calculado no frontend, não persistido);
+  `openings_endings`; `filmes` ganha `anime_uuid` + `tipo_complemento`
+  (complementos de anime são filmes reais e editáveis na tela de Filmes,
+  não uma tabela paralela — pedido explícito do usuário);
+  `animes_ordem_consumo` com referência polimórfica (temporada ou
+  complemento). Ver DEC-025
+- Frontend de B2 e B3 ainda não gerado — próximo passo real de código
