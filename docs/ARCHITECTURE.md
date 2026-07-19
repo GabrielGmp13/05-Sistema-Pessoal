@@ -73,6 +73,16 @@ Ver DEC-011 em `DECISIONS.md` para o raciocínio completo e alternativas conside
 
 ## Frontend (Next.js/React — desde v2, ver DEC-018)
 
+### Layout por módulo com sidebar interna (DEC-032)
+Módulos com navegação por categoria (Biblioteca; possivelmente Treino/Estudos
+no futuro) usam um `layout.tsx` próprio dentro da pasta de rota do módulo
+(ex: `app/biblioteca/layout.tsx`), que envolve a página com uma sidebar
+lateral fixa (`components/Sidebar.tsx`, genérico e reutilizável) — proporção
+de layout **2/9 sidebar, 7/9 conteúdo**. Diferente de uma sidebar de
+navegação global de nível 1 (site inteiro) — cada módulo tem a sua própria,
+escopada à sua pasta de rota. Troca de categoria dentro do módulo é estado
+de cliente (`useState`), não navegação de rota — sem reload, sem URL nova.
+
 ### Hierarquia de camadas
 
 ```
@@ -111,12 +121,20 @@ nunca autenticar de fato do ponto de vista do middleware — sem erro no
 Console, redireciona de volta pro login sem explicação. Encontrado e
 corrigido em 2026-07-15.
 
-### middleware.ts — substitui auth.js ✅ implementado (Fase 7.0, DEC-021)
+### proxy.ts — substitui auth.js ✅ implementado (Fase 7.0, DEC-021; renomeado de middleware.ts em 2026-07-19, ver DEC-031)
 Protege toda rota por padrão (fail-safe), exceto as listadas em
 `ROTAS_PUBLICAS` (hoje só `/login`). Usa `createServerClient` de
 `@supabase/ssr` para ler a sessão via cookies e redireciona para `/login`
 quando ausente. Decisão de usar middleware em vez de hook por página — ver
 DEC-021.
+
+**Nota de nomenclatura (Next.js 16):** o arquivo se chama `proxy.ts` e exporta
+a função `proxy()`, não `middleware()` — convenção renomeada pelo próprio
+Next.js 16 (`middleware.ts` é depreciado, mas ainda funciona, só como Edge
+Runtime). A migração para `proxy.ts` foi feita não só por acompanhar a
+depreciação, mas porque corrigiu um bug real: `proxy.ts` roda em runtime
+Node.js por padrão, o que resolveu um erro `__dirname is not defined` causado
+por incompatibilidade do `@supabase/ssr` com o Edge Runtime. Ver DEC-031.
 
 ### API Routes — novo componente da arquitetura
 Rodam como funções serverless no Vercel (mesmo runtime do build do Next.js —
@@ -128,56 +146,8 @@ Exemplo de uso planejado: `app/api/tmdb/search/route.ts` recebe o termo de
 busca do componente React, chama `api.themoviedb.org` com a `TMDB_API_KEY`
 guardada só no servidor, devolve o resultado já formatado.
 
-### Carregamento de scripts em cada página (v1 — HTML puro, aposentada)
-+*As três subseções abaixo descrevem a implementação da v1, removida do
-+projeto em 2026-07-19 (DEC-031). Os equivalentes ativos são `lib/supabase.ts`
-+e `middleware.ts`, documentados acima — mantidas aqui só como referência
-+histórica, sem nenhum arquivo real correspondente no projeto.*
-
-```html
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
-<script src="assets/supabase.js"></script>
-<script src="assets/auth.js"></script>
-```
-
-### supabase.js — implementado
-
-```javascript
-window.sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-
-window.getSession   = async () => { /* retorna sessão completa ou null */ }
-window.getUserId    = async () => { /* retorna session.user.id ou null */ }
-window.now          = () => new Date().toISOString()
-
-// Storage (buckets privados — sempre signed URL)
-window.getSignedUrl = async (bucket, path, expiresIn = 3600) => { /* ... */ }
-window.uploadFile   = async (bucket, path, file) => { /* retorna path ou null */ }
-window.deleteFile   = async (bucket, path) => { /* retorna boolean */ }
-
-window.softDelete   = async (table, uuid) => { /* update deleted:true, updated_at:now() */ }
-window.sbErr         = (error, context) => { /* log padronizado, retorna boolean */ }
-```
-
-### auth.js — implementado
-
-```javascript
-// Promise resolvida uma vez ao carregar a página.
-// Redireciona para login.html se não houver sessão.
-window.authReady = (async () => {
-  const { data: { session }, error } = await window.sb.auth.getSession();
-  if (error || !session) {
-    window.location.replace('/login.html');
-    return null;
-  }
-  window.currentUser = session.user;
-  return session;
-})();
-
-// Uso em qualquer página protegida:
-// const session = await window.authReady;
-// if (!session) return;
-```
+### v1 (HTML puro) — aposentada, ver DEC-031
+Usava `assets/supabase.js` (client global `window.sb` + helpers de auth/storage/soft-delete) e `assets/auth.js` (`window.authReady`, redirect manual pra `/login.html`). Removida do projeto em 2026-07-19 — sem arquivo real correspondente hoje. Os equivalentes ativos são `lib/supabase.ts` e `proxy.ts`, documentados acima. Se precisar do código exato de referência, está em `CHANGELOG.md`/backup local da v1, não precisa viver aqui.
 
 ---
 

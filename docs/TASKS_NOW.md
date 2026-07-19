@@ -36,6 +36,16 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [ ] Rodar `MODULE_TEMPLATE.md` completo antes de qualquer schema ou código
 - [ ] Agenda (módulo dedicado — hoje só existia dentro de `treino.html` na v1, sem equivalente v2) fica para depois, por decisão do usuário (abordagem "camada por camada", DEC-031)
 
+## 🔴 Biblioteca v2: consolidação em página única + sidebar (DEC-032) — especificado, código pendente
+
+- [ ] `components/Sidebar.tsx` — componente genérico (itens, ícone, contador, ativo)
+- [ ] `app/biblioteca/layout.tsx` — sidebar (2/9) + slot de conteúdo (7/9)
+- [ ] `app/biblioteca/page.tsx` — consolidar as 6 telas (Filmes, Séries, Animes, Mangás, Livros, Podcasts) num único componente com estado de categoria ativa, reaproveitando `lib/*.ts` e `PainelDetalheObra`/`PainelSimples` já existentes
+- [ ] Remover as 6 rotas antigas (`app/biblioteca/filmes/page.tsx` etc.) após a migração de conteúdo
+- [ ] Sidebar inclui botão fixo "Adicionar obra"
+- [ ] Geração de código planejada para outra sessão — ver DEC-032 para a especificação completa
+
 ## Fase 6 — Integrações Externas ⏳ FUTURO (sem mudança)
 
 Ver `ROADMAP.md` — Google Calendar OAuth, notificações push. Sem planejamento ativo.
+

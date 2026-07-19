@@ -12,9 +12,16 @@ Padrões observados e a seguir daqui em diante. Onde já existe inconsistência 
 
 - Componentes: `PascalCase.tsx` — `CardExercicio.tsx`, `ModalObra.tsx`, `RatingEstrela.tsx`.
 - Rotas (App Router): pasta em `kebab-case` seguindo a URL — `app/biblioteca/page.tsx`, `app/treino/plano/page.tsx`.
+**Exceção (DEC-032):** módulos com navegação por categoria interna (ex:
+  Biblioteca) usam uma única página consolidada
+  (`app/<modulo>/page.tsx`) em vez de uma rota por subcategoria — a
+  categoria ativa é estado de cliente, não segmento de URL. Componente de
+  layout do módulo fica em `app/<modulo>/layout.tsx`.
 - Hooks: `camelCase` prefixado com `use` — `useSessao.ts`, `useObra.ts`.
 - API Routes: `app/api/<recurso>/route.ts` — `app/api/tmdb/search/route.ts`.
 - Módulos de lógica (`lib/`): nome curto, sem prefixo — `lib/supabase.ts`, `lib/auth.ts`, `lib/sm2.ts` (mesma convenção que já existia para `assets/*.js`).
+- Proteção de rota: `proxy.ts` (raiz do projeto) — não `middleware.ts`,
+ convenção renomeada pelo Next.js 16. Ver ARCHITECTURE.md e DEC-031.
 
 ## Classes CSS
 
