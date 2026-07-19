@@ -5,9 +5,9 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 ---
 
 ## Status geral
-**Fase atual:** Fase 7 (v2) — planejamento da migração para Next.js/React (DEC-018)
+**Fase atual:** Fase 7 (v2) — Biblioteca v2 (B1–B6): frontend gerado por completo, teste end-to-end geral pendente
 **Bloqueio:** nenhum
-**Próxima ação:** gerar frontend da Biblioteca v2 sub-fase B1 (seed de gêneros + `lib/`) — schema confirmado no Supabase
+**Próxima ação:** teste end-to-end de toda a Biblioteca v2 (filmes, séries, animes, mangás, livros, podcasts) contra o Supabase real — planejado para acontecer em outra sessão, a pedido do usuário
 
 
 ## 🔴 Bugs conhecidos — prioridade alta
@@ -111,13 +111,46 @@ antes de avançar — ver DEC-023 para B1.
  [x] B1 — Base compartilhada: gêneros + campos comuns + remoção de tags (schema)
   - [x] `006_biblioteca_v2_base.sql` executada e confirmada (2026-07-16)
   - [x] `007_remover_tags.sql` executada e confirmada (2026-07-16)
-  - [x] Frontend B1 gerado: `lib/generos.ts`, `SeletorGenero.tsx`, `app/biblioteca/generos/page.tsx` — aguardando teste do usuário
-- [ ] B2 — Filmes + Séries: produção, elenco, trilha sonora, temporadas
-  - [x] `008_biblioteca_v2_b2.sql` gerada e executada com sucesso (2026-07-17, DEC-024)
-  - [ ] Frontend B2 (só após confirmação da migration)
-- [ ] B3 — Animes: tabela nova, staff, dublador BR, temporadas+episódios+filler, openings/endings, complementos (via filmes.anime_uuid), ordem de consumo
-  - [x] `009_biblioteca_v2_b3.sql` gerada e executada com sucesso (2026-07-17, DEC-025)
-  - [ ] Frontend B3 (só após confirmação da migration)
-- [ ] B4 — Mangás: nome original/traduzido, publicação, volumes por arco com cor
-- [ ] B5 — Livros: dados bibliográficos, leitura (progresso/velocidade), anotações, citações favoritas
-- [ ] B6 — Podcasts: reorganização de UI (campos migram de `comentario` solto pra campos próprios) — sem tabela nova
+  - [x] Frontend B1 gerado: `lib/generos.ts`, `SeletorGenero.tsx`, `app/biblioteca/generos/page.tsx`
+  - [ ] Teste end-to-end (adiado junto com o teste geral da Biblioteca v2)
+- [x] B2 — Filmes + Séries: produção, elenco, trilha sonora, temporadas
+  - [x] `008_biblioteca_v2_b2.sql` executada e confirmada (2026-07-17, DEC-024)
+  - [x] `010_remover_tecnologias_filmes.sql` executada e confirmada (2026-07-17, DEC-026)
+  - [x] Frontend gerado: `lib/filmes.ts`, `lib/series.ts`, `lib/series-temporadas.ts`,
+    `lib/elenco.ts`, `lib/trilha-sonora.ts`, `PainelDetalheObra`, `ElencoEditor`,
+    `TrilhaSonoraEditor`, `TemporadasEditor`, `app/biblioteca/filmes/page.tsx`,
+    `app/biblioteca/series/page.tsx`
+  - [ ] Teste end-to-end (adiado)
+- [x] B3 — Animes: tabela nova, staff, dublador BR, temporadas+episódios+filler, openings/endings, complementos (via filmes.anime_uuid), ordem de consumo
+  - [x] `009_biblioteca_v2_b3.sql` executada e confirmada (2026-07-17, DEC-025)
+  - [x] Frontend gerado: `lib/animes.ts`, `lib/animes-temporadas.ts`,
+    `lib/animes-episodios.ts`, `lib/openings-endings.ts`,
+    `lib/animes-ordem-consumo.ts`, `TemporadasAnimeEditor` (salvo localmente
+    como `TemporadasAnimesEditor.tsx`, ver CHANGELOG), `EpisodiosEditor`,
+    `OpeningsEndingsEditor`, `ComplementosEditor`, `OrdemConsumoEditor`,
+    `app/biblioteca/animes/page.tsx`
+  - [ ] `animes_generos` (schema já existe) sem lib nem UI — pendência aberta, ver BACKLOG.md
+  - [ ] Teste end-to-end (adiado)
+- [x] B4 — Mangás: nome original/traduzido, publicação, volumes por arco com cor
+  - [x] Schema desenhado nesta sessão (DEC-028) e `011_biblioteca_v2_b4_mangas.sql` executada (2026-07-18)
+  - [x] Frontend gerado: `lib/mangas.ts`, `lib/mangas-volumes.ts`,
+    `VolumesEditor`, `app/biblioteca/mangas/page.tsx`
+  - [ ] Teste end-to-end (adiado)
+- [x] B5 — Livros: dados bibliográficos, leitura (formato), anotações, citações favoritas
+  - [x] Schema desenhado nesta sessão (DEC-029) e `012_biblioteca_v2_b5_livros.sql` executada (2026-07-18)
+  - [x] Frontend gerado: `lib/livros.ts`, `lib/livros-anotacoes.ts`,
+    `AnotacoesLivroEditor`, `app/biblioteca/livros/page.tsx`
+  - [ ] Velocidade de leitura (páginas/hora) não entrou nesta migration — ver DEC-029
+  - [ ] Teste end-to-end (adiado)
+- [x] B6 — Podcasts: reorganização de UI (campo `produtora` próprio, sai do `comentario`)
+  - [x] Schema desenhado nesta sessão (DEC-030) e `013_biblioteca_v2_b6_podcasts.sql` executada (2026-07-18)
+  - [x] Frontend gerado: `lib/podcasts.ts`, `app/biblioteca/podcasts/page.tsx`
+  - [ ] Teste end-to-end (adiado)
+
+**Fase 7.2: frontend completo (B1–B6). Teste end-to-end geral fica para outra sessão — ver "Próxima ação" acima.**
+
+**Pendências transversais de polimento (todas registradas em `BACKLOG.md`):**
+integração de gênero (B1) nas 6 telas novas; upload de capa/banner (schema
+pronto, sem bucket/UI); busca por API externa nas telas v2; edição de itens já
+criados em listas aninhadas; reordenação manual (`ordem`); `animes_generos`
+sem lib/UI; `confirm()` nativo; menu "⋯" não fecha ao clicar fora.

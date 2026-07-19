@@ -362,3 +362,44 @@ Histórico de mudanças por marco.
   `animes_ordem_consumo` com referência polimórfica (temporada ou
   complemento). Ver DEC-025
 - Frontend de B2 e B3 ainda não gerado — próximo passo real de código
+
+## 2026-07-18 — Biblioteca v2 (B4/B5/B6): Mangás, Livros, Podcasts — schema desenhado, executado e frontend gerado
+
+- Schema de B4 (Mangás), B5 (Livros) e B6 (Podcasts) desenhado nesta sessão
+  (não existia desenho prévio, só a intenção registrada em `BACKLOG.md`/
+  `TASKS_NOW.md`) — ver DEC-028, DEC-029, DEC-030
+- `011_biblioteca_v2_b4_mangas.sql`, `012_biblioteca_v2_b5_livros.sql` e
+  `013_biblioteca_v2_b6_podcasts.sql` criadas e executadas com sucesso no
+  Supabase
+- Novo componente `PainelSimples` (leitura) criado para Mangá/Livro/Podcast —
+  variante mais enxuta do `PainelDetalheObra`, sem lógica de elenco/trilha
+  sonora (ver DEC-027)
+- Gerados: `lib/mangas.ts`, `lib/mangas-volumes.ts`, `lib/livros.ts`,
+  `lib/livros-anotacoes.ts`, `lib/podcasts.ts`, `components/VolumesEditor.tsx`,
+  `components/AnotacoesLivroEditor.tsx`, `components/PainelSimples.tsx`,
+  `app/biblioteca/mangas/page.tsx`, `app/biblioteca/livros/page.tsx`,
+  `app/biblioteca/podcasts/page.tsx`
+- Isso fecha o frontend de todas as 6 sub-fases da Biblioteca v2 (B1 a B6) —
+  teste end-to-end geral fica para uma sessão futura, a pedido do usuário
+- **Bug 1 (TypeScript, 5 ocorrências):** `MangaVolumeInput`/`AnimeEpisodioInput`
+  exigiam campo `numero` obrigatório, mas `VolumesEditor.tsx`/
+  `EpisodiosEditor.tsx` usam `atualizarVolume()`/`atualizarEpisodio()` para
+  toggles simples (`lido`, `filler`, `assistido`) sem reenviar `numero`.
+  Corrigido via Cline+DeepSeek: tipos `MangaVolumeUpdate`/`AnimeEpisodioUpdate`
+  (Partial completo, sem campo obrigatório) criados separados dos tipos
+  `Input` usados na criação — ver `DATABASE.md` → Gotchas para o padrão a
+  seguir daqui em diante
+- **Bug 2 (arquivo sobrescrito):** durante a mesma correção,
+  `components/AnotacoesLivroEditor.tsx` foi acidentalmente sobrescrito com a
+  lógica de `VolumesEditor.tsx` (import de `lib/mangas-volumes`, prop
+  `mangaUuid` em vez de `livroUuid`) — os dois componentes têm estrutura
+  muito parecida e foram confundidos numa correção automática. Corrigido:
+  conteúdo original de `AnotacoesLivroEditor.tsx` restaurado, prop de volta
+  para `livroUuid` em `app/biblioteca/livros/page.tsx`
+- Pendências de polimento registradas em `BACKLOG.md`: integração de gênero
+  (B1) nas 6 telas novas; upload de capa/banner (campos existem no schema,
+  sem bucket/UI); busca por API externa (TMDB/Google Books/Jikan/iTunes) nas
+  telas v2 (a v1 tinha, a v2 ainda não); edição de itens já criados em listas
+  aninhadas (hoje só criar/apagar + toggles); reordenação manual (`ordem`);
+  `animes_generos` sem lib/UI; `confirm()` nativo; menu "⋯" não fecha ao
+  clicar fora

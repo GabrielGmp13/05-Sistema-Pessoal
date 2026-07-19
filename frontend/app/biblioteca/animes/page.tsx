@@ -12,7 +12,7 @@ import {
 import PainelDetalheObra, { CampoInfo } from '@/components/PainelDetalheObra';
 import ElencoEditor from '@/components/ElencoEditor';
 import OpeningsEndingsEditor from '@/components/OpeningsEndingsEditor';
-import TemporadasAnimeEditor from '@/components/TemporadasAnimeEditor';
+import TemporadasAnimeEditor from '@/components/TemporadasAnimesEditor';
 import ComplementosEditor from '@/components/ComplementosEditor';
 import OrdemConsumoEditor from '@/components/OrdemConsumoEditor';
 import styles from '../filmes/page.module.css';

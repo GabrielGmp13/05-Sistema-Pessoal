@@ -22,6 +22,10 @@ export type AnimeEpisodioInput = Partial<
   Omit<AnimeEpisodio, 'uuid' | 'user_id' | 'temporada_uuid' | 'updated_at' | 'deleted'>
 > & { numero: number };
 
+export type AnimeEpisodioUpdate = Partial<
+  Omit<AnimeEpisodio, 'uuid' | 'user_id' | 'temporada_uuid' | 'updated_at' | 'deleted'>
+>;
+
 export async function listarEpisodios(temporadaUuid: string): Promise<AnimeEpisodio[] | null> {
   const { data, error } = await sb
     .from('animes_episodios')
@@ -66,7 +70,7 @@ export async function criarEpisodio(
 
 export async function atualizarEpisodio(
   uuid: string,
-  dados: AnimeEpisodioInput
+  dados: AnimeEpisodioUpdate
 ): Promise<AnimeEpisodio | null> {
   const { data, error } = await sb
     .from('animes_episodios')

@@ -1,0 +1,116 @@
+PS C:\Gabriel Oliveira\05-Sistema-Pessoal\frontend-v2> Get-ChildItem -Depth 1 
+
+
+    Directory: C:\Gabriel Oliveira\05-Sistema-Pessoal\frontend-v2
+
+
+Mode                 LastWriteTime         Length Name                                                                       
+----                 -------------         ------ ----                                                                       
+d-----         7/17/2026  10:56 AM                .next                                                                      
+d-----         7/17/2026  10:26 AM                app                                                                        
+d-----         7/18/2026   5:35 PM                components                                                                 
+d-----         7/18/2026   5:27 PM                lib                                                                        
+d-----         7/15/2026   8:33 PM                node_modules                                                               
+d-----         7/15/2026   9:11 PM                public                                                                     
+-a----         7/15/2026   9:17 PM            143 .env.local                                                                 
+-a----         7/15/2026   8:32 PM            480 .gitignore                                                                 
+-a----         7/15/2026   7:07 PM            465 eslint.config.mjs                                                          
+-a----         7/15/2026   8:41 PM           1600 middleware.ts                                                              
+-a----         7/15/2026   9:12 PM            251 next-env.d.ts                                                              
+-a----         7/15/2026   7:07 PM            133 next.config.ts                                                             
+-a----         7/15/2026   8:33 PM         217665 package-lock.json                                                          
+-a----         7/15/2026   8:33 PM            549 package.json                                                               
+-a----         7/15/2026   7:07 PM           1450 README.md                                                                  
+-a----         7/15/2026   7:13 PM            666 tsconfig.json                                                              
+
+
+    Directory: C:\Gabriel Oliveira\05-Sistema-Pessoal\frontend-v2\.next
+
+
+Mode                 LastWriteTime         Length Name                                                                       
+----                 -------------         ------ ----                                                                       
+d-----         7/17/2026   1:00 AM                dev                                                                        
+d-----         7/15/2026   7:15 PM                types                                                                      
+
+
+    Directory: C:\Gabriel Oliveira\05-Sistema-Pessoal\frontend-v2\app
+
+
+Mode                 LastWriteTime         Length Name                                                                       
+----                 -------------         ------ ----                                                                       
+d-----         7/18/2026   5:31 PM                biblioteca                                                                 
+d-----         7/15/2026   8:42 PM                login                                                                      
+d-----         7/16/2026   1:51 AM                treino                                                                     
+-a----         7/15/2026   7:07 PM          25931 favicon.ico                                                                
+-a----         7/15/2026   9:29 PM           4056 globals.css                                                                
+-a----         7/15/2026   9:09 PM            388 layout.tsx                                                                 
+-a----         7/16/2026  11:06 AM           2432 page.module.css                                                            
+-a----         7/15/2026   9:30 PM            574 page.tsx                                                                   
+
+
+    Directory: C:\Gabriel Oliveira\05-Sistema-Pessoal\frontend-v2\components
+
+
+Mode                 LastWriteTime         Length Name                                                                       
+----                 -------------         ------ ----                                                                       
+-a----         7/18/2026   5:28 PM           3849 AnotacoesLivroEditor.tsx                                                   
+-a----         7/18/2026  12:55 PM           3320 ComplementosEditor.tsx                                                     
+-a----         7/18/2026  12:44 PM           4010 ElencoEditor.tsx                                                           
+-a----         7/18/2026  12:53 PM           4220 EpisodiosEditor.tsx                                                        
+-a----         7/18/2026  12:45 PM           1615 ListaEditavel.module.css                                                   
+-a----         7/18/2026  12:53 PM           3279 OpeningsEndingsEditor.tsx                                                  
+-a----         7/18/2026  12:55 PM           4094 OrdemConsumoEditor.tsx                                                     
+-a----         7/18/2026  10:33 AM           2461 PainelDetalheObra.module.css                                               
+-a----         7/18/2026  12:59 PM           8889 PainelDetalheObra.tsx                                                      
+-a----         7/17/2026  10:25 AM            825 SeletorGenero.module.css                                                   
+-a----         7/17/2026  10:23 AM           1390 SeletorGenero.tsx                                                          
+-a----         7/18/2026  12:58 PM           4134 TemporadasAnimesEditor.tsx                                                 
+-a----         7/18/2026  11:28 AM           3320 TemporadasEditor.tsx                                                       
+-a----         7/18/2026  11:27 AM           2959 TrilhaSonoraEditor.tsx                                                     
+
+
+    Directory: C:\Gabriel Oliveira\05-Sistema-Pessoal\frontend-v2\lib
+
+
+Mode                 LastWriteTime         Length Name                                                                       
+----                 -------------         ------ ----                                                                       
+-a----         7/18/2026  12:42 PM           2738 animes-episodios.ts                                                        
+-a----         7/18/2026  12:44 PM           2156 animes-ordem-consumo.ts                                                    
+-a----         7/18/2026  12:41 PM           2415 animes-temporadas.ts                                                       
+-a----         7/18/2026  12:41 PM           2932 animes.ts                                                                  
+-a----         7/18/2026  12:40 PM           2539 elenco.ts                                                                  
+-a----         7/16/2026   1:46 AM           3313 execucoes.ts                                                               
+-a----         7/18/2026  12:40 PM           3691 filmes.ts                                                                  
+-a----         7/17/2026  10:17 AM           7030 generos.ts                                                                 
+-a----         7/18/2026   5:26 PM           1835 livros-anotacoes.ts                                                        
+-a----         7/18/2026   5:26 PM           2748 livros.ts                                                                  
+-a----         7/18/2026   5:24 PM           2196 mangas-volumes.ts                                                          
+-a----         7/18/2026   5:23 PM           2848 mangas.ts                                                                  
+-a----         7/16/2026   2:03 AM           2217 modulos-treinos.ts                                                         
+-a----         7/18/2026  12:43 PM           2436 openings-endings.ts                                                        
+-a----         7/18/2026   5:27 PM           2608 podcasts.ts                                                                
+-a----         7/18/2026  10:28 AM           2347 series-temporadas.ts                                                       
+-a----         7/17/2026  11:47 PM           2873 series.ts                                                                  
+-a----         7/15/2026   9:22 PM           2446 supabase.ts                                                                
+-a----         7/16/2026   1:45 AM           5429 treino.ts                                                                  
+-a----         7/18/2026  10:25 AM           2447 trilha-sonora.ts                                                           
+
+
+    Directory: C:\Gabriel Oliveira\05-Sistema-Pessoal\frontend-v2\node_modules (conteudo removido do prompt pois é muito grande)
+
+
+
+    Directory: C:\Gabriel Oliveira\05-Sistema-Pessoal\frontend-v2\public
+
+
+Mode                 LastWriteTime         Length Name                                                                       
+----                 -------------         ------ ----                                                                       
+d-----         6/17/2026   5:53 AM                fonts                                                                      
+-a----         7/15/2026   7:07 PM            391 file.svg                                                                   
+-a----         7/15/2026   7:07 PM           1035 globe.svg                                                                  
+-a----         7/15/2026   7:07 PM           1375 next.svg                                                                   
+-a----         7/15/2026   7:07 PM            128 vercel.svg                                                                 
+-a----         7/15/2026   7:07 PM            385 window.svg                                                                 
+
+
+PS C:\Gabriel Oliveira\05-Sistema-Pessoal\frontend-v2>

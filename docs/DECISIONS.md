@@ -682,7 +682,7 @@ sub-fases B1–B6 — ver `ROADMAP.md` e `TASKS_NOW.md`.
 ## DEC-024 — Biblioteca v2 (B2): elenco/trilha sonora como tabelas polimórficas reutilizáveis
 
 **Data:** 2026-07-16
-**Status:** ✅ Aprovada · ✅ Executada (`008_biblioteca_v2_b2.sql`, 2026-07-17)
+**Status:** ✅ Aprovada · 🔄 Migration criada, execução pendente
 
 ### Contexto
 Filmes e séries compartilham exatamente a mesma estrutura de elenco (ator,
@@ -713,7 +713,7 @@ exclusiva de Animes (B3), onde foi pedida explicitamente.
 ## DEC-025 — Biblioteca v2 (B3): Animes como tabela própria, complementos viram filmes reais
 
 **Data:** 2026-07-16
-**Status:** ✅ Aprovada · ✅ Executada (`009_biblioteca_v2_b3.sql`, 2026-07-17)
+**Status:** ✅ Aprovada · ✅ Executada (`009_biblioteca_v2_b3.sql` rodada e confirmada no Supabase em 2026-07-17)
 
 ### Contexto
 B3 introduz a categoria Animes, com estrutura mais rica que qualquer outro
@@ -748,6 +748,206 @@ endings, staff técnico de animação, dublagem (original + BR), complementos
 | Guardar % de filler como coluna em `animes` | Valor derivado, recalculável a qualquer momento a partir de `animes_episodios` — persistir criaria risco de desatualização |
 
 ### Impacto
-`009_biblioteca_v2_b3.sql` — aguardando execução no Supabase. `filmes` ganha
-2 colunas novas (`anime_uuid`, `tipo_complemento`), ambas nulas por padrão —
-filmes existentes não são afetados.
+`009_biblioteca_v2_b3.sql` executada e confirmada no Supabase (2026-07-17).
+`filmes` ganha 2 colunas novas (`anime_uuid`, `tipo_complemento`), ambas nulas
+por padrão — filmes existentes não são afetados.
+
+## DEC-026 — Remoção do campo `tecnologias` de `filmes`
+
+**Data:** 2026-07-17 (planejamento do frontend B2)
+**Status:** ✅ Aprovada · 🔄 Migration criada, execução pendente
+
+### Contexto
+`008_biblioteca_v2_b2.sql` (DEC-024) incluiu `tecnologias TEXT[]` em `filmes`
+(ex: IMAX, Dolby Vision) como parte das colunas de produção. Ao planejar como
+esse campo seria editado na UI, o usuário decidiu descartar o campo do escopo
+antes de qualquer frontend consumi-lo.
+
+### Decisão
+Coluna `tecnologias` removida de `filmes` via `010_remover_tecnologias_filmes.sql`.
+Nenhum componente de frontend deve referenciar esse campo.
+
+### Justificativa
+Decisão direta do usuário — sem uso real percebido para o dado no momento do
+planejamento de UI. Nenhum dado de produção real seria perdido (feature nunca
+chegou a ser usada).
+
+### Impacto
+`DATABASE.md` → schema de `filmes` (008) atualizado com nota da remoção.
+`010_remover_tecnologias_filmes.sql` executada e verificada no Supabase
+(2026-07-17).
+
+**Atualização (2026-07-17) — comportamento de edição do painel de detalhe:**
+o painel de detalhe de obra (ver `DESIGN.md` → Painel de detalhe de obra) é
+**somente leitura**. Toda edição (dados da obra, elenco, trilha sonora,
+temporadas) acontece através do menu "⋯" da obra → "Editar", que abre o
+modal de formulário — nunca diretamente dentro do painel. O painel é aberto
+ao clicar no corpo do card da obra na listagem (clique nos "⋯" abre o menu de
+ações, não o painel).
+
+## DEC-027 — Padrão de UI da Biblioteca v2: painel de detalhe dividido em dois componentes + menu de ações "⋯"
+
+**Data:** 2026-07-17/18 (frontend B2–B6)
+**Status:** ✅ Aprovada · ✅ Implementada
+
+### Contexto
+Ao implementar o painel de detalhe de obra (ver `DESIGN.md`) para os 6 tipos
+de mídia da Biblioteca, ficou claro que Filme/Série/Anime compartilham seções
+(elenco, trilha sonora ou openings/endings, temporadas) que Mangá/Livro/
+Podcast não têm — esses três têm suas próprias seções (volumes, anotações,
+nenhuma extra). Generalizar um único componente para os 6 tipos inflaria a
+lógica de fetch com muitos `if` irrelevantes para tipos sem elenco/trilha.
+
+Além disso, os cards de listagem inicialmente tinham um botão solto de
+"Editar" e um "✕" de apagar; ao introduzir o clique no card para abrir o
+painel de detalhe, essas ações precisavam sair do corpo clicável do card.
+
+### Decisão
+- `PainelDetalheObra` (leitura) atende Filme/Série/Anime — sabe buscar
+  elenco/dublagem, trilha sonora ou openings/endings, e temporadas (série ou
+  anime), variando por `tipoObra`.
+- `PainelSimples` (leitura) atende Mangá/Livro/Podcast — recebe `infoGeral`
+  mais uma seção extra opcional via `children` (ex: `VolumesEditor` read-only,
+  lista de anotações), sem lógica de fetch de elenco/trilha embutida.
+- Ambos os painéis são **somente leitura** — edição sempre pelo modal de
+  formulário (ver Atualização acima, DEC-026).
+- Cards de listagem: clique no corpo do card abre o painel; um botão "⋯" no
+  canto abre um menu com "Editar"/"Apagar", substituindo os botões soltos.
+
+### Alternativas consideradas
+
+| Alternativa | Descartada por |
+|---|---|
+| Um único componente de painel para os 6 tipos, com `if` por seção | Acoplaria lógica de fetch de elenco/trilha (irrelevante pra Mangá/Livro/Podcast) a um componente que ficaria maior e mais difícil de ler — contraria princípio 7 (código simples e óbvio) |
+| Manter botões soltos (Editar/Apagar) fora do card, sem menu | Ao introduzir o clique-no-card-abre-painel, um botão solto de "Editar" dentro da área clicável do card criaria ambiguidade de clique (editar vs. abrir painel) |
+
+### Justificativa
+Dois componentes de painel, cada um do tamanho do que realmente precisa
+buscar, é mais simples de manter do que um componente universal genérico
+tentando cobrir 6 formas de obra muito diferentes entre si.
+
+### Impacto
+`components/PainelDetalheObra.tsx` (+ `.module.css`) e `components/PainelSimples.tsx`
+(reaproveita o mesmo `.module.css`). Padrão de card com menu "⋯" replicado em
+`filmes`, `series`, `animes`, `mangas`, `livros`, `podcasts`.
+
+**Pendências conhecidas (registradas em `BACKLOG.md`):** o menu "⋯" não fecha
+sozinho ao clicar fora dele (só ao escolher uma opção); itens de listas
+aninhadas (elenco, trilha sonora, temporadas, openings/endings, volumes) só
+podem ser criados ou apagados, não editados depois de criados (exceto os
+toggles `lido`/`filler`/`assistido`); sem reordenação manual (drag-and-drop)
+do campo `ordem`.
+
+## DEC-028 — Biblioteca v2 (B4): Mangás — publicação + volumes por arco com cor
+
+**Data:** 2026-07-18
+**Status:** ✅ Aprovada · ✅ Executada (`011_biblioteca_v2_b4_mangas.sql`)
+
+### Contexto
+`BACKLOG.md`/`TASKS_NOW.md` já registravam a intenção de B4 ("nome original/
+traduzido, publicação, volumes por arco com cor") sem detalhar o schema. Essa
+decisão fecha o desenho concreto, análogo ao que B2/B3 fizeram para filme/
+série/anime.
+
+### Decisão
+- `mangas` ganha campos de publicação: `titulo_traduzido`, `editora`,
+  `status_publicacao` (`em_andamento`/`concluida`/`hiato`/`cancelada`),
+  `ano_inicio_publicacao`, `ano_fim_publicacao` (nullable).
+- Nova tabela `mangas_volumes`: cada linha é um volume, com `arco` (texto
+  livre) e `cor` (hex) para identificação visual do arco na listagem — mesmo
+  espírito de agrupamento visual, sem criar uma tabela separada só para arcos.
+- `titulo` (já existente desde `003_biblioteca.sql`) continua sendo o nome
+  principal exibido — `titulo_traduzido` é opcional, mesmo padrão de
+  `nome_original`/`nome_traduzido` em `animes` (DEC-025).
+
+### Alternativas consideradas
+
+| Alternativa | Descartada por |
+|---|---|
+| Tabela própria `mangas_arcos`, com volumes referenciando o arco | Complexidade desproporcional (princípio 11) — um campo de texto livre + cor por volume resolve o mesmo problema de identificação visual sem uma tabela extra |
+| Guardar arco como enum fixo | Arcos variam livremente por obra, sem lista fechada possível |
+
+### Justificativa
+Mesmo raciocínio de tabelas satélite já usado em `series_temporadas`/
+`animes_temporadas`: uma tabela por "unidade" (volume), com os campos que
+fazem sentido pra ela.
+
+### Impacto
+`011_biblioteca_v2_b4_mangas.sql` executada e confirmada no Supabase
+(2026-07-18). `lib/mangas.ts`, `lib/mangas-volumes.ts`,
+`components/VolumesEditor.tsx`, `app/biblioteca/mangas/page.tsx` gerados.
+
+## DEC-029 — Biblioteca v2 (B5): Livros — dados bibliográficos + anotações/citações
+
+**Data:** 2026-07-18
+**Status:** ✅ Aprovada · ✅ Executada (`012_biblioteca_v2_b5_livros.sql`)
+
+### Contexto
+Análogo à DEC-028: `BACKLOG.md`/`TASKS_NOW.md` registravam a intenção ("dados
+bibliográficos, leitura — progresso/velocidade —, anotações, citações
+favoritas") sem desenho de schema. Esta decisão fecha o desenho concreto.
+
+### Decisão
+- `livros` ganha `editora`, `idioma`, `formato`
+  (`fisico`/`ebook`/`audiobook`), `ano_publicacao`.
+- Nova tabela `livros_anotacoes`: anotações livres ou citações favoritas
+  (`tipo`), opcionalmente ligadas a uma página (`pagina`), com `favorito`
+  para marcar as citações preferidas.
+- **Velocidade de leitura não entrou nesta migration** — `paginas_total`/
+  `pagina_atual` (já existentes desde `003_biblioteca.sql`) permitem calcular
+  progresso, mas uma métrica de velocidade (páginas/hora) exigiria registro de
+  data por sessão de leitura, que não foi desenhado ainda. Fica pendente para
+  uma iteração futura de B5, se o usuário confirmar que quer isso.
+
+### Alternativas consideradas
+
+| Alternativa | Descartada por |
+|---|---|
+| Reaproveitar `anotacoes` (módulo Estudos, `002_estudos.sql`) para citações de livro | Tabela de domínio diferente (Estudos liga a `materia_uuid`/`assunto_uuid`); forçar reaproveitamento criaria colunas nullable irrelevantes — mesmo raciocínio de DEC-014 |
+| Uma tabela `livros_citacoes` separada de `livros_anotacoes` | Estrutura idêntica (texto + página opcional), diferindo só no campo `tipo` — separar duplicaria schema sem necessidade |
+
+### Justificativa
+Anotação e citação são a mesma forma de dado (texto + página opcional), só
+com propósito diferente — um campo `tipo` resolve sem duplicar tabela.
+
+### Impacto
+`012_biblioteca_v2_b5_livros.sql` executada e confirmada no Supabase
+(2026-07-18). `lib/livros.ts`, `lib/livros-anotacoes.ts`,
+`components/AnotacoesLivroEditor.tsx`, `app/biblioteca/livros/page.tsx`
+gerados. Velocidade de leitura fica registrada como pendência em
+`BACKLOG.md`, não como escopo cortado silenciosamente.
+
+## DEC-030 — Biblioteca v2 (B6): Podcasts ganham coluna própria `produtora`
+
+**Data:** 2026-07-18
+**Status:** ✅ Aprovada · ✅ Executada (`013_biblioteca_v2_b6_podcasts.sql`)
+
+### Contexto
+Desde DEC-016 (2026-07-13), `artistName` da iTunes Search API era salvo
+prefixado dentro de `comentario` ("Produtora: ...") por não existir campo
+próprio — decisão deliberada na época para não criar uma coluna só para
+podcasts quando os outros 4 tipos não tinham equivalente. B6 é justamente a
+sub-fase de "reorganização de UI" prevista no `TASKS_NOW.md` para resolver
+isso, agora que o padrão de campos comuns (DEC-023) já amadureceu.
+
+### Decisão
+`podcasts` ganha `produtora TEXT`. Sem tabela nova — B6 não introduz
+hierarquia própria (podcasts não têm elenco, temporadas ou trilha sonora no
+escopo atual). Sem migração automática do texto já salvo em `comentario` —
+só dados de teste existentes até agora (mesmo raciocínio de DEC-023).
+
+### Alternativas consideradas
+
+| Alternativa | Descartada por |
+|---|---|
+| Manter `produtora` dentro de `comentario` | Mistura metadado estruturado com anotação livre do usuário — o próprio motivo de B6 existir era corrigir isso |
+| Migrar automaticamente o prefixo "Produtora: " existente para a coluna nova | Nenhum dado real (não-teste) até agora — risco de parsing incorreto do prefixo não compensa para dados descartáveis |
+
+### Justificativa
+Sub-fase mais simples da Biblioteca v2 — resolve uma dívida técnica pequena
+e isolada sem introduzir tabela nova.
+
+### Impacto
+`013_biblioteca_v2_b6_podcasts.sql` executada e confirmada no Supabase
+(2026-07-18). `lib/podcasts.ts` e `app/biblioteca/podcasts/page.tsx` gerados
+(sem elenco/trilha/complementos — fora do escopo de podcasts).

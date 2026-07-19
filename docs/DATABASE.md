@@ -35,10 +35,16 @@ Chaves estrangeiras seguem `<tabela_singular>_uuid` (ex: `treino_uuid`, `materia
 | `001_schema_inicial.sql` | ✅ Executado e verificado no Supabase | 8 tabelas do núcleo (treino, shape, cardio, agenda, revisão) |
 | `002_estudos.sql` | ✅ Executado e verificado no Supabase (2026-07-11) | 5 tabelas do módulo de Estudos |
 | `003_biblioteca.sql` | ✅ Executado e verificado no Supabase (2026-07-11) | 11 tabelas do módulo Biblioteca — ver DEC-011, DEC-014 |
-| `004_podcasts_itunes.sql` | 🔄 Aguardando execução no Supabase | Adiciona `itunes_id` e `capa_url` à tabela `podcasts` — ver DEC-016 |
+| `004_podcasts_itunes.sql` | ✅ Executado e verificado no Supabase (2026-07-13) | Adiciona `itunes_id` e `capa_url` à tabela `podcasts` — ver DEC-016 |
 | `005_treino_v2.sql` | ✅ Executado e verificado no Supabase (2026-07-15) | Reestrutura Treino: `modulos_treino` (novo), `treinos.modulo_uuid` (novo), `exercicios_forca`/`exercicios_cardio` (substituem `exercicios`), `execucoes_forca`/`execucoes_cardio` (substituem `series_executadas`). Descontinua `cardio`. Ver DEC-020 |
 | `006_biblioteca_v2_base.sql` | ✅ Executado e verificado no Supabase (2026-07-16) | Biblioteca v2 sub-fase B1: tabela `generos` + 5 junções `*_generos`, campos comuns novos (favorito, nota-estrela, banner, links etc.) em `livros`/`filmes`/`series`/`mangas`/`podcasts`. Ver DEC-023 |
 | `007_remover_tags.sql` | ✅ Executado e verificado no Supabase (2026-07-16) | Remove `tags` e as 5 junções `*_tags`, descontinuadas em favor de `generos`. Ver DEC-023 |
+| `008_biblioteca_v2_b2.sql` | ✅ Executado e verificado no Supabase (2026-07-17) | Biblioteca v2 sub-fase B2: colunas de produção em `filmes`/`series`, tabela `series_temporadas`, tabelas polimórficas `elenco` e `trilha_sonora`. Ver DEC-024 |
+| `009_biblioteca_v2_b3.sql` | ✅ Executado e verificado no Supabase (2026-07-17) | Biblioteca v2 sub-fase B3: tabela `animes`, `animes_generos`, `animes_temporadas`, `animes_episodios` (granularidade com filler), `openings_endings`, `animes_ordem_consumo` (FK polimórfica); estende `elenco` com `dublador_original`/`dublador_br`; `filmes` ganha `anime_uuid`/`tipo_complemento` (complementos são filmes reais). Ver DEC-025 |
+| `010_remover_tecnologias_filmes.sql` | ✅ Executado e verificado no Supabase (2026-07-17) | Remove `filmes.tecnologias` (criada em `008`), descartada de escopo antes do frontend consumi-la. Ver DEC-026 |
+| `011_biblioteca_v2_b4_mangas.sql` | ✅ Executado no Supabase (2026-07-18) | Biblioteca v2 sub-fase B4: colunas de publicação em `mangas` (`titulo_traduzido`, `editora`, `status_publicacao`, período), tabela `mangas_volumes` (volumes agrupados por arco, com cor de identificação). Ver DEC-028 |
+| `012_biblioteca_v2_b5_livros.sql` | ✅ Executado no Supabase (2026-07-18) | Biblioteca v2 sub-fase B5: colunas bibliográficas/leitura em `livros` (`editora`, `idioma`, `formato`, `ano_publicacao`), tabela `livros_anotacoes` (anotações e citações favoritas). Ver DEC-029 |
+| `013_biblioteca_v2_b6_podcasts.sql` | ✅ Executado no Supabase (2026-07-18) | Biblioteca v2 sub-fase B6: coluna `produtora` em `podcasts` (sai do prefixo solto em `comentario`, ver DEC-016). Sem tabela nova. Ver DEC-030 |
 
 **Convenção para novas migrações:** numeração sequencial de 3 dígitos + nome do módulo em snake_case (`00N_nome-modulo.sql`). Depois de rodar no SQL Editor, atualizar a tabela acima e a seção correspondente deste documento.
 
@@ -426,11 +432,281 @@ deleted               BOOLEAN DEFAULT FALSE
 ### Tabelas descontinuadas
 `cardio`, `exercicios`, `series_executadas` — removidas em `005_treino_v2.sql`. Sem dados relevantes perdidos (uso de teste). Ver DEC-020.
 
+## Schema — `008_biblioteca_v2_b2.sql`
+
+### `filmes` (alterada)
+Ganhou colunas de produção: `roteirista TEXT`, `produtores TEXT`, `estudio TEXT`,
+`distribuidora TEXT`, `orcamento NUMERIC(14,2)`, `bilheteria NUMERIC(14,2)`,
+`ano_lancamento INTEGER`. Demais colunas sem mudança (ver `003_biblioteca.sql`
+e `006_biblioteca_v2_base.sql`).
+> A coluna `tecnologias TEXT[]` foi adicionada em `008_biblioteca_v2_b2.sql` e
+> removida em `010_remover_tecnologias_filmes.sql` antes de qualquer frontend
+> consumi-la — ver DEC-026.
+
+### `series` (alterada)
+Ganhou colunas de produção: `roteirista TEXT`, `produtores TEXT`, `estudio TEXT`,
+`distribuidora TEXT`, `ano_lancamento INTEGER`, `ano_termino INTEGER` (nullable —
+série em andamento). Demais colunas sem mudança.
+
+### `series_temporadas` (novo)
+```sql
+uuid              TEXT PRIMARY KEY,
+user_id           UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+serie_uuid        TEXT NOT NULL REFERENCES series(uuid),
+numero            INTEGER NOT NULL,
+numero_episodios  INTEGER,
+nota_imdb         NUMERIC(3,1),
+minha_nota        NUMERIC(2,1),
+data_assisti      DATE,
+updated_at        TIMESTAMPTZ DEFAULT NOW(),
+deleted           BOOLEAN DEFAULT FALSE
+```
+Índice parcial em `serie_uuid WHERE NOT deleted`. Só guarda contagem de
+episódios (`numero_episodios`), não granularidade por episódio — isso é
+exclusivo de Animes (B3, `animes_episodios`). Ver DEC-024.
+
+### `elenco` (novo — reutilizável entre filmes/séries, e animes na B3)
+```sql
+uuid        TEXT PRIMARY KEY,
+user_id     UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+tipo_obra   TEXT NOT NULL,   -- 'filme' | 'serie' (validação no frontend, sem CHECK)
+obra_uuid   TEXT NOT NULL,   -- FK polimórfica, sem REFERENCES físico
+ator        TEXT NOT NULL,
+personagem  TEXT,
+foto_url    TEXT,
+ordem       INTEGER DEFAULT 0,
+updated_at  TIMESTAMPTZ DEFAULT NOW(),
+deleted     BOOLEAN DEFAULT FALSE
+```
+Índice parcial em `(tipo_obra, obra_uuid) WHERE NOT deleted`. FK polimórfica —
+mesmo padrão de exceção de `revisao_espacada.referencia_uuid` (ver
+`NAMING_CONVENTIONS.md`). Na B3 (DEC-025) ganha `dublador_original` e
+`dublador_br` para uso em animes.
+
+### `trilha_sonora` (novo — reutilizável entre filmes/séries, e animes na B3)
+```sql
+uuid                TEXT PRIMARY KEY,
+user_id             UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+tipo_obra           TEXT NOT NULL,   -- 'filme' | 'serie'
+obra_uuid           TEXT NOT NULL,   -- FK polimórfica
+nome                TEXT NOT NULL,
+artista             TEXT,
+duracao_segundos    INTEGER,
+link_spotify        TEXT,
+link_youtube_music  TEXT,
+ordem               INTEGER DEFAULT 0,
+updated_at          TIMESTAMPTZ DEFAULT NOW(),
+deleted             BOOLEAN DEFAULT FALSE
+```
+Índice parcial em `(tipo_obra, obra_uuid) WHERE NOT deleted`.
+
+## Schema — `009_biblioteca_v2_b3.sql`
+
+### `elenco` (alterada — ver `008` acima para a forma original)
+Ganhou `dublador_original TEXT` e `dublador_br TEXT`. Anime preenche esses
+dois campos e deixa `ator` nulo; filme/série seguem preenchendo só `ator`.
+`personagem` e `foto_url` continuam compartilhados entre todos os tipos.
+`tipo_obra` passa a aceitar também `'anime'`.
+
+### `animes` (novo)
+```sql
+uuid                     TEXT PRIMARY KEY,
+user_id                  UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+nome_original            TEXT NOT NULL,
+nome_traduzido           TEXT,
+capa_url                 TEXT,
+capa_path                TEXT,
+banner_url               TEXT,
+banner_path              TEXT,
+sinopse                  TEXT,
+ano_lancamento           INTEGER,
+ano_termino              INTEGER,
+classificacao_indicativa TEXT,
+duracao_minutos          INTEGER,   -- duração média por episódio
+mal_id                   TEXT,
+anilist_id               TEXT,
+link_imdb                TEXT,
+link_mal                 TEXT,
+link_anilist             TEXT,
+link_oficial             TEXT,
+diretor                  TEXT,
+roteirista               TEXT,
+produtores               TEXT,
+estudio                  TEXT,
+distribuidora            TEXT,
+character_designer       TEXT,
+animador_chefe           TEXT,
+compositor               TEXT,
+status                   TEXT DEFAULT 'quero_ver',  -- mesmos valores de 'series'
+nota                     NUMERIC(2,1),
+comentario               TEXT,
+data_inicio              DATE,
+data_fim                 DATE,
+favorito                 BOOLEAN DEFAULT FALSE,
+vezes_consumido          INTEGER DEFAULT 0,
+onde_consumi             TEXT,
+valor_pago               NUMERIC(10,2),
+updated_at               TIMESTAMPTZ DEFAULT NOW(),
+deleted                  BOOLEAN DEFAULT FALSE
+```
+Índice parcial em `user_id WHERE NOT deleted`. Tabela própria — não reaproveita
+`series` (ver DEC-025 para a justificativa).
+
+### `animes_generos` (novo — junção)
+```sql
+uuid        TEXT PRIMARY KEY,
+user_id     UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+anime_uuid  TEXT NOT NULL REFERENCES animes(uuid),
+genero_uuid TEXT NOT NULL REFERENCES generos(uuid),
+updated_at  TIMESTAMPTZ DEFAULT NOW(),
+deleted     BOOLEAN DEFAULT FALSE
+```
+> ⚠️ Sem `lib/` nem UI ainda — schema existe, mas nenhuma tela usa esta tabela
+> até agora. Ver `BACKLOG.md`.
+
+### `animes_temporadas` (novo)
+```sql
+uuid              TEXT PRIMARY KEY,
+user_id           UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+anime_uuid        TEXT NOT NULL REFERENCES animes(uuid),
+numero            INTEGER NOT NULL,
+numero_episodios  INTEGER,
+nota_imdb         NUMERIC(3,1),
+minha_nota        NUMERIC(2,1),
+data_assisti      DATE,
+updated_at        TIMESTAMPTZ DEFAULT NOW(),
+deleted           BOOLEAN DEFAULT FALSE
+```
+Índice parcial em `anime_uuid WHERE NOT deleted`. Equivalente a
+`series_temporadas`, mas com granularidade extra em `animes_episodios`.
+
+### `animes_episodios` (novo)
+```sql
+uuid           TEXT PRIMARY KEY,
+user_id        UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+temporada_uuid TEXT NOT NULL REFERENCES animes_temporadas(uuid),
+numero         INTEGER NOT NULL,
+titulo         TEXT,
+arco           TEXT,     -- nome do arco narrativo, pode não coincidir com a temporada
+filler         BOOLEAN DEFAULT FALSE,
+assistido      BOOLEAN DEFAULT FALSE,
+updated_at     TIMESTAMPTZ DEFAULT NOW(),
+deleted        BOOLEAN DEFAULT FALSE
+```
+Índice parcial em `temporada_uuid WHERE NOT deleted`. Exclusivo de Animes — série
+comum (`series_temporadas`) só guarda contagem, não episódio a episódio. % de
+filler é calculada no frontend a partir desta lista, não persistida.
+
+### `openings_endings` (novo)
+```sql
+uuid        TEXT PRIMARY KEY,
+user_id     UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+anime_uuid  TEXT NOT NULL REFERENCES animes(uuid),
+tipo        TEXT NOT NULL,   -- 'opening' | 'ending' — validado no frontend, sem CHECK
+nome        TEXT NOT NULL,
+artista     TEXT,
+link_video  TEXT,
+minha_nota  NUMERIC(2,1),
+ordem       INTEGER DEFAULT 0,
+updated_at  TIMESTAMPTZ DEFAULT NOW(),
+deleted     BOOLEAN DEFAULT FALSE
+```
+Equivalente à `trilha_sonora` de filme/série, mas exclusivo de anime (conceito
+próprio do formato, não reaproveitado).
+
+### `filmes` (alterada)
+Ganhou `anime_uuid TEXT REFERENCES animes(uuid)` (nulo = filme normal, não
+vinculado a nenhum anime) e `tipo_complemento TEXT` (`'filme'` | `'ova'` |
+`'ona'` | `'special'` — nulo = filme normal). Complementos de anime **não são
+tabela própria**: são linhas reais em `filmes`, editáveis também na tela de
+Filmes da Biblioteca. Índice parcial em `anime_uuid WHERE anime_uuid IS NOT
+NULL AND NOT deleted`. Ver DEC-025.
+
+### `animes_ordem_consumo` (novo)
+```sql
+uuid             TEXT PRIMARY KEY,
+user_id          UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+anime_uuid       TEXT NOT NULL REFERENCES animes(uuid),
+ordem            INTEGER NOT NULL,
+tipo_referencia  TEXT NOT NULL,   -- 'temporada' | 'complemento'
+referencia_uuid  TEXT NOT NULL,   -- aponta pra animes_temporadas.uuid ou filmes.uuid
+rotulo           TEXT NOT NULL,   -- ex: "Temporada 1", "Filme: O Início"
+updated_at       TIMESTAMPTZ DEFAULT NOW(),
+deleted          BOOLEAN DEFAULT FALSE
+```
+Índice parcial em `anime_uuid WHERE NOT deleted`. FK polimórfica — mesmo
+padrão de exceção de `elenco`/`trilha_sonora` (DEC-024) e
+`revisao_espacada.referencia_uuid` (histórico).
+
+## Schema — `011_biblioteca_v2_b4_mangas.sql`
+
+### `mangas` (alterada)
+Ganhou colunas de publicação: `titulo_traduzido TEXT`, `editora TEXT`,
+`status_publicacao TEXT DEFAULT 'em_andamento'` (`'em_andamento'` |
+`'concluida'` | `'hiato'` | `'cancelada'`), `ano_inicio_publicacao INTEGER`,
+`ano_fim_publicacao INTEGER` (nullable — ainda em publicação). `titulo`
+(`003_biblioteca.sql`) continua sendo o nome principal exibido.
+
+### `mangas_volumes` (novo)
+```sql
+uuid          TEXT PRIMARY KEY,
+user_id       UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+manga_uuid    TEXT NOT NULL REFERENCES mangas(uuid),
+numero        INTEGER NOT NULL,
+arco          TEXT,
+cor           TEXT,             -- hex, ex: '#b8f566' — identificação visual do arco
+lido          BOOLEAN DEFAULT FALSE,
+data_leitura  DATE,
+updated_at    TIMESTAMPTZ DEFAULT NOW(),
+deleted       BOOLEAN DEFAULT FALSE
+```
+Índice parcial em `manga_uuid WHERE NOT deleted`. Cada linha é um volume,
+agrupado visualmente por arco via `cor`. Ver DEC-028.
+
+## Schema — `012_biblioteca_v2_b5_livros.sql`
+
+### `livros` (alterada)
+Ganhou colunas bibliográficas/leitura: `editora TEXT`, `idioma TEXT`,
+`formato TEXT DEFAULT 'fisico'` (`'fisico'` | `'ebook'` | `'audiobook'`),
+`ano_publicacao INTEGER`.
+
+### `livros_anotacoes` (novo)
+```sql
+uuid        TEXT PRIMARY KEY,
+user_id     UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+livro_uuid  TEXT NOT NULL REFERENCES livros(uuid),
+tipo        TEXT NOT NULL DEFAULT 'anotacao', -- 'anotacao' | 'citacao'
+pagina      INTEGER,
+texto       TEXT NOT NULL,
+favorito    BOOLEAN DEFAULT FALSE,
+updated_at  TIMESTAMPTZ DEFAULT NOW(),
+deleted     BOOLEAN DEFAULT FALSE
+```
+Índice parcial em `livro_uuid WHERE NOT deleted`. `tipo` distingue anotação
+livre de citação favorita — validação no frontend, sem CHECK (mesma convenção
+de `status` nas tabelas de mídia). Ver DEC-029.
+
+## Schema — `013_biblioteca_v2_b6_podcasts.sql`
+
+### `podcasts` (alterada)
+Ganhou `produtora TEXT`. Sem tabela nova. `artistName` da iTunes Search API
+(DEC-016), que até aqui era salvo prefixado em `comentario` ("Produtora:
+..."), passa a ser salvo direto em `produtora` pelo frontend v2 — sem
+migração automática dos dados antigos (só dados de teste existentes até
+agora, mesmo raciocínio de DEC-023). Ver DEC-030.
+
+---
+
 ## Storage
 
 Buckets e políticas detalhados em `ARCHITECTURE.md` → Supabase Storage e `DECISIONS.md` → DEC-010. Resumo: 3 buckets, todos privados, sempre via signed URL, path `{user_id}/arquivo.ext`.
 
 Bucket `exercicios` adicionado em `005_treino_v2.sql` (ver DEC-020) — mesmo padrão de privacidade e path.
+
+> ⚠️ **Pendência:** os campos `banner_path` (existentes desde `006_biblioteca_v2_base.sql`,
+> DEC-023) não têm bucket de Storage definido ainda — hoje só é possível usar
+> `banner_url` (link externo). Nenhuma tela da Biblioteca v2 tem upload de capa/banner
+> implementado até agora. Ver `BACKLOG.md`.
 
 ---
 
@@ -479,3 +755,24 @@ de apagar e recriar.
 descoberta sem proteção. Também confirmado: cadastro público de novos usuários
 desabilitado em Authentication → Settings, e nenhuma ocorrência de `service_role`
 key em código do frontend.
+
+**Gotcha adicional (tipos `Input` vs. update parcial, Biblioteca v2):** os tipos
+`MangaVolumeInput` e `AnimeEpisodioInput` exigiam `numero` obrigatório, mas
+`VolumesEditor.tsx`/`EpisodiosEditor.tsx` usam `atualizarVolume()`/
+`atualizarEpisodio()` para toggles simples (`lido`, `filler`, `assistido`) sem
+reenviar `numero` — 5 erros de TypeScript. Corrigido em 2026-07-18 (via
+Cline+DeepSeek) criando tipos `MangaVolumeUpdate`/`AnimeEpisodioUpdate`
+(Partial completo, sem campo obrigatório) separados dos tipos `Input` usados
+na criação. Padrão a seguir daqui em diante: sempre que um componente precisar
+atualizar só um campo de uma entidade que tem campo obrigatório no tipo de
+criação, criar um tipo `XxxUpdate` dedicado em vez de afrouxar o `XxxInput`.
+
+**Gotcha adicional (arquivo sobrescrito por engano, Biblioteca v2):** durante a
+mesma correção, `components/AnotacoesLivroEditor.tsx` foi acidentalmente
+sobrescrito com a lógica de `VolumesEditor.tsx` (import de `lib/mangas-volumes`
+em vez de `lib/livros-anotacoes`, prop `mangaUuid` em vez de `livroUuid`) — os
+dois componentes têm estrutura muito parecida (lista editável com CRUD simples)
+e foram confundidos durante uma correção automática. Corrigido em 2026-07-18.
+Atenção redobrada ao reaproveitar `Cline`/IA para correções em massa quando
+existem múltiplos componentes com a mesma "forma" (`VolumesEditor` ↔
+`AnotacoesLivroEditor`, `TemporadasEditor` ↔ `TemporadasAnimeEditor`).
