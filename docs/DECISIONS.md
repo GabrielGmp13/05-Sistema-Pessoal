@@ -951,3 +951,52 @@ e isolada sem introduzir tabela nova.
 `013_biblioteca_v2_b6_podcasts.sql` executada e confirmada no Supabase
 (2026-07-18). `lib/podcasts.ts` e `app/biblioteca/podcasts/page.tsx` gerados
 (sem elenco/trilha/complementos — fora do escopo de podcasts).
+
+## DEC-031 — v1 aposentada, frontend-v2 renomeada para frontend (único frontend ativo)
+
+**Data:** 2026-07-19
+**Status:** ✅ Aprovada · ✅ Implementada
+
+### Contexto
+Com Treino v2 testado e a Biblioteca v2 (B1–B6) com frontend completo, o
+usuário decidiu antecipar a virada de domínio prevista em DEC-019 ("troca de
+domínio principal só acontece quando a v2 estiver pronta para substituir a v1
+de vez"), mesmo com Estudos, Revisão Espaçada e Agenda ainda sem equivalente
+na v2.
+
+### Decisão
+- Pasta `frontend/` (v1, HTML puro) removida do projeto — mantida apenas como
+  backup local fora do repositório, não versionada.
+- Pasta `frontend-v2/` renomeada para `frontend/` — passa a ser o único
+  frontend do projeto.
+- Projeto Vercel `sistemapessoal` (antes apontando pro `frontend/` estático)
+  reaproveitado, com Root Directory mantido em `frontend` — agora servindo o
+  build Next.js. Nenhum projeto Vercel novo foi criado; a URL de produção não
+  muda, então nenhuma configuração de Auth Redirect URL no Supabase precisou
+  ser alterada.
+- **Módulos ainda não migrados (Estudos, Revisão Espaçada, Agenda dedicada)
+  ficam deliberadamente ausentes da v2 por um período** — abordagem "camada
+  por camada": cada módulo migrado é levado a 100% antes do próximo começar,
+  em vez de manter os dois frontends em paralelo até tudo estar pronto.
+  Schema dessas tabelas permanece intacto no Supabase; só o frontend está
+  temporariamente indisponível.
+
+### Alternativas consideradas
+
+| Alternativa | Descartada por |
+|---|---|
+| Manter v1 e v2 em paralelo até todos os módulos migrarem | Contrariava a preferência explícita do usuário por avançar em camadas completas em vez de manter dois sistemas ativos simultaneamente |
+| Criar projeto Vercel novo para a v2 | Desnecessário — mesmo domínio, mesma configuração de Auth; reaproveitar o projeto existente é mais simples (princípio 3) |
+
+### Justificativa
+Simplicidade de manter um único frontend ativo (princípio 3) supera o custo
+temporário de ficar sem Estudos/Revisão Espaçada/Agenda — são dados que
+continuam seguros no banco, só sem tela, e o usuário aceitou essa lacuna
+conscientemente.
+
+### Impacto
+- `AI_CONTEXT.md`, `ARCHITECTURE.md`, `ROADMAP.md`, `TASKS_NOW.md` atualizados.
+- Próximos módulos a planejar via `MODULE_TEMPLATE.md`: Estudos e/ou Revisão
+  Espaçada (ordem a definir).
+- `app/page.tsx` (hoje placeholder) e `app/biblioteca/page.tsx` (hub,
+  inexistente) tornam-se pendências de curto prazo — ver `TASKS_NOW.md`.

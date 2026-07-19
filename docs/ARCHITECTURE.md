@@ -10,10 +10,10 @@
     │                                 │                        │
     ▼                                 ▼                        ▼
 Vercel — frontend-v2/              supabase                 supabase
-(Next.js + API Routes,        (PostgreSQL + Auth)        (storage privado)
-v2 em construção) · 
-projeto Vercel separado
- do frontend/ (v1, produção)                                                                      
+(Next.js + API Routes)        (PostgreSQL + Auth)        (storage privado)
+Único projeto Vercel, único
+frontend - v1 aposentado em 
+2026-07-19 (DEC-031)                                                                      
  
 ```
 
@@ -128,11 +128,11 @@ Exemplo de uso planejado: `app/api/tmdb/search/route.ts` recebe o termo de
 busca do componente React, chama `api.themoviedb.org` com a `TMDB_API_KEY`
 guardada só no servidor, devolve o resultado já formatado.
 
-### Carregamento de scripts em cada página (v1 — `frontend/`, HTML puro)
-*As três subseções abaixo (scripts, `supabase.js`, `auth.js`) descrevem a
-implementação da v1. Na v2, os equivalentes são `lib/supabase.ts` e
-`middleware.ts`, documentados acima — mantidas aqui só como referência
-histórica enquanto a v1 continuar em produção.*
+### Carregamento de scripts em cada página (v1 — HTML puro, aposentada)
++*As três subseções abaixo descrevem a implementação da v1, removida do
++projeto em 2026-07-19 (DEC-031). Os equivalentes ativos são `lib/supabase.ts`
++e `middleware.ts`, documentados acima — mantidas aqui só como referência
++histórica, sem nenhum arquivo real correspondente no projeto.*
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

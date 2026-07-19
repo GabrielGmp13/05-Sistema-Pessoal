@@ -17,9 +17,9 @@ Qualquer IA que retomar este projeto assume o papel de **codificador principal**
 
 ## Estado atual
 
-**Fase:** Fase 7 — v2: migração para Next.js/React (planejamento)
-**v1:** congelada, todas as fases concluídas (ver ROADMAP.md)
-**Decisão-chave:** DEC-018 (reabre DEC-006) — frontend migra de HTML puro para Next.js/React
+**Fase:** Fase 7 — v2 é o único frontend ativo (v1 removida do projeto em 2026-07-19)
+**v1:** removida da pasta do projeto (mantida só como backup local, fora do repositório)
+**Decisão-chave:** DEC-018 (reabre DEC-006) — frontend migrou de HTML puro para Next.js/React · DEC-031 formaliza a virada definitiva
 **Próxima tarefa imediata:** ver TASKS_NOW.md
 
 ---
@@ -31,7 +31,7 @@ Qualquer IA que retomar este projeto assume o papel de **codificador principal**
 | Banco de dados | PostgreSQL via Supabase |
 | Auth | Supabase Auth (email+senha) |
 | Storage | Supabase Storage — 3 buckets privados |
-| Frontend | Next.js (React) + TypeScript — desde v2, ver DEC-018 |
+| Frontend | Next.js (React) + TypeScript — pasta `frontend/` (renomeada de `frontend-v2/`), único frontend do projeto, ver DEC-018/DEC-031 |
 | Backend leve | API Routes (Next.js, serverless no Vercel) — só para segredo/lógica servidor |
 | Gráficos | Chart.js 4.5.0 (CDN) |
 | Offline | Service Worker (planejado — Fase M2) |

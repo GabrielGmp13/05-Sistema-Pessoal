@@ -403,3 +403,25 @@ Histórico de mudanças por marco.
   aninhadas (hoje só criar/apagar + toggles); reordenação manual (`ordem`);
   `animes_generos` sem lib/UI; `confirm()` nativo; menu "⋯" não fecha ao
   clicar fora
+
+  ## 2026-07-19 — v1 aposentada (DEC-031), cutover de infra Vercel, limpeza do TASKS_NOW.md
+
+- Pasta `frontend/` (v1, HTML puro) removida do projeto — mantida como backup local fora do repositório
+- `frontend-v2/` renomeada para `frontend/` — único frontend ativo a partir de agora (DEC-031)
+- Projeto Vercel antigo (`sistemapessoal`, Root Directory `frontend` apontando pra v1 estática) deletado e recriado do zero, agora com Root Directory `frontend` servindo o build Next.js
+- Environment variables configuradas no novo projeto Vercel: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` (Production + Preview)
+- Supabase → Authentication → URL Configuration atualizado para a nova URL do Vercel
+- Deploy concluído, teste de login pendente de confirmação final do usuário
+- `TASKS_NOW.md` reorganizado: todos os itens concluídos (Fases 3, 4, M, 7.0, 7.1, bugs de auditoria de modais, links do dashboard, classes CSS faltantes, GRANT retroativo) consolidados neste changelog; arquivo passa a listar só o que está ativo
+
+### Consolidado do TASKS_NOW.md (histórico de bugs corrigidos, movido para cá)
+
+- `revisao.html`: colunas corrigidas (`frente`→`pergunta`, `verso`→`resposta`, `intervalo`→`intervalo_dias`, `fator`→`ef`) e assinatura de `calcularSM2()` corrigida — 2026-07-11
+- `treino-plano.html`: verificado, já usava `treino_uuid` corretamente, nenhuma correção necessária — 2026-07-11
+- `estudos.html`: validado linha por linha contra o schema real, nenhuma incompatibilidade — 2026-07-11
+- Auditoria de modais (`.open` faltando): 4 páginas corrigidas (`treino-academia.html`, `treino-shape.html`, `revisao.html`, `estudos.html`), 2 já corretas — 2026-07-13
+- Links quebrados do dashboard (Enem/Olimpíada/Escola): corrigido via `?tipo=` em `estudos.html`, ver DEC-017 — 2026-07-13
+- Classes `.btn-icon`/`.btn-salvar` faltando no CSS: adicionadas — 2026-07-13
+- Fase 3 (Estudos v1), Fase 4 (Biblioteca v1), Fase M (migração Supabase + deploy v1): todas concluídas e testadas end-to-end
+- Fase 7.0 (setup Next.js): concluída — estrutura de pastas, `lib/supabase.ts`, `middleware.ts`, login testado
+- Fase 7.1 (Treino v2): concluída — todas as páginas geradas e testadas end-to-end, 3 bugs corrigidos na rodada de teste

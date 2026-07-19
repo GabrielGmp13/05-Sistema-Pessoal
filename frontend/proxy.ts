@@ -5,7 +5,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 // (fail-safe — ver PROJECT_PRINCIPLES.md #4, segurança acima de conveniência).
 const ROTAS_PUBLICAS = ['/login'];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(

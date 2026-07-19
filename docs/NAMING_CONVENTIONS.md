@@ -56,4 +56,3 @@ Sempre conferir contra `DATABASE.md` antes de escrever uma query — ver os gotc
 ## Módulos/Fases no roadmap
 
 Fases numeradas (`Fase 1`, `Fase 2`...) para o roadmap principal; sub-fases da migração usam `M0`, `M1`, `M2`, `M3`. Não misturar os dois esquemas de numeração.
-

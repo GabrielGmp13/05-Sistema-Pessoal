@@ -119,10 +119,12 @@ A página havia sido gerada assumindo colunas (`frente`, `verso`, `intervalo`, `
 ## Fase 7 — v2: Migração para Next.js/React 🔄 PLANEJAMENTO
 
 **Objetivo:** migrar o frontend de HTML puro para Next.js/React (DEC-018), de
-forma incremental, módulo por módulo.
-
-**Importante:** v1 é considerada congelada/concluída (ver Fases 1-6 e Fase M,
-todas ✅). Esta fase substitui a camada de apresentação, não corrige v1.
++forma incremental, módulo por módulo.
++
++**Importante:** v1 foi removida do projeto em 2026-07-19 (DEC-031) — o
++frontend Next.js (pasta `frontend/`, renomeada de `frontend-v2/`) é agora o
++único frontend ativo. Estudos, Revisão Espaçada e Agenda dedicada ainda não
++têm equivalente v2 — ausência deliberada e temporária (ver DEC-031), não bug.
 
 **Escopo de features por módulo:** ainda não definido. Cada módulo migrado
 passa primeiro por `MODULE_TEMPLATE.md` completo — incluindo a nova pergunta
@@ -135,4 +137,8 @@ módulo a módulo.
 | Sub-fase | Descrição | Status |
 |---|---|---|
 | 7.0 | Setup do projeto Next.js — estrutura de pastas, `lib/supabase.ts`, `middleware.ts` (substitui `lib/auth.ts`, ver DEC-021), layout base, CSS global migrado | ✅ |
-| 7.N | Migração de cada módulo existente (Treino, Biblioteca, Estudos, Revisão, Agenda), uma por vez — ordem e escopo a definir | ⏳ |
+| 7.1 | Treino v2 | ✅ |
+| 7.2 | Biblioteca v2 (B1–B6) | ✅ frontend completo · teste E2E geral pendente |
+| 7.3 | Estudos v2 | ⏳ próximo a planejar |
+| 7.4 | Revisão Espaçada v2 | ⏳ a planejar |
+| 7.5 | Agenda v2 (módulo dedicado, hoje só existia dentro do treino.html da v1) | ⏳ a planejar |
