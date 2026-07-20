@@ -12,6 +12,12 @@ import {
 import PainelSimples from '@/components/PainelSimples';
 import { CampoInfo } from '@/components/PainelDetalheObra';
 import AnotacoesLivroEditor from '@/components/AnotacoesLivroEditor';
+import SeletorGenero from '@/components/SeletorGenero';
+import BibliotecaBanner from './BibliotecaBanner';
+import BibliotecaCard from './BibliotecaCard';
+import { sb, getUserId } from '@/lib/supabase';
+import { getGeneros, getGenerosDoItem } from '@/lib/generos';
+import type { Genero } from '@/lib/generos';
 import styles from '../filmes/page.module.css';
 
 const STATUS_LABEL: Record<string, string> = {
@@ -38,7 +44,12 @@ const FORM_VAZIO: LivroInput = {
   comentario: '',
 };
 
-export default function LivrosPage() {
+interface LivrosSectionProps {
+  gatilhoAdicionar: number;
+  busca?: string;
+}
+
+export default function LivrosSection({ gatilhoAdicionar, busca = '' }: LivrosSectionProps) {
   const [livros, setLivros] = useState<Livro[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
@@ -51,6 +62,30 @@ export default function LivrosPage() {
   const [menuAbertoUuid, setMenuAbertoUuid] = useState<string | null>(null);
   const [painelLivro, setPainelLivro] = useState<Livro | null>(null);
 
+  const [generos, setGeneros] = useState<Genero[]>([]);
+  const [generosSelecionados, setGenerosSelecionados] = useState<string[]>([]);
+  const [generosPorItem, setGenerosPorItem] = useState<Record<string, Genero[]>>({});
+
+  async function carregarGeneros() {
+    const userId = await getUserId();
+    if (!userId) return;
+    const lista = await getGeneros(sb, userId);
+    setGeneros(lista);
+  }
+
+  async function carregarGenerosDosItens(lista: Livro[]) {
+    const userId = await getUserId();
+    if (!userId) return;
+    const mapa: Record<string, Genero[]> = {};
+    for (const item of lista) {
+      const uuids = await getGenerosDoItem(sb, userId, 'livros', item.uuid);
+      mapa[item.uuid] = uuids
+        .map((uid) => generos.find((g) => g.uuid === uid))
+        .filter((g): g is Genero => g != null);
+    }
+    setGenerosPorItem(mapa);
+  }
+
   async function carregar() {
     setCarregando(true);
     setErro(null);
@@ -59,17 +94,24 @@ export default function LivrosPage() {
       setErro('Não foi possível carregar os livros.');
     } else {
       setLivros(resultado);
+      await carregarGenerosDosItens(resultado);
     }
     setCarregando(false);
   }
 
   useEffect(() => {
     carregar();
+    carregarGeneros();
   }, []);
+
+  useEffect(() => {
+    if (gatilhoAdicionar > 0) abrirNovo();
+  }, [gatilhoAdicionar]);
 
   function abrirNovo() {
     setEditandoUuid(null);
     setForm(FORM_VAZIO);
+    setGenerosSelecionados([]);
     setModalAberto(true);
   }
 
@@ -88,6 +130,7 @@ export default function LivrosPage() {
       ano_publicacao: livro.ano_publicacao ?? undefined,
       comentario: livro.comentario ?? '',
     });
+    setGenerosSelecionados(generosPorItem[livro.uuid]?.map((g) => g.uuid) ?? []);
     setModalAberto(true);
   }
 
@@ -116,7 +159,6 @@ export default function LivrosPage() {
 
   async function confirmarExclusao(uuid: string) {
     if (!confirm('Apagar este livro?')) return;
-    // TODO(BACKLOG): trocar confirm() nativo por modal .open
     const ok = await apagarLivro(uuid);
     if (!ok) {
       setErro('Não foi possível apagar o livro.');
@@ -144,76 +186,51 @@ export default function LivrosPage() {
     return campos;
   }
 
+  const itensFiltrados = busca
+    ? livros.filter((l) => l.titulo.toLowerCase().includes(busca.toLowerCase()))
+    : livros;
+
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <h1>Livros</h1>
-        <button className={styles.btnPrimario} onClick={abrirNovo}>
-          + Novo livro
-        </button>
-      </div>
+      <BibliotecaBanner
+        titulo="Livros"
+        total={itensFiltrados.length}
+        onAdicionar={abrirNovo}
+        rotuloAdicionar="Novo livro"
+      />
 
       {erro && <p className={styles.erro}>{erro}</p>}
 
       {carregando ? (
         <p className={styles.vazio}>Carregando...</p>
-      ) : livros.length === 0 ? (
+      ) : itensFiltrados.length === 0 ? (
         <div className={styles.vazio}>
-          <p>Nenhum livro cadastrado ainda.</p>
-          <button className={styles.btnPrimario} onClick={abrirNovo}>
-            Adicionar o primeiro
-          </button>
+          <p>{busca ? 'Nenhum livro encontrado para esta busca.' : 'Nenhum livro cadastrado ainda.'}</p>
+          {!busca && (
+            <button className={styles.btnPrimario} onClick={abrirNovo}>
+              Adicionar o primeiro
+            </button>
+          )}
         </div>
       ) : (
         <div className={styles.grid}>
-          {livros.map((livro) => (
-            <div key={livro.uuid} className={styles.card}>
-              <div className={styles.cardClicavel} onClick={() => setPainelLivro(livro)}>
-                <div className={styles.cardHeader}>
-                  <h3>{livro.titulo}</h3>
-                </div>
-                {livro.autor && <p className={styles.meta}>{livro.autor}</p>}
-                <p className={styles.badge}>{STATUS_LABEL[livro.status] ?? livro.status}</p>
-                {livro.paginas_total && (
-                  <p className={styles.meta}>
-                    {livro.pagina_atual} / {livro.paginas_total} pág.
-                  </p>
-                )}
-              </div>
-
-              <div className={styles.menuWrapper}>
-                <button
-                  className={styles.btnIcon}
-                  onClick={() =>
-                    setMenuAbertoUuid(menuAbertoUuid === livro.uuid ? null : livro.uuid)
-                  }
-                  title="Ações"
-                >
-                  ⋯
-                </button>
-                {menuAbertoUuid === livro.uuid && (
-                  <div className={styles.menuDropdown}>
-                    <button
-                      onClick={() => {
-                        setMenuAbertoUuid(null);
-                        abrirEdicao(livro);
-                      }}
-                    >
-                      Editar
-                    </button>
-                    <button
-                      className={styles.menuItemPerigo}
-                      onClick={() => {
-                        setMenuAbertoUuid(null);
-                        confirmarExclusao(livro.uuid);
-                      }}
-                    >
-                      Apagar
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
+          {itensFiltrados.map((livro) => (
+            <BibliotecaCard
+              key={livro.uuid}
+              titulo={livro.titulo}
+              capaUrl={livro.capa_url}
+              favorito={livro.favorito}
+              nota={livro.nota}
+              ano={livro.ano_publicacao}
+              generos={generosPorItem[livro.uuid] ?? []}
+              onClick={() => setPainelLivro(livro)}
+              onEditar={() => abrirEdicao(livro)}
+              onApagar={() => confirmarExclusao(livro.uuid)}
+              menuAberto={menuAbertoUuid === livro.uuid}
+              onAlternarMenu={() =>
+                setMenuAbertoUuid(menuAbertoUuid === livro.uuid ? null : livro.uuid)
+              }
+            />
           ))}
         </div>
       )}
@@ -344,6 +361,16 @@ export default function LivrosPage() {
                   }
                 />
               </label>
+              <div>
+                <div style={{ fontSize: '0.82rem', color: '#aaa', marginBottom: '0.4rem' }}>
+                  Gêneros
+                </div>
+                <SeletorGenero
+                  generos={generos}
+                  selecionados={generosSelecionados}
+                  onChange={setGenerosSelecionados}
+                />
+              </div>
               <label>
                 Comentário
                 <textarea

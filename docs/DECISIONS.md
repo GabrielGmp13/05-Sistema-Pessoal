@@ -77,3 +77,38 @@ Pasta `frontend/` (v1) removida do projeto (backup local, fora do Git). `fronten
 As 6 rotas por tipo (`/biblioteca/filmes` etc.) são descontinuadas em favor de `app/biblioteca/page.tsx` única, com `app/biblioteca/layout.tsx` (sidebar 2/9 + conteúdo 7/9). Categoria ativa é `useState` no client, sem navegação de rota. Sidebar: Filmes, Séries, Animes, Mangás, Livros, Podcasts + botão fixo "Adicionar obra". Toda lógica de dados (`lib/*.ts`) e componentes de painel (DEC-027) são 100% reaproveitados — mudança é só de composição/layout.
 Novo componente genérico `components/Sidebar.tsx`, pensado para reaproveite futuro em Treino/Estudos.
 **Decidido também:** sem sidebar global de nível 1 por ora (dashboard ainda sem design definido) — cada módulo com navegação por categoria ganha sua própria sidebar local.
+
+## DEC-033 — Nota volta de escala 1-5 (estrela) para 0-10 (reabre parte da DEC-023)
+
+**Data:** 2026-07-19/20 (revisão de design da Biblioteca)
+**Status:** ✅ Aprovada · 🔄 Migration criada (`014_nota_escala_dez.sql`), execução pendente
+
+### Contexto
+DEC-023 padronizou `nota` em `NUMERIC(2,1)`, escala 1-5 com meia estrela, para
+as 6 tabelas de mídia da Biblioteca v2. Ao desenhar a referência visual nova
+da Biblioteca (Figma, print trazido pelo usuário), o padrão de exibição
+escolhido foi nota decimal de 0 a 10 (ex: "8.6", "8.9") — mesmo formato comum
+em catálogos de referência (IMDb, etc.), não mais ícone de estrela.
+
+### Decisão
+`nota` passa a ser `NUMERIC(3,1)` (0.0 a 10.0, uma casa decimal) nas 6
+tabelas: `livros`, `filmes`, `series`, `mangas`, `podcasts`, `animes`.
+Constraint `CHECK (nota IS NULL OR (nota BETWEEN 0 AND 10))` adicionada em
+cada tabela. Sem migração automática de dado — mesmo raciocínio de DEC-023
+(sem uso real acumulado na v2 até agora).
+
+### Justificativa
+Decisão de design do usuário, não técnica — a escala 1-5 com meia estrela
+fazia sentido pro layout antigo (ícone de estrela), o layout novo referencia
+exibição numérica decimal, que só funciona bem numa escala mais granular.
+
+### Impacto
+`014_nota_escala_dez.sql` — aguardando execução no Supabase. Depois de
+executada, `DATABASE.md` deve atualizar a definição de `nota` nas 6 tabelas
+(hoje documentada como `NUMERIC(2,1)` desde `006_biblioteca_v2_base.sql`).
+Frontend (cards, modais de avaliação) precisa trocar qualquer input/exibição
+de estrela por input numérico decimal — parte do escopo do redesign visual
+da Biblioteca, ver TASKS_NOW.md.
+
+**Nota:** `favorito BOOLEAN` já existe desde DEC-023 — o coração do card novo
+não exige schema novo, só exibição condicional no frontend.

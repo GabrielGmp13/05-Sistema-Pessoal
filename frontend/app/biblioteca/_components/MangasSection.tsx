@@ -12,6 +12,12 @@ import {
 import PainelSimples from '@/components/PainelSimples';
 import { CampoInfo } from '@/components/PainelDetalheObra';
 import VolumesEditor from '@/components/VolumesEditor';
+import SeletorGenero from '@/components/SeletorGenero';
+import BibliotecaBanner from './BibliotecaBanner';
+import BibliotecaCard from './BibliotecaCard';
+import { sb, getUserId } from '@/lib/supabase';
+import { getGeneros, getGenerosDoItem } from '@/lib/generos';
+import type { Genero } from '@/lib/generos';
 import styles from '../filmes/page.module.css';
 
 const STATUS_LABEL: Record<string, string> = {
@@ -39,7 +45,12 @@ const FORM_VAZIO: MangaInput = {
   comentario: '',
 };
 
-export default function MangasPage() {
+interface MangasSectionProps {
+  gatilhoAdicionar: number;
+  busca?: string;
+}
+
+export default function MangasSection({ gatilhoAdicionar, busca = '' }: MangasSectionProps) {
   const [mangas, setMangas] = useState<Manga[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
@@ -52,6 +63,30 @@ export default function MangasPage() {
   const [menuAbertoUuid, setMenuAbertoUuid] = useState<string | null>(null);
   const [painelManga, setPainelManga] = useState<Manga | null>(null);
 
+  const [generos, setGeneros] = useState<Genero[]>([]);
+  const [generosSelecionados, setGenerosSelecionados] = useState<string[]>([]);
+  const [generosPorItem, setGenerosPorItem] = useState<Record<string, Genero[]>>({});
+
+  async function carregarGeneros() {
+    const userId = await getUserId();
+    if (!userId) return;
+    const lista = await getGeneros(sb, userId);
+    setGeneros(lista);
+  }
+
+  async function carregarGenerosDosItens(lista: Manga[]) {
+    const userId = await getUserId();
+    if (!userId) return;
+    const mapa: Record<string, Genero[]> = {};
+    for (const item of lista) {
+      const uuids = await getGenerosDoItem(sb, userId, 'mangas', item.uuid);
+      mapa[item.uuid] = uuids
+        .map((uid) => generos.find((g) => g.uuid === uid))
+        .filter((g): g is Genero => g != null);
+    }
+    setGenerosPorItem(mapa);
+  }
+
   async function carregar() {
     setCarregando(true);
     setErro(null);
@@ -60,17 +95,24 @@ export default function MangasPage() {
       setErro('Não foi possível carregar os mangás.');
     } else {
       setMangas(resultado);
+      await carregarGenerosDosItens(resultado);
     }
     setCarregando(false);
   }
 
   useEffect(() => {
     carregar();
+    carregarGeneros();
   }, []);
+
+  useEffect(() => {
+    if (gatilhoAdicionar > 0) abrirNovo();
+  }, [gatilhoAdicionar]);
 
   function abrirNovo() {
     setEditandoUuid(null);
     setForm(FORM_VAZIO);
+    setGenerosSelecionados([]);
     setModalAberto(true);
   }
 
@@ -89,6 +131,7 @@ export default function MangasPage() {
       ano_fim_publicacao: manga.ano_fim_publicacao ?? undefined,
       comentario: manga.comentario ?? '',
     });
+    setGenerosSelecionados(generosPorItem[manga.uuid]?.map((g) => g.uuid) ?? []);
     setModalAberto(true);
   }
 
@@ -117,7 +160,6 @@ export default function MangasPage() {
 
   async function confirmarExclusao(uuid: string) {
     if (!confirm('Apagar este mangá?')) return;
-    // TODO(BACKLOG): trocar confirm() nativo por modal .open
     const ok = await apagarManga(uuid);
     if (!ok) {
       setErro('Não foi possível apagar o mangá.');
@@ -149,72 +191,51 @@ export default function MangasPage() {
     return campos;
   }
 
+  const itensFiltrados = busca
+    ? mangas.filter((m) => m.titulo.toLowerCase().includes(busca.toLowerCase()))
+    : mangas;
+
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <h1>Mangás</h1>
-        <button className={styles.btnPrimario} onClick={abrirNovo}>
-          + Novo mangá
-        </button>
-      </div>
+      <BibliotecaBanner
+        titulo="Mangás"
+        total={itensFiltrados.length}
+        onAdicionar={abrirNovo}
+        rotuloAdicionar="Novo mangá"
+      />
 
       {erro && <p className={styles.erro}>{erro}</p>}
 
       {carregando ? (
         <p className={styles.vazio}>Carregando...</p>
-      ) : mangas.length === 0 ? (
+      ) : itensFiltrados.length === 0 ? (
         <div className={styles.vazio}>
-          <p>Nenhum mangá cadastrado ainda.</p>
-          <button className={styles.btnPrimario} onClick={abrirNovo}>
-            Adicionar o primeiro
-          </button>
+          <p>{busca ? 'Nenhum mangá encontrado para esta busca.' : 'Nenhum mangá cadastrado ainda.'}</p>
+          {!busca && (
+            <button className={styles.btnPrimario} onClick={abrirNovo}>
+              Adicionar o primeiro
+            </button>
+          )}
         </div>
       ) : (
         <div className={styles.grid}>
-          {mangas.map((manga) => (
-            <div key={manga.uuid} className={styles.card}>
-              <div className={styles.cardClicavel} onClick={() => setPainelManga(manga)}>
-                <div className={styles.cardHeader}>
-                  <h3>{manga.titulo}</h3>
-                </div>
-                {manga.autor && <p className={styles.meta}>{manga.autor}</p>}
-                <p className={styles.badge}>{STATUS_LABEL[manga.status] ?? manga.status}</p>
-                <p className={styles.meta}>Cap. {manga.capitulo_atual}</p>
-              </div>
-
-              <div className={styles.menuWrapper}>
-                <button
-                  className={styles.btnIcon}
-                  onClick={() =>
-                    setMenuAbertoUuid(menuAbertoUuid === manga.uuid ? null : manga.uuid)
-                  }
-                  title="Ações"
-                >
-                  ⋯
-                </button>
-                {menuAbertoUuid === manga.uuid && (
-                  <div className={styles.menuDropdown}>
-                    <button
-                      onClick={() => {
-                        setMenuAbertoUuid(null);
-                        abrirEdicao(manga);
-                      }}
-                    >
-                      Editar
-                    </button>
-                    <button
-                      className={styles.menuItemPerigo}
-                      onClick={() => {
-                        setMenuAbertoUuid(null);
-                        confirmarExclusao(manga.uuid);
-                      }}
-                    >
-                      Apagar
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
+          {itensFiltrados.map((manga) => (
+            <BibliotecaCard
+              key={manga.uuid}
+              titulo={manga.titulo}
+              capaUrl={manga.capa_url}
+              favorito={manga.favorito}
+              nota={manga.nota}
+              ano={manga.ano_inicio_publicacao}
+              generos={generosPorItem[manga.uuid] ?? []}
+              onClick={() => setPainelManga(manga)}
+              onEditar={() => abrirEdicao(manga)}
+              onApagar={() => confirmarExclusao(manga.uuid)}
+              menuAberto={menuAbertoUuid === manga.uuid}
+              onAlternarMenu={() =>
+                setMenuAbertoUuid(menuAbertoUuid === manga.uuid ? null : manga.uuid)
+              }
+            />
           ))}
         </div>
       )}
@@ -349,6 +370,16 @@ export default function MangasPage() {
                   }
                 />
               </label>
+              <div>
+                <div style={{ fontSize: '0.82rem', color: '#aaa', marginBottom: '0.4rem' }}>
+                  Gêneros
+                </div>
+                <SeletorGenero
+                  generos={generos}
+                  selecionados={generosSelecionados}
+                  onChange={setGenerosSelecionados}
+                />
+              </div>
               <label>
                 Comentário
                 <textarea

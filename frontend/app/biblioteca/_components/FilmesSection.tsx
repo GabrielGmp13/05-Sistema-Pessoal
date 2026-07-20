@@ -12,7 +12,13 @@ import {
 import PainelDetalheObra, { CampoInfo } from '@/components/PainelDetalheObra';
 import ElencoEditor from '@/components/ElencoEditor';
 import TrilhaSonoraEditor from '@/components/TrilhaSonoraEditor';
-import styles from './page.module.css';
+import SeletorGenero from '@/components/SeletorGenero';
+import BibliotecaBanner from './BibliotecaBanner';
+import BibliotecaCard from './BibliotecaCard';
+import { sb, getUserId } from '@/lib/supabase';
+import { getGeneros, getGenerosDoItem } from '@/lib/generos';
+import type { Genero } from '@/lib/generos';
+import styles from '../filmes/page.module.css';
 
 const STATUS_LABEL: Record<string, string> = {
   quero_ver: 'Quero ver',
@@ -31,7 +37,12 @@ const FORM_VAZIO: FilmeInput = {
   distribuidora: '',
 };
 
-export default function FilmesPage() {
+interface FilmesSectionProps {
+  gatilhoAdicionar: number;
+  busca?: string;
+}
+
+export default function FilmesSection({ gatilhoAdicionar, busca = '' }: FilmesSectionProps) {
   const [filmes, setFilmes] = useState<Filme[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
@@ -44,6 +55,30 @@ export default function FilmesPage() {
   const [menuAbertoUuid, setMenuAbertoUuid] = useState<string | null>(null);
   const [painelFilme, setPainelFilme] = useState<Filme | null>(null);
 
+  const [generos, setGeneros] = useState<Genero[]>([]);
+  const [generosSelecionados, setGenerosSelecionados] = useState<string[]>([]);
+  const [generosPorFilme, setGenerosPorFilme] = useState<Record<string, Genero[]>>({});
+
+  async function carregarGeneros() {
+    const userId = await getUserId();
+    if (!userId) return;
+    const lista = await getGeneros(sb, userId);
+    setGeneros(lista);
+  }
+
+  async function carregarGenerosDosFilmes(filmesLista: Filme[]) {
+    const userId = await getUserId();
+    if (!userId) return;
+    const mapa: Record<string, Genero[]> = {};
+    for (const f of filmesLista) {
+      const uuids = await getGenerosDoItem(sb, userId, 'filmes', f.uuid);
+      mapa[f.uuid] = uuids
+        .map((uid) => generos.find((g) => g.uuid === uid))
+        .filter((g): g is Genero => g != null);
+    }
+    setGenerosPorFilme(mapa);
+  }
+
   async function carregar() {
     setCarregando(true);
     setErro(null);
@@ -52,17 +87,24 @@ export default function FilmesPage() {
       setErro('Não foi possível carregar os filmes.');
     } else {
       setFilmes(resultado);
+      await carregarGenerosDosFilmes(resultado);
     }
     setCarregando(false);
   }
 
   useEffect(() => {
     carregar();
+    carregarGeneros();
   }, []);
+
+  useEffect(() => {
+    if (gatilhoAdicionar > 0) abrirNovo();
+  }, [gatilhoAdicionar]);
 
   function abrirNovo() {
     setEditandoUuid(null);
     setForm(FORM_VAZIO);
+    setGenerosSelecionados([]);
     setModalAberto(true);
   }
 
@@ -82,6 +124,7 @@ export default function FilmesPage() {
       bilheteria: filme.bilheteria ?? undefined,
       ano_lancamento: filme.ano_lancamento ?? undefined,
     });
+    setGenerosSelecionados(generosPorFilme[filme.uuid]?.map((g) => g.uuid) ?? []);
     setModalAberto(true);
   }
 
@@ -127,8 +170,6 @@ export default function FilmesPage() {
 
   async function confirmarExclusao(uuid: string) {
     if (!confirm('Apagar este filme?')) return;
-    // TODO(BACKLOG): trocar confirm() nativo por modal .open — mesma
-    // pendência já registrada para Treino v2 em BACKLOG.md.
     const ok = await apagarFilme(uuid);
     if (!ok) {
       setErro('Não foi possível apagar o filme.');
@@ -137,74 +178,51 @@ export default function FilmesPage() {
     }
   }
 
+  const filmesFiltrados = busca
+    ? filmes.filter((f) => f.titulo.toLowerCase().includes(busca.toLowerCase()))
+    : filmes;
+
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <h1>Filmes</h1>
-        <button className={styles.btnPrimario} onClick={abrirNovo}>
-          + Novo filme
-        </button>
-      </div>
+      <BibliotecaBanner
+        titulo="Filmes"
+        total={filmesFiltrados.length}
+        onAdicionar={abrirNovo}
+        rotuloAdicionar="Novo filme"
+      />
 
       {erro && <p className={styles.erro}>{erro}</p>}
 
       {carregando ? (
         <p className={styles.vazio}>Carregando...</p>
-      ) : filmes.length === 0 ? (
+      ) : filmesFiltrados.length === 0 ? (
         <div className={styles.vazio}>
-          <p>Nenhum filme cadastrado ainda.</p>
-          <button className={styles.btnPrimario} onClick={abrirNovo}>
-            Adicionar o primeiro
-          </button>
+          <p>{busca ? 'Nenhum filme encontrado para esta busca.' : 'Nenhum filme cadastrado ainda.'}</p>
+          {!busca && (
+            <button className={styles.btnPrimario} onClick={abrirNovo}>
+              Adicionar o primeiro
+            </button>
+          )}
         </div>
       ) : (
         <div className={styles.grid}>
-          {filmes.map((filme) => (
-            <div key={filme.uuid} className={styles.card}>
-              <div className={styles.cardClicavel} onClick={() => setPainelFilme(filme)}>
-                <div className={styles.cardHeader}>
-                  <h3>{filme.titulo}</h3>
-                </div>
-                {filme.diretor && <p className={styles.meta}>Direção: {filme.diretor}</p>}
-                <p className={styles.badge}>{STATUS_LABEL[filme.status] ?? filme.status}</p>
-                {filme.ano_lancamento && (
-                  <p className={styles.meta}>{filme.ano_lancamento}</p>
-                )}
-              </div>
-
-              <div className={styles.menuWrapper}>
-                <button
-                  className={styles.btnIcon}
-                  onClick={() =>
-                    setMenuAbertoUuid(menuAbertoUuid === filme.uuid ? null : filme.uuid)
-                  }
-                  title="Ações"
-                >
-                  ⋯
-                </button>
-                {menuAbertoUuid === filme.uuid && (
-                  <div className={styles.menuDropdown}>
-                    <button
-                      onClick={() => {
-                        setMenuAbertoUuid(null);
-                        abrirEdicao(filme);
-                      }}
-                    >
-                      Editar
-                    </button>
-                    <button
-                      className={styles.menuItemPerigo}
-                      onClick={() => {
-                        setMenuAbertoUuid(null);
-                        confirmarExclusao(filme.uuid);
-                      }}
-                    >
-                      Apagar
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
+          {filmesFiltrados.map((filme) => (
+            <BibliotecaCard
+              key={filme.uuid}
+              titulo={filme.titulo}
+              capaUrl={filme.capa_url}
+              favorito={filme.favorito}
+              nota={filme.nota}
+              ano={filme.ano_lancamento}
+              generos={generosPorFilme[filme.uuid] ?? []}
+              onClick={() => setPainelFilme(filme)}
+              onEditar={() => abrirEdicao(filme)}
+              onApagar={() => confirmarExclusao(filme.uuid)}
+              menuAberto={menuAbertoUuid === filme.uuid}
+              onAlternarMenu={() =>
+                setMenuAbertoUuid(menuAbertoUuid === filme.uuid ? null : filme.uuid)
+              }
+            />
           ))}
         </div>
       )}
@@ -279,6 +297,17 @@ export default function FilmesPage() {
                   }
                 />
               </label>
+              {/* Gêneros */}
+              <div>
+                <div style={{ fontSize: '0.82rem', color: '#aaa', marginBottom: '0.4rem' }}>
+                  Gêneros
+                </div>
+                <SeletorGenero
+                  generos={generos}
+                  selecionados={generosSelecionados}
+                  onChange={setGenerosSelecionados}
+                />
+              </div>
               <label>
                 Roteirista
                 <input

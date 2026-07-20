@@ -120,12 +120,13 @@ export async function softDeleteGenero(sb: SB, uuid: string): Promise<{ error: s
 // ---------- Junções por tipo (usado pela B2 em diante) ----------
 // Nome da tabela de junção e da coluna FK do item variam por tipo — ver DATABASE.md.
 
-type TipoMidia = 'livros' | 'filmes' | 'series' | 'mangas' | 'podcasts'
+type TipoMidia = 'livros' | 'filmes' | 'series' | 'animes' | 'mangas' | 'podcasts'
 
 const JUNCAO: Record<TipoMidia, { tabela: string; coluna: string }> = {
   livros:   { tabela: 'livros_generos',   coluna: 'livro_uuid' },
   filmes:   { tabela: 'filmes_generos',   coluna: 'filme_uuid' },
   series:   { tabela: 'series_generos',   coluna: 'serie_uuid' },
+  animes:   { tabela: 'animes_generos',   coluna: 'anime_uuid' },
   mangas:   { tabela: 'mangas_generos',   coluna: 'manga_uuid' },
   podcasts: { tabela: 'podcasts_generos', coluna: 'podcast_uuid' },
 }

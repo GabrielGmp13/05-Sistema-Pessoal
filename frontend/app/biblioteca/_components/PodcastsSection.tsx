@@ -11,6 +11,12 @@ import {
 } from '@/lib/podcasts';
 import PainelSimples from '@/components/PainelSimples';
 import { CampoInfo } from '@/components/PainelDetalheObra';
+import SeletorGenero from '@/components/SeletorGenero';
+import BibliotecaBanner from './BibliotecaBanner';
+import BibliotecaCard from './BibliotecaCard';
+import { sb, getUserId } from '@/lib/supabase';
+import { getGeneros, getGenerosDoItem } from '@/lib/generos';
+import type { Genero } from '@/lib/generos';
 import styles from '../filmes/page.module.css';
 
 const STATUS_LABEL: Record<string, string> = {
@@ -28,7 +34,12 @@ const FORM_VAZIO: PodcastInput = {
   comentario: '',
 };
 
-export default function PodcastsPage() {
+interface PodcastsSectionProps {
+  gatilhoAdicionar: number;
+  busca?: string;
+}
+
+export default function PodcastsSection({ gatilhoAdicionar, busca = '' }: PodcastsSectionProps) {
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
@@ -41,6 +52,30 @@ export default function PodcastsPage() {
   const [menuAbertoUuid, setMenuAbertoUuid] = useState<string | null>(null);
   const [painelPodcast, setPainelPodcast] = useState<Podcast | null>(null);
 
+  const [generos, setGeneros] = useState<Genero[]>([]);
+  const [generosSelecionados, setGenerosSelecionados] = useState<string[]>([]);
+  const [generosPorItem, setGenerosPorItem] = useState<Record<string, Genero[]>>({});
+
+  async function carregarGeneros() {
+    const userId = await getUserId();
+    if (!userId) return;
+    const lista = await getGeneros(sb, userId);
+    setGeneros(lista);
+  }
+
+  async function carregarGenerosDosItens(lista: Podcast[]) {
+    const userId = await getUserId();
+    if (!userId) return;
+    const mapa: Record<string, Genero[]> = {};
+    for (const item of lista) {
+      const uuids = await getGenerosDoItem(sb, userId, 'podcasts', item.uuid);
+      mapa[item.uuid] = uuids
+        .map((uid) => generos.find((g) => g.uuid === uid))
+        .filter((g): g is Genero => g != null);
+    }
+    setGenerosPorItem(mapa);
+  }
+
   async function carregar() {
     setCarregando(true);
     setErro(null);
@@ -49,17 +84,24 @@ export default function PodcastsPage() {
       setErro('Não foi possível carregar os podcasts.');
     } else {
       setPodcasts(resultado);
+      await carregarGenerosDosItens(resultado);
     }
     setCarregando(false);
   }
 
   useEffect(() => {
     carregar();
+    carregarGeneros();
   }, []);
+
+  useEffect(() => {
+    if (gatilhoAdicionar > 0) abrirNovo();
+  }, [gatilhoAdicionar]);
 
   function abrirNovo() {
     setEditandoUuid(null);
     setForm(FORM_VAZIO);
+    setGenerosSelecionados([]);
     setModalAberto(true);
   }
 
@@ -73,6 +115,7 @@ export default function PodcastsPage() {
       episodio_atual: podcast.episodio_atual,
       comentario: podcast.comentario ?? '',
     });
+    setGenerosSelecionados(generosPorItem[podcast.uuid]?.map((g) => g.uuid) ?? []);
     setModalAberto(true);
   }
 
@@ -101,7 +144,6 @@ export default function PodcastsPage() {
 
   async function confirmarExclusao(uuid: string) {
     if (!confirm('Apagar este podcast?')) return;
-    // TODO(BACKLOG): trocar confirm() nativo por modal .open
     const ok = await apagarPodcast(uuid);
     if (!ok) {
       setErro('Não foi possível apagar o podcast.');
@@ -120,72 +162,51 @@ export default function PodcastsPage() {
     return campos;
   }
 
+  const itensFiltrados = busca
+    ? podcasts.filter((p) => p.titulo.toLowerCase().includes(busca.toLowerCase()))
+    : podcasts;
+
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <h1>Podcasts</h1>
-        <button className={styles.btnPrimario} onClick={abrirNovo}>
-          + Novo podcast
-        </button>
-      </div>
+      <BibliotecaBanner
+        titulo="Podcasts"
+        total={itensFiltrados.length}
+        onAdicionar={abrirNovo}
+        rotuloAdicionar="Novo podcast"
+      />
 
       {erro && <p className={styles.erro}>{erro}</p>}
 
       {carregando ? (
         <p className={styles.vazio}>Carregando...</p>
-      ) : podcasts.length === 0 ? (
+      ) : itensFiltrados.length === 0 ? (
         <div className={styles.vazio}>
-          <p>Nenhum podcast cadastrado ainda.</p>
-          <button className={styles.btnPrimario} onClick={abrirNovo}>
-            Adicionar o primeiro
-          </button>
+          <p>{busca ? 'Nenhum podcast encontrado para esta busca.' : 'Nenhum podcast cadastrado ainda.'}</p>
+          {!busca && (
+            <button className={styles.btnPrimario} onClick={abrirNovo}>
+              Adicionar o primeiro
+            </button>
+          )}
         </div>
       ) : (
         <div className={styles.grid}>
-          {podcasts.map((podcast) => (
-            <div key={podcast.uuid} className={styles.card}>
-              <div className={styles.cardClicavel} onClick={() => setPainelPodcast(podcast)}>
-                <div className={styles.cardHeader}>
-                  <h3>{podcast.titulo}</h3>
-                </div>
-                {podcast.produtora && <p className={styles.meta}>{podcast.produtora}</p>}
-                <p className={styles.badge}>{STATUS_LABEL[podcast.status] ?? podcast.status}</p>
-                <p className={styles.meta}>Ep. {podcast.episodio_atual}</p>
-              </div>
-
-              <div className={styles.menuWrapper}>
-                <button
-                  className={styles.btnIcon}
-                  onClick={() =>
-                    setMenuAbertoUuid(menuAbertoUuid === podcast.uuid ? null : podcast.uuid)
-                  }
-                  title="Ações"
-                >
-                  ⋯
-                </button>
-                {menuAbertoUuid === podcast.uuid && (
-                  <div className={styles.menuDropdown}>
-                    <button
-                      onClick={() => {
-                        setMenuAbertoUuid(null);
-                        abrirEdicao(podcast);
-                      }}
-                    >
-                      Editar
-                    </button>
-                    <button
-                      className={styles.menuItemPerigo}
-                      onClick={() => {
-                        setMenuAbertoUuid(null);
-                        confirmarExclusao(podcast.uuid);
-                      }}
-                    >
-                      Apagar
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
+          {itensFiltrados.map((podcast) => (
+            <BibliotecaCard
+              key={podcast.uuid}
+              titulo={podcast.titulo}
+              capaUrl={podcast.capa_url}
+              favorito={podcast.favorito}
+              nota={podcast.nota}
+              ano={null} // podcasts não têm campo de ano
+              generos={generosPorItem[podcast.uuid] ?? []}
+              onClick={() => setPainelPodcast(podcast)}
+              onEditar={() => abrirEdicao(podcast)}
+              onApagar={() => confirmarExclusao(podcast.uuid)}
+              menuAberto={menuAbertoUuid === podcast.uuid}
+              onAlternarMenu={() =>
+                setMenuAbertoUuid(menuAbertoUuid === podcast.uuid ? null : podcast.uuid)
+              }
+            />
           ))}
         </div>
       )}
@@ -259,6 +280,16 @@ export default function PodcastsPage() {
                   }
                 />
               </label>
+              <div>
+                <div style={{ fontSize: '0.82rem', color: '#aaa', marginBottom: '0.4rem' }}>
+                  Gêneros
+                </div>
+                <SeletorGenero
+                  generos={generos}
+                  selecionados={generosSelecionados}
+                  onChange={setGenerosSelecionados}
+                />
+              </div>
               <label>
                 Comentário
                 <textarea

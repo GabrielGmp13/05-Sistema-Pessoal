@@ -1,0 +1,40 @@
+.layout {
+  display: flex;
+  min-height: 100vh; /* full viewport height */
+}
+
+.sidebarWrapper {
+  width: 22.222%; /* 2/9 */
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  border-right: 1px solid var(--border);
+}
+
+.contentWrapper {
+  width: 77.778%; /* 7/9 */
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+}
+
+@media (max-width: 720px) {
+  .layout {
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .sidebarWrapper {
+    width: 100%;
+    height: auto;
+    position: static;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .contentWrapper {
+    width: 100%;
+  }
+}

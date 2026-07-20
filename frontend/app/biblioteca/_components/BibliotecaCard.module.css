@@ -1,0 +1,179 @@
+.card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.12s;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+.capaWrapper {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+.capa {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.capaPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: #444;
+  background: var(--bg);
+}
+
+.favorito {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  font-size: 1rem;
+  z-index: 2;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
+  /* Coração preenchido no vermelho suave */
+  color: #ff4d6d;
+}
+
+.body {
+  padding: 0.65rem 0.75rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex: 1;
+}
+
+.nome {
+  font-family: var(--font-titulos, inherit);
+  font-size: 0.85rem;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.linhaMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.nota {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.estrelaIcon {
+  font-size: 0.7rem;
+  color: var(--accent);
+}
+
+.ano {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  color: #666;
+}
+
+.generos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.15rem;
+}
+
+.genero {
+  font-size: 0.65rem;
+  color: #777;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.05rem 0.4rem;
+  white-space: nowrap;
+}
+
+.menuWrapper {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 3;
+}
+
+.btnIcon {
+  background: rgba(0,0,0,0.6);
+  border: none;
+  color: #aaa;
+  border-radius: 6px;
+  padding: 0.1rem 0.4rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: color 0.12s;
+}
+
+.btnIcon:hover {
+  color: var(--text);
+}
+
+.menuDropdown {
+  position: absolute;
+  top: calc(100% + 0.3rem);
+  left: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  min-width: 110px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+}
+
+.menuDropdown button {
+  background: none;
+  border: none;
+  color: var(--text);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.82rem;
+}
+
+.menuDropdown button:hover {
+  background: var(--bg);
+}
+
+.menuItemPerigo {
+  color: #ff6b6b !important;
+}
+
+@media (max-width: 680px) {
+  .card {
+    border-radius: 10px;
+  }
+
+  .nome {
+    font-size: 0.82rem;
+  }
+}

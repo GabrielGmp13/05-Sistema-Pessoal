@@ -13,7 +13,13 @@ import PainelDetalheObra, { CampoInfo } from '@/components/PainelDetalheObra';
 import ElencoEditor from '@/components/ElencoEditor';
 import TrilhaSonoraEditor from '@/components/TrilhaSonoraEditor';
 import TemporadasEditor from '@/components/TemporadasEditor';
-import styles from './page.module.css';
+import SeletorGenero from '@/components/SeletorGenero';
+import BibliotecaBanner from './BibliotecaBanner';
+import BibliotecaCard from './BibliotecaCard';
+import { sb, getUserId } from '@/lib/supabase';
+import { getGeneros, getGenerosDoItem } from '@/lib/generos';
+import type { Genero } from '@/lib/generos';
+import styles from '../series/page.module.css';
 
 const STATUS_LABEL: Record<string, string> = {
   quero_ver: 'Quero ver',
@@ -34,7 +40,12 @@ const FORM_VAZIO: SerieInput = {
   distribuidora: '',
 };
 
-export default function SeriesPage() {
+interface SeriesSectionProps {
+  gatilhoAdicionar: number;
+  busca?: string;
+}
+
+export default function SeriesSection({ gatilhoAdicionar, busca = '' }: SeriesSectionProps) {
   const [series, setSeries] = useState<Serie[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
@@ -47,6 +58,30 @@ export default function SeriesPage() {
   const [menuAbertoUuid, setMenuAbertoUuid] = useState<string | null>(null);
   const [painelSerie, setPainelSerie] = useState<Serie | null>(null);
 
+  const [generos, setGeneros] = useState<Genero[]>([]);
+  const [generosSelecionados, setGenerosSelecionados] = useState<string[]>([]);
+  const [generosPorItem, setGenerosPorItem] = useState<Record<string, Genero[]>>({});
+
+  async function carregarGeneros() {
+    const userId = await getUserId();
+    if (!userId) return;
+    const lista = await getGeneros(sb, userId);
+    setGeneros(lista);
+  }
+
+  async function carregarGenerosDosItens(lista: Serie[]) {
+    const userId = await getUserId();
+    if (!userId) return;
+    const mapa: Record<string, Genero[]> = {};
+    for (const item of lista) {
+      const uuids = await getGenerosDoItem(sb, userId, 'series', item.uuid);
+      mapa[item.uuid] = uuids
+        .map((uid) => generos.find((g) => g.uuid === uid))
+        .filter((g): g is Genero => g != null);
+    }
+    setGenerosPorItem(mapa);
+  }
+
   async function carregar() {
     setCarregando(true);
     setErro(null);
@@ -55,17 +90,24 @@ export default function SeriesPage() {
       setErro('Não foi possível carregar as séries.');
     } else {
       setSeries(resultado);
+      await carregarGenerosDosItens(resultado);
     }
     setCarregando(false);
   }
 
   useEffect(() => {
     carregar();
+    carregarGeneros();
   }, []);
+
+  useEffect(() => {
+    if (gatilhoAdicionar > 0) abrirNovo();
+  }, [gatilhoAdicionar]);
 
   function abrirNovo() {
     setEditandoUuid(null);
     setForm(FORM_VAZIO);
+    setGenerosSelecionados([]);
     setModalAberto(true);
   }
 
@@ -86,6 +128,7 @@ export default function SeriesPage() {
       ano_lancamento: serie.ano_lancamento ?? undefined,
       ano_termino: serie.ano_termino ?? undefined,
     });
+    setGenerosSelecionados(generosPorItem[serie.uuid]?.map((g) => g.uuid) ?? []);
     setModalAberto(true);
   }
 
@@ -138,7 +181,6 @@ export default function SeriesPage() {
 
   async function confirmarExclusao(uuid: string) {
     if (!confirm('Apagar esta série?')) return;
-    // TODO(BACKLOG): trocar confirm() nativo por modal .open
     const ok = await apagarSerie(uuid);
     if (!ok) {
       setErro('Não foi possível apagar a série.');
@@ -147,74 +189,51 @@ export default function SeriesPage() {
     }
   }
 
+  const itensFiltrados = busca
+    ? series.filter((s) => s.titulo.toLowerCase().includes(busca.toLowerCase()))
+    : series;
+
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <h1>Séries</h1>
-        <button className={styles.btnPrimario} onClick={abrirNovo}>
-          + Nova série
-        </button>
-      </div>
+      <BibliotecaBanner
+        titulo="Séries"
+        total={itensFiltrados.length}
+        onAdicionar={abrirNovo}
+        rotuloAdicionar="Nova série"
+      />
 
       {erro && <p className={styles.erro}>{erro}</p>}
 
       {carregando ? (
         <p className={styles.vazio}>Carregando...</p>
-      ) : series.length === 0 ? (
+      ) : itensFiltrados.length === 0 ? (
         <div className={styles.vazio}>
-          <p>Nenhuma série cadastrada ainda.</p>
-          <button className={styles.btnPrimario} onClick={abrirNovo}>
-            Adicionar a primeira
-          </button>
+          <p>{busca ? 'Nenhuma série encontrada para esta busca.' : 'Nenhuma série cadastrada ainda.'}</p>
+          {!busca && (
+            <button className={styles.btnPrimario} onClick={abrirNovo}>
+              Adicionar a primeira
+            </button>
+          )}
         </div>
       ) : (
         <div className={styles.grid}>
-          {series.map((serie) => (
-            <div key={serie.uuid} className={styles.card}>
-              <div className={styles.cardClicavel} onClick={() => setPainelSerie(serie)}>
-                <div className={styles.cardHeader}>
-                  <h3>{serie.titulo}</h3>
-                </div>
-                {serie.diretor && <p className={styles.meta}>Criação: {serie.diretor}</p>}
-                <p className={styles.badge}>{STATUS_LABEL[serie.status] ?? serie.status}</p>
-                <p className={styles.meta}>
-                  T{serie.temporada_atual} · Ep {serie.episodio_atual}
-                </p>
-              </div>
-
-              <div className={styles.menuWrapper}>
-                <button
-                  className={styles.btnIcon}
-                  onClick={() =>
-                    setMenuAbertoUuid(menuAbertoUuid === serie.uuid ? null : serie.uuid)
-                  }
-                  title="Ações"
-                >
-                  ⋯
-                </button>
-                {menuAbertoUuid === serie.uuid && (
-                  <div className={styles.menuDropdown}>
-                    <button
-                      onClick={() => {
-                        setMenuAbertoUuid(null);
-                        abrirEdicao(serie);
-                      }}
-                    >
-                      Editar
-                    </button>
-                    <button
-                      className={styles.menuItemPerigo}
-                      onClick={() => {
-                        setMenuAbertoUuid(null);
-                        confirmarExclusao(serie.uuid);
-                      }}
-                    >
-                      Apagar
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
+          {itensFiltrados.map((serie) => (
+            <BibliotecaCard
+              key={serie.uuid}
+              titulo={serie.titulo}
+              capaUrl={serie.capa_url}
+              favorito={serie.favorito}
+              nota={serie.nota}
+              ano={serie.ano_lancamento}
+              generos={generosPorItem[serie.uuid] ?? []}
+              onClick={() => setPainelSerie(serie)}
+              onEditar={() => abrirEdicao(serie)}
+              onApagar={() => confirmarExclusao(serie.uuid)}
+              menuAberto={menuAbertoUuid === serie.uuid}
+              onAlternarMenu={() =>
+                setMenuAbertoUuid(menuAbertoUuid === serie.uuid ? null : serie.uuid)
+              }
+            />
           ))}
         </div>
       )}
@@ -330,6 +349,16 @@ export default function SeriesPage() {
                   }
                 />
               </label>
+              <div>
+                <div style={{ fontSize: '0.82rem', color: '#aaa', marginBottom: '0.4rem' }}>
+                  Gêneros
+                </div>
+                <SeletorGenero
+                  generos={generos}
+                  selecionados={generosSelecionados}
+                  onChange={setGenerosSelecionados}
+                />
+              </div>
               <label>
                 Roteirista
                 <input

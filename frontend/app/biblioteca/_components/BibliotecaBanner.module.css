@@ -1,0 +1,56 @@
+.banner {
+  background: linear-gradient(135deg, var(--surface) 0%, var(--bg) 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 2rem 1.5rem 1.25rem;
+}
+
+.titulo {
+  font-family: var(--font-titulos, inherit);
+  font-size: 1.6rem;
+  color: var(--text);
+  margin: 0 0 0.5rem;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.contagem {
+  font-size: 0.85rem;
+  color: #888;
+  margin: 0;
+}
+
+.btnAdicionar {
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-weight: 700;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: filter 0.12s;
+  white-space: nowrap;
+}
+
+.btnAdicionar:hover {
+  filter: brightness(1.08);
+}
+
+@media (max-width: 680px) {
+  .banner {
+    padding: 1.25rem 1rem 1rem;
+  }
+
+  .titulo {
+    font-size: 1.25rem;
+  }
+
+  .meta {
+    flex-wrap: wrap;
+  }
+}

@@ -15,6 +15,12 @@ import OpeningsEndingsEditor from '@/components/OpeningsEndingsEditor';
 import TemporadasAnimeEditor from '@/components/TemporadasAnimesEditor';
 import ComplementosEditor from '@/components/ComplementosEditor';
 import OrdemConsumoEditor from '@/components/OrdemConsumoEditor';
+import SeletorGenero from '@/components/SeletorGenero';
+import BibliotecaBanner from './BibliotecaBanner';
+import BibliotecaCard from './BibliotecaCard';
+import { sb, getUserId } from '@/lib/supabase';
+import { getGeneros, getGenerosDoItem } from '@/lib/generos';
+import type { Genero } from '@/lib/generos';
 import styles from '../filmes/page.module.css';
 
 const STATUS_LABEL: Record<string, string> = {
@@ -41,7 +47,12 @@ const FORM_VAZIO: AnimeInput = {
   comentario: '',
 };
 
-export default function AnimesPage() {
+interface AnimesSectionProps {
+  gatilhoAdicionar: number;
+  busca?: string;
+}
+
+export default function AnimesSection({ gatilhoAdicionar, busca = '' }: AnimesSectionProps) {
   const [animes, setAnimes] = useState<Anime[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
@@ -54,6 +65,30 @@ export default function AnimesPage() {
   const [menuAbertoUuid, setMenuAbertoUuid] = useState<string | null>(null);
   const [painelAnime, setPainelAnime] = useState<Anime | null>(null);
 
+  const [generos, setGeneros] = useState<Genero[]>([]);
+  const [generosSelecionados, setGenerosSelecionados] = useState<string[]>([]);
+  const [generosPorItem, setGenerosPorItem] = useState<Record<string, Genero[]>>({});
+
+  async function carregarGeneros() {
+    const userId = await getUserId();
+    if (!userId) return;
+    const lista = await getGeneros(sb, userId);
+    setGeneros(lista);
+  }
+
+  async function carregarGenerosDosItens(lista: Anime[]) {
+    const userId = await getUserId();
+    if (!userId) return;
+    const mapa: Record<string, Genero[]> = {};
+    for (const item of lista) {
+      const uuids = await getGenerosDoItem(sb, userId, 'animes', item.uuid);
+      mapa[item.uuid] = uuids
+        .map((uid) => generos.find((g) => g.uuid === uid))
+        .filter((g): g is Genero => g != null);
+    }
+    setGenerosPorItem(mapa);
+  }
+
   async function carregar() {
     setCarregando(true);
     setErro(null);
@@ -62,17 +97,24 @@ export default function AnimesPage() {
       setErro('Não foi possível carregar os animes.');
     } else {
       setAnimes(resultado);
+      await carregarGenerosDosItens(resultado);
     }
     setCarregando(false);
   }
 
   useEffect(() => {
     carregar();
+    carregarGeneros();
   }, []);
+
+  useEffect(() => {
+    if (gatilhoAdicionar > 0) abrirNovo();
+  }, [gatilhoAdicionar]);
 
   function abrirNovo() {
     setEditandoUuid(null);
     setForm(FORM_VAZIO);
+    setGenerosSelecionados([]);
     setModalAberto(true);
   }
 
@@ -97,6 +139,7 @@ export default function AnimesPage() {
       compositor: anime.compositor ?? '',
       comentario: anime.comentario ?? '',
     });
+    setGenerosSelecionados(generosPorItem[anime.uuid]?.map((g) => g.uuid) ?? []);
     setModalAberto(true);
   }
 
@@ -125,7 +168,6 @@ export default function AnimesPage() {
 
   async function confirmarExclusao(uuid: string) {
     if (!confirm('Apagar este anime?')) return;
-    // TODO(BACKLOG): trocar confirm() nativo por modal .open
     const ok = await apagarAnime(uuid);
     if (!ok) {
       setErro('Não foi possível apagar o anime.');
@@ -159,74 +201,54 @@ export default function AnimesPage() {
     return campos;
   }
 
+  const itensFiltrados = busca
+    ? animes.filter((a) => {
+        const titulo = (a.nome_traduzido || a.nome_original).toLowerCase();
+        return titulo.includes(busca.toLowerCase());
+      })
+    : animes;
+
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <h1>Animes</h1>
-        <button className={styles.btnPrimario} onClick={abrirNovo}>
-          + Novo anime
-        </button>
-      </div>
+      <BibliotecaBanner
+        titulo="Animes"
+        total={itensFiltrados.length}
+        onAdicionar={abrirNovo}
+        rotuloAdicionar="Novo anime"
+      />
 
       {erro && <p className={styles.erro}>{erro}</p>}
 
       {carregando ? (
         <p className={styles.vazio}>Carregando...</p>
-      ) : animes.length === 0 ? (
+      ) : itensFiltrados.length === 0 ? (
         <div className={styles.vazio}>
-          <p>Nenhum anime cadastrado ainda.</p>
-          <button className={styles.btnPrimario} onClick={abrirNovo}>
-            Adicionar o primeiro
-          </button>
+          <p>{busca ? 'Nenhum anime encontrado para esta busca.' : 'Nenhum anime cadastrado ainda.'}</p>
+          {!busca && (
+            <button className={styles.btnPrimario} onClick={abrirNovo}>
+              Adicionar o primeiro
+            </button>
+          )}
         </div>
       ) : (
         <div className={styles.grid}>
-          {animes.map((anime) => (
-            <div key={anime.uuid} className={styles.card}>
-              <div className={styles.cardClicavel} onClick={() => setPainelAnime(anime)}>
-                <div className={styles.cardHeader}>
-                  <h3>{anime.nome_traduzido || anime.nome_original}</h3>
-                </div>
-                {anime.nome_traduzido && (
-                  <p className={styles.meta}>{anime.nome_original}</p>
-                )}
-                <p className={styles.badge}>{STATUS_LABEL[anime.status] ?? anime.status}</p>
-                {anime.ano_lancamento && <p className={styles.meta}>{anime.ano_lancamento}</p>}
-              </div>
-
-              <div className={styles.menuWrapper}>
-                <button
-                  className={styles.btnIcon}
-                  onClick={() =>
-                    setMenuAbertoUuid(menuAbertoUuid === anime.uuid ? null : anime.uuid)
-                  }
-                  title="Ações"
-                >
-                  ⋯
-                </button>
-                {menuAbertoUuid === anime.uuid && (
-                  <div className={styles.menuDropdown}>
-                    <button
-                      onClick={() => {
-                        setMenuAbertoUuid(null);
-                        abrirEdicao(anime);
-                      }}
-                    >
-                      Editar
-                    </button>
-                    <button
-                      className={styles.menuItemPerigo}
-                      onClick={() => {
-                        setMenuAbertoUuid(null);
-                        confirmarExclusao(anime.uuid);
-                      }}
-                    >
-                      Apagar
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
+          {itensFiltrados.map((anime) => (
+            <BibliotecaCard
+              key={anime.uuid}
+              titulo={anime.nome_traduzido || anime.nome_original}
+              capaUrl={anime.capa_url}
+              favorito={anime.favorito}
+              nota={anime.nota}
+              ano={anime.ano_lancamento}
+              generos={generosPorItem[anime.uuid] ?? []}
+              onClick={() => setPainelAnime(anime)}
+              onEditar={() => abrirEdicao(anime)}
+              onApagar={() => confirmarExclusao(anime.uuid)}
+              menuAberto={menuAbertoUuid === anime.uuid}
+              onAlternarMenu={() =>
+                setMenuAbertoUuid(menuAbertoUuid === anime.uuid ? null : anime.uuid)
+              }
+            />
           ))}
         </div>
       )}
@@ -332,6 +354,16 @@ export default function AnimesPage() {
                   }
                 />
               </label>
+              <div>
+                <div style={{ fontSize: '0.82rem', color: '#aaa', marginBottom: '0.4rem' }}>
+                  Gêneros
+                </div>
+                <SeletorGenero
+                  generos={generos}
+                  selecionados={generosSelecionados}
+                  onChange={setGenerosSelecionados}
+                />
+              </div>
               <label>
                 Direção
                 <input
