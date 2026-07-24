@@ -1,56 +1,138 @@
 .banner {
+  position: relative;
+  height: 168px;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: var(--bg);
+  /* full-bleed: sem margem lateral, encosta na sidebar — o gap anterior
+     vinha do padding do .container em BibliotecaSection.module.css, que
+     também envolvia o banner. Agora o banner fica FORA desse container
+     (ver instrução de estrutura das 6 Sections). */
+}
+
+.imagemUnica {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+}
+
+.mosaico {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+}
+
+.mosaicoItem {
+  background-size: cover;
+  background-position: center;
+}
+
+.mosaicoFallback {
+  position: absolute;
+  inset: 0;
   background: linear-gradient(135deg, var(--surface) 0%, var(--bg) 100%);
-  border-bottom: 1px solid var(--border);
-  padding: 2rem 1.5rem 1.25rem;
+}
+
+.topoOverlay {
+  position: absolute;
+  inset: 0 0 auto 0;
+  display: flex;
+  align-items: center;
+  padding: 1rem 2rem;
+  z-index: 2;
+  background: linear-gradient(180deg, rgba(12, 12, 20, 0.55) 0%, transparent 100%);
+}
+
+.selo {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: rgba(237, 233, 225, 0.55);
+  margin: 0;
+}
+
+.transicao {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 110px;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent 10%, rgba(12, 12, 20, 0.65) 55%, var(--bg) 100%);
+}
+
+.tituloWrapper {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 1rem;
+  z-index: 2;
 }
 
 .titulo {
-  font-family: var(--font-titulos, inherit);
-  font-size: 1.6rem;
+  text-align: center;
+  line-height: 1;
+  margin: 0;
+  font-family: var(--font-titulos, 'Syne', inherit);
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(2.4rem, 5vw, 4rem);
   color: var(--text);
-  margin: 0 0 0.5rem;
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 32px rgba(12, 12, 20, 0.9);
 }
 
-.meta {
+.subHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  flex-wrap: wrap;
+  padding: 1.25rem 2rem 0;
 }
 
 .contagem {
   font-size: 0.85rem;
-  color: #888;
+  color: var(--texto-secundario);
   margin: 0;
 }
 
 .btnAdicionar {
-  background: var(--accent);
-  color: var(--bg);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: var(--accent-wash-forte);
+  color: var(--accent);
   border: none;
   border-radius: 8px;
   padding: 0.5rem 1rem;
-  font-weight: 700;
-  font-size: 0.82rem;
+  font-weight: 600;
+  font-size: 0.78rem;
   cursor: pointer;
   transition: filter 0.12s;
   white-space: nowrap;
 }
 
 .btnAdicionar:hover {
-  filter: brightness(1.08);
+  filter: brightness(1.15);
 }
 
 @media (max-width: 680px) {
   .banner {
-    padding: 1.25rem 1rem 1rem;
+    height: 130px;
   }
 
-  .titulo {
-    font-size: 1.25rem;
+  .topoOverlay {
+    padding: 0.85rem 1.1rem;
   }
 
-  .meta {
-    flex-wrap: wrap;
+  .mosaico {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .subHeader {
+    padding: 1rem 1.1rem 0;
   }
 }

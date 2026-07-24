@@ -45,6 +45,9 @@ Chaves estrangeiras seguem `<tabela_singular>_uuid` (ex: `treino_uuid`, `materia
 | `011_biblioteca_v2_b4_mangas.sql` | ✅ Executado no Supabase (2026-07-18) | Biblioteca v2 sub-fase B4: colunas de publicação em `mangas` (`titulo_traduzido`, `editora`, `status_publicacao`, período), tabela `mangas_volumes` (volumes agrupados por arco, com cor de identificação). Ver DEC-028 |
 | `012_biblioteca_v2_b5_livros.sql` | ✅ Executado no Supabase (2026-07-18) | Biblioteca v2 sub-fase B5: colunas bibliográficas/leitura em `livros` (`editora`, `idioma`, `formato`, `ano_publicacao`), tabela `livros_anotacoes` (anotações e citações favoritas). Ver DEC-029 |
 | `013_biblioteca_v2_b6_podcasts.sql` | ✅ Executado no Supabase (2026-07-18) | Biblioteca v2 sub-fase B6: coluna `produtora` em `podcasts` (sai do prefixo solto em `comentario`, ver DEC-016). Sem tabela nova. Ver DEC-030 |
+| `014_nota_escala_dez.sql` | 🔄 Criada, execução pendente | Altera `nota` de `NUMERIC(2,1)` (1-5) para `NUMERIC(3,1)` (0-10) nas 6 tabelas de mídia da Biblioteca + constraint de faixa. Ver DEC-033 |
+| `015_estudos_v2.sql` | 🔄 Criada, execução pendente | Estudos v2 (Fase 1/núcleo): substitui `assuntos`/`anotacoes`/`documentos_estudo`/`sessoes_questoes` por `conteudos`/`anotacoes_estudo`/`materiais_estudo`/`questoes_individuais`; adiciona `sessoes_estudo`, `simulados`, `redacoes`. `materias` mantida sem alteração. Ver DEC-035 |
+| `016_estudos_v2_fase1b.sql` | ✅ Executado e verificado no Supabase (2026-07-23) | Estudos v2 Fase 1B: conteúdos passam a N:N com matérias (`conteudos_materias`), suporte a Cursos (`modulos_curso`), `atividades` (Escola/Curso), `provas` (agendamento/oficial), gabarito individual em `questoes_individuais` (`prova_uuid`/`numero`/`motivo_erro`), `simulados` ganha `conteudo_uuid` (dispara SM-2) e `redacao_uuid`, `materias` ganha campos de curso, `redacoes` ganha notas por competência. Ver DEC-036 |
 
 **Convenção para novas migrações:** numeração sequencial de 3 dígitos + nome do módulo em snake_case (`00N_nome-modulo.sql`). Depois de rodar no SQL Editor, atualizar a tabela acima e a seção correspondente deste documento.
 
@@ -248,7 +251,7 @@ capa_path        TEXT,   -- fallback, upload manual no bucket 'capas'
 paginas_total    INTEGER,
 pagina_atual     INTEGER DEFAULT 0,
 status           TEXT DEFAULT 'quero_ler',
-nota             INTEGER,  -- 1-10
+nota             NUMERIC(3,1),  -- 0.0 a 10.0, ver DEC-033
 comentario       TEXT,
 data_inicio      DATE,
 data_fim         DATE,
@@ -266,7 +269,7 @@ tmdb_id     TEXT,
 capa_url    TEXT,
 capa_path   TEXT,
 status      TEXT DEFAULT 'quero_ver',
-nota        INTEGER,
+nota        NUMERIC(3,1),  -- 0.0 a 10.0, ver DEC-033
 comentario  TEXT,
 data_inicio DATE,
 data_fim    DATE,
@@ -286,7 +289,7 @@ capa_path        TEXT,
 temporada_atual  INTEGER DEFAULT 1,
 episodio_atual   INTEGER DEFAULT 0,
 status           TEXT DEFAULT 'quero_ver',
-nota             INTEGER,
+nota             NUMERIC(3,1),  -- 0.0 a 10.0, ver DEC-033
 comentario       TEXT,
 data_inicio      DATE,
 data_fim         DATE,
@@ -305,7 +308,7 @@ capa_url         TEXT,
 capa_path        TEXT,
 capitulo_atual   INTEGER DEFAULT 0,
 status           TEXT DEFAULT 'quero_ler',
-nota             INTEGER,
+nota             NUMERIC(3,1),  -- 0.0 a 10.0, ver DEC-033
 comentario       TEXT,
 data_inicio      DATE,
 data_fim         DATE,
@@ -323,7 +326,7 @@ capa_url        TEXT,   -- prioritária, vem da iTunes Search API
 capa_path       TEXT,   -- sem capa_url: podcasts não têm API de metadados definida ainda
 episodio_atual  INTEGER DEFAULT 0,
 status          TEXT DEFAULT 'ouvindo',
-nota            INTEGER,
+nota            NUMERIC(3,1),  -- 0.0 a 10.0, ver DEC-033
 comentario      TEXT,
 data_inicio     DATE,
 data_fim        DATE,
@@ -538,7 +541,7 @@ character_designer       TEXT,
 animador_chefe           TEXT,
 compositor               TEXT,
 status                   TEXT DEFAULT 'quero_ver',  -- mesmos valores de 'series'
-nota                     NUMERIC(2,1),
+nota                     NUMERIC(3,1),  -- 0.0 a 10.0, ver DEC-033
 comentario               TEXT,
 data_inicio              DATE,
 data_fim                 DATE,
@@ -696,6 +699,137 @@ migração automática dos dados antigos (só dados de teste existentes até
 agora, mesmo raciocínio de DEC-023). Ver DEC-030.
 
 ---
+NOVO BLOCO A INSERIR:
+
+## Schema — `015_estudos_v2.sql`
+
+Substitui `assuntos`, `anotacoes`, `documentos_estudo`, `sessoes_questoes`
+(v1, `002_estudos.sql`) — ver DEC-035. `materias` mantida sem alteração.
+
+### `conteudos` (substitui `assuntos`)
+```sql
+uuid         TEXT PRIMARY KEY,
+user_id      UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+nome         TEXT NOT NULL,
+progresso    INTEGER DEFAULT 0,
+revisao_uuid TEXT,   -- FK polimórfica pra revisao_espacada.uuid, sem REFERENCES físico
+modulo_curso_uuid TEXT REFERENCES modulos_curso(uuid),  -- nullable, só usado quando o conteúdo é aula de curso
+updated_at   TIMESTAMPTZ DEFAULT NOW(),
+deleted      BOOLEAN DEFAULT FALSE
+```
+
+> ⚠️ **Alterado em `016_estudos_v2_fase1b.sql` (DEC-036):** `materia_uuid`
+> removido. Um conteúdo não pertence mais a uma matéria só — o vínculo agora
+> é N:N via `conteudos_materias` (ver seção `016` abaixo), permitindo o
+> mesmo conteúdo (ex: "Funções") ser compartilhado entre ENEM e Escola com
+> um único checklist/progresso.
+
+### `anotacoes_estudo` (substitui `anotacoes`)
+```sql
+uuid          TEXT PRIMARY KEY,
+user_id       UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+materia_uuid  TEXT NOT NULL REFERENCES materias(uuid),
+conteudo_uuid TEXT REFERENCES conteudos(uuid),  -- nullable: anotação geral da matéria
+titulo        TEXT,
+corpo         TEXT NOT NULL,
+updated_at    TIMESTAMPTZ DEFAULT NOW(),
+deleted       BOOLEAN DEFAULT FALSE
+```
+
+### `materiais_estudo` (substitui `documentos_estudo`)
+```sql
+uuid          TEXT PRIMARY KEY,
+user_id       UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+conteudo_uuid TEXT NOT NULL REFERENCES conteudos(uuid),
+tipo          TEXT NOT NULL DEFAULT 'link',  -- 'link' | 'pdf' | 'video' | 'livro' | 'outro'
+titulo        TEXT NOT NULL,
+url           TEXT,
+arquivo_path  TEXT,   -- bucket 'documentos'
+updated_at    TIMESTAMPTZ DEFAULT NOW(),
+deleted       BOOLEAN DEFAULT FALSE
+```
+
+### `sessoes_estudo` (novo)
+```sql
+uuid             TEXT PRIMARY KEY,
+user_id          UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+materia_uuid     TEXT NOT NULL REFERENCES materias(uuid),
+conteudo_uuid    TEXT REFERENCES conteudos(uuid),
+inicio           TIMESTAMPTZ NOT NULL,
+fim              TIMESTAMPTZ,
+duracao_minutos  INTEGER,
+observacoes      TEXT,
+updated_at       TIMESTAMPTZ DEFAULT NOW(),
+deleted          BOOLEAN DEFAULT FALSE
+```
+
+### `questoes_individuais` (substitui `sessoes_questoes`)
+```sql
+uuid          TEXT PRIMARY KEY,
+user_id       UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+materia_uuid  TEXT NOT NULL REFERENCES materias(uuid),
+conteudo_uuid TEXT REFERENCES conteudos(uuid),
+acertou       BOOLEAN NOT NULL,
+data          DATE NOT NULL,
+prova_uuid    TEXT REFERENCES provas(uuid),   -- nullable, vincula a questão ao gabarito de uma prova específica
+numero        INTEGER,                          -- nullable, posição da questão dentro da área (ex: 1 a 45 no ENEM)
+motivo_erro   TEXT,                             -- nullable, preenchido só quando acertou = false
+updated_at    TIMESTAMPTZ DEFAULT NOW(),
+deleted       BOOLEAN DEFAULT FALSE
+```
+> Alterado em `016_estudos_v2_fase1b.sql` (DEC-036). Sem `prova_uuid`, uma
+> linha aqui é uma questão avulsa (uso já previsto na Fase 1). Com
+> `prova_uuid` preenchido, é uma questão do gabarito digital de uma prova
+> oficial (ex: 90 linhas pro dia 1 do ENEM).
+
+### `simulados` (novo)
+```sql
+uuid            TEXT PRIMARY KEY,
+user_id         UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+materia_uuid    TEXT REFERENCES materias(uuid),  -- nullable: multi-matéria
+data            DATE NOT NULL,
+total_questoes  INTEGER NOT NULL,
+total_acertos   INTEGER NOT NULL DEFAULT 0,
+tempo_minutos   INTEGER,
+observacoes     TEXT,
+conteudo_uuid   TEXT REFERENCES conteudos(uuid),  -- nullable; quando preenchido, dispara cálculo de SM-2 do conteúdo
+redacao_uuid    TEXT REFERENCES redacoes(uuid),   -- nullable; só usado em simulado do dia 1 do ENEM (com redação)
+
+updated_at      TIMESTAMPTZ DEFAULT NOW(),
+deleted         BOOLEAN DEFAULT FALSE
+```
+Alterado em `016_estudos_v2_fase1b.sql` (DEC-036). **Regra de negócio
+> importante:** só `simulados` (sessão informal por conteúdo) alimenta
+> `revisao_espacada`/SM-2. `provas` (evento oficial) nunca influencia
+> revisão espaçada, mesmo tendo `conteudo_uuid` indiretamente via
+> `questoes_individuais`.
+### `redacoes` (novo)
+```sql
+uuid        TEXT PRIMARY KEY,
+user_id     UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+tema        TEXT NOT NULL,
+texto       TEXT NOT NULL,
+nota        NUMERIC(4,1),
+comentario  TEXT,
+data        DATE NOT NULL,
+competencia_1 NUMERIC(5,1),  -- 0 a 200, domínio da norma culta
+competencia_2 NUMERIC(5,1),  -- 0 a 200, compreensão do tema
+competencia_3 NUMERIC(5,1),  -- 0 a 200, argumentação
+competencia_4 NUMERIC(5,1),  -- 0 a 200, coesão textual
+competencia_5 NUMERIC(5,1),  -- 0 a 200, proposta de intervenção
+updated_at  TIMESTAMPTZ DEFAULT NOW(),
+deleted     BOOLEAN DEFAULT FALSE
+```
+> Alterado em `016_estudos_v2_fase1b.sql` (DEC-036). `nota` continua como
+> nota geral (soma ou nota final, a critério do frontend); as 5 competências
+> seguem o critério oficial do ENEM (0-200 cada, total 1000), reaproveitado
+> também pra redações de Escola mesmo com escala real diferente lá.
+
+
+### Tabelas descontinuadas
+`assuntos`, `anotacoes`, `documentos_estudo`, `sessoes_questoes` — removidas
+em `015_estudos_v2.sql`. Sem dados relevantes perdidos (confirmado uso de
+teste). Ver DEC-035.
 
 ## Storage
 
@@ -776,3 +910,92 @@ e foram confundidos durante uma correção automática. Corrigido em 2026-07-18.
 Atenção redobrada ao reaproveitar `Cline`/IA para correções em massa quando
 existem múltiplos componentes com a mesma "forma" (`VolumesEditor` ↔
 `AnotacoesLivroEditor`, `TemporadasEditor` ↔ `TemporadasAnimeEditor`).
+
+## Schema — `016_estudos_v2_fase1b.sql`
+
+Fase 1B do Estudos v2 (DEC-036). Refina a Fase 1 (`015`) com conteúdo
+compartilhado entre módulos, hierarquia de Curso, Prova como estrutura
+distinta de Simulado, e gabarito digital.
+
+### `conteudos_materias` (novo — N:N, substitui `conteudos.materia_uuid`)
+```sql
+uuid          TEXT PRIMARY KEY,
+user_id       UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+conteudo_uuid TEXT NOT NULL REFERENCES conteudos(uuid),
+materia_uuid  TEXT NOT NULL REFERENCES materias(uuid),
+updated_at    TIMESTAMPTZ DEFAULT NOW(),
+deleted       BOOLEAN DEFAULT FALSE
+```
+Índice parcial em `(conteudo_uuid, materia_uuid) WHERE NOT deleted`. Um
+conteúdo com 2 linhas aqui (uma pra matéria "Matemática" tipo `enem`, outra
+pra "Matemática" tipo `escola`) é o caso de conteúdo compartilhado descrito
+na DEC-036.
+
+### `modulos_curso` (novo)
+```sql
+uuid        TEXT PRIMARY KEY,
+user_id     UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+materia_uuid TEXT NOT NULL REFERENCES materias(uuid),  -- o curso
+nome        TEXT NOT NULL,
+ordem       INTEGER DEFAULT 0,
+updated_at  TIMESTAMPTZ DEFAULT NOW(),
+deleted     BOOLEAN DEFAULT FALSE
+```
+Índice parcial em `materia_uuid WHERE NOT deleted`. Só usado quando
+`materias.tipo = 'curso'`. `conteudos.modulo_curso_uuid` referencia esta
+tabela para formar a hierarquia Curso → Módulo → Aula.
+
+### `atividades` (novo — Escola e Curso)
+```sql
+uuid          TEXT PRIMARY KEY,
+user_id       UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+materia_uuid  TEXT NOT NULL REFERENCES materias(uuid),
+titulo        TEXT NOT NULL,
+data_entrega  DATE,
+feita         BOOLEAN DEFAULT FALSE,
+entregue      BOOLEAN DEFAULT FALSE,
+observacoes   TEXT,
+updated_at    TIMESTAMPTZ DEFAULT NOW(),
+deleted       BOOLEAN DEFAULT FALSE
+```
+Índice parcial em `materia_uuid WHERE NOT deleted`. Backup funcional do
+caderno — não guarda o conteúdo da atividade em si, só o registro de
+"pendente/feita/entregue".
+
+### `provas` (novo — evento oficial, diferente de `simulados`)
+```sql
+uuid          TEXT PRIMARY KEY,
+user_id       UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+materia_uuid  TEXT REFERENCES materias(uuid),   -- nullable: prova de ENEM cobre 2 áreas, granularidade fica em questoes_individuais
+tipo          TEXT NOT NULL DEFAULT 'escola',   -- 'escola' | 'enem_dia1' | 'enem_dia2' | 'curso' | 'outro'
+conteudo_uuid TEXT REFERENCES conteudos(uuid),  -- nullable, uso principal na Escola
+titulo        TEXT,
+data          DATE NOT NULL,
+tempo_minutos INTEGER,                          -- duração real, uso principal ENEM (timer de fundo)
+redacao_uuid  TEXT REFERENCES redacoes(uuid),   -- nullable, só dia 1 do ENEM
+nota          NUMERIC(5,1),
+feita         BOOLEAN DEFAULT FALSE,
+observacoes   TEXT,
+updated_at    TIMESTAMPTZ DEFAULT NOW(),
+deleted       BOOLEAN DEFAULT FALSE
+```
+Índice parcial em `data WHERE NOT deleted`. Alimenta o card "próximas
+provas" (contagem regressiva) no dashboard geral de Estudos e no dashboard
+de cada matéria. **Nunca dispara SM-2** — só `simulados.conteudo_uuid` faz
+isso (ver DEC-036).
+
+### Tabelas alteradas por esta migration
+`conteudos` (perde `materia_uuid`, ganha `modulo_curso_uuid`),
+`questoes_individuais` (ganha `prova_uuid`, `numero`, `motivo_erro`),
+`simulados` (ganha `conteudo_uuid`, `redacao_uuid`), `redacoes` (ganha as 5
+colunas de competência), `materias` (ganha os 6 campos de Curso — ver bloco
+abaixo). Blocos originais já atualizados nas seções correspondentes acima.
+### `materias` — campos novos (uso exclusivo quando `tipo = 'curso'`)
+```sql
+plataforma                TEXT,      -- Udemy, Alura, YouTube, etc.
+carga_horaria_total_horas NUMERIC(6,1),
+horas_dedicadas           NUMERIC(6,1) DEFAULT 0,  -- preenchido manualmente, sem integração automática (ver DEC-036 — YPT sem API pública)
+certificado_path          TEXT,      -- upload PDF, bucket 'documentos'
+concluido                 BOOLEAN DEFAULT FALSE,
+data_conclusao             DATE
+```

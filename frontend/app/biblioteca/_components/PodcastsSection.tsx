@@ -17,7 +17,7 @@ import BibliotecaCard from './BibliotecaCard';
 import { sb, getUserId } from '@/lib/supabase';
 import { getGeneros, getGenerosDoItem } from '@/lib/generos';
 import type { Genero } from '@/lib/generos';
-import styles from '../filmes/page.module.css';
+import styles from './BibliotecaSection.module.css';
 
 const STATUS_LABEL: Record<string, string> = {
   quero_ouvir: 'Quero ouvir',
@@ -37,9 +37,10 @@ const FORM_VAZIO: PodcastInput = {
 interface PodcastsSectionProps {
   gatilhoAdicionar: number;
   busca?: string;
+  onTotalCarregado?: (total: number) => void;
 }
 
-export default function PodcastsSection({ gatilhoAdicionar, busca = '' }: PodcastsSectionProps) {
+export default function PodcastsSection({ gatilhoAdicionar, busca = '', onTotalCarregado }: PodcastsSectionProps) {
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
@@ -84,6 +85,7 @@ export default function PodcastsSection({ gatilhoAdicionar, busca = '' }: Podcas
       setErro('Não foi possível carregar os podcasts.');
     } else {
       setPodcasts(resultado);
+      onTotalCarregado?.(resultado.length);
       await carregarGenerosDosItens(resultado);
     }
     setCarregando(false);
@@ -157,7 +159,7 @@ export default function PodcastsSection({ gatilhoAdicionar, busca = '' }: Podcas
     if (podcast.produtora) campos.push({ label: 'Produtora', valor: podcast.produtora });
     campos.push({ label: 'Status', valor: STATUS_LABEL[podcast.status] ?? podcast.status });
     campos.push({ label: 'Episódio atual', valor: String(podcast.episodio_atual) });
-    if (podcast.nota != null) campos.push({ label: 'Nota', valor: `${podcast.nota} / 5` });
+    if (podcast.nota != null) campos.push({ label: 'Nota', valor: `${podcast.nota} / 10` });
     if (podcast.comentario) campos.push({ label: 'Comentário', valor: podcast.comentario });
     return campos;
   }
@@ -167,12 +169,14 @@ export default function PodcastsSection({ gatilhoAdicionar, busca = '' }: Podcas
     : podcasts;
 
   return (
-    <div className={styles.container}>
+    <>
       <BibliotecaBanner
         titulo="Podcasts"
-        total={itensFiltrados.length}
+        total={podcasts.length}
         onAdicionar={abrirNovo}
-        rotuloAdicionar="Novo podcast"
+        rotuloAdicionar="Novo filme"
+        capas={podcasts.map((f) => f.capa_url)}
+        imagemFundo="/biblioteca/banners/podcasts.jpg"
       />
 
       {erro && <p className={styles.erro}>{erro}</p>}
@@ -264,11 +268,11 @@ export default function PodcastsSection({ gatilhoAdicionar, busca = '' }: Podcas
                 />
               </label>
               <label>
-                Nota (0 a 5, meia estrela)
+                Nota (0 a 10)
                 <input
                   type="number"
                   min={0}
-                  max={5}
+                  max={10}
                   step={0.5}
                   inputMode="decimal"
                   value={form.nota ?? ''}
@@ -321,7 +325,7 @@ export default function PodcastsSection({ gatilhoAdicionar, busca = '' }: Podcas
           capaUrl={painelPodcast.capa_url}
           infoGeral={montarInfoGeral(painelPodcast)}
         />
-      )}
-    </div>
+      )}  
+    </>
   );
 }

@@ -112,3 +112,287 @@ da Biblioteca, ver TASKS_NOW.md.
 
 **Nota:** `favorito BOOLEAN` já existe desde DEC-023 — o coração do card novo
 não exige schema novo, só exibição condicional no frontend.
+
+## DEC-034 — Nova identidade visual do sistema (dourado/âmbar sobre preto), substitui a paleta verde-limão original
+
+**Data:** 2026-07-20
+**Status:** ✅ Aprovada · ✅ Aplicada (`globals.css`, `DESIGN.md`, Biblioteca)
+
+### Contexto
+O usuário desenhou uma referência de dashboard no Figma Make (export completo
+recebido: `theme.css`, `App.tsx`) para a Biblioteca v2, com uma identidade
+visual diferente da paleta original do projeto (verde-limão sobre preto,
+`DESIGN.md` desde a v1). Ao revisar a referência, o usuário decidiu adotar
+essa nova paleta em **todo o sistema**, não só na Biblioteca — decisão
+tomada explicitamente quando perguntado sobre o escopo da mudança.
+
+### Decisão
+Paleta trocada de verde-limão para dourado/âmbar, valores extraídos direto
+do `theme.css` do export do Figma:
+
+```css
+--bg:      #0c0c14
+--surface: #13131f
+--border:  rgba(255, 255, 255, 0.07)
+--accent:  #c9a96e
+--text:    #ede9e1
+--texto-secundario: #8a8799
+```
+
+Trocado no `:root` de `globals.css` — como todo componente do projeto já
+consome essas variáveis via CSS Modules (nunca cor solta), a mudança
+cascateia automaticamente para Treino, Estudos e qualquer módulo futuro,
+sem precisar editar CSS por página. `DESIGN.md` atualizado para refletir os
+novos valores como fonte da verdade.
+
+**Decisão de escopo dentro da mudança:** não foi copiado o rótulo "Premium"
+que aparecia no protótipo do Figma abaixo do nome do usuário — é um rótulo
+de plano pago, incompatível com o princípio de sistema pessoal sem
+monetização (`PROJECT_PRINCIPLES.md` #2). Substituído por um subtítulo
+neutro ("Sistema Pessoal").
+
+**Decisão de fonte:** o Figma usa "Fraunces" para títulos em itálico — fonte
+que não existe no projeto (só `Syne` e `JetBrains Mono`, self-hosted).
+Mantido `Syne` em itálico como substituto, para não introduzir uma
+dependência de fonte nova sem necessidade real (`PROJECT_PRINCIPLES.md` #6).
+Se o usuário quiser a Fraunces de verdade no futuro, precisa ser baixada
+como `.woff2` local, não carregada de CDN.
+
+**Decisão sobre imagens de fundo:** o protótipo do Figma usava fotos do
+Unsplash como placeholder (avatar de perfil, banner de categoria, capas dos
+cards de exemplo). Nenhuma dessas URLs externas foi levada pro código de
+produção — dependência externa desnecessária e risco de direito autoral
+sobre fotos de terceiros. Resolvido assim:
+- Banner de categoria: aceita uma imagem estática opcional por categoria em
+  `public/biblioteca/banners/{categoria}.jpg` (arquivo local do projeto); na
+  ausência dela, cai automaticamente num mosaico borrado das capas reais já
+  cadastradas pelo usuário (`capa_url` de cada item); na ausência de capas
+  também, cai num gradiente escuro liso
+- Avatar/background de perfil: lido de `user_metadata` do Supabase Auth
+  (`avatar_url`, `background_url`), sem tabela nova — cai em fallback de
+  inicial do nome se vazio
+
+### Alternativas consideradas
+Nenhuma alternativa formal — decisão de design pura, e por princípio
+(`PROJECT_PRINCIPLES.md`, seção de fluxo de trabalho) decisões de cor/visual
+são prerrogativa do usuário, não pauta de análise técnica de trade-off.
+
+### Impacto
+- `DESIGN.md` → seção Paleta de cores reescrita com os valores acima, mais
+  seção nova documentando os padrões de Sidebar (faixa de perfil), Banner
+  (hero com transição) e Card, para reuso em módulos futuros
+- `app/globals.css` → bloco `:root` atualizado
+- Nenhum componente antigo (Treino, Estudos) foi tocado diretamente — a
+  cascata de CSS Modules já resolve a atualização visual neles
+- Biblioteca v2 recebeu, na mesma leva, um redesign de estrutura (não só de
+  cor) para se aproximar da referência do Figma — ver `CHANGELOG.md` para o
+  detalhamento de Sidebar/Banner/Card
+
+## DEC-035 — Estudos v2: schema novo do zero, reaproveitando Revisão Espaçada existente (Fase 1 / núcleo)
+
+**Data:** 2026-07-20 (planejamento Fase 7.3)
+**Status:** ✅ Aprovada · 🔄 Migration criada (`015_estudos_v2.sql`), execução pendente
+
+### Contexto
+Usuário trouxe um rascunho de escopo amplo para Estudos v2 (hierarquia
+Categoria → Área/Disciplina → Conteúdo, com flashcards próprios, integração
+Anki, calendário acadêmico próprio, cursos, sistema de revisão por checklist
+fixo paralelo à Revisão Espaçada já existente). Análise identificou 3
+sobreposições reais com módulos já construídos ou planejados:
+1. Checklist de revisão fixo (1/3/7/14/30 dias) duplicava, de forma pior
+   (intervalos fixos vs. adaptativos), o SM-2 já implementado em
+   `revisao_espacada`/`sm2.js`.
+2. "Calendário acadêmico" duplicava o módulo Agenda (`VISION.md`, ainda não
+   dedicado, mas já reconhecido como pendência própria).
+3. Flashcards/Anki e Cursos são escopo de produto próprio, desproporcional
+   ao módulo (princípio 11, `PROJECT_PRINCIPLES.md`).
+
+Decisão de fasear: núcleo (Fase 1) cobre o que foi confirmado com o usuário;
+Cursos, Flashcards/Anki, Redação versionada e Calendário próprio ficam
+registrados como Fase 2 em `BACKLOG.md`/`VISION.md`, não descartados.
+
+### Decisão
+- **Revisão de conteúdo reaproveita `revisao_espacada` sem alteração de
+  schema** — cada conteúdo pode ter um card associado (`modulo = 'estudos'`,
+  `referencia_uuid = conteudos.uuid`). Diferente do uso original (flashcard
+  pergunta→resposta), aqui o card funciona como **lembrete** ("revisar tal
+  conteúdo"), sem resposta esperada — `pergunta` guarda o rótulo do
+  conteúdo, `resposta` fica vazia. Nenhuma mudança de schema necessária, só
+  de convenção de uso.
+- **Categorias (ENEM/Escola/Olimpíada/Outro) continuam como campo `tipo`**
+  em `materias`, não como hierarquia de tabela — mesmo raciocínio de
+  DEC-013. `materias` é a única tabela da v1 mantida sem alteração.
+- **Todas as demais tabelas da v1 (`assuntos`, `anotacoes`,
+  `documentos_estudo`, `sessoes_questoes`) são substituídas por schema
+  novo**, desenhado do zero para o v2, em vez de reaproveitadas — a pedido
+  explícito do usuário, para não herdar limitações da v1:
+  - `conteudos` substitui `assuntos`
+  - `anotacoes_estudo` substitui `anotacoes`
+  - `materiais_estudo` substitui `documentos_estudo` (mais amplo: cobre
+    link/vídeo/livro, não só PDF)
+  - `questoes_individuais` (novo, granularidade por questão) substitui
+    `sessoes_questoes` (que só registrava agregado por sessão) — resolve a
+    pendência já registrada em `BACKLOG.md` antes deste planejamento
+  - `sessoes_estudo` (novo) — registra tempo de estudo (início/fim/duração),
+    base literal das métricas de tempo do dashboard, que não existiam em
+    nenhuma forma na v1
+  - `simulados` (novo) — registro de prova completa, separado de questão
+    individual
+  - `redacoes` (novo) — versão leve (tema, texto, nota, comentário), sem
+    versionamento — confirmado com o usuário que é uso frequente, entra na
+    Fase 1
+- Confirmado com o usuário: dado existente nas tabelas antigas de Estudos é
+  só de teste — remoção segura, mesmo raciocínio já usado em DEC-020/DEC-023.
+
+### Alternativas consideradas
+
+| Alternativa | Descartada por |
+|---|---|
+| Checklist de revisão fixo próprio (rascunho original do usuário) | Duplicava SM-2 já implementado, com resultado pior (intervalos fixos não se adaptam à performance real por conteúdo) |
+| Hierarquia de tabela por categoria (ENEM/Escola/Olimpíada como tabelas separadas) | Estrutura quase idêntica entre categorias — caso de DEC-013 (tabela única + tipo), não de DEC-014 (campos genuinamente distintos) |
+| Reaproveitar `assuntos`/`anotacoes`/`documentos_estudo` da v1 sem alteração | Usuário pediu explicitamente para não se limitar à estrutura antiga — schema novo reflete melhor o escopo real do v2 |
+| Incluir Cursos/Flashcards/Anki/Calendário na Fase 1 | Escopo desproporcional (princípio 11); Cursos e Flashcards são produtos próprios; Calendário duplicaria o módulo Agenda ainda por vir |
+
+### Justificativa
+Reaproveitar infraestrutura já validada (SM-2) evita reinventar um sistema
+pior dentro de outro módulo. Fasear o restante mantém o princípio de escopo
+proporcional sem descartar a visão de longo prazo do usuário — tudo que
+ficou de fora está registrado, não perdido.
+
+### Impacto
+`015_estudos_v2.sql` — aguardando execução no Supabase. Depois de executada
+e confirmada: `DATABASE.md` ganha a seção "Schema — 015_estudos_v2.sql";
+`VISION.md` atualiza status de Estudos; `ROADMAP.md` Fase 7.3 passa de
+"a planejar" para "planejamento concluído, schema pendente de execução".
+Frontend (`app/estudos/`) só é gerado depois da confirmação de execução —
+disciplina de schema-first do projeto.
+
+**Fase 2 registrada (não descartada), ver `BACKLOG.md`:** Cursos (estrutura
+própria), Flashcards/integração Anki, Redação versionada (múltiplas
+versões, competências detalhadas), Calendário acadêmico próprio (absorvido
+pelo módulo Agenda quando dedicado), metas/streak (avaliar sobreposição com
+módulo Hábitos quando planejado), estatísticas avançadas (ranking de
+conteúdos fracos/fortes, eficiência — dependem de volume real de dado),
+upload de arquivo de prova/gabarito em simulados.
+
+## DEC-036 — Estudos v2 Fase 1B: conteúdo compartilhado entre módulos, Curso com hierarquia própria, Prova vs. Simulado como estruturas distintas
+
+**Data:** 2026-07-23 (planejamento detalhado de ENEM/Escola/Curso)
+**Status:** ✅ Aprovada · ✅ Migration executada no Supabase (2026-07-23) · 🔄 Camada de dados (`lib/`) gerada e aplicada, páginas pendentes
+
+### Contexto
+Sessão de brainstorm estruturado (pergunta-resposta) sobre o funcionamento real
+de ENEM, Escola e Curso dentro de Estudos v2, partindo de um rascunho amplo do
+usuário (escrito originalmente como brainstorm livre, sem compromisso de
+escopo). A sessão revelou 3 decisões estruturais que a Fase 1 (DEC-035) não cobria:
+
+1. O mesmo conteúdo (ex: "Funções") pode ser estudado simultaneamente para
++   ENEM e Escola, com um único checklist/progresso — não duplicado por módulo.
+2. **Prova** (evento oficial — Escola ou dia de ENEM, com gabarito
++   questão-a-questão) e **Simulado** (sessão informal por conteúdo, iniciada
++   livremente pelo usuário) são conceitos diferentes. Só o Simulado alimenta a
++   revisão espaçada (SM-2); Prova nunca influencia `revisao_espacada`.
+3. Curso tem hierarquia própria (Curso → Módulo → Aula), diferente da
++   estrutura flat de ENEM/Escola (Matéria → Conteúdo direto).
+
+### Decisão
+
+**Conteúdo compartilhado (N:N):** `conteudos.materia_uuid` (FK direta,
+`015_estudos_v2.sql`) é substituído por uma tabela de vínculo
+`conteudos_materias`. Um conteúdo passa a existir de forma independente e se
+vincula a 1 ou mais matérias. `sessoes_estudo` continua com `materia_uuid`
+próprio (não muda) — permite registrar tempo de estudo separado por módulo
+mesmo quando o conteúdo estudado é compartilhado.
+
+**Curso com hierarquia própria:** nova tabela `modulos_curso` (Curso →
+Módulo). `conteudos` ganha `modulo_curso_uuid` (nullable, só usado quando o
+conteúdo é uma aula de curso). ENEM/Escola continuam sem agrupamento
+intermediário, só `conteudos_materias` direto.
+
+**Atividades (Escola e Curso):** nova tabela `atividades` — generalizada
+desde o desenho original (que previa uma tabela só de Escola), pra também
+cobrir exercícios/tarefas de Curso sem duplicar conceito.
+
+**Prova (evento oficial) — nova tabela `provas`:** cobre Escola (matéria +
+conteúdo + data + nota), ENEM (`tipo = 'enem_dia1'` | `'enem_dia2'`, sem
+matéria única — a granularidade de área fica no gabarito) e Curso, se
+necessário. Contagem regressiva é só da prova em si (sem outros eventos tipo
+inscrição/resultado — decisão explícita do usuário).
+
+**Gabarito digital do ENEM:** `questoes_individuais` (já existente, Fase 1)
+ganha `prova_uuid` (vincula a questão a uma prova específica), `numero`
+(posição da questão dentro da área) e `motivo_erro` (preenchido só quando
+`acertou = false`). O dia de prova do ENEM vira ~90 linhas nesta tabela,
+cada uma com sua `materia_uuid` (a área) e, se errada, `conteudo_uuid` +
+`motivo_erro`.
+
+**Simulado (sessão informal) alimenta SM-2:** `simulados` ganha
+`conteudo_uuid` (nullable) — quando preenchido, o resultado do simulado
+dispara o cálculo de SM-2 daquele conteúdo (mesma lógica de "avaliar card"
+já usada em `revisao_espacada`, com a "qualidade" derivada do % de acerto).
+`simulados` também ganha `redacao_uuid` (nullable) — só usado no dia 1 do
+ENEM (simulado com redação).
+
+**Redação por competência:** `redacoes` ganha 5 colunas
+(`competencia_1`...`competencia_5`, 0-200 cada, mesmo critério do ENEM),
+mantendo `nota` como nota geral/soma. Aplica-se também à Escola, mesmo que a
+escala real de correção seja outra — campo fica de uso flexível.
+
+**Curso — campos adicionais em `materias`:** `plataforma`,
+`carga_horaria_total_horas`, `horas_dedicadas` (preenchido manualmente —
+sem integração automática, ver seção seguinte), `certificado_path`
+(upload PDF, bucket `documentos`), `concluido`, `data_conclusao`. Todos
+nullable, usados só quando `materias.tipo = 'curso'`.
+
+**Integração com YPT (Yeolpumta) — pesquisado e descartado por ora:** app
+usado pelo usuário no celular pra cronometrar estudo não possui API pública
+documentada (app fechado, sem portal de desenvolvedor). Mesmo raciocínio da
+DEC-009 (Google Calendar): sem integração automática agora,
+`horas_dedicadas` é preenchido manualmente. Revisitar se o app abrir API no
+futuro.
+
+**Explicitamente fora de escopo (decisão direta do usuário):**
+- Nota TRI estimada do ENEM — "muito relativo"
+- Peso por curso pretendido (Engenharia pesa Matemática, etc.) — decidir
+  quando o curso pretendido estiver definido
+- Avaliação pessoal do curso e data de expiração de acesso
+- Campo de "nível de confiança/domínio" separado do progresso — taxa de
+  acerto já serve como proxy de domínio
+- Boletim agregado por bimestre e frequência/faltas na Escola
+- Horário semanal de aula e calendário de provas — adiado pra fase de
+  polimento (Fase 2)
+
+### Alternativas consideradas
+
+| Alternativa | Descartada por |
+|---|---|
+| Manter `conteudos.materia_uuid` 1:1, aceitar duplicação de conteúdo entre módulos | Usuário confirmou explicitamente que quer 1 checklist compartilhado, não duplicação |
+| ENEM registrado como `simulado` único com notas por área numa mesma linha | Usuário esclareceu que Prova (ENEM) e Simulado são estruturas totalmente diferentes — prova usa gabarito questão-a-questão, simulado é só conteúdo+acertos e alimenta SM-2 |
+| Curso como lista plana de conteúdos, igual Escola/ENEM | Usuário quer hierarquia Curso → Módulo → Aula explicitamente |
+| Trazer TRI, peso por curso, avaliação pessoal do curso, nível de confiança, boletim, frequência para a Fase 1B | Usuário rejeitou cada um explicitamente — mantidos fora, não registrados nem em BACKLOG.md por não serem visão confirmada, só descartados |
+
+### Justificativa
+A separação Prova/Simulado reflete o uso real do usuário (prova é evento
+oficial com gabarito; simulado é ferramenta de revisão ativa) — forçar os
+dois na mesma estrutura geraria um schema ambíguo e queries confusas sobre
+o que conta pra SM-2. O conteúdo compartilhado evita a alternativa pior
+(duplicar entrada de conteúdo por módulo), consistente com o princípio de
+simplicidade sem sacrificar corretude do dado.
+
+### Impacto
+`016_estudos_v2_fase1b.sql` — aguardando execução no Supabase. Depois de
+executada e confirmada: `DATABASE.md` atualiza a seção de Estudos v2 (já
+refletido abaixo neste mesmo commit de documentação, marcado como pendente
+de confirmação); frontend de Estudos (`app/estudos/`) só é gerado depois —
+disciplina de schema-first do projeto, agora bloqueado por **duas**
+migrations pendentes (`015` já executada, `016` ainda não).
+
+### Nota — Exceção pontual à disciplina schema-first (2026-07-23)
+Por indisponibilidade do usuário para testar no momento, o frontend de
+Estudos v2 (Fase 1 + Fase 1B) foi gerado **antes** da confirmação de
+execução de `016_estudos_v2_fase1b.sql` no Supabase — decisão explícita e
+consciente do usuário, não mudança na regra. Regra permanece em vigor:
+risco assumido é de possível divergência de nome de coluna/constraint até a
+migration ser efetivamente rodada e testada. Precedente conhecido: mesma
+exceção ocorreu uma vez na v1 (`estudos.html`, ver `CHANGELOG.md`,
+2026-07-09/10), corrigida depois sem maiores problemas.

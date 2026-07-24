@@ -106,3 +106,95 @@ Offline real (Fase M2, Service Worker); Realtime entre dispositivos (Fase M3).
 Gráfico de evolução de carga por exercício; volume semanal por grupo muscular
 — ver BACKLOG.md.
 ```
+
+### Módulo: Estudos v2 (Fase 1 + Fase 1B)
+
+**Objetivo**
+Organizar o estudo para ENEM, Escola e Cursos livres num único módulo: conteúdo
+com progresso, materiais de apoio, tempo de estudo, provas oficiais com
+gabarito questão-a-questão, simulados informais que alimentam revisão
+espaçada, e redação por competência.
+
+**Escopo**
+Dentro: matérias/conteúdos (compartilháveis entre módulos via
+`conteudos_materias`), anotações, materiais de apoio, sessões de estudo
+(tempo), questões avulsas, gabarito digital de prova oficial, simulados
+(dispara SM-2 quando vinculados a conteúdo), atividades (Escola/Curso),
+hierarquia Curso → Módulo → Aula, redação leve com 5 competências.
+Fora (Fase 2, ver `BACKLOG.md`): Cursos com estrutura de certificação mais
+rica, Flashcards/Anki, redação versionada, calendário acadêmico próprio
+(absorvido pela Agenda quando existir), metas/streak, estatísticas
+avançadas, upload de gabarito/prova em arquivo.
+
+**Páginas**
+| Rota | Descrição | Status |
+|---|---|---|
+| `app/estudos/page.tsx` | Hub — 3 entradas (ENEM/Escola/Curso) + próximas provas/atividades/simulados | ✅ (versão crua) |
+| `app/estudos/enem/page.tsx` | Matérias ENEM, agendar prova ENEM, listar próximas | ✅ (versão crua) |
+| `app/estudos/escola/page.tsx` | Matérias Escola, próximas provas, atividades pendentes | ✅ (versão crua) |
+| `app/estudos/curso/page.tsx` | Lista de cursos, criar curso novo | ✅ (versão crua) |
+| `app/estudos/curso/[materiaUuid]/page.tsx` | Curso → Módulo → Aula, progresso, concluir curso | ✅ (versão crua) |
+| `app/estudos/materia/[materiaUuid]/page.tsx` | Detalhe de matéria ENEM/Escola: conteúdos, provas, atividades, questões avulsas, simulados | ✅ (versão crua) |
+| `app/estudos/enem/gabarito/[provaUuid]/page.tsx` | Gabarito digital em lote por área | ✅ (versão crua) |
+| `app/estudos/redacoes/page.tsx` | Lista/cria redações com 5 competências | ✅ (versão crua) |
+
+**Componentes**
+Nenhum componente reutilizável extraído ainda — toda a leva atual é
+implementada inline em cada página (decisão deliberada: "cru" primeiro,
+componentização/design vem depois via Figma, ver TASKS_NOW.md). Candidatos
+óbvios pra extração futura: card de conteúdo com progresso, formulário de
+prova, tabela de gabarito.
+
+**Precisa de API Route (segredo/servidor)?**
+Não. Todo CRUD é direto via `lib/*.ts` → Supabase client, sob RLS — nenhuma
+API externa envolvida neste módulo (diferente de Biblioteca/TMDB).
+
+**Banco de dados**
+Ver `DATABASE.md` → Schema `015_estudos_v2.sql` e `016_estudos_v2_fase1b.sql`.
+Tabelas: `materias` (reaproveitada), `conteudos`, `conteudos_materias`,
+`anotacoes_estudo`, `materiais_estudo`, `sessoes_estudo`,
+`questoes_individuais`, `provas`, `simulados`, `redacoes`, `modulos_curso`,
+`atividades`. Reaproveita `revisao_espacada` (SM-2) via `lib/revisao.ts`
+como lembrete, não flashcard — ver DEC-035.
+
+**Dependências**
+- Nenhuma biblioteca externa nova.
+- Nenhum bucket de Storage usado ainda (materiais de estudo com
+  `arquivo_path` existem no schema, mas a UI de upload não foi gerada nesta
+  leva — `materiais_estudo` inteiro ficou de fora das páginas até agora).
+- Depende de `lib/revisao.ts` (criado nesta sessão para desbloquear
+  `lib/simulados.ts`).
+
+**Fluxo de funcionamento**
+1. Usuário entra em `/estudos`, escolhe ENEM, Escola ou Curso.
+2. Em ENEM/Escola: cadastra matéria → entra no detalhe da matéria → cadastra
+   conteúdos, provas, atividades, registra questões avulsas e simulados.
+3. Simulado com `conteudo_uuid` preenchido dispara `avaliarCardPorConteudo`
+   (cria o card em `revisao_espacada` na primeira vez, senão só avalia).
+4. Prova ENEM: agendada em `/estudos/enem`, gabarito lançado em lote por
+   área em `/estudos/enem/gabarito/[provaUuid]`.
+5. Em Curso: cadastra curso → módulos → aulas (conteúdos com
+   `modulo_curso_uuid`), marca aula concluída, marca curso concluído.
+
+**APIs utilizadas**
+Nenhuma.
+
+**Pendências**
+- `lib/simulados.ts` estava bloqueado por dependência de `lib/revisao.ts`
+  inexistente — resolvido nesta sessão.
+- Teste end-to-end ainda não realizado pelo usuário (arquivos gerados,
+  aplicação/teste adiados pra outra sessão — ver nota de exceção em
+  `DECISIONS.md`, mesmo padrão já usado uma vez em DEC-036).
+- `materiais_estudo` (materiais de apoio) sem página — schema existe, UI não.
+- `anotacoes_estudo` sem página — schema existe, UI não.
+- `sessoes_estudo` (tempo de estudo) sem página — schema existe, UI não.
+- Vínculo de conteúdo compartilhado (`vincularConteudoAMateria`) exposto de
+  forma crua (prompt pedindo UUID manual) — inutilizável na prática sem uma
+  UI de seleção de matéria.
+- Edição de prova/atividade/conteúdo — só criação, toggle e exclusão; sem
+  formulário de edição completo (ex: mudar data de uma prova já criada).
+
+**Melhorias futuras**
+Ver `BACKLOG.md` (Fase 2 de Estudos) e o design definitivo via Figma —
+Sidebar/Banner/Card documentados em `DESIGN.md` ainda não aplicados neste
+módulo.

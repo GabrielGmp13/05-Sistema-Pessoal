@@ -18,7 +18,7 @@ import BibliotecaCard from './BibliotecaCard';
 import { sb, getUserId } from '@/lib/supabase';
 import { getGeneros, getGenerosDoItem } from '@/lib/generos';
 import type { Genero } from '@/lib/generos';
-import styles from '../filmes/page.module.css';
+import styles from './BibliotecaSection.module.css';
 
 const STATUS_LABEL: Record<string, string> = {
   quero_ler: 'Quero ler',
@@ -48,9 +48,10 @@ const FORM_VAZIO: MangaInput = {
 interface MangasSectionProps {
   gatilhoAdicionar: number;
   busca?: string;
+  onTotalCarregado?: (total: number) => void;
 }
 
-export default function MangasSection({ gatilhoAdicionar, busca = '' }: MangasSectionProps) {
+export default function MangasSection({ gatilhoAdicionar, busca = '', onTotalCarregado }: MangasSectionProps) {
   const [mangas, setMangas] = useState<Manga[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
@@ -95,6 +96,7 @@ export default function MangasSection({ gatilhoAdicionar, busca = '' }: MangasSe
       setErro('Não foi possível carregar os mangás.');
     } else {
       setMangas(resultado);
+      onTotalCarregado?.(resultado.length);
       await carregarGenerosDosItens(resultado);
     }
     setCarregando(false);
@@ -186,7 +188,7 @@ export default function MangasSection({ gatilhoAdicionar, busca = '' }: MangasSe
       campos.push({ label: 'Período de publicação', valor: periodo });
     }
     campos.push({ label: 'Capítulo atual', valor: String(manga.capitulo_atual) });
-    if (manga.nota != null) campos.push({ label: 'Nota', valor: `${manga.nota} / 5` });
+    if (manga.nota != null) campos.push({ label: 'Nota', valor: `${manga.nota} / 10` });
     if (manga.comentario) campos.push({ label: 'Comentário', valor: manga.comentario });
     return campos;
   }
@@ -196,12 +198,14 @@ export default function MangasSection({ gatilhoAdicionar, busca = '' }: MangasSe
     : mangas;
 
   return (
-    <div className={styles.container}>
+    <>
       <BibliotecaBanner
-        titulo="Mangás"
-        total={itensFiltrados.length}
+        titulo="Mangas"
+        total={mangas.length}
         onAdicionar={abrirNovo}
         rotuloAdicionar="Novo mangá"
+        capas={mangas.map((m) => m.capa_url)}
+        imagemFundo="/biblioteca/banners/mangas.jpg"
       />
 
       {erro && <p className={styles.erro}>{erro}</p>}
@@ -324,11 +328,11 @@ export default function MangasSection({ gatilhoAdicionar, busca = '' }: MangasSe
                 />
               </label>
               <label>
-                Nota (0 a 5, meia estrela)
+                Nota (0 a 10)
                 <input
                   type="number"
                   min={0}
-                  max={5}
+                  max={10}
                   step={0.5}
                   inputMode="decimal"
                   value={form.nota ?? ''}
@@ -416,8 +420,8 @@ export default function MangasSection({ gatilhoAdicionar, busca = '' }: MangasSe
           bannerUrl={painelManga.banner_url}
           capaUrl={painelManga.capa_url}
           infoGeral={montarInfoGeral(painelManga)}
-        />
-      )}
-    </div>
+         />
+      )} 
+    </>
   );
 }

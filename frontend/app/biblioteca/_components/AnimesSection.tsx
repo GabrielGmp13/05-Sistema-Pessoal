@@ -21,7 +21,7 @@ import BibliotecaCard from './BibliotecaCard';
 import { sb, getUserId } from '@/lib/supabase';
 import { getGeneros, getGenerosDoItem } from '@/lib/generos';
 import type { Genero } from '@/lib/generos';
-import styles from '../filmes/page.module.css';
+import styles from './BibliotecaSection.module.css';
 
 const STATUS_LABEL: Record<string, string> = {
   quero_ver: 'Quero ver',
@@ -50,9 +50,10 @@ const FORM_VAZIO: AnimeInput = {
 interface AnimesSectionProps {
   gatilhoAdicionar: number;
   busca?: string;
+  onTotalCarregado?: (total: number) => void;
 }
 
-export default function AnimesSection({ gatilhoAdicionar, busca = '' }: AnimesSectionProps) {
+export default function AnimesSection({ gatilhoAdicionar, busca = '', onTotalCarregado }: AnimesSectionProps) {
   const [animes, setAnimes] = useState<Anime[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
@@ -97,6 +98,7 @@ export default function AnimesSection({ gatilhoAdicionar, busca = '' }: AnimesSe
       setErro('Não foi possível carregar os animes.');
     } else {
       setAnimes(resultado);
+      onTotalCarregado?.(resultado.length);
       await carregarGenerosDosItens(resultado);
     }
     setCarregando(false);
@@ -186,7 +188,7 @@ export default function AnimesSection({ gatilhoAdicionar, busca = '' }: AnimesSe
       campos.push({ label: 'Período', valor: periodo });
     }
     campos.push({ label: 'Status', valor: STATUS_LABEL[anime.status] ?? anime.status });
-    if (anime.nota != null) campos.push({ label: 'Nota', valor: `${anime.nota} / 5` });
+    if (anime.nota != null) campos.push({ label: 'Nota', valor: `${anime.nota} / 10` });
     if (anime.diretor) campos.push({ label: 'Direção', valor: anime.diretor });
     if (anime.estudio) campos.push({ label: 'Estúdio', valor: anime.estudio });
     if (anime.character_designer)
@@ -209,13 +211,18 @@ export default function AnimesSection({ gatilhoAdicionar, busca = '' }: AnimesSe
     : animes;
 
   return (
-    <div className={styles.container}>
+    <>
       <BibliotecaBanner
         titulo="Animes"
-        total={itensFiltrados.length}
+        total={animes.length}
         onAdicionar={abrirNovo}
         rotuloAdicionar="Novo anime"
+        capas={animes.map((f) => f.capa_url)}
+        imagemFundo="/biblioteca/banners/animes.jpg"
       />
+
+      <div className={styles.container}>
+        {erro && <p className={styles.erro}>{erro}</p>}
 
       {erro && <p className={styles.erro}>{erro}</p>}
 
@@ -294,11 +301,11 @@ export default function AnimesSection({ gatilhoAdicionar, busca = '' }: AnimesSe
                 </select>
               </label>
               <label>
-                Nota (0 a 5, meia estrela)
+                Nota (0 a 10)
                 <input
                   type="number"
                   min={0}
-                  max={5}
+                  max={10}
                   step={0.5}
                   inputMode="decimal"
                   value={form.nota ?? ''}
@@ -470,8 +477,9 @@ export default function AnimesSection({ gatilhoAdicionar, busca = '' }: AnimesSe
           bannerUrl={painelAnime.banner_url}
           capaUrl={painelAnime.capa_url}
           infoGeral={montarInfoGeral(painelAnime)}
-        />
+         />
       )}
-    </div>
+    </div>  
+    </>
   );
 }

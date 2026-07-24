@@ -19,7 +19,7 @@ import BibliotecaCard from './BibliotecaCard';
 import { sb, getUserId } from '@/lib/supabase';
 import { getGeneros, getGenerosDoItem } from '@/lib/generos';
 import type { Genero } from '@/lib/generos';
-import styles from '../series/page.module.css';
+import styles from './BibliotecaSection.module.css';
 
 const STATUS_LABEL: Record<string, string> = {
   quero_ver: 'Quero ver',
@@ -43,9 +43,10 @@ const FORM_VAZIO: SerieInput = {
 interface SeriesSectionProps {
   gatilhoAdicionar: number;
   busca?: string;
+  onTotalCarregado?: (total: number) => void;
 }
 
-export default function SeriesSection({ gatilhoAdicionar, busca = '' }: SeriesSectionProps) {
+export default function SeriesSection({ gatilhoAdicionar, busca = '', onTotalCarregado }: SeriesSectionProps) {
   const [series, setSeries] = useState<Serie[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
@@ -90,6 +91,7 @@ export default function SeriesSection({ gatilhoAdicionar, busca = '' }: SeriesSe
       setErro('Não foi possível carregar as séries.');
     } else {
       setSeries(resultado);
+      onTotalCarregado?.(resultado.length);
       await carregarGenerosDosItens(resultado);
     }
     setCarregando(false);
@@ -169,7 +171,7 @@ export default function SeriesSection({ gatilhoAdicionar, busca = '' }: SeriesSe
       label: 'Progresso',
       valor: `T${serie.temporada_atual} · Ep ${serie.episodio_atual}`,
     });
-    if (serie.nota != null) campos.push({ label: 'Nota', valor: `${serie.nota} / 5` });
+    if (serie.nota != null) campos.push({ label: 'Nota', valor: `${serie.nota} / 10` });
     if (serie.roteirista) campos.push({ label: 'Roteiro', valor: serie.roteirista });
     if (serie.produtores) campos.push({ label: 'Produção', valor: serie.produtores });
     if (serie.estudio) campos.push({ label: 'Estúdio', valor: serie.estudio });
@@ -194,12 +196,14 @@ export default function SeriesSection({ gatilhoAdicionar, busca = '' }: SeriesSe
     : series;
 
   return (
-    <div className={styles.container}>
+    <>
       <BibliotecaBanner
         titulo="Séries"
-        total={itensFiltrados.length}
+        total={series.length}
         onAdicionar={abrirNovo}
-        rotuloAdicionar="Nova série"
+        rotuloAdicionar="Novo série"
+        capas={series.map((f) => f.capa_url)}
+        imagemFundo="/biblioteca/banners/series.jpg"
       />
 
       {erro && <p className={styles.erro}>{erro}</p>}
@@ -303,11 +307,11 @@ export default function SeriesSection({ gatilhoAdicionar, busca = '' }: SeriesSe
                 />
               </label>
               <label>
-                Nota (0 a 5, meia estrela)
+                Nota (0 a 10)
                 <input
                   type="number"
                   min={0}
-                  max={5}
+                  max={10}
                   step={0.5}
                   inputMode="decimal"
                   value={form.nota ?? ''}
@@ -428,7 +432,7 @@ export default function SeriesSection({ gatilhoAdicionar, busca = '' }: SeriesSe
           capaUrl={painelSerie.capa_url}
           infoGeral={montarInfoGeral(painelSerie)}
         />
-      )}
-    </div>
+      )}  
+    </>
   );
 }

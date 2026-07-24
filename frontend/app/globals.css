@@ -65,18 +65,20 @@
 }
 
 :root {
-  --bg: #0d0d0d;
-  --surface: #1a1a1a;
-  --border: #2a2a2a;
-  --accent: #b8f566;
-  --text: #e0e0e0;
-
+  --bg: #0c0c14;
+  --surface: #13131f;
+  --surface-2: #1a1a28;      /* nível intermediário — usado em placeholder de capa, skeleton */
+  --border: rgba(255, 255, 255, 0.07);
+  --accent: #c9a96e;         /* dourado — mais próximo do original que o #c9a227 da tentativa anterior */
+  --accent-wash: rgba(201, 169, 110, 0.12);  /* fundo do item ativo da sidebar */
+  --accent-wash-forte: rgba(201, 169, 110, 0.2); /* fundo do badge de contagem */
+  --text: #ede9e1;
+  --texto-secundario: #8a8799;
   --success: #4ade80;
   --info: #63b3ed;
   --erro: #ff6b6b;
   --erro-forte: #f87171;
   --aviso: #fb923c;
-  --texto-secundario: #888;
   --texto-terciario: #444;
 }
 

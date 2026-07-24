@@ -29,16 +29,14 @@ export default function BibliotecaCard({
   menuAberto,
   onAlternarMenu,
 }: BibliotecaCardProps) {
+  // Referência mostra só 1 gênero por card, não a lista inteira
+  const generoPrincipal = generos[0]?.nome;
+
   return (
     <div className={styles.card}>
       <div className={styles.capaWrapper} onClick={onClick}>
         {capaUrl ? (
-          <img
-            className={styles.capa}
-            src={capaUrl}
-            alt={titulo}
-            loading="lazy"
-          />
+          <img className={styles.capa} src={capaUrl} alt={titulo} loading="lazy" />
         ) : (
           <div className={styles.capaPlaceholder}>
             <span>🎬</span>
@@ -56,32 +54,21 @@ export default function BibliotecaCard({
         <h3 className={styles.nome}>{titulo}</h3>
 
         <div className={styles.linhaMeta}>
+          {ano != null ? <span className={styles.ano}>{ano}</span> : <span />}
           {nota != null && (
             <span className={styles.nota}>
               <span className={styles.estrelaIcon}>★</span>
               {Number(nota).toFixed(1)}
             </span>
           )}
-
-          {ano != null && (
-            <span className={styles.ano}>{ano}</span>
-          )}
         </div>
 
-        {generos.length > 0 && (
-          <div className={styles.generos}>
-            {generos.map((g, i) => (
-              <span key={i} className={styles.genero}>
-                {g.nome}
-              </span>
-            ))}
-          </div>
-        )}
+        {generoPrincipal && <p className={styles.genero}>{generoPrincipal}</p>}
       </div>
 
       <div className={styles.menuWrapper}>
         <button
-          className={styles.btnIcon}
+          className={`${styles.btnIcon} ${menuAberto ? styles.btnIconVisivel : ''}`}
           onClick={(e) => {
             e.stopPropagation();
             onAlternarMenu();

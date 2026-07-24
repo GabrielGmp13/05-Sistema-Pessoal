@@ -18,7 +18,7 @@ import BibliotecaCard from './BibliotecaCard';
 import { sb, getUserId } from '@/lib/supabase';
 import { getGeneros, getGenerosDoItem } from '@/lib/generos';
 import type { Genero } from '@/lib/generos';
-import styles from '../filmes/page.module.css';
+import styles from './BibliotecaSection.module.css';
 
 const STATUS_LABEL: Record<string, string> = {
   quero_ver: 'Quero ver',
@@ -40,9 +40,10 @@ const FORM_VAZIO: FilmeInput = {
 interface FilmesSectionProps {
   gatilhoAdicionar: number;
   busca?: string;
+  onTotalCarregado?: (total: number) => void;
 }
 
-export default function FilmesSection({ gatilhoAdicionar, busca = '' }: FilmesSectionProps) {
+export default function FilmesSection({ gatilhoAdicionar, busca = '', onTotalCarregado }: FilmesSectionProps) {
   const [filmes, setFilmes] = useState<Filme[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
@@ -87,6 +88,7 @@ export default function FilmesSection({ gatilhoAdicionar, busca = '' }: FilmesSe
       setErro('Não foi possível carregar os filmes.');
     } else {
       setFilmes(resultado);
+      onTotalCarregado?.(resultado.length);
       await carregarGenerosDosFilmes(resultado);
     }
     setCarregando(false);
@@ -156,7 +158,7 @@ export default function FilmesSection({ gatilhoAdicionar, busca = '' }: FilmesSe
     if (filme.diretor) campos.push({ label: 'Direção', valor: filme.diretor });
     if (filme.ano_lancamento) campos.push({ label: 'Ano', valor: String(filme.ano_lancamento) });
     campos.push({ label: 'Status', valor: STATUS_LABEL[filme.status] ?? filme.status });
-    if (filme.nota != null) campos.push({ label: 'Nota', valor: `${filme.nota} / 5` });
+    if (filme.nota != null) campos.push({ label: 'Nota', valor: `${filme.nota} / 10` });
     if (filme.roteirista) campos.push({ label: 'Roteiro', valor: filme.roteirista });
     if (filme.produtores) campos.push({ label: 'Produção', valor: filme.produtores });
     if (filme.estudio) campos.push({ label: 'Estúdio', valor: filme.estudio });
@@ -183,15 +185,18 @@ export default function FilmesSection({ gatilhoAdicionar, busca = '' }: FilmesSe
     : filmes;
 
   return (
-    <div className={styles.container}>
+    <>
       <BibliotecaBanner
         titulo="Filmes"
-        total={filmesFiltrados.length}
+        total={filmes.length}
         onAdicionar={abrirNovo}
         rotuloAdicionar="Novo filme"
+        capas={filmes.map((f) => f.capa_url)}
+        imagemFundo="/biblioteca/banners/filmes.jpg"
       />
 
-      {erro && <p className={styles.erro}>{erro}</p>}
+      <div className={styles.container}>
+        {erro && <p className={styles.erro}>{erro}</p>}
 
       {carregando ? (
         <p className={styles.vazio}>Carregando...</p>
@@ -266,11 +271,11 @@ export default function FilmesSection({ gatilhoAdicionar, busca = '' }: FilmesSe
                 </select>
               </label>
               <label>
-                Nota (0 a 5, meia estrela)
+                Nota (0 a 10)
                 <input
                   type="number"
                   min={0}
-                  max={5}
+                  max={10}
                   step={0.5}
                   inputMode="decimal"
                   value={form.nota ?? ''}
@@ -405,6 +410,7 @@ export default function FilmesSection({ gatilhoAdicionar, busca = '' }: FilmesSe
           infoGeral={montarInfoGeral(painelFilme)}
         />
       )}
-    </div>
+    </div>  
+    </>
   );
 }

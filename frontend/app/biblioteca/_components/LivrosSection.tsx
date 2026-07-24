@@ -18,7 +18,7 @@ import BibliotecaCard from './BibliotecaCard';
 import { sb, getUserId } from '@/lib/supabase';
 import { getGeneros, getGenerosDoItem } from '@/lib/generos';
 import type { Genero } from '@/lib/generos';
-import styles from '../filmes/page.module.css';
+import styles from './BibliotecaSection.module.css';
 
 const STATUS_LABEL: Record<string, string> = {
   quero_ler: 'Quero ler',
@@ -47,9 +47,10 @@ const FORM_VAZIO: LivroInput = {
 interface LivrosSectionProps {
   gatilhoAdicionar: number;
   busca?: string;
+  onTotalCarregado?: (total: number) => void;
 }
 
-export default function LivrosSection({ gatilhoAdicionar, busca = '' }: LivrosSectionProps) {
+export default function LivrosSection({ gatilhoAdicionar, busca = '', onTotalCarregado }: LivrosSectionProps) {
   const [livros, setLivros] = useState<Livro[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
@@ -94,6 +95,7 @@ export default function LivrosSection({ gatilhoAdicionar, busca = '' }: LivrosSe
       setErro('Não foi possível carregar os livros.');
     } else {
       setLivros(resultado);
+      onTotalCarregado?.(resultado.length);
       await carregarGenerosDosItens(resultado);
     }
     setCarregando(false);
@@ -181,7 +183,7 @@ export default function LivrosSection({ gatilhoAdicionar, busca = '' }: LivrosSe
       });
     if (livro.ano_publicacao)
       campos.push({ label: 'Ano de publicação', valor: String(livro.ano_publicacao) });
-    if (livro.nota != null) campos.push({ label: 'Nota', valor: `${livro.nota} / 5` });
+    if (livro.nota != null) campos.push({ label: 'Nota', valor: `${livro.nota} / 10` });
     if (livro.comentario) campos.push({ label: 'Comentário', valor: livro.comentario });
     return campos;
   }
@@ -191,13 +193,18 @@ export default function LivrosSection({ gatilhoAdicionar, busca = '' }: LivrosSe
     : livros;
 
   return (
-    <div className={styles.container}>
+    <>
       <BibliotecaBanner
         titulo="Livros"
-        total={itensFiltrados.length}
+        total={livros.length}
         onAdicionar={abrirNovo}
-        rotuloAdicionar="Novo livro"
+        rotuloAdicionar="Nova leitura"
+        capas={livros.map((f) => f.capa_url)}
+        imagemFundo="/biblioteca/banners/livros.jpg"
       />
+
+      <div className={styles.container}>
+        {erro && <p className={styles.erro}>{erro}</p>}
 
       {erro && <p className={styles.erro}>{erro}</p>}
 
@@ -345,11 +352,11 @@ export default function LivrosSection({ gatilhoAdicionar, busca = '' }: LivrosSe
                 />
               </label>
               <label>
-                Nota (0 a 5, meia estrela)
+                Nota (0 a 10)
                 <input
                   type="number"
                   min={0}
-                  max={5}
+                  max={10}
                   step={0.5}
                   inputMode="decimal"
                   value={form.nota ?? ''}
@@ -409,6 +416,7 @@ export default function LivrosSection({ gatilhoAdicionar, busca = '' }: LivrosSe
           infoGeral={montarInfoGeral(painelLivro)}
         />
       )}
-    </div>
+    </div>  
+    </>
   );
 }

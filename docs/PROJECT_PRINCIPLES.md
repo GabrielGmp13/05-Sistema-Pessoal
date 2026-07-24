@@ -38,7 +38,12 @@ Princípios permanentes do Sistema Pessoal. Servem para impedir que futuras IAs 
 | Ferramenta | Papel |
 |---|---|
 | Claude (codificador principal) | Gera arquivos completos, decide arquitetura, escreve schema SQL, mantém a documentação |
-| Cline + DeepSeek (extensão VS Code) | Ajustes pequenos direto no editor — não usado para gerar arquivos novos do zero |
 | ChatGPT | Dúvidas conceituais rápidas; respostas relevantes voltam para o codificador principal antes de virarem decisão de projeto |
 
 Qualquer IA que assumir o papel de codificador principal deve ler `AI_CONTEXT.md` primeiro, e este documento em seguida antes de propor qualquer mudança estrutural.
+
+**Atualização (2026-07-23):** Cline+DeepSeek foi desativado do projeto. Claude
++passa a gerar arquivos de código diretamente e completos, sem prompt
++intermediário pra outra ferramenta executar. Gabriel aplica os arquivos
++manualmente (mesma disciplina de sempre — diffs em vermelho/verde para
++alterações, arquivo completo para criação nova).
