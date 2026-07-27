@@ -1,6 +1,112 @@
 /* app/globals.css — tokens de design (ver DESIGN.md), reset e estilos globais.
-   Estilos específicos de componente/página vão em CSS Modules (DEC-019),
-   este arquivo cobre só o que é verdadeiramente compartilhado. */
+   Estilos específicos de componente/página vão em CSS Modules (Treino,
+   Biblioteca) OU classes Tailwind (Estudos — DEC-038). Este arquivo é a
+   única fonte de verdade de cor do sistema (DEC-037), consumida por dois
+   vocabulários de variável que apontam pros mesmos valores. */
+
+@import 'tailwindcss';
+@import 'tw-animate-css';
+/* Conteúdo de shadcn/dist/tailwind.css, colado direto — evita depender do
+   pacote "shadcn" (que é só CLI, não precisa estar instalado) só por causa
+   deste arquivo pequeno. */
+@theme inline {
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(
+        --radix-accordion-content-height,
+        var(--accordion-panel-height, auto)
+      );
+    }
+  }
+
+  @keyframes accordion-up {
+    from {
+      height: var(
+        --radix-accordion-content-height,
+        var(--accordion-panel-height, auto)
+      );
+    }
+    to {
+      height: 0;
+    }
+  }
+}
+
+/* Custom variants */
+@custom-variant data-open {
+  &:where([data-state="open"]),
+  &:where([data-open]:not([data-open="false"])) {
+    @slot;
+  }
+}
+
+@custom-variant data-closed {
+  &:where([data-state="closed"]),
+  &:where([data-closed]:not([data-closed="false"])) {
+    @slot;
+  }
+}
+
+@custom-variant data-checked {
+  &:where([data-state="checked"]),
+  &:where([data-checked]:not([data-checked="false"])) {
+    @slot;
+  }
+}
+
+@custom-variant data-unchecked {
+  &:where([data-state="unchecked"]),
+  &:where([data-unchecked]:not([data-unchecked="false"])) {
+    @slot;
+  }
+}
+
+@custom-variant data-selected {
+  &:where([data-selected="true"]) {
+    @slot;
+  }
+}
+
+@custom-variant data-disabled {
+  &:where([data-disabled="true"]),
+  &:where([data-disabled]:not([data-disabled="false"])) {
+    @slot;
+  }
+}
+
+@custom-variant data-active {
+  &:where([data-state="active"]),
+  &:where([data-active]:not([data-active="false"])) {
+    @slot;
+  }
+}
+
+@custom-variant data-horizontal {
+  &:where([data-orientation="horizontal"]) {
+    @slot;
+  }
+}
+
+@custom-variant data-vertical {
+  &:where([data-orientation="vertical"]) {
+    @slot;
+  }
+}
+
+@utility no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+
+@custom-variant dark (&:is(.dark *));
 
 @font-face {
   font-family: 'JetBrains Mono';
@@ -32,7 +138,6 @@
   font-weight: 700;
   font-display: swap;
 }
-
 @font-face {
   font-family: 'Syne';
   src: url('/fonts/syne-latin-400-normal.woff2') format('woff2');
@@ -64,22 +169,173 @@
   font-display: swap;
 }
 
+@theme inline {
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-muted: var(--success-muted);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
 :root {
-  --bg: #0c0c14;
-  --surface: #13131f;
-  --surface-2: #1a1a28;      /* nível intermediário — usado em placeholder de capa, skeleton */
-  --border: rgba(255, 255, 255, 0.07);
-  --accent: #c9a96e;         /* dourado — mais próximo do original que o #c9a227 da tentativa anterior */
-  --accent-wash: rgba(201, 169, 110, 0.12);  /* fundo do item ativo da sidebar */
-  --accent-wash-forte: rgba(201, 169, 110, 0.2); /* fundo do badge de contagem */
-  --text: #ede9e1;
-  --texto-secundario: #8a8799;
-  --success: #4ade80;
+  color-scheme: light;
+
+  /* Tipografia — self-hosted, sem CDN (ver PROJECT_PRINCIPLES.md #6) */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* Vocabulário shadcn — valores do v0.dev, DEC-037/038, sem alteração de tom */
+  --background: oklch(0.976 0.004 106);
+  --foreground: oklch(0.205 0.008 75);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.205 0.008 75);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.205 0.008 75);
+  --primary: oklch(0.235 0.006 75);
+  --primary-foreground: oklch(0.98 0.003 106);
+  --secondary: oklch(0.955 0.004 106);
+  --secondary-foreground: oklch(0.235 0.006 75);
+  --muted: oklch(0.955 0.004 106);
+  --muted-foreground: oklch(0.53 0.008 75);
+  --accent: oklch(0.93 0.05 155);
+  --accent-foreground: oklch(0.33 0.07 155);
+  --success: oklch(0.78 0.14 158);
+  --success-foreground: oklch(0.32 0.07 158);
+  --success-muted: oklch(0.94 0.05 158);
+  --warning: oklch(0.72 0.13 65);
+  --warning-foreground: oklch(0.42 0.09 60);
+  --destructive: oklch(0.585 0.2 25);
+  --border: oklch(0.9 0.004 106);
+  --input: oklch(0.9 0.004 106);
+  --ring: oklch(0.78 0.14 158);
+  --chart-1: oklch(0.78 0.14 158);
+  --chart-2: oklch(0.235 0.006 75);
+  --chart-3: oklch(0.72 0.13 65);
+  --chart-4: oklch(0.6 0.02 75);
+  --chart-5: oklch(0.82 0.01 75);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.98 0.003 106);
+  --sidebar-foreground: oklch(0.205 0.008 75);
+  --sidebar-primary: oklch(0.235 0.006 75);
+  --sidebar-primary-foreground: oklch(0.98 0.003 106);
+  --sidebar-accent: oklch(0.93 0.05 155);
+  --sidebar-accent-foreground: oklch(0.33 0.07 155);
+  --sidebar-border: oklch(0.9 0.004 106);
+  --sidebar-ring: oklch(0.78 0.14 158);
+
+  /* Vocabulário antigo (CSS Modules, Treino/Dashboard) — alias do vocabulário
+     acima, mesma fonte de verdade. Ver DEC-037. */
+  --bg: var(--background);
+  --surface: var(--card);
+  --surface-2: var(--muted);
+  --accent-wash: var(--accent);
+  --accent-wash-forte: color-mix(in oklch, var(--accent) 55%, var(--accent-foreground) 20%);
+  --text: var(--foreground);
+  --texto-secundario: var(--muted-foreground);
+
+  /* Status fixos (calendário etc.) — fora do escopo do redesign, intocados */
   --info: #63b3ed;
   --erro: #ff6b6b;
   --erro-forte: #f87171;
   --aviso: #fb923c;
   --texto-terciario: #444;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --success: oklch(0.87 0 0);
+  --success-foreground: oklch(0.985 0 0);
+  --success-muted: oklch(0.269 0 0);
+  --warning: oklch(0.72 0.13 65);
+  --warning-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+/* Exceção de tema — Biblioteca mantém a paleta dourada da DEC-034,
+   independente do toggle claro/escuro global (DEC-039). Aplicar esta classe
+   no elemento raiz de app/biblioteca/layout.tsx. */
+.bibliotecaTheme {
+  --bg: #0c0c14;
+  --surface: #13131f;
+  --surface-2: #1a1a28;
+  --border: rgba(255, 255, 255, 0.07);
+  --accent: #c9a96e;
+  --accent-wash: rgba(201, 169, 110, 0.12);
+  --accent-wash-forte: rgba(201, 169, 110, 0.2);
+  --text: #ede9e1;
+  --texto-secundario: #8a8799;
+  color-scheme: dark;
 }
 
 * {
@@ -92,13 +348,19 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
 }
 
 h1,
 h2,
 h3 {
   font-family: 'Syne', sans-serif;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
 }
 
 .container {
@@ -153,8 +415,7 @@ input:focus {
   border-color: var(--accent);
 }
 
-/* Login — página específica, migra pra CSS Module quando o módulo Auth
-   for formalizado; por ora vive aqui por ser a única rota pública */
+/* Login */
 .login-container {
   min-height: 100vh;
   display: flex;
