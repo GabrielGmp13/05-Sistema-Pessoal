@@ -396,3 +396,113 @@ risco assumido é de possível divergência de nome de coluna/constraint até a
 migration ser efetivamente rodada e testada. Precedente conhecido: mesma
 exceção ocorreu uma vez na v1 (`estudos.html`, ver `CHANGELOG.md`,
 2026-07-09/10), corrigida depois sem maiores problemas.
+
+## DEC-037 — Nova paleta (verde-oliva/off-white, via v0.dev) vira padrão do sistema, exceto Biblioteca
+
+**Data:** 2026-07-25
+**Status:** ✅ Aprovada
+
+### Contexto
+Durante o design de Estudos v2 no v0.dev, o usuário aprovou o resultado visual
+das primeiras telas (Hub, ENEM, Gabarito, Escola) — paleta em tons de
+verde-oliva sobre off-white (claro) e cinza neutro (escuro), diferente do
+dourado/âmbar adotado em `DEC-034`.
+
+### Decisão
+A paleta do v0.dev substitui o dourado/âmbar como padrão do sistema
+(Dashboard, Treino, Estudos e módulos futuros). **Biblioteca é exceção
+explícita** — mantém a paleta dourada da DEC-034, por decisão do usuário
+(incerteza declarada sobre se o dourado vibrante combina com o estilo novo,
+resolvida por enquanto como "não mexe na Biblioteca").
+
+### Impacto
+- `globals.css`: valores de `--bg`/`--surface`/`--accent`/`--text`/
+  `--texto-secundario` (nomenclatura DEC-034) atualizados para os novos
+  tons, em vez de dourado — cascateia automaticamente pra Treino/Dashboard
+  via CSS Modules, sem alteração de componente.
+- Biblioteca (`app/biblioteca/layout.tsx`) ganha override local reafirmando
+  os valores dourados da DEC-034 dentro da própria subárvore — única
+  exceção de tema no sistema até agora.
+- `DESIGN.md` precisa de nova seção de paleta (substituindo a tabela da
+  DEC-034 como padrão, com a DEC-034 rebaixada a "exceção — só Biblioteca").
+
+## DEC-038 — Adoção antecipada de Tailwind v4 + shadcn/ui, escopo inicial: só Estudos (reabre parcialmente o item de v3 do BACKLOG)
+
+**Data:** 2026-07-25
+**Status:** ✅ Aprovada
+
+### Contexto
+O design de Estudos v2 foi gerado no v0.dev, que produz Tailwind v4 +
+shadcn/ui por padrão. O usuário aprovou 100% do resultado visual e decidiu
+manter a stack gerada em vez de portar pixel-a-pixel pra CSS Modules.
+`BACKLOG.md` já registrava migração de CSS Modules pra Tailwind como item
+de "v3 (futuro distante)" — decisão tomada durante o planejamento da v2
+(2026-07-14) de não empilhar duas mudanças de stack de uma vez.
+
+### Decisão
+Tailwind + shadcn/ui é adotado **agora**, escopo inicial limitado ao módulo
+Estudos. Treino e Biblioteca continuam em CSS Modules — **stack mista
+aceita conscientemente**, não é inconsistência não intencional. Migração do
+restante do sistema (Treino, Biblioteca) pra Tailwind fica em aberto, sem
+data — pode acontecer módulo a módulo no futuro ou nunca, a decidir.
+
+Os dois vocabulários de variável de cor (CSS Modules: `--bg`/`--surface`/
+`--accent`; shadcn: `--background`/`--card`/`--primary`) coexistem no mesmo
+`:root` de `globals.css`, ambos apontando pros mesmos valores (DEC-037) —
+garante que a paleta seja uma fonte única da verdade, mesmo consumida por
+dois sistemas de estilização diferentes.
+
+### Justificativa
+Atende PROJECT_PRINCIPLES.md #9 (stack só muda com justificativa forte): a
+justificativa aqui é decisão direta do usuário sobre resultado visual já
+aprovado, não preferência técnica não fundamentada — mesmo padrão de
+"decisão de design é prerrogativa do usuário" já usado na DEC-034.
+
+### Impacto
+- `package.json` do projeto ganha dependências novas: Tailwind v4,
+  `shadcn/ui`, `lucide-react`, `tw-animate-css` (a conferir contra o que o
+  zip do v0 already lista)
+- `app/estudos/**` passa a usar classes Tailwind + componentes de
+  `components/ui/*` (shadcn) em vez de CSS Modules
+- `BACKLOG.md` → item "Migrar estilização de CSS Modules para Tailwind"
+  sai da seção "v3 (futuro distante)" — parte disso já está em andamento
+- `ARCHITECTURE.md` → seção Frontend ganha nota sobre stack mista
+  (CSS Modules em Treino/Biblioteca, Tailwind+shadcn em Estudos)
+
+  ## DEC-039 — Toggle claro/escuro no sistema, exceto Biblioteca
+
+**Data:** 2026-07-25
+**Status:** ✅ Aprovada
+
+### Contexto
+O site hoje não tem modo claro — `:root` único, sempre escuro, sem mecanismo
+de troca. O design aprovado do v0.dev (DEC-037) inclui variante clara e
+escura completas. Usuário decidiu que quer as duas de verdade, com toggle
+funcional, no sistema inteiro.
+
+### Decisão
+Dashboard, Treino e Estudos ganham toggle claro/escuro real, com preferência
+persistida (`localStorage`, sem lib nova — implementação própria simples,
+ver `PROJECT_PRINCIPLES.md` #6/#7). **Biblioteca fica de fora**: continua
+fixa no tema dourado/escuro da DEC-034, sem toggle — o controle de troca
+fica oculto nas rotas `/biblioteca/*` pra não sugerir uma opção que não faz
+nada ali.
+
+Mecanismo: classe `.dark`/ausência dela na tag `<html>`, controlada por um
+`ThemeProvider` próprio (contexto React + `localStorage`), sem adicionar
+`next-themes` ou lib equivalente — o projeto já usa poucas dependências por
+princípio. Script inline no `<head>` evita flash de tema errado no
+carregamento (lê `localStorage` antes do React hidratar).
+
+A exceção de tema da Biblioteca (override local de `--bg`/`--surface`/
+`--accent` no `layout.tsx` dela, ver DEC-037) já resolve isso sozinha: como
+são variáveis CSS locais, elas ganham de qualquer `.dark`/ausência de `.dark`
+herdada do `<html>`, então a Biblioteca nunca muda de cor mesmo que o toggle
+global seja acionado em outra aba/rota.
+
+### Impacto
+- Novo componente `components/ThemeProvider.tsx` + `components/ThemeToggle.tsx`
+- `app/layout.tsx` ganha o provider + script anti-flash + botão de toggle
+  (oculto condicionalmente em `/biblioteca/*` via `usePathname`)
+- `globals.css` ganha bloco `.dark` completo ao lado do `:root` (claro),
+  nos dois vocabulários de variável (CSS Modules antigo + shadcn novo)

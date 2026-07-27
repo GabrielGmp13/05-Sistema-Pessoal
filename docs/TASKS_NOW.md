@@ -7,7 +7,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 ## Status geral
 **Fase atual:** Fase 7 (v2) — v1 aposentada (DEC-031), `frontend/` é o único frontend ativo. Biblioteca consolidada em página única + sidebar (DEC-032) e redesenhada visualmente (DEC-034), ambas concluídas pelo usuário.
 **Bloqueio:** nenhum
-**Próxima ação:** (1) confirmar teste de login end-to-end na URL de produção do Vercel — pendência mais antiga do projeto, nunca fechada; (2) fornecer as imagens estáticas de banner por categoria e/ou popular `avatar_url`/`background_url` do usuário no Supabase Auth (opcional, tem fallback); (3) planejar integração de APIs externas (TMDB/Google Books/Jikan/iTunes) como próxima tarefa de escopo, via `MODULE_TEMPLATE.md`; (4) executar `015_estudos_v2.sql` no Supabase e confirmar — depois disso, gerar MODULE_TEMPLATE.md completo + prompt de frontend para Estudos v2 (Fase 1)
+**Próxima ação:** gerar as 4 páginas de Estudos v2 (Hub, ENEM, Gabarito, Escola) com mock data do zip do v0.dev, pra validação visual do Tailwind/toggle dentro do projeto real — ver seção "Estudos v2 — Design (Tailwind)" abaixo. Pendências antigas (login e2e Vercel, imagens de banner, integração de APIs externas) continuam em aberto, sem prioridade nesta sessão.
 
 ---
 
@@ -82,17 +82,37 @@ fecha ao clicar fora, upload de capa/banner manual, edição de itens em
 - [ ] Confirmar execução aqui
 - [ ] Depois da confirmação: gerar `MODULE_TEMPLATE.md` preenchido + prompt de frontend (Cline)
 
- ## 🔴 Estudos v2 — Fase 1B: ENEM/Escola/Curso detalhados (DEC-036)
+ ## 🟢 Estudos v2 — Fase 1B: pendência bloqueante RESOLVIDA (2026-07-25)
 
-- [x] Estrutura de ENEM (dia de prova + gabarito + simulado de conteúdo) desenhada com o usuário
-- [x] Estrutura de Escola (atividades, provas, conteúdo compartilhado) desenhada
-- [x] Estrutura de Curso (Curso → Módulo → Aula) desenhada
-- [x] Migration `016_estudos_v2_fase1b.sql` gerada
-- [x] **Executar migration `016` no Supabase** — confirmado pelo usuário (2026-07-23), sucesso
-- [x] Camada de dados (`lib/`) gerada diretamente por Claude (Cline desativado do projeto, ver PROJECT_PRINCIPLES.md): `lib/materias.ts` (estendido), `lib/conteudos.ts`, `lib/modulos-curso.ts`, `lib/atividades.ts`, `lib/provas.ts`, `lib/questoes-individuais.ts`, `lib/simulados.ts`, `lib/redacoes.ts` — arquivos aplicados pelo usuário no projeto
-- [ ] ⚠️ **Pendência bloqueante não resolvida:** `lib/simulados.ts` importa `avaliarCard` de `lib/revisao.ts`, que **não existe na v2** ainda (Revisão Espaçada v2 é sub-fase 7.4, "a planejar" — ver ROADMAP.md). Build quebra até isso ser resolvido. Duas opções levantadas, nenhuma escolhida: (a) comentar a chamada com TODO por enquanto, (b) criar `lib/revisao.ts` mínimo já nesta sessão seguinte, só com `avaliarCard`
-- [ ] Gerar páginas (dashboards ENEM/Escola/Curso, gabarito digital com timer, tela de matéria) — próximo passo, depende de resolver a pendência acima primeiro
-- [ ] Gerar `MODULE_TEMPLATE.md` preenchido cobrindo `015` + `016` juntas (ainda não feito — pulamos direto pra código por indisponibilidade do usuário pra testar, ver nota de exceção em DECISIONS.md)
-**Explicitamente fora de escopo (ver DEC-036), não registrado em BACKLOG.md por serem descartados, não adiados:** TRI estimado, peso por curso pretendido no ENEM, avaliação pessoal/expiração de acesso do curso, nível de confiança do conteúdo, boletim agregado, frequência/faltas.
+- [x] `lib/revisao.ts` criado (não existia na v2) — `calcularSM2`,
+      `avaliarCard`, `avaliarCardPorConteudo` — assinatura conferida contra
+      `lib/simulados.ts` real, não assumida
+- [x] `lib/simulados.ts` volta a compilar — build desbloqueado
+- [x] Primeira leva de frontend gerada (versão crua, sem estilização):
+      hub, ENEM, Escola, Curso (lista + detalhe), Matéria (ENEM/Escola),
+      Redações, Gabarito digital ENEM, + ações de apagar
+- [x] Todos os 11 arquivos aplicados pelo usuário — **sem erros encontrados**
+- [ ] `materiais_estudo`, `anotacoes_estudo`, `sessoes_estudo` — schema
+      existe, sem página ainda (próxima leva de funcionalidade, se for o caso)
+- [ ] Vínculo de conteúdo compartilhado (`vincularConteudoAMateria`) só
+      funciona via prompt pedindo UUID manual — precisa de seletor de
+      verdade quando for pro design final
+- [ ] `MODULE_TEMPLATE.md` preenchido pra Estudos v2 existe como arquivo
+      solto (`MODULE_ESTUDOS_V2.md`, gerado 2026-07-25) — falta decidir onde
+      ele mora de fato (seção em `ROADMAP.md` ou arquivo próprio permanente)
 
- **Adiado pra polimento (Fase 2, `BACKLOG.md`):** horário semanal de aula, calendário de provas por semana.
+## 🟡 Estudos v2 — Design (Tailwind + shadcn, DEC-037/038/039) — infra concluída
+
+- [x] Paleta nova (v0.dev) adotada como padrão do sistema, exceto Biblioteca (DEC-037)
+- [x] Tailwind v4 + shadcn/ui adotado, escopo inicial: só Estudos (DEC-038)
+- [x] Toggle claro/escuro real, sistema inteiro exceto Biblioteca (DEC-039)
+- [x] `package.json`, `postcss.config.mjs`, `components.json`, `lib/utils.ts` — aplicados e testados (`npm install` + `npm run dev` sem erro)
+- [x] `app/globals.css` mesclado (dois vocabulários de variável + tema fixo da Biblioteca) — aplicado
+- [x] `components/ThemeProvider.tsx`, `components/ThemeToggle.tsx` — aplicados
+- [x] `app/layout.tsx` com script anti-flash + provider — aplicado
+- [x] `app/biblioteca/layout.tsx` com classe `.bibliotecaTheme` — aplicado
+- [ ] **Próximo:** gerar as 4 páginas do zip do v0 (Hub, ENEM, Gabarito, Escola) + `components/study/*`/`components/ui/*`, com o mock data que já vem nelas — validação visual antes de conectar dado real
+- [ ] Depois da validação visual: trocar mock data pelos `lib/*.ts` reais (`materias.ts`, `conteudos.ts`, `provas.ts`, `atividades.ts`, `simulados.ts`, `redacoes.ts`, `questoes-individuais.ts`) — preciso do conteúdo real desses arquivos antes, sem assumir assinatura
+- [ ] v0.dev ainda tem 4 de 8 telas pendentes de geração (limite de uso do usuário) — integrar conforme forem saindo
+
+---

@@ -37,3 +37,88 @@ Ver `TASKS_NOW.md` para o que está em aberto agora. Ver `BACKLOG.md` para polim
 - **2026-07-23** — Estudos v2 Fase 1B (DEC-036): sessão de perguntas e respostas detalhou o funcionamento real de ENEM (dia de prova com gabarito questão-a-questão, separado de simulado informal por conteúdo que alimenta SM-2), Escola (atividades, provas, conteúdo compartilhado com ENEM) e Curso (hierarquia Curso → Módulo → Aula). Migration `015_estudos_v2.sql` confirmada executada pelo usuário (2026-07-22). Migration `016_estudos_v2_fase1b.sql` gerada: `conteudos` passa a N:N com `materias` via `conteudos_materias`; novas tabelas `modulos_curso`, `atividades`, `provas`; `questoes_individuais` ganha gabarito (`prova_uuid`/`numero`/`motivo_erro`); `simulados` ganha `conteudo_uuid` (dispara SM-2) e `redacao_uuid`; `redacoes` ganha 5 notas de competência; `materias` ganha campos de Curso. Pesquisa confirmou ausência de API pública do YPT (Yeolpumta) — integração automática de tempo estudado descartada por ora, mesmo raciocínio de DEC-009.
 
 - **2026-07-23 (cont.)** — Migration `016_estudos_v2_fase1b.sql` executada e confirmada pelo usuário no Supabase. Cline+DeepSeek desativado do projeto (ver PROJECT_PRINCIPLES.md) — Claude passa a gerar código diretamente. Camada de dados da Fase 1B gerada em bloco único (exceção consciente à disciplina schema-first, pois o usuário não pôde testar no momento — ver nota em DECISIONS.md): `lib/materias.ts` (estendido com campos de curso), `lib/conteudos.ts` (com N:N via `conteudos_materias`), `lib/modulos-curso.ts`, `lib/atividades.ts`, `lib/provas.ts`, `lib/questoes-individuais.ts` (gabarito digital em lote), `lib/simulados.ts` (dispara SM-2 quando vinculado a conteúdo), `lib/redacoes.ts` (com notas por competência). Aplicados pelo usuário. Pendência identificada e não resolvida nesta sessão: `lib/simulados.ts` depende de `avaliarCard`/`lib/revisao.ts`, inexistente na v2 (Revisão Espaçada v2 ainda não planejada, sub-fase 7.4) — bloqueia build até resolução.
+
+- **2026-07-25** — Estudos v2: dependência bloqueante resolvida. `lib/revisao.ts`
+  criado (não existia na v2) com `calcularSM2`, `avaliarCard` e
+  `avaliarCardPorConteudo`, desbloqueando `lib/simulados.ts` (que já importava
+  `avaliarCard` de um arquivo inexistente). Assinatura conferida contra o
+  código real de `lib/simulados.ts` fornecido pelo usuário (não assumida) —
+  ajuste necessário: `sbErr(error, contexto)` recebe 2 parâmetros, não 1;
+  `qualidade` é `number` puro, não union type literal.
+  Primeira leva de frontend de Estudos v2 (Fase 1 + 1B) gerada em bloco,
+  versão deliberadamente crua (sem estilização, decisão do usuário — design
+  vem depois): `app/estudos/page.tsx` (hub), `app/estudos/enem/page.tsx`,
+  `app/estudos/escola/page.tsx`, `app/estudos/curso/page.tsx`,
+  `app/estudos/curso/[materiaUuid]/page.tsx` (Curso → Módulo → Aula),
+  `app/estudos/materia/[materiaUuid]/page.tsx` (tela mais densa, compartilhada
+  entre ENEM/Escola: conteúdos, provas, atividades, questões avulsas,
+  simulados), `app/estudos/redacoes/page.tsx`. Leva seguinte adicionou
+  `app/estudos/enem/gabarito/[provaUuid]/page.tsx` (lançamento em lote do
+  gabarito ENEM por área) e ações de apagar (conteúdo/atividade/prova) +
+  vínculo cru de conteúdo compartilhado (`vincularConteudoAMateria` via
+  prompt, sem seletor — pendência de UI). Navegação decidida como **rota
+  real** (não `useState`/DEC-032) — usuário confirmou explicitamente que
+  entra num mundo (ENEM/Escola/Curso), usa, e volta pro hub pra escolher
+  outro. Todos os 11 arquivos aplicados pelo usuário sem erros.
+  `materiais_estudo`, `anotacoes_estudo` e `sessoes_estudo` ficaram sem
+  página nesta leva — schema existe, UI não foi gerada.
+- **2026-07-25 (cont.)** — Exploração de design de Estudos v2.
+  3 rodadas de prompt geradas: (1) prompt único cobrindo as 8 telas
+  (excedeu 5.000 caracteres do limite do Figma, refeito compacto); (2) prompt
+  compacto único (~3.900 caracteres); (3) reescrito como 8 prompts
+  independentes, um por tela, sem instrução de cor/estilo (só lógica/estrutura),
+  a pedido do usuário pra deixar o Figma mais livre. Usuário testou o prompt 1
+  (Hub) no Figma Make e gostou da direção, mas achou os 3 mockups HTML/CSS
+  cru gerados por Claude (lista, cards, sidebar) ainda distantes da visão
+  desejada — 3 refinamentos adicionais gerados em cima do mockup "lista"
+  (escolhido pelo usuário), agora usando os tokens reais de `DESIGN.md`
+  (paleta dourado/âmbar, tipografia). Figma atingiu limite de uso do usuário;
+  fluxo de design migrado para v0.dev. Os 8 prompts foram reescritos num
+  formato adaptado pra geração de UI React/Next.js (cabeçalho padrão pedindo
+  mock data e nenhuma lógica real, reforço de escopo por página, states
+  explícitos, nota de Design System consistente entre páginas) e entregues
+  como `.zip`. Usuário está rodando os prompts no v0.dev aos poucos (limite
+  de geração da ferramenta) — 2 de 8 páginas prontas até agora. Combinado:
+  conforme o v0 for entregando páginas, Claude adapta a estrutura/visual
+  delas para o Next.js real do projeto (reaproveitando os `lib/*.ts`
+  existentes) em vez de aplicar o código do v0 direto — os componentes
+  gerados lá usam mock data solto, sem noção do schema real.
+
+  ### Stack mista de estilização (DEC-038, 2026-07-25)
+Desde a adoção do design gerado no v0.dev para Estudos v2, o projeto passou
+a ter **duas stacks de estilização coexistindo conscientemente**:
+- **Treino, Biblioteca, Dashboard:** CSS Modules puro (convenção original da v2, DEC-019)
+- **Estudos:** Tailwind v4 + shadcn/ui (`components/ui/*`), DEC-038
+
+`app/globals.css` é a fonte única de cor pros dois sistemas — variáveis
+CSS Modules antigas (`--bg`, `--surface`, `--accent`...) e variáveis shadcn
+(`--background`, `--card`, `--primary`...) coexistem no mesmo `:root`/`.dark`,
+a maioria das antigas como alias direto das novas (ver DESIGN.md → Paleta).
+
+**Toggle claro/escuro (DEC-039):** `components/ThemeProvider.tsx` +
+`components/ThemeToggle.tsx`, controlado por classe `.dark` na tag `<html>`
+(sem lib externa — contexto React + `localStorage`, script anti-flash
+inline no `<head>` de `app/layout.tsx`). Vale pro sistema todo, **exceto
+Biblioteca**, que fica com tema dourado fixo via classe `.bibliotecaTheme`
+aplicada em `app/biblioteca/layout.tsx` (sobrescreve as variáveis
+localmente, ganha de qualquer `.dark` herdada).
+
+- **2026-07-26** — Estudos v2: infraestrutura de design adotada. Duas
+  primeiras telas geradas no v0.dev (Hub, ENEM/Gabarito, Escola) aprovadas
+  visualmente pelo usuário — decisão de manter a stack Tailwind v4 +
+  shadcn/ui gerada por padrão, em vez de portar pra CSS Modules (DEC-038),
+  puxando parcialmente pra frente o item de Tailwind que estava registrado
+  em `BACKLOG.md` como "v3, futuro distante". Paleta do v0.dev (verde-oliva/
+  off-white) adotada como padrão do sistema — Dashboard, Treino e Estudos —
+  substituindo o dourado da DEC-034, que fica como exceção só da Biblioteca
+  (DEC-037). Toggle claro/escuro real implementado no sistema inteiro exceto
+  Biblioteca (DEC-039, `ThemeProvider`/`ThemeToggle` próprios, sem lib
+  externa). `app/globals.css` mesclado: dois vocabulários de variável (CSS
+  Modules antigo + shadcn novo) coexistindo, maioria das variáveis antigas
+  como alias das novas — única fonte de verdade de cor. Conteúdo de
+  `shadcn/dist/tailwind.css` colado direto no `globals.css` (variantes
+  `data-*` e keyframes de accordion) em vez de manter `shadcn` como
+  dependência do projeto — é só uma CLI, não usada em runtime. Setup
+  testado (`npm install` + `npm run dev`, sem erros). Próximo passo: gerar
+  as 4 páginas do zip do v0 com mock data pra validação visual, antes de
+  conectar aos `lib/*.ts` reais de Estudos.

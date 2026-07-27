@@ -6,21 +6,59 @@ Referência visual para qualquer IA ou dev gerar páginas novas sem quebrar a co
 
 ## Paleta de cores
 
-**Atualizada em 2026-07-20 (DEC-034)** — troca de identidade visual, de
-verde-limão para dourado/âmbar sobre fundo quase preto, baseada numa
-referência de design (Figma) trazida pelo usuário. Aplicada a **todo o
-sistema** via `globals.css`, não só à Biblioteca.
+**Atualizada em 2026-07-25 (DEC-037)** — nova paleta padrão do sistema,
+gerada a partir do design aprovado no v0.dev para Estudos v2. Aplicada a
+Dashboard, Treino e Estudos via `globals.css`. **Exceção: Biblioteca**
+mantém a paleta dourada/âmbar da DEC-034 (ver bloco "Exceção — Biblioteca"
+abaixo) — decisão explícita do usuário, não migrada junto.
+
+Diferente da DEC-034 (só modo escuro), esta paleta tem **modo claro e
+escuro reais**, com toggle funcional no sistema inteiro exceto Biblioteca
+(DEC-039).
 
 ```css
---bg:      #0c0c14   /* fundo principal */
---surface: #13131f   /* cards, modais, superfícies elevadas */
---surface-2: #1a1a28 /* nível intermediário — placeholder de capa, skeleton */
---border:  rgba(255, 255, 255, 0.07)  /* bordas padrão — nota: é rgba, não hex sólido */
---accent:  #c9a96e   /* dourado — ações primárias, destaques, nota, item ativo */
---accent-wash: rgba(201, 169, 110, 0.12)        /* fundo do item ativo (sidebar) */
---accent-wash-forte: rgba(201, 169, 110, 0.2)   /* fundo do badge de contagem, botões secundários dourados */
---text:    #ede9e1   /* texto principal — branco levemente quente */
+/* Claro (:root) e escuro (.dark) — valores completos em oklch() no
+   globals.css real. Vocabulário shadcn (--background/--card/--primary...)
+   é a fonte da verdade; vocabulário antigo (--bg/--surface/--accent...)
+   é alias, consumido pelos CSS Modules de Treino/Dashboard sem alteração
+   de componente. Ver ARCHITECTURE.md → Stack mista de estilização. */
+--bg:      var(--background)
+--surface: var(--card)
+--surface-2: var(--muted)
+--accent:  var(--accent-foreground)   /* cor legível de destaque — texto/ícone/borda ativa */
+--accent-wash: var(--accent)          /* fundo do wash — item ativo da sidebar */
+--accent-wash-forte: color-mix(in oklch, var(--accent) 55%, var(--accent-foreground) 20%)
+--text:    var(--foreground)
+--texto-secundario: var(--muted-foreground)
+```
+ 
+**Nota de comportamento:** no modo escuro dessa paleta, a maior parte da UI
+é monocromática (cinza/branco) — cor só aparece em estados semânticos
+específicos (badge de sucesso, item ativo). No modo claro, o verde aparece
+com mais presença. Isso é intencional do design aprovado, não bug.
+
+### Exceção — Biblioteca (DEC-034, mantida)
+
+```css
+--bg:      #0c0c14
+--surface: #13131f
+--surface-2: #1a1a28
+--border:  rgba(255, 255, 255, 0.07)
+--accent:  #c9a96e
+--accent-wash: rgba(201, 169, 110, 0.12)
+--accent-wash-forte: rgba(201, 169, 110, 0.2)
+--text:    #ede9e1
 --texto-secundario: #8a8799
+```
+
+Aplicada via classe `.bibliotecaTheme` em `app/biblioteca/layout.tsx` —
+fixa, sem modo claro, sem toggle (DEC-039). Nenhum componente da Biblioteca
+precisou mudar.
+```
+
+Aplicada via classe `.bibliotecaTheme` em `app/biblioteca/layout.tsx` —
+fixa, sem modo claro, sem toggle (DEC-039). Nenhum componente da Biblioteca
+precisou mudar.
 ```
 
 Cores secundárias usadas em contexto (não são variáveis CSS formais, mas aparecem consistentemente):

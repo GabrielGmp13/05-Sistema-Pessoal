@@ -59,7 +59,7 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 
 ## v3 (futuro distante)
 
-- [ ] Migrar estilização de CSS Modules para Tailwind — decisão tomada durante planejamento da v2 (2026-07-14), fora de escopo da v2
+- [ ] Migrar Treino/Biblioteca (CSS Modules) para Tailwind — Estudos já migrou (DEC-038, 2026-07-25); decisão de estender pro resto do sistema ainda não tomada, sem data
 
 # BACKLOG.md
 
