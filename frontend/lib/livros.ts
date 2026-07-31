@@ -96,6 +96,5 @@ export async function atualizarLivro(uuid: string, dados: LivroInput): Promise<L
 }
 
 export async function apagarLivro(uuid: string): Promise<boolean> {
-  const { error } = await softDelete('livros', uuid);
-  return !error;
+  return await softDelete('livros', uuid);
 }

@@ -58,21 +58,25 @@ export async function deleteFile(bucket: string, path: string): Promise<boolean>
   return true;
 }
 
-// Soft delete universal (DEC-008) — retorna {error}, não boolean (ver refactor pós-v1)
+// Soft delete universal (DEC-008)
 export async function softDelete(
   table: string,
   uuid: string
-): Promise<{ error: unknown }> {
+): Promise<boolean> {
   const { error } = await sb
     .from(table)
     .update({ deleted: true, updated_at: now() })
     .eq('uuid', uuid);
-  if (error) sbErr(error, `softDelete(${table}, ${uuid})`);
-  return { error };
+  if (error) {
+    sbErr(error, `softDelete(${table}, ${uuid})`);
+    return false;
+  }
+  return true;
 }
 
-// Log padronizado de erro do Supabase
-export function sbErr(error: unknown, context: string): boolean {
+// Log padronizado de erro do Supabase — retorna null para compatibilidade
+// com o padrão "if (error) return sbErr(error, 'fn')" nos callers
+export function sbErr<T = null>(error: unknown, context: string): T {
   console.error(`[Supabase Error] ${context}:`, error);
-  return true;
+  return null as T;
 }

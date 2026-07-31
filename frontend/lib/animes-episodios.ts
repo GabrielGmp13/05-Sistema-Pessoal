@@ -87,8 +87,7 @@ export async function atualizarEpisodio(
 }
 
 export async function apagarEpisodio(uuid: string): Promise<boolean> {
-  const { error } = await softDelete('animes_episodios', uuid);
-  return !error;
+  return await softDelete('animes_episodios', uuid);
 }
 
 // Utilitário puro — % de filler, calculada no frontend (não persistida).

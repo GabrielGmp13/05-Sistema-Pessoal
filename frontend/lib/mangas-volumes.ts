@@ -85,6 +85,5 @@ export async function atualizarVolume(
 }
 
 export async function apagarVolume(uuid: string): Promise<boolean> {
-  const { error } = await softDelete('mangas_volumes', uuid);
-  return !error;
+  return await softDelete('mangas_volumes', uuid);
 }

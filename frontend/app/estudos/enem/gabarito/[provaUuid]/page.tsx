@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
 import { useParams } from 'next/navigation'
+import { Check, Loader2, Save, Sparkles, X } from 'lucide-react'
 import { listarMaterias, Materia } from '../../../../../lib/materias'
 import { listarConteudosPorMateria, Conteudo } from '../../../../../lib/conteudos'
 import {
@@ -10,6 +10,14 @@ import {
   buscarGabaritoProva,
   QuestaoIndividual,
 } from '../../../../../lib/questoes-individuais'
+import { BackLink, PageHeader, PageShell } from '@/components/study/page-shell'
+import { MonoLabel } from '@/components/study/mono-label'
+import { Field } from '@/components/study/field'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
+import { cn } from '@/lib/utils'
 
 interface LinhaGabarito {
   numero: number
@@ -75,6 +83,18 @@ export default function GabaritoProvaPage() {
     })
   }
 
+  function toggleAcertou(index: number) {
+    setLinhas((prev) => {
+      const copia = [...prev]
+      copia[index] = {
+        ...copia[index],
+        acertou: !copia[index].acertou,
+        ...(copia[index].acertou ? {} : { conteudo_uuid: '', motivo_erro: '' }),
+      }
+      return copia
+    })
+  }
+
   async function handleSalvar() {
     if (!materiaSelecionada || linhas.length === 0) return
     setSalvando(true)
@@ -94,99 +114,195 @@ export default function GabaritoProvaPage() {
     carregar()
   }
 
-  if (carregando) return <p style={{ padding: '2rem' }}>Carregando...</p>
+  if (carregando) return (
+    <PageShell>
+      <div className="flex items-center justify-center py-20">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="size-6 animate-spin text-muted-foreground" />
+          <p className="text-sm text-muted-foreground">Carregando...</p>
+        </div>
+      </div>
+    </PageShell>
+  )
 
   const acertosJaLancados = jaLancado.filter((q) => q.acertou).length
+  const pctJaLancado = jaLancado.length > 0
+    ? Math.round((acertosJaLancados / jaLancado.length) * 100)
+    : 0
 
   return (
-    <div style={{ padding: '2rem', maxWidth: 900, margin: '0 auto' }}>
-      <Link href="/estudos/enem">← voltar</Link>
-      <h1>Gabarito digital</h1>
+    <PageShell>
+      <div className="mb-5">
+        <BackLink href="/estudos/enem">Voltar ao ENEM</BackLink>
+      </div>
+      <PageHeader
+        eyebrow="Lançamento em lote"
+        title="Gabarito digital"
+        description="Digite rapidamente o resultado da prova: marque acertos e erros, e detalhe apenas o que precisar."
+      />
 
+      {/* Resumo do gabarito já lançado */}
       {jaLancado.length > 0 && (
-        <section style={{ marginTop: '1rem' }}>
-          <h2>Já lançado nesta prova</h2>
-          <p>{jaLancado.length} questões registradas — {acertosJaLancados} acertos ({Math.round((acertosJaLancados / jaLancado.length) * 100)}%)</p>
-        </section>
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:max-w-md">
+          <Card className="p-4">
+            <MonoLabel>Questões registradas</MonoLabel>
+            <p className="mt-1 text-2xl font-semibold tabular-nums">
+              {jaLancado.length}
+            </p>
+          </Card>
+          <Card className="p-4">
+            <MonoLabel>Taxa de acerto</MonoLabel>
+            <p className="mt-1 text-2xl font-semibold tabular-nums text-success-foreground">
+              {pctJaLancado}%
+            </p>
+          </Card>
+        </div>
       )}
 
-      <section style={{ marginTop: '1.5rem' }}>
-        <h2>Lançar nova área</h2>
-        <div style={{ display: 'flex', gap: '.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
-          <select value={materiaSelecionada} onChange={(e) => setMateriaSelecionada(e.target.value)}>
-            <option value="">Selecione a área</option>
-            {materiasEnem.map((m) => (
-              <option key={m.uuid} value={m.uuid}>{m.nome}</option>
-            ))}
-          </select>
-          <input
-            value={quantidade}
-            onChange={(e) => setQuantidade(e.target.value)}
-            placeholder="Qtd. questões"
-            inputMode="numeric"
-            style={{ width: 100 }}
-          />
-          <button onClick={gerarLinhas} disabled={!materiaSelecionada}>Gerar linhas</button>
-        </div>
+      {/* Seletor de área + quantidade */}
+      <Card className="mt-6 p-5">
+        <form
+          onSubmit={(e) => { e.preventDefault(); gerarLinhas(); }}
+          className="flex flex-col gap-4 sm:flex-row sm:items-end"
+        >
+          <Field label="Área do ENEM" className="sm:flex-1">
+            <Select
+              value={materiaSelecionada}
+              onChange={(e) => setMateriaSelecionada(e.target.value)}
+              aria-label="Área do ENEM"
+            >
+              <option value="">Selecione a área</option>
+              {materiasEnem.map((m) => (
+                <option key={m.uuid} value={m.uuid}>{m.nome}</option>
+              ))}
+            </Select>
+          </Field>
+          <Field label="Quantidade de questões" className="sm:w-48">
+            <Input
+              type="number"
+              min={1}
+              max={90}
+              value={quantidade}
+              onChange={(e) => setQuantidade(e.target.value)}
+            />
+          </Field>
+          <Button type="submit" size="lg" disabled={!materiaSelecionada} className="shrink-0">
+            <Sparkles className="size-4" />
+            Gerar tabela
+          </Button>
+        </form>
+      </Card>
 
-        {linhas.length > 0 && (
-          <>
-            <table style={{ marginTop: '1rem', borderCollapse: 'collapse', width: '100%' }}>
-              <thead>
-                <tr>
-                  <th style={thStyle}>#</th>
-                  <th style={thStyle}>Acertou</th>
-                  <th style={thStyle}>Conteúdo (se errou)</th>
-                  <th style={thStyle}>Motivo do erro</th>
-                </tr>
-              </thead>
-              <tbody>
-                {linhas.map((l, i) => (
-                  <tr key={l.numero}>
-                    <td style={tdStyle}>{l.numero}</td>
-                    <td style={tdStyle}>
-                      <input
-                        type="checkbox"
-                        checked={l.acertou}
-                        onChange={(e) => atualizarLinha(i, 'acertou', e.target.checked)}
-                      />
-                    </td>
-                    <td style={tdStyle}>
-                      {!l.acertou && (
-                        <select
-                          value={l.conteudo_uuid}
-                          onChange={(e) => atualizarLinha(i, 'conteudo_uuid', e.target.value)}
-                        >
-                          <option value="">—</option>
-                          {conteudos.map((c) => (
-                            <option key={c.uuid} value={c.uuid}>{c.nome}</option>
-                          ))}
-                        </select>
-                      )}
-                    </td>
-                    <td style={tdStyle}>
-                      {!l.acertou && (
-                        <input
-                          value={l.motivo_erro}
-                          onChange={(e) => atualizarLinha(i, 'motivo_erro', e.target.value)}
-                          placeholder="ex: não sabia o conteúdo"
-                        />
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            <button onClick={handleSalvar} disabled={salvando} style={{ marginTop: '1rem' }}>
-              {salvando ? 'Salvando...' : `Salvar gabarito (${linhas.length} questões)`}
+      {linhas.length === 0 ? (
+        <Card className="mt-4 flex flex-col items-center justify-center gap-2 border-dashed px-6 py-14 text-center">
+          <p className="text-sm font-medium">Nenhuma tabela gerada ainda</p>
+          <p className="max-w-sm text-pretty text-xs leading-relaxed text-muted-foreground">
+            Escolha a área e a quantidade de questões acima e gere a tabela para
+            começar o lançamento.
+          </p>
+        </Card>
+      ) : (
+        <div className="mt-4 flex flex-col gap-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <MonoLabel>
+              {materiasEnem.find((m) => m.uuid === materiaSelecionada)?.nome ?? 'Área'} · {linhas.length} questões · {linhas.filter((l) => l.acertou).length} certas
+            </MonoLabel>
+            <button
+              type="button"
+              onClick={() => setLinhas([])}
+              className="font-mono text-[0.7rem] uppercase tracking-[0.14em] text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+            >
+              Limpar
             </button>
-          </>
-        )}
-      </section>
-    </div>
+          </div>
+
+          <Card className="divide-y divide-border overflow-hidden">
+            {linhas.map((l, i) => (
+              <div key={l.numero} className="flex flex-col gap-3 px-4 py-3 sm:px-5">
+                <div className="flex items-center gap-3">
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-secondary font-mono text-sm font-medium tabular-nums">
+                    {l.numero}
+                  </span>
+                  <span className="text-sm text-muted-foreground">Questão {l.numero}</span>
+                  <div
+                    className="ml-auto inline-flex overflow-hidden rounded-lg border border-border"
+                    role="group"
+                    aria-label={`Resultado da questão ${l.numero}`}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!l.acertou) toggleAcertou(i)
+                      }}
+                      className={cn(
+                        'inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors',
+                        l.acertou
+                          ? 'bg-success text-success-foreground'
+                          : 'bg-card text-muted-foreground hover:bg-muted',
+                      )}
+                      aria-pressed={l.acertou}
+                    >
+                      <Check className="size-3.5" />
+                      Certo
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (l.acertou) toggleAcertou(i)
+                      }}
+                      className={cn(
+                        'inline-flex items-center gap-1 border-l border-border px-3 py-1.5 text-xs font-medium transition-colors',
+                        !l.acertou
+                          ? 'bg-destructive/10 text-destructive'
+                          : 'bg-card text-muted-foreground hover:bg-muted',
+                      )}
+                      aria-pressed={!l.acertou}
+                    >
+                      <X className="size-3.5" />
+                      Errado
+                    </button>
+                  </div>
+                </div>
+
+                {!l.acertou ? (
+                  <div className="grid grid-cols-1 gap-3 pl-11 sm:grid-cols-2">
+                    <Field label="Conteúdo relacionado" optional>
+                      <Select
+                        value={l.conteudo_uuid}
+                        onChange={(e) => atualizarLinha(i, 'conteudo_uuid', e.target.value)}
+                        aria-label={`Conteúdo da questão ${l.numero}`}
+                      >
+                        <option value="">Selecione…</option>
+                        {conteudos.map((c) => (
+                          <option key={c.uuid} value={c.uuid}>{c.nome}</option>
+                        ))}
+                      </Select>
+                    </Field>
+                    <Field label="Motivo do erro" optional>
+                      <Input
+                        value={l.motivo_erro}
+                        onChange={(e) => atualizarLinha(i, 'motivo_erro', e.target.value)}
+                        placeholder="Ex: erro de cálculo"
+                      />
+                    </Field>
+                  </div>
+                ) : null}
+              </div>
+            ))}
+          </Card>
+
+          <div className="flex items-center justify-end gap-3">
+            <Button size="lg" onClick={handleSalvar} disabled={salvando}>
+              {salvando ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Save className="size-4" />
+              )}
+              {salvando ? 'Salvando…' : `Salvar gabarito (${linhas.length} questões)`}
+            </Button>
+          </div>
+        </div>
+      )}
+    </PageShell>
   )
 }
-
-const thStyle: React.CSSProperties = { textAlign: 'left', borderBottom: '1px solid #444', padding: '.25rem .5rem' }
-const tdStyle: React.CSSProperties = { borderBottom: '1px solid #222', padding: '.25rem .5rem' }

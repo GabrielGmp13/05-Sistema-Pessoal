@@ -97,6 +97,5 @@ export async function atualizarManga(uuid: string, dados: MangaInput): Promise<M
 }
 
 export async function apagarManga(uuid: string): Promise<boolean> {
-  const { error } = await softDelete('mangas', uuid);
-  return !error;
+  return await softDelete('mangas', uuid);
 }

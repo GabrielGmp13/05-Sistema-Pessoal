@@ -62,6 +62,5 @@ export async function criarAnotacaoLivro(
 }
 
 export async function apagarAnotacaoLivro(uuid: string): Promise<boolean> {
-  const { error } = await softDelete('livros_anotacoes', uuid);
-  return !error;
+  return await softDelete('livros_anotacoes', uuid);
 }

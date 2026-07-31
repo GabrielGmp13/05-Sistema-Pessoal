@@ -81,6 +81,5 @@ export async function atualizarTemporadaAnime(
 }
 
 export async function apagarTemporadaAnime(uuid: string): Promise<boolean> {
-  const { error } = await softDelete('animes_temporadas', uuid);
-  return !error;
+  return await softDelete('animes_temporadas', uuid);
 }

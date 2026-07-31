@@ -2,13 +2,43 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import {
+  CalendarClock,
+  FileCheck2,
+  Plus,
+} from 'lucide-react'
 import { listarMaterias, criarMateria, Materia } from '../../../lib/materias'
 import { listarProximasProvas, criarProva, Prova, TipoProva } from '../../../lib/provas'
+import {
+  BackLink,
+  PageHeader,
+  PageShell,
+} from '@/components/study/page-shell'
+import { Section } from '@/components/study/section'
+import { SubjectManager } from '@/components/study/subject-manager'
+import { EmptyState } from '@/components/study/empty-state'
+import { MonoLabel } from '@/components/study/mono-label'
+import { Field } from '@/components/study/field'
+import { Card } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
+import { cn } from '@/lib/utils'
+
+function formatDate(iso: string) {
+  const d = new Date(iso + 'T00:00:00')
+  return d.toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  })
+}
 
 export default function EnemPage() {
   const [materias, setMaterias] = useState<Materia[]>([])
   const [provas, setProvas] = useState<Prova[]>([])
-  const [novoNome, setNovoNome] = useState('')
   const [novaProva, setNovaProva] = useState({ titulo: '', data: '', tipo: 'enem_dia1' as TipoProva })
   const [carregando, setCarregando] = useState(true)
 
@@ -26,10 +56,10 @@ export default function EnemPage() {
     carregar()
   }, [])
 
-  async function handleCriarMateria() {
-    if (!novoNome.trim()) return
+  async function handleCriarMateria(nome: string) {
+    if (!nome.trim()) return
     await criarMateria({
-      nome: novoNome,
+      nome,
       tipo: 'enem',
       cor: null,
       plataforma: null,
@@ -39,14 +69,13 @@ export default function EnemPage() {
       concluido: false,
       data_conclusao: null,
     })
-    setNovoNome('')
     carregar()
   }
 
   async function handleCriarProva() {
     if (!novaProva.data) return
     await criarProva({
-      materia_uuid: null, // ENEM cobre várias áreas — granularidade fica no gabarito
+      materia_uuid: null,
       tipo: novaProva.tipo,
       conteudo_uuid: null,
       titulo: novaProva.titulo || (novaProva.tipo === 'enem_dia1' ? 'ENEM — Dia 1' : 'ENEM — Dia 2'),
@@ -61,70 +90,136 @@ export default function EnemPage() {
     carregar()
   }
 
-  if (carregando) return <p style={{ padding: '2rem' }}>Carregando...</p>
-
   return (
-    <div style={{ padding: '2rem', maxWidth: 900, margin: '0 auto' }}>
-      <Link href="/estudos">← voltar</Link>
-      <h1>ENEM</h1>
+    <PageShell>
+      <div className="mb-5">
+        <BackLink href="/estudos">Voltar ao Hub</BackLink>
+      </div>
+      <PageHeader
+        eyebrow="Mundo ENEM"
+        title="ENEM"
+        description="Gerencie suas áreas de conhecimento e acompanhe as provas oficiais do Dia 1 e Dia 2."
+      />
 
-      <section>
-        <h2>Matérias</h2>
-        {materias.length === 0 && <p>Nenhuma matéria de ENEM cadastrada.</p>}
-        <ul>
-          {materias.map((m) => (
-            <li key={m.uuid}>
-              <Link href={`/estudos/materia/${m.uuid}`}>{m.nome}</Link>
-            </li>
-          ))}
-        </ul>
-
-        <div style={{ marginTop: '1rem' }}>
-          <input
-            value={novoNome}
-            onChange={(e) => setNovoNome(e.target.value)}
-            placeholder="Nome da matéria (ex: Matemática)"
-          />
-          <button onClick={handleCriarMateria}>+ Adicionar matéria</button>
-        </div>
-      </section>
-
-      <section style={{ marginTop: '2rem' }}>
-        <h2>Próximas provas (dia 1 / dia 2)</h2>
-        {provas.length === 0 ? (
-          <p>Nenhuma prova de ENEM agendada ainda.</p>
-        ) : (
-          <ul>
-            {provas.map((p) => (
-              <li key={p.uuid}>
-                {p.data} — {p.tipo === 'enem_dia1' ? 'Dia 1' : 'Dia 2'} {p.titulo ? `— ${p.titulo}` : ''}{' '}
-                <Link href={`/estudos/enem/gabarito/${p.uuid}`}>lançar gabarito</Link>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        <div style={{ marginTop: '.5rem', display: 'flex', gap: '.5rem', flexWrap: 'wrap' }}>
-          <select
-            value={novaProva.tipo}
-            onChange={(e) => setNovaProva((p) => ({ ...p, tipo: e.target.value as TipoProva }))}
+      {carregando ? (
+        <LoadingState />
+      ) : (
+        <div className="mt-8 flex flex-col gap-10">
+          <Section
+            label="Bloco 1"
+            title="Áreas de conhecimento"
+            count={materias.length}
           >
-            <option value="enem_dia1">Dia 1</option>
-            <option value="enem_dia2">Dia 2</option>
-          </select>
-          <input
-            type="date"
-            value={novaProva.data}
-            onChange={(e) => setNovaProva((p) => ({ ...p, data: e.target.value }))}
-          />
-          <input
-            value={novaProva.titulo}
-            onChange={(e) => setNovaProva((p) => ({ ...p, titulo: e.target.value }))}
-            placeholder="Título (opcional)"
-          />
-          <button onClick={handleCriarProva}>+ Agendar prova ENEM</button>
+            <SubjectManager
+              subjects={materias.map((m) => ({
+                id: m.uuid,
+                name: m.nome,
+                topics: 0,
+                accuracy: 0,
+              }))}
+              origin="enem"
+              onAdd={handleCriarMateria}
+              hrefBuilder={(s) => `/estudos/materia/${s.id}`}
+            />
+          </Section>
+
+          <Section label="Bloco 2" title="Provas ENEM" count={provas.length}>
+            <div className="flex flex-col gap-4">
+              {provas.length === 0 ? (
+                <EmptyState
+                  icon={CalendarClock}
+                  title="Nenhuma prova agendada"
+                  description="Agende o Dia 1 ou Dia 2 no formulário abaixo."
+                />
+              ) : (
+                <Card className="divide-y divide-border overflow-hidden">
+                  {provas.map((p) => (
+                    <div
+                      key={p.uuid}
+                      className="flex flex-wrap items-center gap-3 px-5 py-4"
+                    >
+                      <Badge variant={p.tipo === 'enem_dia1' ? 'success' : 'default'}>
+                        {p.tipo === 'enem_dia1' ? 'Dia 1' : 'Dia 2'}
+                      </Badge>
+                      <div className="flex min-w-0 flex-col">
+                        <span className="truncate text-sm font-medium">
+                          {p.titulo || 'Prova ENEM'}
+                        </span>
+                        <MonoLabel>{formatDate(p.data)}</MonoLabel>
+                      </div>
+                      <Link
+                        href={`/estudos/enem/gabarito/${p.uuid}`}
+                        className={cn(
+                          'ml-auto inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-2.5 py-1.5 text-sm font-medium text-foreground transition-all hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/30',
+                        )}
+                      >
+                        <FileCheck2 className="size-3.5" />
+                        Lançar gabarito
+                      </Link>
+                    </div>
+                  ))}
+                </Card>
+              )}
+
+              <Card className="p-5">
+                <form
+                  onSubmit={(e) => { e.preventDefault(); handleCriarProva(); }}
+                  className="flex flex-col gap-4"
+                >
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <Field label="Dia da prova">
+                      <Select
+                        value={novaProva.tipo}
+                        onChange={(e) => setNovaProva((p) => ({ ...p, tipo: e.target.value as TipoProva }))}
+                        aria-label="Dia da prova"
+                      >
+                        <option value="enem_dia1">Dia 1</option>
+                        <option value="enem_dia2">Dia 2</option>
+                      </Select>
+                    </Field>
+                    <Field label="Data">
+                      <Input
+                        type="date"
+                        value={novaProva.data}
+                        onChange={(e) => setNovaProva((p) => ({ ...p, data: e.target.value }))}
+                      />
+                    </Field>
+                    <Field label="Título" optional>
+                      <Input
+                        value={novaProva.titulo}
+                        onChange={(e) => setNovaProva((p) => ({ ...p, titulo: e.target.value }))}
+                        placeholder="Ex: 1ª aplicação"
+                      />
+                    </Field>
+                  </div>
+                  <div className="flex justify-end">
+                    <Button type="submit" size="lg">
+                      <Plus className="size-4" />
+                      Agendar prova
+                    </Button>
+                  </div>
+                </form>
+              </Card>
+            </div>
+          </Section>
         </div>
-      </section>
+      )}
+    </PageShell>
+  )
+}
+
+function LoadingState() {
+  return (
+    <div className="mt-8 flex flex-col gap-10">
+      {[0, 1].map((s) => (
+        <div key={s} className="flex flex-col gap-4">
+          <Skeleton className="h-5 w-40" />
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <Skeleton className="h-16 w-full" />
+            <Skeleton className="h-16 w-full" />
+          </div>
+        </div>
+      ))}
     </div>
   )
 }

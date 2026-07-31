@@ -84,6 +84,5 @@ export async function atualizarOpeningEnding(
 }
 
 export async function apagarOpeningEnding(uuid: string): Promise<boolean> {
-  const { error } = await softDelete('openings_endings', uuid);
-  return !error;
+  return await softDelete('openings_endings', uuid);
 }

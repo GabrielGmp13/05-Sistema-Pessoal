@@ -103,8 +103,7 @@ export async function atualizarFilme(uuid: string, dados: FilmeInput): Promise<F
 }
 
 export async function apagarFilme(uuid: string): Promise<boolean> {
-  const { error } = await softDelete('filmes', uuid);
-  return !error;
+  return await softDelete('filmes', uuid);
 }
 
 // Complementos de anime (filme/OVA/ONA/Special) — DEC-025 (009).

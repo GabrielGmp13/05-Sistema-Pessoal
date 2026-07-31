@@ -80,6 +80,5 @@ export async function atualizarTemporada(
 }
 
 export async function apagarTemporada(uuid: string): Promise<boolean> {
-  const { error } = await softDelete('series_temporadas', uuid);
-  return !error;
+  return await softDelete('series_temporadas', uuid);
 }

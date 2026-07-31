@@ -100,6 +100,5 @@ export async function atualizarSerie(uuid: string, dados: SerieInput): Promise<S
 }
 
 export async function apagarSerie(uuid: string): Promise<boolean> {
-  const { error } = await softDelete('series', uuid);
-  return !error;
+  return await softDelete('series', uuid);
 }

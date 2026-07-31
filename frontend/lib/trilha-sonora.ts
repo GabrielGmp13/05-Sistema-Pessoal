@@ -88,6 +88,5 @@ export async function atualizarTrilhaSonora(
 }
 
 export async function apagarTrilhaSonora(uuid: string): Promise<boolean> {
-  const { error } = await softDelete('trilha_sonora', uuid);
-  return !error;
+  return await softDelete('trilha_sonora', uuid);
 }

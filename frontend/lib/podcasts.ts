@@ -92,6 +92,5 @@ export async function atualizarPodcast(
 }
 
 export async function apagarPodcast(uuid: string): Promise<boolean> {
-  const { error } = await softDelete('podcasts', uuid);
-  return !error;
+  return await softDelete('podcasts', uuid);
 }

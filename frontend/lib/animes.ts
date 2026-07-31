@@ -102,6 +102,5 @@ export async function atualizarAnime(uuid: string, dados: AnimeInput): Promise<A
 }
 
 export async function apagarAnime(uuid: string): Promise<boolean> {
-  const { error } = await softDelete('animes', uuid);
-  return !error;
+  return await softDelete('animes', uuid);
 }

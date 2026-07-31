@@ -89,6 +89,5 @@ export async function atualizarElenco(
 }
 
 export async function apagarElenco(uuid: string): Promise<boolean> {
-  const { error } = await softDelete('elenco', uuid);
-  return !error;
+  return await softDelete('elenco', uuid);
 }

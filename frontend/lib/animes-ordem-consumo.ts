@@ -65,6 +65,5 @@ export async function criarItemOrdemConsumo(
 }
 
 export async function apagarItemOrdemConsumo(uuid: string): Promise<boolean> {
-  const { error } = await softDelete('animes_ordem_consumo', uuid);
-  return !error;
+  return await softDelete('animes_ordem_consumo', uuid);
 }
