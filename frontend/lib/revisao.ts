@@ -127,6 +127,28 @@ export async function avaliarCard(
 }
 
 // ---------------------------------------------------------------------------
+// Leitura em lote — usado pela tela de Matéria pra mostrar "próxima revisão"
+// de cada conteúdo sem 1 query por conteúdo. Recebe os revisao_uuid (podem
+// ter null misturado — filtrado antes da query).
+// ---------------------------------------------------------------------------
+
+export async function buscarCardsRevisao(revisaoUuids: string[]): Promise<CardRevisao[] | null> {
+  const userId = await getUserId()
+  if (!userId) return null
+  if (revisaoUuids.length === 0) return []
+
+  const { data, error } = await sb
+    .from('revisao_espacada')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('deleted', false)
+    .in('uuid', revisaoUuids)
+
+  if (error) return sbErr(error, 'buscarCardsRevisao')
+  return data
+}
+
+// ---------------------------------------------------------------------------
 // Helper específico de Estudos v2 (DEC-035) — conteúdos.revisao_uuid é FK
 // polimórfica pra revisao_espacada.uuid. Aqui o card funciona como LEMBRETE
 // (pergunta = rótulo do conteúdo, resposta vazia), não flashcard pergunta/

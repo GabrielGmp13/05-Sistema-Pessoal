@@ -52,6 +52,7 @@ export default function EscolaPage() {
       nome,
       tipo: 'escola',
       cor: null,
+      area_enem: null, // matéria de escola nunca tem área ENEM
       plataforma: null,
       carga_horaria_total_horas: null,
       horas_dedicadas: 0,

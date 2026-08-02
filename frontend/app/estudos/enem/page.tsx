@@ -7,7 +7,14 @@ import {
   FileCheck2,
   Plus,
 } from 'lucide-react'
-import { listarMaterias, criarMateria, Materia } from '../../../lib/materias'
+import {
+  listarMaterias,
+  criarMateria,
+  Materia,
+  AreaEnem,
+  AREA_ENEM_LABELS,
+  ORDEM_AREAS_ENEM,
+} from '../../../lib/materias'
 import { listarProximasProvas, criarProva, Prova, TipoProva } from '../../../lib/provas'
 import {
   BackLink,
@@ -56,12 +63,15 @@ export default function EnemPage() {
     carregar()
   }, [])
 
-  async function handleCriarMateria(nome: string) {
+  // Matéria nova é sempre criada dentro do contexto de uma área específica —
+  // não existe "matéria ENEM solta" sem área (ver migration 017 / lib/materias.ts).
+  async function handleCriarMateria(area: AreaEnem, nome: string) {
     if (!nome.trim()) return
     await criarMateria({
       nome,
       tipo: 'enem',
       cor: null,
+      area_enem: area,
       plataforma: null,
       carga_horaria_total_horas: null,
       horas_dedicadas: 0,
@@ -98,7 +108,7 @@ export default function EnemPage() {
       <PageHeader
         eyebrow="Mundo ENEM"
         title="ENEM"
-        description="Gerencie suas áreas de conhecimento e acompanhe as provas oficiais do Dia 1 e Dia 2."
+        description="Áreas de conhecimento fixas do exame. Cada área agrupa suas matérias — a prova oficial é gerenciada aqui, nunca dentro de uma matéria específica."
       />
 
       {carregando ? (
@@ -110,17 +120,27 @@ export default function EnemPage() {
             title="Áreas de conhecimento"
             count={materias.length}
           >
-            <SubjectManager
-              subjects={materias.map((m) => ({
-                id: m.uuid,
-                name: m.nome,
-                topics: 0,
-                accuracy: 0,
-              }))}
-              origin="enem"
-              onAdd={handleCriarMateria}
-              hrefBuilder={(s) => `/estudos/materia/${s.id}`}
-            />
+            <div className="flex flex-col gap-6">
+              {ORDEM_AREAS_ENEM.map((area) => {
+                const materiasDaArea = materias.filter((m) => m.area_enem === area)
+                return (
+                  <div key={area} className="flex flex-col gap-3">
+                    <MonoLabel>{AREA_ENEM_LABELS[area]}</MonoLabel>
+                    <SubjectManager
+                      subjects={materiasDaArea.map((m) => ({
+                        id: m.uuid,
+                        name: m.nome,
+                        topics: 0,
+                        accuracy: 0,
+                      }))}
+                      origin="enem"
+                      onAdd={(nome) => handleCriarMateria(area, nome)}
+                      hrefBuilder={(s) => `/estudos/materia/${s.id}`}
+                    />
+                  </div>
+                )
+              })}
+            </div>
           </Section>
 
           <Section label="Bloco 2" title="Provas ENEM" count={provas.length}>
@@ -154,7 +174,7 @@ export default function EnemPage() {
                         )}
                       >
                         <FileCheck2 className="size-3.5" />
-                        Lançar gabarito
+                        Gabarito
                       </Link>
                     </div>
                   ))}
@@ -173,8 +193,8 @@ export default function EnemPage() {
                         onChange={(e) => setNovaProva((p) => ({ ...p, tipo: e.target.value as TipoProva }))}
                         aria-label="Dia da prova"
                       >
-                        <option value="enem_dia1">Dia 1</option>
-                        <option value="enem_dia2">Dia 2</option>
+                        <option value="enem_dia1">Dia 1 (Linguagens + Humanas + Redação)</option>
+                        <option value="enem_dia2">Dia 2 (Natureza + Matemática)</option>
                       </Select>
                     </Field>
                     <Field label="Data">

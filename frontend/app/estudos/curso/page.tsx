@@ -60,6 +60,7 @@ export default function CursoListaPage() {
       nome: nome.trim(),
       tipo: 'curso',
       cor: null,
+      area_enem: null, // curso nunca tem área ENEM
       plataforma: plataforma.trim() || null,
       carga_horaria_total_horas: cargaHoraria ? Number(cargaHoraria) : null,
       horas_dedicadas: 0,

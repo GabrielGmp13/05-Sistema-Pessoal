@@ -20,6 +20,7 @@ import {
 import { listarProximasProvas, Prova } from '../../lib/provas'
 import { listarAtividadesPendentes, Atividade } from '../../lib/atividades'
 import { listarUltimosSimulados, Simulado } from '../../lib/simulados'
+import { seedMateriasEnemEscolaSeNecessario } from '../../lib/materias'
 import { PageHeader, PageShell } from '@/components/study/page-shell'
 import { MonoLabel } from '@/components/study/mono-label'
 import { EmptyState } from '@/components/study/empty-state'
@@ -47,6 +48,10 @@ export default function EstudosHubPage() {
 
   useEffect(() => {
     async function carregar() {
+      // Seed das matérias fixas de Escola/ENEM — roda uma vez, seguro
+      // rodar de novo (checa existência antes de criar). Ver lib/materias.ts.
+      await seedMateriasEnemEscolaSeNecessario()
+
       const [p, a, s] = await Promise.all([
         listarProximasProvas(),
         listarAtividadesPendentes(),

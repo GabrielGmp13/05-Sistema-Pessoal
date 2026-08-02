@@ -59,11 +59,32 @@ import {
   registrarSimulado,
   Simulado,
 } from '../../../../lib/simulados'
+import {
+  avaliarCardPorConteudo,
+  buscarCardsRevisao,
+  CardRevisao,
+} from '../../../../lib/revisao'
 
 function formatDate(iso: string) {
   const d = new Date(iso + 'T00:00:00')
   return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
 }
+
+// Tipos de prova disponíveis por tipo de matéria — nunca inclui enem_dia1/
+// enem_dia2 aqui: prova ENEM é gerenciada só em /estudos/enem (cobre a área
+// inteira, não uma matéria isolada).
+function tiposProvaDisponiveis(tipoMateria: Materia['tipo']): { value: TipoProva; label: string }[] {
+  if (tipoMateria === 'curso') return [{ value: 'curso', label: 'Curso' }, { value: 'outro', label: 'Outro' }]
+  return [{ value: 'escola', label: 'Escola' }, { value: 'outro', label: 'Outro' }]
+}
+
+// Escala de qualidade do SM-2 (estilo Anki) — 4 botões em vez de nota 0-5 solta.
+const BOTOES_QUALIDADE: { label: string; qualidade: number }[] = [
+  { label: 'Errei', qualidade: 1 },
+  { label: 'Difícil', qualidade: 3 },
+  { label: 'Bom', qualidade: 4 },
+  { label: 'Fácil', qualidade: 5 },
+]
 
 export default function MateriaDetalhePage() {
   const params = useParams<{ materiaUuid: string }>()
@@ -71,6 +92,7 @@ export default function MateriaDetalhePage() {
 
   const [materia, setMateria] = useState<Materia | null>(null)
   const [conteudos, setConteudos] = useState<Conteudo[]>([])
+  const [cardsRevisao, setCardsRevisao] = useState<Record<string, CardRevisao>>({})
   const [provas, setProvas] = useState<Prova[]>([])
   const [atividades, setAtividades] = useState<Atividade[]>([])
   const [simulados, setSimulados] = useState<Simulado[]>([])
@@ -106,12 +128,32 @@ export default function MateriaDetalhePage() {
       listarSimuladosPorMateria(materiaUuid),
       taxaDeAcertoRecente(30, materiaUuid),
     ])
-    setMateria((todasMaterias ?? []).find((m) => m.uuid === materiaUuid) ?? null)
+    const materiaAtual = (todasMaterias ?? []).find((m) => m.uuid === materiaUuid) ?? null
+    setMateria(materiaAtual)
     setConteudos(cont ?? [])
     setProvas(prov ?? [])
     setAtividades(ativ ?? [])
     setSimulados(sim ?? [])
     setTaxaAcerto(taxa)
+
+    // Ajusta o tipo padrão do form de prova conforme o tipo da matéria
+    if (materiaAtual) {
+      setNovaProva((p) => ({ ...p, tipo: materiaAtual.tipo === 'curso' ? 'curso' : 'escola' }))
+    }
+
+    // Busca os cards de revisão dos conteúdos que já têm revisao_uuid
+    const revisaoUuids = (cont ?? [])
+      .map((c) => c.revisao_uuid)
+      .filter((u): u is string => u !== null)
+    if (revisaoUuids.length > 0) {
+      const cards = await buscarCardsRevisao(revisaoUuids)
+      const mapa: Record<string, CardRevisao> = {}
+      ;(cards ?? []).forEach((card) => { mapa[card.uuid] = card })
+      setCardsRevisao(mapa)
+    } else {
+      setCardsRevisao({})
+    }
+
     setCarregando(false)
   }
 
@@ -133,6 +175,13 @@ export default function MateriaDetalhePage() {
 
   async function handleAtualizarProgresso(uuid: string, progresso: number) {
     await atualizarConteudo(uuid, { progresso: Math.min(100, progresso) })
+    await carregar()
+  }
+
+  // Revisão SM-2 — separada do progresso. Qualidade 0-5, mesma escala do
+  // algoritmo (ver lib/revisao.ts). Cria o card na primeira avaliação.
+  async function handleAvaliarRevisao(conteudoUuid: string, qualidade: number) {
+    await avaliarCardPorConteudo(conteudoUuid, qualidade)
     await carregar()
   }
 
@@ -165,7 +214,7 @@ export default function MateriaDetalhePage() {
       feita: false,
       observacoes: null,
     })
-    setNovaProva({ titulo: '', data: '', tipo: 'escola' })
+    setNovaProva((p) => ({ titulo: '', data: '', tipo: p.tipo }))
     await carregar()
   }
 
@@ -209,6 +258,8 @@ export default function MateriaDetalhePage() {
       prova_uuid: null,
       numero: null,
       motivo_erro: null,
+      letra_marcada: null,
+      letra_correta: null,
     })
     await carregar()
   }
@@ -266,6 +317,10 @@ export default function MateriaDetalhePage() {
 
   const voltarPara = materia.tipo === 'enem' ? '/estudos/enem' : '/estudos/escola'
   const voltarLabel = materia.tipo === 'enem' ? 'Voltar ao ENEM' : 'Voltar à Escola'
+  // Prova ENEM nunca é criada aqui — só na tela /estudos/enem (cobre a área
+  // inteira do dia, não uma matéria isolada). Ver DECISIONS.md.
+  const mostrarBlocoProvas = materia.tipo !== 'enem'
+  const opcoesTipoProva = tiposProvaDisponiveis(materia.tipo)
 
   return (
     <PageShell>
@@ -301,46 +356,71 @@ export default function MateriaDetalhePage() {
               <EmptyState title="Nenhum conteúdo cadastrado" compact />
             ) : (
               <ul className="flex flex-col divide-y divide-border rounded-lg border border-border">
-                {conteudos.map((c) => (
-                  <li key={c.uuid} className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:gap-3">
-                    <div className="flex min-w-0 flex-1 items-center gap-3">
-                      <span className="min-w-0 flex-1 truncate text-sm font-medium">{c.nome}</span>
-                      <Progress value={c.progresso} className="hidden w-24 sm:block" />
-                      <span className="w-10 shrink-0 text-right font-mono text-xs tabular-nums text-muted-foreground">
-                        {c.progresso}%
-                      </span>
-                    </div>
-                    <div className="flex shrink-0 items-center gap-1">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleAtualizarProgresso(c.uuid, c.progresso + 25)}
-                      >
-                        +25%
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-sm"
-                        onClick={() => handleVincularOutraMateria(c.uuid)}
-                        aria-label="Vincular a outra matéria"
-                        title="Vincular a outra matéria"
-                      >
-                        <Link2 className="size-3.5" />
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-sm"
-                        onClick={() => handleApagarConteudo(c.uuid)}
-                        aria-label="Apagar conteúdo"
-                      >
-                        <Trash2 className="size-3.5" />
-                      </Button>
-                    </div>
-                  </li>
-                ))}
+                {conteudos.map((c) => {
+                  const card = c.revisao_uuid ? cardsRevisao[c.revisao_uuid] : null
+                  return (
+                    <li key={c.uuid} className="flex flex-col gap-2 px-4 py-3">
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+                        <div className="flex min-w-0 flex-1 items-center gap-3">
+                          <span className="min-w-0 flex-1 truncate text-sm font-medium">{c.nome}</span>
+                          <Progress value={c.progresso} className="hidden w-24 sm:block" />
+                          <span className="w-10 shrink-0 text-right font-mono text-xs tabular-nums text-muted-foreground">
+                            {c.progresso}%
+                          </span>
+                        </div>
+                        <div className="flex shrink-0 items-center gap-1">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleAtualizarProgresso(c.uuid, c.progresso + 25)}
+                          >
+                            +25%
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon-sm"
+                            onClick={() => handleVincularOutraMateria(c.uuid)}
+                            aria-label="Vincular a outra matéria"
+                            title="Vincular a outra matéria"
+                          >
+                            <Link2 className="size-3.5" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon-sm"
+                            onClick={() => handleApagarConteudo(c.uuid)}
+                            aria-label="Apagar conteúdo"
+                          >
+                            <Trash2 className="size-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Revisão SM-2 — independente do progresso acima */}
+                      <div className="flex flex-wrap items-center gap-2 pl-0 sm:pl-1">
+                        <MonoLabel>
+                          {card ? `Próxima revisão: ${formatDate(card.proxima_revisao)}` : 'Ainda sem revisão'}
+                        </MonoLabel>
+                        <div className="ml-auto flex items-center gap-1">
+                          {BOTOES_QUALIDADE.map((b) => (
+                            <Button
+                              key={b.label}
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleAvaliarRevisao(c.uuid, b.qualidade)}
+                            >
+                              {b.label}
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+                    </li>
+                  )
+                })}
               </ul>
             )}
 
@@ -362,75 +442,76 @@ export default function MateriaDetalhePage() {
         </Section>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          {/* Provas */}
-          <Section label="Bloco 2" title="Provas" count={provas.length}>
-            <div className="flex flex-col gap-4">
-              {provas.length === 0 ? (
-                <EmptyState icon={CalendarDays} title="Nenhuma prova cadastrada" compact />
-              ) : (
-                <ul className="flex flex-col divide-y divide-border rounded-lg border border-border">
-                  {provas.map((p) => (
-                    <li key={p.uuid} className="flex items-center gap-3 px-4 py-3">
-                      <div className="flex min-w-0 flex-col">
-                        <span className="truncate text-sm font-medium">{p.titulo}</span>
-                        <MonoLabel>{formatDate(p.data)}</MonoLabel>
-                      </div>
-                      <div className="ml-auto flex shrink-0 items-center gap-2">
-                        <Badge variant={p.feita ? 'success' : 'outline'}>
-                          {p.feita ? 'feita' : 'pendente'}
-                          {p.nota != null ? ` · ${p.nota}` : ''}
-                        </Badge>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon-sm"
-                          onClick={() => handleApagarProva(p.uuid)}
-                          aria-label="Apagar prova"
-                        >
-                          <Trash2 className="size-3.5" />
-                        </Button>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
+          {/* Provas — só pra matérias que não são ENEM */}
+          {mostrarBlocoProvas && (
+            <Section label="Bloco 2" title="Provas" count={provas.length}>
+              <div className="flex flex-col gap-4">
+                {provas.length === 0 ? (
+                  <EmptyState icon={CalendarDays} title="Nenhuma prova cadastrada" compact />
+                ) : (
+                  <ul className="flex flex-col divide-y divide-border rounded-lg border border-border">
+                    {provas.map((p) => (
+                      <li key={p.uuid} className="flex items-center gap-3 px-4 py-3">
+                        <div className="flex min-w-0 flex-col">
+                          <span className="truncate text-sm font-medium">{p.titulo}</span>
+                          <MonoLabel>{formatDate(p.data)}</MonoLabel>
+                        </div>
+                        <div className="ml-auto flex shrink-0 items-center gap-2">
+                          <Badge variant={p.feita ? 'success' : 'outline'}>
+                            {p.feita ? 'feita' : 'pendente'}
+                            {p.nota != null ? ` · ${p.nota}` : ''}
+                          </Badge>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon-sm"
+                            onClick={() => handleApagarProva(p.uuid)}
+                            aria-label="Apagar prova"
+                          >
+                            <Trash2 className="size-3.5" />
+                          </Button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
 
-              <Card className="p-3">
-                <form onSubmit={handleCriarProva} className="flex flex-col gap-2">
-                  <Input
-                    value={novaProva.titulo}
-                    onChange={(e) => setNovaProva((p) => ({ ...p, titulo: e.target.value }))}
-                    placeholder="Título da prova"
-                    className="h-8 text-sm"
-                  />
-                  <div className="flex items-center gap-2">
+                <Card className="p-3">
+                  <form onSubmit={handleCriarProva} className="flex flex-col gap-2">
                     <Input
-                      type="date"
-                      value={novaProva.data}
-                      onChange={(e) => setNovaProva((p) => ({ ...p, data: e.target.value }))}
+                      value={novaProva.titulo}
+                      onChange={(e) => setNovaProva((p) => ({ ...p, titulo: e.target.value }))}
+                      placeholder="Título da prova"
                       className="h-8 text-sm"
                     />
-                    <Select
-                      value={novaProva.tipo}
-                      onChange={(e) =>
-                        setNovaProva((p) => ({ ...p, tipo: e.target.value as TipoProva }))
-                      }
-                      className="h-8 text-sm"
-                    >
-                      <option value="escola">Escola</option>
-                      <option value="enem_dia1">ENEM Dia 1</option>
-                      <option value="enem_dia2">ENEM Dia 2</option>
-                      <option value="outro">Outro</option>
-                    </Select>
-                  </div>
-                  <Button type="submit" size="sm">
-                    <Plus className="size-3.5" />
-                    Adicionar prova
-                  </Button>
-                </form>
-              </Card>
-            </div>
-          </Section>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="date"
+                        value={novaProva.data}
+                        onChange={(e) => setNovaProva((p) => ({ ...p, data: e.target.value }))}
+                        className="h-8 text-sm"
+                      />
+                      <Select
+                        value={novaProva.tipo}
+                        onChange={(e) =>
+                          setNovaProva((p) => ({ ...p, tipo: e.target.value as TipoProva }))
+                        }
+                        className="h-8 text-sm"
+                      >
+                        {opcoesTipoProva.map((opt) => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </Select>
+                    </div>
+                    <Button type="submit" size="sm">
+                      <Plus className="size-3.5" />
+                      Adicionar prova
+                    </Button>
+                  </form>
+                </Card>
+              </div>
+            </Section>
+          )}
 
           {/* Atividades */}
           <Section label="Bloco 3" title="Atividades" count={atividades.length}>
