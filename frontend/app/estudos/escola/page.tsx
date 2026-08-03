@@ -1,17 +1,17 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { CalendarClock, ListTodo } from 'lucide-react'
+import Link from 'next/link'
+import { CalendarClock, ChevronRight, ListTodo, School } from 'lucide-react'
 
 import { BackLink, PageHeader, PageShell } from '@/components/study/page-shell'
 import { Section } from '@/components/study/section'
-import { SubjectManager } from '@/components/study/subject-manager'
 import { EmptyState } from '@/components/study/empty-state'
 import { MonoLabel } from '@/components/study/mono-label'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 
-import { listarMaterias, criarMateria, Materia } from '../../../lib/materias'
+import { listarMateriasEscola, Materia } from '../../../lib/materias'
 import { listarProximasProvas, Prova } from '../../../lib/provas'
 import { listarAtividadesPendentes, Atividade } from '../../../lib/atividades'
 
@@ -32,7 +32,7 @@ export default function EscolaPage() {
 
   async function carregar() {
     const [m, p, a] = await Promise.all([
-      listarMaterias('escola'),
+      listarMateriasEscola(),
       listarProximasProvas('escola'),
       listarAtividadesPendentes(),
     ])
@@ -46,30 +46,6 @@ export default function EscolaPage() {
     carregar()
   }, [])
 
-  async function handleCriarMateria(nome: string) {
-    if (!nome.trim()) return
-    await criarMateria({
-      nome,
-      tipo: 'escola',
-      cor: null,
-      area_enem: null, // matéria de escola nunca tem área ENEM
-      plataforma: null,
-      carga_horaria_total_horas: null,
-      horas_dedicadas: 0,
-      certificado_path: null,
-      concluido: false,
-      data_conclusao: null,
-    })
-    await carregar()
-  }
-
-  const subjectsForManager = materias.map((m) => ({
-    id: m.uuid,
-    name: m.nome,
-    topics: 0, // placeholder — mesma pendência já registrada pro ENEM (TASKS_NOW.md)
-    accuracy: 0,
-  }))
-
   return (
     <PageShell>
       <div className="mb-5">
@@ -78,7 +54,7 @@ export default function EscolaPage() {
       <PageHeader
         eyebrow="Mundo Escola"
         title="Escola"
-        description="Gerencie as matérias da escola e acompanhe provas e atividades de qualquer uma delas."
+        description="Matérias fixas da escola. Provas, atividades e simulados ficam dentro de cada matéria."
       />
 
       {carregando ? (
@@ -86,12 +62,28 @@ export default function EscolaPage() {
       ) : (
         <div className="mt-8 flex flex-col gap-10">
           <Section label="Bloco 1" title="Matérias" count={materias.length}>
-            <SubjectManager
-              subjects={subjectsForManager}
-              origin="escola"
-              onAdd={handleCriarMateria}
-              hrefBuilder={(s) => `/estudos/materia/${s.id}?from=escola`}
-            />
+            {materias.length === 0 ? (
+              <EmptyState
+                icon={School}
+                title="Nenhuma matéria cadastrada"
+                description="As matérias fixas são criadas automaticamente pelo sistema."
+              />
+            ) : (
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {materias.map((m) => (
+                  <Link
+                    key={m.uuid}
+                    href={`/estudos/materia/${m.uuid}?from=escola`}
+                    className="group focus-visible:outline-none"
+                  >
+                    <Card className="flex items-center gap-3 p-4 transition-all hover:border-foreground/20 hover:shadow-sm group-focus-visible:ring-[3px] group-focus-visible:ring-ring/30">
+                      <span className="truncate text-sm font-medium">{m.nome}</span>
+                      <ChevronRight className="ml-auto size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            )}
           </Section>
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

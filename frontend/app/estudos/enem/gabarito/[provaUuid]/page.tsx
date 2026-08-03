@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { Loader2, PenLine, Save } from 'lucide-react'
 import {
-  listarMaterias,
+  listarTodasMateriasEnem,
   Materia,
   AreaEnem,
   AREA_ENEM_LABELS,
@@ -75,7 +75,7 @@ export default function GabaritoProvaPage() {
   async function carregar() {
     const [p, m, g] = await Promise.all([
       buscarProva(provaUuid),
-      listarMaterias('enem'),
+      listarTodasMateriasEnem(),
       buscarGabaritoProva(provaUuid),
     ])
     setProva(p)

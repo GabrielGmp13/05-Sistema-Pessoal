@@ -1,6 +1,6 @@
 import { sb, getUserId, sbErr } from './supabase';
 
-export type TipoMateria = 'enem' | 'escola' | 'olimpiada' | 'concurso' | 'curso' | 'outro';
+export type TipoMateria = 'academica' | 'olimpiada' | 'concurso' | 'curso' | 'outro';
 export type AreaEnem = 'linguagens' | 'humanas' | 'natureza' | 'matematica';
 
 export const AREA_ENEM_LABELS: Record<AreaEnem, string> = {
@@ -19,8 +19,12 @@ export interface Materia {
   nome: string;
   tipo: TipoMateria;
   cor: string | null;
-  // Área do ENEM — nullable, só usada quando tipo === 'enem'.
-  // Ver migration 017_estudos_gabarito_enem_redacao.sql
+  // Matéria é uma linha única, compartilhada entre Escola e ENEM — estas
+  // duas flags controlam em qual(is) tela(s) ela aparece. Não são
+  // mutuamente exclusivas: uma matéria pode aparecer nas duas.
+  mostra_escola: boolean;
+  mostra_enem: boolean;
+  // Área do ENEM — só significativa quando mostra_enem = true.
   area_enem: AreaEnem | null;
   // campos de Curso (uso exclusivo quando tipo === 'curso')
   plataforma: string | null;
@@ -45,6 +49,77 @@ export async function listarMaterias(tipo?: TipoMateria): Promise<Materia[] | nu
 
   const { data, error } = await query.order('nome');
   if (error) return sbErr(error, 'listarMaterias');
+  return data;
+}
+
+/** Matérias visíveis na tela Escola (tipo acadêmica + mostra_escola). */
+export async function listarMateriasEscola(): Promise<Materia[] | null> {
+  const userId = await getUserId();
+  if (!userId) return null;
+
+  const { data, error } = await sb
+    .from('materias')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('deleted', false)
+    .eq('tipo', 'academica')
+    .eq('mostra_escola', true)
+    .order('nome');
+
+  if (error) return sbErr(error, 'listarMateriasEscola');
+  return data;
+}
+
+/** Todas as matérias visíveis no ENEM (tipo acadêmica + mostra_enem), qualquer área. */
+export async function listarTodasMateriasEnem(): Promise<Materia[] | null> {
+  const userId = await getUserId();
+  if (!userId) return null;
+
+  const { data, error } = await sb
+    .from('materias')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('deleted', false)
+    .eq('tipo', 'academica')
+    .eq('mostra_enem', true)
+    .order('nome');
+
+  if (error) return sbErr(error, 'listarTodasMateriasEnem');
+  return data;
+}
+
+/** Matérias de uma área específica do ENEM. */
+export async function listarMateriasPorAreaEnem(area: AreaEnem): Promise<Materia[] | null> {
+  const userId = await getUserId();
+  if (!userId) return null;
+
+  const { data, error } = await sb
+    .from('materias')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('deleted', false)
+    .eq('tipo', 'academica')
+    .eq('mostra_enem', true)
+    .eq('area_enem', area)
+    .order('nome');
+
+  if (error) return sbErr(error, 'listarMateriasPorAreaEnem');
+  return data;
+}
+
+export async function buscarMateria(uuid: string): Promise<Materia | null> {
+  const userId = await getUserId();
+  if (!userId) return null;
+
+  const { data, error } = await sb
+    .from('materias')
+    .select('*')
+    .eq('uuid', uuid)
+    .eq('user_id', userId)
+    .eq('deleted', false)
+    .single();
+
+  if (error) return sbErr(error, 'buscarMateria');
   return data;
 }
 
@@ -75,63 +150,69 @@ export async function atualizarMateria(uuid: string, update: MateriaUpdate): Pro
 }
 
 // ============================================================================
-// Seed — matérias fixas de Escola e ENEM
+// Seed — matérias fixas (Escola + ENEM), UMA linha por matéria
 // ============================================================================
 // Mesmo padrão de seedModulosSeNecessario() do Treino (DEC-022): roda uma vez
 // no primeiro carregamento (chamado no Hub de Estudos), popula só o que
-// ainda não existe (checa por nome+tipo, seguro rodar várias vezes).
+// ainda não existe (checa por nome, seguro rodar várias vezes).
 //
-// Modelo confirmado com o usuário (2026-08): matérias que existem em Escola
-// E ENEM viram DUAS linhas separadas (uma por tipo). Área é campo da matéria
-// ENEM (area_enem); matéria de Escola nunca tem area_enem preenchida.
-//
-// Exceção conhecida: Filosofia só existe no ENEM (sem par na Escola).
+// Modelo corrigido (2026-08): matéria é ÚNICA — mostra_escola/mostra_enem
+// decidem onde ela aparece. Nada de duas linhas pra mesma matéria.
 
 interface SeedMateria {
   nome: string;
-  tipo: TipoMateria;
+  mostra_escola: boolean;
+  mostra_enem: boolean;
   area_enem: AreaEnem | null;
 }
 
 const MATERIAS_ESCOLA_ONLY: SeedMateria[] = [
-  { nome: 'Web', tipo: 'escola', area_enem: null },
-  { nome: 'Engenharia de Software', tipo: 'escola', area_enem: null },
-  { nome: 'Letramento Linguístico', tipo: 'escola', area_enem: null },
-  { nome: 'Java', tipo: 'escola', area_enem: null },
-  { nome: 'PTS', tipo: 'escola', area_enem: null },
-  { nome: 'Lógica Matemática', tipo: 'escola', area_enem: null },
-  { nome: 'Eletiva', tipo: 'escola', area_enem: null },
-  { nome: 'Mobile', tipo: 'escola', area_enem: null },
-  { nome: 'Estudos Orientados', tipo: 'escola', area_enem: null },
-  { nome: 'AO', tipo: 'escola', area_enem: null },
+  { nome: 'Web', mostra_escola: true, mostra_enem: false, area_enem: null },
+  { nome: 'Engenharia de Software', mostra_escola: true, mostra_enem: false, area_enem: null },
+  { nome: 'Letramento Linguístico', mostra_escola: true, mostra_enem: false, area_enem: null },
+  { nome: 'Java', mostra_escola: true, mostra_enem: false, area_enem: null },
+  { nome: 'PTS', mostra_escola: true, mostra_enem: false, area_enem: null },
+  { nome: 'Lógica Matemática', mostra_escola: true, mostra_enem: false, area_enem: null },
+  { nome: 'Eletiva', mostra_escola: true, mostra_enem: false, area_enem: null },
+  { nome: 'Mobile', mostra_escola: true, mostra_enem: false, area_enem: null },
+  { nome: 'Estudos Orientados', mostra_escola: true, mostra_enem: false, area_enem: null },
+  { nome: 'AO', mostra_escola: true, mostra_enem: false, area_enem: null },
 ];
 
-// Matérias que existem nos dois módulos — cada uma gera 2 linhas (escola + enem)
-const MATERIAS_COMPARTILHADAS: { nome: string; area_enem: AreaEnem }[] = [
-  { nome: 'Matemática', area_enem: 'matematica' },
-  { nome: 'Inglês', area_enem: 'linguagens' },
-  { nome: 'Português', area_enem: 'linguagens' },
-  { nome: 'Artes', area_enem: 'linguagens' },
-  { nome: 'Educação Física', area_enem: 'linguagens' },
-  { nome: 'História', area_enem: 'humanas' },
-  { nome: 'Geografia', area_enem: 'humanas' },
-  { nome: 'Sociologia', area_enem: 'humanas' },
-  { nome: 'Química', area_enem: 'natureza' },
-  { nome: 'Biologia', area_enem: 'natureza' },
-  { nome: 'Física', area_enem: 'natureza' },
+// Matérias que aparecem nos dois contextos — UMA linha, duas flags true
+const MATERIAS_COMPARTILHADAS: SeedMateria[] = [
+  { nome: 'Matemática', mostra_escola: true, mostra_enem: true, area_enem: 'matematica' },
+  { nome: 'Inglês', mostra_escola: true, mostra_enem: true, area_enem: 'linguagens' },
+  { nome: 'Português', mostra_escola: true, mostra_enem: true, area_enem: 'linguagens' },
+  { nome: 'Artes', mostra_escola: true, mostra_enem: true, area_enem: 'linguagens' },
+  { nome: 'Educação Física', mostra_escola: true, mostra_enem: true, area_enem: 'linguagens' },
+  { nome: 'História', mostra_escola: true, mostra_enem: true, area_enem: 'humanas' },
+  { nome: 'Geografia', mostra_escola: true, mostra_enem: true, area_enem: 'humanas' },
+  { nome: 'Sociologia', mostra_escola: true, mostra_enem: true, area_enem: 'humanas' },
+  { nome: 'Química', mostra_escola: true, mostra_enem: true, area_enem: 'natureza' },
+  { nome: 'Biologia', mostra_escola: true, mostra_enem: true, area_enem: 'natureza' },
+  { nome: 'Física', mostra_escola: true, mostra_enem: true, area_enem: 'natureza' },
 ];
 
-// Só existe no ENEM (sem par na Escola)
+// Só existe no ENEM (sem uso na Escola, conforme lista fornecida)
 const MATERIAS_ENEM_ONLY: SeedMateria[] = [
-  { nome: 'Filosofia', tipo: 'enem', area_enem: 'humanas' },
+  { nome: 'Filosofia', mostra_escola: false, mostra_enem: true, area_enem: 'humanas' },
 ];
 
-function materiaInputPadrao(nome: string, tipo: TipoMateria, area_enem: AreaEnem | null): MateriaInput {
+const TODAS_SEED: SeedMateria[] = [
+  ...MATERIAS_ESCOLA_ONLY,
+  ...MATERIAS_COMPARTILHADAS,
+  ...MATERIAS_ENEM_ONLY,
+];
+
+function materiaInputPadrao(s: SeedMateria): MateriaInput {
   return {
-    nome,
-    tipo,
+    nome: s.nome,
+    tipo: 'academica',
     cor: null,
-    area_enem,
+    mostra_escola: s.mostra_escola,
+    mostra_enem: s.mostra_enem,
+    area_enem: s.area_enem,
     plataforma: null,
     carga_horaria_total_horas: null,
     horas_dedicadas: 0,
@@ -142,34 +223,15 @@ function materiaInputPadrao(nome: string, tipo: TipoMateria, area_enem: AreaEnem
 }
 
 export async function seedMateriasEnemEscolaSeNecessario(): Promise<void> {
-  const existentes = await listarMaterias();
+  const existentes = await listarMaterias('academica');
   if (existentes === null) return; // sem sessão ou erro — não tenta seed
 
-  const existe = (nome: string, tipo: TipoMateria) =>
-    existentes.some((m) => m.nome === nome && m.tipo === tipo);
-
-  const paraCriar: MateriaInput[] = [];
-
-  for (const m of MATERIAS_ESCOLA_ONLY) {
-    if (!existe(m.nome, m.tipo)) paraCriar.push(materiaInputPadrao(m.nome, m.tipo, m.area_enem));
-  }
-
-  for (const m of MATERIAS_ENEM_ONLY) {
-    if (!existe(m.nome, m.tipo)) paraCriar.push(materiaInputPadrao(m.nome, m.tipo, m.area_enem));
-  }
-
-  for (const m of MATERIAS_COMPARTILHADAS) {
-    if (!existe(m.nome, 'escola')) {
-      paraCriar.push(materiaInputPadrao(m.nome, 'escola', null));
-    }
-    if (!existe(m.nome, 'enem')) {
-      paraCriar.push(materiaInputPadrao(m.nome, 'enem', m.area_enem));
-    }
-  }
+  const nomesExistentes = new Set(existentes.map((m) => m.nome));
+  const paraCriar = TODAS_SEED.filter((s) => !nomesExistentes.has(s.nome));
 
   if (paraCriar.length === 0) return;
 
-  for (const input of paraCriar) {
-    await criarMateria(input);
+  for (const s of paraCriar) {
+    await criarMateria(materiaInputPadrao(s));
   }
 }

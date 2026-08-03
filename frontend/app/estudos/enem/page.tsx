@@ -4,14 +4,13 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import {
   CalendarClock,
+  ChevronRight,
   FileCheck2,
   Plus,
 } from 'lucide-react'
 import {
-  listarMaterias,
-  criarMateria,
+  listarTodasMateriasEnem,
   Materia,
-  AreaEnem,
   AREA_ENEM_LABELS,
   ORDEM_AREAS_ENEM,
 } from '../../../lib/materias'
@@ -22,7 +21,6 @@ import {
   PageShell,
 } from '@/components/study/page-shell'
 import { Section } from '@/components/study/section'
-import { SubjectManager } from '@/components/study/subject-manager'
 import { EmptyState } from '@/components/study/empty-state'
 import { MonoLabel } from '@/components/study/mono-label'
 import { Field } from '@/components/study/field'
@@ -51,7 +49,7 @@ export default function EnemPage() {
 
   async function carregar() {
     const [m, p] = await Promise.all([
-      listarMaterias('enem'),
+      listarTodasMateriasEnem(),
       listarProximasProvas(),
     ])
     setMaterias(m ?? [])
@@ -62,25 +60,6 @@ export default function EnemPage() {
   useEffect(() => {
     carregar()
   }, [])
-
-  // Matéria nova é sempre criada dentro do contexto de uma área específica —
-  // não existe "matéria ENEM solta" sem área (ver migration 017 / lib/materias.ts).
-  async function handleCriarMateria(area: AreaEnem, nome: string) {
-    if (!nome.trim()) return
-    await criarMateria({
-      nome,
-      tipo: 'enem',
-      cor: null,
-      area_enem: area,
-      plataforma: null,
-      carga_horaria_total_horas: null,
-      horas_dedicadas: 0,
-      certificado_path: null,
-      concluido: false,
-      data_conclusao: null,
-    })
-    carregar()
-  }
 
   async function handleCriarProva() {
     if (!novaProva.data) return
@@ -108,36 +87,27 @@ export default function EnemPage() {
       <PageHeader
         eyebrow="Mundo ENEM"
         title="ENEM"
-        description="Áreas de conhecimento fixas do exame. Cada área agrupa suas matérias — a prova oficial é gerenciada aqui, nunca dentro de uma matéria específica."
+        description="Áreas de conhecimento fixas do exame. Entre em uma área pra ver suas matérias, ou gerencie a prova oficial aqui embaixo."
       />
 
       {carregando ? (
         <LoadingState />
       ) : (
         <div className="mt-8 flex flex-col gap-10">
-          <Section
-            label="Bloco 1"
-            title="Áreas de conhecimento"
-            count={materias.length}
-          >
-            <div className="flex flex-col gap-6">
+          <Section label="Bloco 1" title="Áreas de conhecimento">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {ORDEM_AREAS_ENEM.map((area) => {
-                const materiasDaArea = materias.filter((m) => m.area_enem === area)
+                const count = materias.filter((m) => m.area_enem === area).length
                 return (
-                  <div key={area} className="flex flex-col gap-3">
-                    <MonoLabel>{AREA_ENEM_LABELS[area]}</MonoLabel>
-                    <SubjectManager
-                      subjects={materiasDaArea.map((m) => ({
-                        id: m.uuid,
-                        name: m.nome,
-                        topics: 0,
-                        accuracy: 0,
-                      }))}
-                      origin="enem"
-                      onAdd={(nome) => handleCriarMateria(area, nome)}
-                      hrefBuilder={(s) => `/estudos/materia/${s.id}`}
-                    />
-                  </div>
+                  <Link key={area} href={`/estudos/enem/${area}`} className="group focus-visible:outline-none">
+                    <Card className="flex items-center gap-4 p-4 transition-all hover:border-foreground/20 hover:shadow-sm group-focus-visible:ring-[3px] group-focus-visible:ring-ring/30">
+                      <div className="flex min-w-0 flex-col">
+                        <span className="text-base font-semibold">{AREA_ENEM_LABELS[area]}</span>
+                        <MonoLabel>{count} matéria{count === 1 ? '' : 's'}</MonoLabel>
+                      </div>
+                      <ChevronRight className="ml-auto size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+                    </Card>
+                  </Link>
                 )
               })}
             </div>

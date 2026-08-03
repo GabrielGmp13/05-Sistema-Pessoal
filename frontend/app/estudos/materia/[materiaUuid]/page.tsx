@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
 import {
   CalendarDays,
   CheckCircle2,
@@ -27,7 +27,7 @@ import { Select } from '@/components/ui/select'
 import { Progress } from '@/components/ui/progress'
 import { Skeleton } from '@/components/ui/skeleton'
 
-import { listarMaterias, Materia } from '../../../../lib/materias'
+import { buscarMateria, Materia } from '../../../../lib/materias'
 import {
   criarConteudo,
   listarConteudosPorMateria,
@@ -41,7 +41,6 @@ import {
   criarProva,
   deletarProva,
   Prova,
-  TipoProva,
 } from '../../../../lib/provas'
 import {
   listarAtividades,
@@ -70,14 +69,6 @@ function formatDate(iso: string) {
   return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
 }
 
-// Tipos de prova disponíveis por tipo de matéria — nunca inclui enem_dia1/
-// enem_dia2 aqui: prova ENEM é gerenciada só em /estudos/enem (cobre a área
-// inteira, não uma matéria isolada).
-function tiposProvaDisponiveis(tipoMateria: Materia['tipo']): { value: TipoProva; label: string }[] {
-  if (tipoMateria === 'curso') return [{ value: 'curso', label: 'Curso' }, { value: 'outro', label: 'Outro' }]
-  return [{ value: 'escola', label: 'Escola' }, { value: 'outro', label: 'Outro' }]
-}
-
 // Escala de qualidade do SM-2 (estilo Anki) — 4 botões em vez de nota 0-5 solta.
 const BOTOES_QUALIDADE: { label: string; qualidade: number }[] = [
   { label: 'Errei', qualidade: 1 },
@@ -89,6 +80,13 @@ const BOTOES_QUALIDADE: { label: string; qualidade: number }[] = [
 export default function MateriaDetalhePage() {
   const params = useParams<{ materiaUuid: string }>()
   const materiaUuid = params.materiaUuid
+  const searchParams = useSearchParams()
+  // Contexto de onde a matéria foi acessada — decide o que a página mostra.
+  // A matéria em si é uma linha única (mostra_escola/mostra_enem só marcam
+  // ONDE ela aparece na navegação); o que é exibido AQUI é decidido pela
+  // origem da navegação, não por um campo da matéria. Default 'escola' se
+  // a página for aberta direto, sem vir de nenhum link (ex: link salvo).
+  const from = (searchParams.get('from') === 'enem' ? 'enem' : 'escola') as 'enem' | 'escola'
 
   const [materia, setMateria] = useState<Materia | null>(null)
   const [conteudos, setConteudos] = useState<Conteudo[]>([])
@@ -100,19 +98,9 @@ export default function MateriaDetalhePage() {
   const [carregando, setCarregando] = useState(true)
 
   const [novoConteudoNome, setNovoConteudoNome] = useState('')
-  const [novaProva, setNovaProva] = useState({
-    titulo: '',
-    data: '',
-    tipo: 'escola' as TipoProva,
-  })
-  const [novaAtividade, setNovaAtividade] = useState({
-    titulo: '',
-    data_entrega: '',
-  })
-  const [novaQuestao, setNovaQuestao] = useState({
-    acertou: true,
-    conteudo_uuid: '',
-  })
+  const [novaProva, setNovaProva] = useState({ titulo: '', data: '' })
+  const [novaAtividade, setNovaAtividade] = useState({ titulo: '', data_entrega: '' })
+  const [novaQuestao, setNovaQuestao] = useState({ acertou: true, conteudo_uuid: '' })
   const [novoSimulado, setNovoSimulado] = useState({
     total_questoes: '',
     total_acertos: '',
@@ -120,15 +108,14 @@ export default function MateriaDetalhePage() {
   })
 
   async function carregar() {
-    const [todasMaterias, cont, prov, ativ, sim, taxa] = await Promise.all([
-      listarMaterias(),
+    const [materiaAtual, cont, prov, ativ, sim, taxa] = await Promise.all([
+      buscarMateria(materiaUuid),
       listarConteudosPorMateria(materiaUuid),
-      listarProvasPorMateria(materiaUuid),
-      listarAtividades(materiaUuid),
+      from === 'escola' ? listarProvasPorMateria(materiaUuid) : Promise.resolve([]),
+      from === 'escola' ? listarAtividades(materiaUuid) : Promise.resolve([]),
       listarSimuladosPorMateria(materiaUuid),
       taxaDeAcertoRecente(30, materiaUuid),
     ])
-    const materiaAtual = (todasMaterias ?? []).find((m) => m.uuid === materiaUuid) ?? null
     setMateria(materiaAtual)
     setConteudos(cont ?? [])
     setProvas(prov ?? [])
@@ -136,12 +123,6 @@ export default function MateriaDetalhePage() {
     setSimulados(sim ?? [])
     setTaxaAcerto(taxa)
 
-    // Ajusta o tipo padrão do form de prova conforme o tipo da matéria
-    if (materiaAtual) {
-      setNovaProva((p) => ({ ...p, tipo: materiaAtual.tipo === 'curso' ? 'curso' : 'escola' }))
-    }
-
-    // Busca os cards de revisão dos conteúdos que já têm revisao_uuid
     const revisaoUuids = (cont ?? [])
       .map((c) => c.revisao_uuid)
       .filter((u): u is string => u !== null)
@@ -160,7 +141,7 @@ export default function MateriaDetalhePage() {
   useEffect(() => {
     if (materiaUuid) carregar()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [materiaUuid])
+  }, [materiaUuid, from])
 
   async function handleCriarConteudo(e: React.FormEvent) {
     e.preventDefault()
@@ -178,8 +159,6 @@ export default function MateriaDetalhePage() {
     await carregar()
   }
 
-  // Revisão SM-2 — separada do progresso. Qualidade 0-5, mesma escala do
-  // algoritmo (ver lib/revisao.ts). Cria o card na primeira avaliação.
   async function handleAvaliarRevisao(conteudoUuid: string, qualidade: number) {
     await avaliarCardPorConteudo(conteudoUuid, qualidade)
     await carregar()
@@ -192,7 +171,7 @@ export default function MateriaDetalhePage() {
 
   async function handleVincularOutraMateria(conteudoUuid: string) {
     const alvoUuid = window.prompt(
-      'UUID da outra matéria pra vincular este conteúdo (ex: mesma matéria no Escola):',
+      'UUID de outra matéria pra vincular este conteúdo também:',
     )
     if (!alvoUuid) return
     await vincularConteudoAMateria(conteudoUuid, alvoUuid)
@@ -204,7 +183,7 @@ export default function MateriaDetalhePage() {
     if (!novaProva.titulo.trim() || !novaProva.data) return
     await criarProva({
       materia_uuid: materiaUuid,
-      tipo: novaProva.tipo,
+      tipo: 'escola', // prova ENEM nunca é criada aqui — só em /estudos/enem
       conteudo_uuid: null,
       titulo: novaProva.titulo.trim(),
       data: novaProva.data,
@@ -214,7 +193,7 @@ export default function MateriaDetalhePage() {
       feita: false,
       observacoes: null,
     })
-    setNovaProva((p) => ({ titulo: '', data: '', tipo: p.tipo }))
+    setNovaProva({ titulo: '', data: '' })
     await carregar()
   }
 
@@ -315,12 +294,9 @@ export default function MateriaDetalhePage() {
     )
   }
 
-  const voltarPara = materia.tipo === 'enem' ? '/estudos/enem' : '/estudos/escola'
-  const voltarLabel = materia.tipo === 'enem' ? 'Voltar ao ENEM' : 'Voltar à Escola'
-  // Prova ENEM nunca é criada aqui — só na tela /estudos/enem (cobre a área
-  // inteira do dia, não uma matéria isolada). Ver DECISIONS.md.
-  const mostrarBlocoProvas = materia.tipo !== 'enem'
-  const opcoesTipoProva = tiposProvaDisponiveis(materia.tipo)
+  const voltarPara = from === 'enem' ? '/estudos/enem' : '/estudos/escola'
+  const voltarLabel = from === 'enem' ? 'Voltar ao ENEM' : 'Voltar à Escola'
+  const mostrarProvasEAtividades = from === 'escola'
 
   return (
     <PageShell>
@@ -328,7 +304,7 @@ export default function MateriaDetalhePage() {
         <BackLink href={voltarPara}>{voltarLabel}</BackLink>
       </div>
       <PageHeader
-        eyebrow="Matéria"
+        eyebrow={from === 'enem' ? 'Matéria · ENEM' : 'Matéria · Escola'}
         title={materia.nome}
         actions={
           taxaAcerto != null ? (
@@ -343,8 +319,12 @@ export default function MateriaDetalhePage() {
 
       <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard label="Conteúdos" value={String(conteudos.length)} icon={GraduationCap} />
-        <StatCard label="Provas" value={String(provas.length)} icon={CalendarDays} />
-        <StatCard label="Atividades" value={String(atividades.length)} icon={ClipboardList} />
+        {mostrarProvasEAtividades && (
+          <>
+            <StatCard label="Provas" value={String(provas.length)} icon={CalendarDays} />
+            <StatCard label="Atividades" value={String(atividades.length)} icon={ClipboardList} />
+          </>
+        )}
         <StatCard label="Simulados" value={String(simulados.length)} icon={Target} />
       </div>
 
@@ -399,8 +379,7 @@ export default function MateriaDetalhePage() {
                         </div>
                       </div>
 
-                      {/* Revisão SM-2 — independente do progresso acima */}
-                      <div className="flex flex-wrap items-center gap-2 pl-0 sm:pl-1">
+                      <div className="flex flex-wrap items-center gap-2">
                         <MonoLabel>
                           {card ? `Próxima revisão: ${formatDate(card.proxima_revisao)}` : 'Ainda sem revisão'}
                         </MonoLabel>
@@ -441,9 +420,9 @@ export default function MateriaDetalhePage() {
           </div>
         </Section>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          {/* Provas — só pra matérias que não são ENEM */}
-          {mostrarBlocoProvas && (
+        {mostrarProvasEAtividades && (
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            {/* Provas — só no contexto Escola */}
             <Section label="Bloco 2" title="Provas" count={provas.length}>
               <div className="flex flex-col gap-4">
                 {provas.length === 0 ? (
@@ -484,25 +463,12 @@ export default function MateriaDetalhePage() {
                       placeholder="Título da prova"
                       className="h-8 text-sm"
                     />
-                    <div className="flex items-center gap-2">
-                      <Input
-                        type="date"
-                        value={novaProva.data}
-                        onChange={(e) => setNovaProva((p) => ({ ...p, data: e.target.value }))}
-                        className="h-8 text-sm"
-                      />
-                      <Select
-                        value={novaProva.tipo}
-                        onChange={(e) =>
-                          setNovaProva((p) => ({ ...p, tipo: e.target.value as TipoProva }))
-                        }
-                        className="h-8 text-sm"
-                      >
-                        {opcoesTipoProva.map((opt) => (
-                          <option key={opt.value} value={opt.value}>{opt.label}</option>
-                        ))}
-                      </Select>
-                    </div>
+                    <Input
+                      type="date"
+                      value={novaProva.data}
+                      onChange={(e) => setNovaProva((p) => ({ ...p, data: e.target.value }))}
+                      className="h-8 text-sm"
+                    />
                     <Button type="submit" size="sm">
                       <Plus className="size-3.5" />
                       Adicionar prova
@@ -511,88 +477,88 @@ export default function MateriaDetalhePage() {
                 </Card>
               </div>
             </Section>
-          )}
 
-          {/* Atividades */}
-          <Section label="Bloco 3" title="Atividades" count={atividades.length}>
-            <div className="flex flex-col gap-4">
-              {atividades.length === 0 ? (
-                <EmptyState icon={ClipboardList} title="Nenhuma atividade cadastrada" compact />
-              ) : (
-                <ul className="flex flex-col divide-y divide-border rounded-lg border border-border">
-                  {atividades.map((a) => (
-                    <li key={a.uuid} className="flex flex-col gap-2 px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <div className="flex min-w-0 flex-col">
-                          <span className="truncate text-sm font-medium">{a.titulo}</span>
-                          <MonoLabel>
-                            {a.data_entrega ? formatDate(a.data_entrega) : 'sem data'}
-                          </MonoLabel>
+            {/* Atividades — só no contexto Escola */}
+            <Section label="Bloco 3" title="Atividades" count={atividades.length}>
+              <div className="flex flex-col gap-4">
+                {atividades.length === 0 ? (
+                  <EmptyState icon={ClipboardList} title="Nenhuma atividade cadastrada" compact />
+                ) : (
+                  <ul className="flex flex-col divide-y divide-border rounded-lg border border-border">
+                    {atividades.map((a) => (
+                      <li key={a.uuid} className="flex flex-col gap-2 px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <div className="flex min-w-0 flex-col">
+                            <span className="truncate text-sm font-medium">{a.titulo}</span>
+                            <MonoLabel>
+                              {a.data_entrega ? formatDate(a.data_entrega) : 'sem data'}
+                            </MonoLabel>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon-sm"
+                            className="ml-auto"
+                            onClick={() => handleApagarAtividade(a.uuid)}
+                            aria-label="Apagar atividade"
+                          >
+                            <Trash2 className="size-3.5" />
+                          </Button>
                         </div>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon-sm"
-                          className="ml-auto"
-                          onClick={() => handleApagarAtividade(a.uuid)}
-                          aria-label="Apagar atividade"
-                        >
-                          <Trash2 className="size-3.5" />
-                        </Button>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          type="button"
-                          variant={a.feita ? 'secondary' : 'outline'}
-                          size="sm"
-                          onClick={() => handleToggleAtividade(a, 'feita')}
-                        >
-                          {a.feita ? <CheckCircle2 className="size-3.5" /> : null}
-                          Feita
-                        </Button>
-                        <Button
-                          type="button"
-                          variant={a.entregue ? 'secondary' : 'outline'}
-                          size="sm"
-                          onClick={() => handleToggleAtividade(a, 'entregue')}
-                        >
-                          {a.entregue ? <CheckCircle2 className="size-3.5" /> : null}
-                          Entregue
-                        </Button>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
+                        <div className="flex items-center gap-2">
+                          <Button
+                            type="button"
+                            variant={a.feita ? 'secondary' : 'outline'}
+                            size="sm"
+                            onClick={() => handleToggleAtividade(a, 'feita')}
+                          >
+                            {a.feita ? <CheckCircle2 className="size-3.5" /> : null}
+                            Feita
+                          </Button>
+                          <Button
+                            type="button"
+                            variant={a.entregue ? 'secondary' : 'outline'}
+                            size="sm"
+                            onClick={() => handleToggleAtividade(a, 'entregue')}
+                          >
+                            {a.entregue ? <CheckCircle2 className="size-3.5" /> : null}
+                            Entregue
+                          </Button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
 
-              <Card className="p-3">
-                <form onSubmit={handleCriarAtividade} className="flex items-center gap-2">
-                  <Input
-                    value={novaAtividade.titulo}
-                    onChange={(e) => setNovaAtividade((a) => ({ ...a, titulo: e.target.value }))}
-                    placeholder="Título da atividade"
-                    className="h-8 text-sm"
-                  />
-                  <Input
-                    type="date"
-                    value={novaAtividade.data_entrega}
-                    onChange={(e) =>
-                      setNovaAtividade((a) => ({ ...a, data_entrega: e.target.value }))
-                    }
-                    className="h-8 w-36 text-sm"
-                  />
-                  <Button type="submit" size="sm">
-                    <Plus className="size-3.5" />
-                  </Button>
-                </form>
-              </Card>
-            </div>
-          </Section>
-        </div>
+                <Card className="p-3">
+                  <form onSubmit={handleCriarAtividade} className="flex items-center gap-2">
+                    <Input
+                      value={novaAtividade.titulo}
+                      onChange={(e) => setNovaAtividade((a) => ({ ...a, titulo: e.target.value }))}
+                      placeholder="Título da atividade"
+                      className="h-8 text-sm"
+                    />
+                    <Input
+                      type="date"
+                      value={novaAtividade.data_entrega}
+                      onChange={(e) =>
+                        setNovaAtividade((a) => ({ ...a, data_entrega: e.target.value }))
+                      }
+                      className="h-8 w-36 text-sm"
+                    />
+                    <Button type="submit" size="sm">
+                      <Plus className="size-3.5" />
+                    </Button>
+                  </form>
+                </Card>
+              </div>
+            </Section>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          {/* Questão avulsa */}
-          <Section label="Bloco 4" title="Registrar questão avulsa">
+          {/* Questão avulsa — comum aos dois contextos */}
+          <Section label={mostrarProvasEAtividades ? 'Bloco 4' : 'Bloco 2'} title="Registrar questão avulsa">
             <Card className="p-4">
               <form onSubmit={handleRegistrarQuestao} className="flex flex-col gap-3">
                 <Field label="Conteúdo" optional>
@@ -629,8 +595,8 @@ export default function MateriaDetalhePage() {
             </Card>
           </Section>
 
-          {/* Simulados */}
-          <Section label="Bloco 5" title="Simulados" count={simulados.length}>
+          {/* Simulados — comum aos dois contextos, dispara SM-2 */}
+          <Section label={mostrarProvasEAtividades ? 'Bloco 5' : 'Bloco 3'} title="Simulados" count={simulados.length}>
             <div className="flex flex-col gap-4">
               {simulados.length === 0 ? (
                 <EmptyState icon={Target} title="Nenhum simulado registrado" compact />
