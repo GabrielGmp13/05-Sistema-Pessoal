@@ -208,6 +208,34 @@ export async function avaliarCardPorConteudo(
 }
 
 // ---------------------------------------------------------------------------
+// Revisões pendentes — usado no card do Hub de Estudos ("Revisões
+// pendentes"). Só cards do módulo 'estudos', vencidos ou a vencer nos
+// próximos N dias, ordenados por data (mais urgente primeiro). `pergunta`
+// já guarda o nome do conteúdo (ver avaliarCardPorConteudo), então não
+// precisa de join com `conteudos` pra exibir.
+// ---------------------------------------------------------------------------
+
+export async function listarRevisoesPendentes(diasNoFuturo = 7): Promise<CardRevisao[] | null> {
+  const userId = await getUserId()
+  if (!userId) return null
+
+  const limite = new Date()
+  limite.setDate(limite.getDate() + diasNoFuturo)
+
+  const { data, error } = await sb
+    .from('revisao_espacada')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('deleted', false)
+    .eq('modulo', 'estudos')
+    .lte('proxima_revisao', limite.toISOString().slice(0, 10))
+    .order('proxima_revisao')
+
+  if (error) return sbErr(error, 'listarRevisoesPendentes')
+  return data
+}
+
+// ---------------------------------------------------------------------------
 // Helper de conveniência — deriva qualidade (0-5) a partir de % de acerto,
 // uso principal: lib/simulados.ts ao disparar SM-2 a partir de
 // total_acertos/total_questoes (ver DEC-036).

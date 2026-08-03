@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react'
 import { useParams, useSearchParams } from 'next/navigation'
 import {
+  Award,
+  BookCheck,
   CalendarDays,
   CheckCircle2,
   ClipboardList,
@@ -24,7 +26,6 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
-import { Progress } from '@/components/ui/progress'
 import { Skeleton } from '@/components/ui/skeleton'
 
 import { buscarMateria, Materia } from '../../../../lib/materias'
@@ -147,15 +148,20 @@ export default function MateriaDetalhePage() {
     e.preventDefault()
     if (!novoConteudoNome.trim()) return
     await criarConteudo(
-      { nome: novoConteudoNome.trim(), progresso: 0, revisao_uuid: null, modulo_curso_uuid: null },
+      { nome: novoConteudoNome.trim(), teoria_vista: false, dominado_manual: false, revisao_uuid: null, modulo_curso_uuid: null },
       [materiaUuid],
     )
     setNovoConteudoNome('')
     await carregar()
   }
 
-  async function handleAtualizarProgresso(uuid: string, progresso: number) {
-    await atualizarConteudo(uuid, { progresso: Math.min(100, progresso) })
+  async function handleToggleTeoriaVista(uuid: string, atual: boolean) {
+    await atualizarConteudo(uuid, { teoria_vista: !atual })
+    await carregar()
+  }
+
+  async function handleToggleDominadoManual(uuid: string, atual: boolean) {
+    await atualizarConteudo(uuid, { dominado_manual: !atual })
     await carregar()
   }
 
@@ -237,6 +243,7 @@ export default function MateriaDetalhePage() {
       prova_uuid: null,
       numero: null,
       motivo_erro: null,
+      dificuldade: null,
       letra_marcada: null,
       letra_correta: null,
     })
@@ -338,24 +345,39 @@ export default function MateriaDetalhePage() {
               <ul className="flex flex-col divide-y divide-border rounded-lg border border-border">
                 {conteudos.map((c) => {
                   const card = c.revisao_uuid ? cardsRevisao[c.revisao_uuid] : null
+                  const repeticoes = card?.repeticoes ?? 0
+                  const dominado = c.dominado_manual || repeticoes >= 5
                   return (
                     <li key={c.uuid} className="flex flex-col gap-2 px-4 py-3">
                       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-                        <div className="flex min-w-0 flex-1 items-center gap-3">
+                        <div className="flex min-w-0 flex-1 items-center gap-2">
                           <span className="min-w-0 flex-1 truncate text-sm font-medium">{c.nome}</span>
-                          <Progress value={c.progresso} className="hidden w-24 sm:block" />
-                          <span className="w-10 shrink-0 text-right font-mono text-xs tabular-nums text-muted-foreground">
-                            {c.progresso}%
-                          </span>
+                          {dominado && (
+                            <Badge variant="success" className="shrink-0">
+                              <Award className="size-3" />
+                              Dominado
+                            </Badge>
+                          )}
                         </div>
                         <div className="flex shrink-0 items-center gap-1">
                           <Button
                             type="button"
-                            variant="outline"
+                            variant={c.teoria_vista ? 'secondary' : 'outline'}
                             size="sm"
-                            onClick={() => handleAtualizarProgresso(c.uuid, c.progresso + 25)}
+                            onClick={() => handleToggleTeoriaVista(c.uuid, c.teoria_vista)}
+                            title="Marca se você já teve o primeiro contato (aula/leitura) com este conteúdo"
                           >
-                            +25%
+                            <BookCheck className="size-3.5" />
+                            Teoria vista
+                          </Button>
+                          <Button
+                            type="button"
+                            variant={c.dominado_manual ? 'secondary' : 'outline'}
+                            size="sm"
+                            onClick={() => handleToggleDominadoManual(c.uuid, c.dominado_manual)}
+                            title="Marcar como dominado manualmente, independente do número de revisões"
+                          >
+                            <Award className="size-3.5" />
                           </Button>
                           <Button
                             type="button"
@@ -381,7 +403,9 @@ export default function MateriaDetalhePage() {
 
                       <div className="flex flex-wrap items-center gap-2">
                         <MonoLabel>
-                          {card ? `Próxima revisão: ${formatDate(card.proxima_revisao)}` : 'Ainda sem revisão'}
+                          {card
+                            ? `Revisado ${repeticoes}/5 · Próxima: ${formatDate(card.proxima_revisao)}`
+                            : 'Ainda sem revisão'}
                         </MonoLabel>
                         <div className="ml-auto flex items-center gap-1">
                           {BOTOES_QUALIDADE.map((b) => (

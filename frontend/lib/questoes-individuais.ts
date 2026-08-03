@@ -1,11 +1,15 @@
 import { sb, getUserId, sbErr } from './supabase';
 
 export type Letra = 'A' | 'B' | 'C' | 'D' | 'E';
+export type Dificuldade = 'facil' | 'medio' | 'dificil';
 
 export interface QuestaoIndividual {
   uuid: string;
   user_id: string;
-  materia_uuid: string;
+  // Nullable agora: no gabarito, matéria só é escolhida na fase de corrigir,
+  // não na de lançar (ver lancarRespostasGabarito). Questão avulsa
+  // (registrarQuestao) continua preenchendo na hora, sem essa ambiguidade.
+  materia_uuid: string | null;
   conteudo_uuid: string | null;
   // NULL = ainda não corrigida (gabarito recém-lançado) OU questão perdida
   // (ficou em branco no fim do tempo — nem certo nem errado). Ver
@@ -17,7 +21,10 @@ export interface QuestaoIndividual {
   prova_uuid: string | null;
   numero: number | null;
   motivo_erro: string | null;
-  // Letra marcada durante a prova (fase "lançar"). NULL = ficou em branco.
+  dificuldade: Dificuldade | null;
+  // Letra marcada durante a prova (fase "lançar"). NULL = ficou em branco —
+  // detectado automaticamente (nenhuma letra clicada), nunca escolhido
+  // manualmente pelo usuário.
   letra_marcada: Letra | null;
   // Letra correta, preenchida na fase "corrigir". NULL = correção pendente.
   letra_correta: Letra | null;
@@ -45,13 +52,12 @@ export async function registrarQuestao(input: QuestaoInput): Promise<QuestaoIndi
 // ============================================================================
 // Gabarito ENEM — Fase 1: LANÇAR (durante ou logo após a prova)
 // ============================================================================
-// Registra em lote as respostas de uma área (até 45 questões). Cada questão
-// já escolhe sua matéria (dentro da área) e a letra marcada — sem noção de
-// acerto/erro ainda, isso só existe depois da correção.
+// Grade visual tipo cartão-resposta oficial: só a letra marcada por questão,
+// sem matéria — isso fica pra fase de corrigir. Questão sem letra clicada é
+// enviada como letra_marcada = null (em branco), nunca uma escolha manual.
 
 export interface RespostaLancamento {
   numero: number; // posição dentro do dia (1-90)
-  materia_uuid: string;
   letra_marcada: Letra | null; // null = ficou em branco
 }
 
@@ -66,13 +72,14 @@ export async function lancarRespostasGabarito(
   const linhas = respostas.map((r) => ({
     uuid: crypto.randomUUID(),
     user_id: userId,
-    materia_uuid: r.materia_uuid,
+    materia_uuid: null,
     conteudo_uuid: null,
     acertou: null,
     data,
     prova_uuid: provaUuid,
     numero: r.numero,
     motivo_erro: null,
+    dificuldade: null,
     letra_marcada: r.letra_marcada,
     letra_correta: null,
   }));
@@ -85,14 +92,22 @@ export async function lancarRespostasGabarito(
 // ============================================================================
 // Gabarito ENEM — Fase 2: CORRIGIR (depois, com calma)
 // ============================================================================
-// Preenche a letra_correta de uma questão já lançada. `acertou` é derivado
+// Preenche letra_correta + matéria + conteúdo + dificuldade de uma questão
+// já lançada — TODA questão, não só as erradas (pra estatística por
+// matéria/conteúdo funcionar mesmo nas certas). `acertou` é derivado
 // automaticamente: letra_marcada null → permanece null (perdida); senão,
 // compara letra_marcada com letra_correta.
 
 export interface CorrecaoQuestao {
   letra_correta: Letra;
-  conteudo_uuid?: string; // só faz sentido preencher quando a questão foi errada
+  materia_uuid: string;
+  conteudo_uuid?: string;
   motivo_erro?: string;
+  dificuldade?: Dificuldade;
+}
+
+function calcularAcertou(letraMarcada: Letra | null, letraCorreta: Letra): boolean | null {
+  return letraMarcada === null ? null : letraMarcada === letraCorreta;
 }
 
 export async function corrigirQuestaoGabarito(
@@ -111,16 +126,17 @@ export async function corrigirQuestaoGabarito(
 
   if (erroBusca || !questao) return sbErr(erroBusca, 'corrigirQuestaoGabarito');
 
-  const acertou: boolean | null =
-    questao.letra_marcada === null ? null : questao.letra_marcada === correcao.letra_correta;
+  const acertou = calcularAcertou(questao.letra_marcada, correcao.letra_correta);
 
   const { data, error } = await sb
     .from('questoes_individuais')
     .update({
       letra_correta: correcao.letra_correta,
       acertou,
-      conteudo_uuid: acertou === false ? (correcao.conteudo_uuid ?? null) : null,
-      motivo_erro: acertou === false ? (correcao.motivo_erro ?? null) : null,
+      materia_uuid: correcao.materia_uuid,
+      conteudo_uuid: correcao.conteudo_uuid ?? null,
+      motivo_erro: correcao.motivo_erro ?? null,
+      dificuldade: correcao.dificuldade ?? null,
       updated_at: new Date().toISOString(),
     })
     .eq('uuid', uuid)
@@ -142,16 +158,17 @@ export async function corrigirGabaritoEmLote(
   let algumErro = false;
 
   for (const { uuid, letra_marcada, correcao } of correcoes) {
-    const acertou: boolean | null =
-      letra_marcada === null ? null : letra_marcada === correcao.letra_correta;
+    const acertou = calcularAcertou(letra_marcada, correcao.letra_correta);
 
     const { error } = await sb
       .from('questoes_individuais')
       .update({
         letra_correta: correcao.letra_correta,
         acertou,
-        conteudo_uuid: acertou === false ? (correcao.conteudo_uuid ?? null) : null,
-        motivo_erro: acertou === false ? (correcao.motivo_erro ?? null) : null,
+        materia_uuid: correcao.materia_uuid,
+        conteudo_uuid: correcao.conteudo_uuid ?? null,
+        motivo_erro: correcao.motivo_erro ?? null,
+        dificuldade: correcao.dificuldade ?? null,
         updated_at: new Date().toISOString(),
       })
       .eq('uuid', uuid)
@@ -208,4 +225,24 @@ export async function taxaDeAcertoRecente(dias = 30, materiaUuid?: string): Prom
 
   const acertos = data.filter((q) => q.acertou).length;
   return Math.round((acertos / data.length) * 1000) / 10; // 1 casa decimal
+}
+
+/** Taxa de acerto por conteúdo específico — usa na tela de Matéria pra mostrar desempenho por conteúdo. */
+export async function taxaDeAcertoPorConteudo(conteudoUuid: string): Promise<number | null> {
+  const userId = await getUserId();
+  if (!userId) return null;
+
+  const { data, error } = await sb
+    .from('questoes_individuais')
+    .select('acertou')
+    .eq('user_id', userId)
+    .eq('conteudo_uuid', conteudoUuid)
+    .eq('deleted', false)
+    .not('acertou', 'is', null);
+
+  if (error) return sbErr(error, 'taxaDeAcertoPorConteudo');
+  if (!data || data.length === 0) return null;
+
+  const acertos = data.filter((q) => q.acertou).length;
+  return Math.round((acertos / data.length) * 1000) / 10;
 }

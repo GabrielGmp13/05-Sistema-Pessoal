@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import {
   BarChart3,
+  BookMarked,
   BookOpen,
   CalendarDays,
   ChevronRight,
@@ -21,6 +22,7 @@ import { listarProximasProvas, Prova } from '../../lib/provas'
 import { listarAtividadesPendentes, Atividade } from '../../lib/atividades'
 import { listarUltimosSimulados, Simulado } from '../../lib/simulados'
 import { seedMateriasEnemEscolaSeNecessario } from '../../lib/materias'
+import { listarRevisoesPendentes, CardRevisao } from '../../lib/revisao'
 import { PageHeader, PageShell } from '@/components/study/page-shell'
 import { MonoLabel } from '@/components/study/mono-label'
 import { EmptyState } from '@/components/study/empty-state'
@@ -44,6 +46,7 @@ export default function EstudosHubPage() {
   const [provas, setProvas] = useState<Prova[]>([])
   const [atividades, setAtividades] = useState<Atividade[]>([])
   const [simulados, setSimulados] = useState<Simulado[]>([])
+  const [revisoes, setRevisoes] = useState<CardRevisao[]>([])
   const [carregando, setCarregando] = useState(true)
 
   useEffect(() => {
@@ -52,14 +55,16 @@ export default function EstudosHubPage() {
       // rodar de novo (checa existência antes de criar). Ver lib/materias.ts.
       await seedMateriasEnemEscolaSeNecessario()
 
-      const [p, a, s] = await Promise.all([
+      const [p, a, s, r] = await Promise.all([
         listarProximasProvas(),
         listarAtividadesPendentes(),
         listarUltimosSimulados(5),
+        listarRevisoesPendentes(7),
       ])
       setProvas(p ?? [])
       setAtividades(a ?? [])
       setSimulados(s ?? [])
+      setRevisoes(r ?? [])
       setCarregando(false)
     }
     carregar()
@@ -97,6 +102,34 @@ export default function EstudosHubPage() {
           ))}
         </div>
       </nav>
+
+      <div className="mt-8">
+        <HubBlock
+          label="Revisão"
+          title="Revisões pendentes (próximos 7 dias)"
+          icon={BookMarked}
+          loading={carregando}
+          empty={revisoes.length === 0}
+          emptyText="Nenhuma revisão pendente por enquanto."
+        >
+          {revisoes.map((r) => {
+            const hoje = new Date().toISOString().slice(0, 10)
+            const atrasada = r.proxima_revisao < hoje
+            return (
+              <li
+                key={r.uuid}
+                className="flex items-center justify-between gap-3 px-5 py-3"
+              >
+                <span className="min-w-0 truncate text-sm font-medium">{r.pergunta}</span>
+                <span className="inline-flex items-center gap-2">
+                  <MonoLabel className="shrink-0">{formatDateShort(r.proxima_revisao)}</MonoLabel>
+                  {atrasada && <Badge variant="warning">atrasada</Badge>}
+                </span>
+              </li>
+            )
+          })}
+        </HubBlock>
+      </div>
 
       <div className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-3">
         <HubBlock

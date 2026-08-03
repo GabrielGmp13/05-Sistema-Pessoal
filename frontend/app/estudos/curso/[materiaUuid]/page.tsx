@@ -66,7 +66,7 @@ export default function CursoDetalhePage() {
   const { total, done, progress } = useMemo(() => {
     const aulas = Object.values(conteudosPorModulo).flat()
     const t = aulas.length
-    const d = aulas.filter((a) => a.progresso >= 100).length
+    const d = aulas.filter((a) => a.dominado_manual).length
     return {
       total: t,
       done: d,
@@ -98,7 +98,8 @@ export default function CursoDetalhePage() {
     await criarConteudo(
       {
         nome: nomeAula.trim(),
-        progresso: 0,
+        teoria_vista: false,
+        dominado_manual: false,
         revisao_uuid: null,
         modulo_curso_uuid: moduloUuid,
       },
@@ -109,7 +110,7 @@ export default function CursoDetalhePage() {
   }
 
   async function handleToggleAula(conteudoUuid: string, concluida: boolean) {
-    await atualizarConteudo(conteudoUuid, { progresso: concluida ? 0 : 100 })
+    await atualizarConteudo(conteudoUuid, { dominado_manual: !concluida })
     await carregar()
   }
 
@@ -231,7 +232,7 @@ export default function CursoDetalhePage() {
             <div className="flex flex-col gap-4">
               {modulos.map((mod, mi) => {
                 const aulas = conteudosPorModulo[mod.uuid] ?? []
-                const mDone = aulas.filter((a) => a.progresso >= 100).length
+                const mDone = aulas.filter((a) => a.dominado_manual).length
                 return (
                   <Card key={mod.uuid} className="overflow-hidden">
                     <div className="flex items-center gap-3 border-b border-border bg-secondary/40 px-5 py-3.5">
@@ -255,7 +256,7 @@ export default function CursoDetalhePage() {
                     {aulas.length > 0 && (
                       <ul className="divide-y divide-border">
                         {aulas.map((aula) => {
-                          const complete = aula.progresso >= 100
+                          const complete = aula.dominado_manual
                           return (
                             <li key={aula.uuid}>
                               <button

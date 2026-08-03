@@ -4,7 +4,12 @@ export interface Conteudo {
   uuid: string;
   user_id: string;
   nome: string;
-  progresso: number;
+  // "Domínio" não é mais um número solto — é calculado a partir de dois
+  // sinais: dominado_manual (você decide que já domina) OU
+  // revisao_espacada.repeticoes >= 5 (o SM-2 já conta repetições
+  // bem-sucedidas, ver lib/revisao.ts). Sem coluna de contagem redundante.
+  teoria_vista: boolean; // primeiro contato (aula/leitura), separado de revisão
+  dominado_manual: boolean;
   revisao_uuid: string | null;
   modulo_curso_uuid: string | null; // só usado quando o conteúdo é aula de curso
   updated_at: string;

@@ -1,4 +1,4 @@
-import { sb, getUserId, sbErr, softDelete } from './supabase';
+import { sb, getUserId, sbErr, softDelete, uploadFile, getSignedUrl, deleteFile } from './supabase';
 
 export interface Redacao {
   uuid: string;
@@ -77,13 +77,8 @@ export async function deletarRedacao(uuid: string): Promise<boolean> {
 
 // ============================================================================
 // Imagem da redação (foto da folha manuscrita) — bucket 'redacoes', privado.
-//
-// NOTA TÉCNICA: usa a API do supabase-js diretamente (sb.storage.from(...))
-// em vez de um wrapper do projeto, porque lib/supabase.ts não foi fornecido
-// nesta leva — se o projeto já tem uploadFile()/getSignedUrl()/deleteFile()
-// (mencionados em ARCHITECTURE.md), troque estas 3 funções por chamadas a
-// eles para manter consistência com os outros buckets (shape, documentos,
-// capas, exercicios). Mesma convenção de path: {user_id}/arquivo.ext.
+// Usa os helpers de lib/supabase.ts (mesmo padrão dos buckets shape/
+// documentos/capas/exercicios — DEC-010), path {user_id}/arquivo.ext.
 // ============================================================================
 
 /** Faz upload da foto da redação e já salva o path na linha (atualiza imagem_path). */
@@ -94,32 +89,24 @@ export async function uploadImagemRedacao(uuid: string, file: File): Promise<str
   const extensao = file.name.split('.').pop() ?? 'jpg';
   const path = `${userId}/${uuid}.${extensao}`;
 
-  const { error: erroUpload } = await sb.storage
-    .from(BUCKET_REDACOES)
-    .upload(path, file, { upsert: true });
+  const caminhoSalvo = await uploadFile(BUCKET_REDACOES, path, file);
+  if (!caminhoSalvo) return null;
 
-  if (erroUpload) { sbErr(erroUpload, 'uploadImagemRedacao'); return null; }
-
-  const atualizado = await atualizarRedacao(uuid, { imagem_path: path });
+  const atualizado = await atualizarRedacao(uuid, { imagem_path: caminhoSalvo });
   if (!atualizado) return null;
 
-  return path;
+  return caminhoSalvo;
 }
 
 /** Gera uma signed URL (1h) pra exibir a imagem — bucket é privado, nunca getPublicUrl. */
 export async function getUrlImagemRedacao(path: string): Promise<string | null> {
-  const { data, error } = await sb.storage
-    .from(BUCKET_REDACOES)
-    .createSignedUrl(path, 3600);
-
-  if (error) { sbErr(error, 'getUrlImagemRedacao'); return null; }
-  return data?.signedUrl ?? null;
+  return getSignedUrl(BUCKET_REDACOES, path);
 }
 
 /** Remove a imagem do storage e limpa imagem_path na linha. */
 export async function removerImagemRedacao(uuid: string, path: string): Promise<boolean> {
-  const { error: erroRemocao } = await sb.storage.from(BUCKET_REDACOES).remove([path]);
-  if (erroRemocao) { sbErr(erroRemocao, 'removerImagemRedacao'); return false; }
+  const removido = await deleteFile(BUCKET_REDACOES, path);
+  if (!removido) return false;
 
   const atualizado = await atualizarRedacao(uuid, { imagem_path: null });
   return !!atualizado;
