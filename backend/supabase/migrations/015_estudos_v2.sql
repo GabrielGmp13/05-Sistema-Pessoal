@@ -70,16 +70,15 @@ CREATE INDEX idx_materiais_estudo_conteudo ON materiais_estudo(conteudo_uuid) WH
 -- 4. sessoes_estudo (novo)
 -- ============================================================
 CREATE TABLE sessoes_estudo (
-  uuid             TEXT PRIMARY KEY,
-  user_id          UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  materia_uuid     TEXT NOT NULL REFERENCES materias(uuid),
-  conteudo_uuid    TEXT REFERENCES conteudos(uuid),  -- nullable: sessão geral da matéria
-  inicio           TIMESTAMPTZ NOT NULL,
-  fim              TIMESTAMPTZ,
-  duracao_minutos  INTEGER,          -- calculado no frontend a partir de inicio/fim, ou registrado manualmente
-  observacoes      TEXT,
-  updated_at       TIMESTAMPTZ DEFAULT NOW(),
-  deleted          BOOLEAN DEFAULT FALSE
+ uuid             TEXT PRIMARY KEY,
+user_id          UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+nome             TEXT NOT NULL,
+teoria_vista     BOOLEAN NOT NULL DEFAULT false,  -- primeiro contato (aula/leitura) · migration 019
+dominado_manual  BOOLEAN NOT NULL DEFAULT false,  -- override manual · migration 019
+revisao_uuid     TEXT,
+modulo_curso_uuid TEXT REFERENCES modulos_curso(uuid),
+updated_at       TIMESTAMPTZ DEFAULT NOW(),
+deleted          BOOLEAN DEFAULT FALSE
 );
 
 ALTER TABLE sessoes_estudo ENABLE ROW LEVEL SECURITY;
@@ -93,13 +92,19 @@ CREATE INDEX idx_sessoes_estudo_inicio ON sessoes_estudo(inicio) WHERE NOT delet
 -- ============================================================
 CREATE TABLE questoes_individuais (
   uuid          TEXT PRIMARY KEY,
-  user_id       UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  materia_uuid  TEXT NOT NULL REFERENCES materias(uuid),
-  conteudo_uuid TEXT REFERENCES conteudos(uuid),  -- nullable
-  acertou       BOOLEAN NOT NULL,
-  data          DATE NOT NULL,
-  updated_at    TIMESTAMPTZ DEFAULT NOW(),
-  deleted       BOOLEAN DEFAULT FALSE
+user_id       UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+materia_uuid  TEXT REFERENCES materias(uuid),  -- nullable desde migration 019 — ver nota abaixo
+conteudo_uuid TEXT REFERENCES conteudos(uuid),
+acertou       BOOLEAN,  -- nullable desde 016 (correção pendente) — NULL também cobre "perdida", ver nota
+data          DATE NOT NULL,
+prova_uuid    TEXT REFERENCES provas(uuid),
+numero        INTEGER,
+motivo_erro   TEXT,
+dificuldade   TEXT,  -- 'facil'|'medio'|'dificil', nullable · migration 019
+letra_marcada TEXT,  -- 'A'..'E', nullable = ficou em branco · migration 017
+letra_correta TEXT,  -- 'A'..'E', nullable = correção pendente · migration 017
+updated_at    TIMESTAMPTZ DEFAULT NOW(),
+deleted       BOOLEAN DEFAULT FALSE
 );
 
 ALTER TABLE questoes_individuais ENABLE ROW LEVEL SECURITY;

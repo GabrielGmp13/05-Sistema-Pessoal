@@ -49,6 +49,8 @@ Banco de dados relacional. ✅ Schema executado via `supabase/migrations/001_sch
 | `documentos` | PDFs de provas, apostilas, documentos pessoais | 50MB | PDF |
 | `capas` | Capas de obras da Biblioteca sem cobertura de API | 2MB | JPEG, PNG, WebP |
 | `exercicios` | Imagens/GIFs demonstrativos de exercícios (força e cardio) | 5MB | JPEG, PNG, WebP, GIF — 🔄 aguardando execução de 005_treino_v2.sql |
+| `redacoes` | Foto da folha manuscrita de redação (ENEM/Escola) | 10MB | JPEG, PNG, WebP |
+
 
 Convenção de path obrigatória: `{user_id}/nome-do-arquivo.ext`. Storage Policies usam `(storage.foldername(name))[1] = auth.uid()::text` para isolar o acesso — cada usuário só vê seus próprios arquivos, mesmo dentro do mesmo bucket.
 
@@ -121,6 +123,18 @@ nunca autenticar de fato do ponto de vista do middleware — sem erro no
 Console, redireciona de volta pro login sem explicação. Encontrado e
 corrigido em 2026-07-15.
 
+**Gotcha adicional (modelagem de matéria duplicada, 2026-08):** durante o
+planejamento do gabarito ENEM, uma sessão modelou "matéria" como DUAS linhas
+(`tipo='escola'` + `tipo='enem'`) pra resolver o problema de "a mesma
+Física aparece nos dois módulos" — decisão tomada sem confirmar
+explicitamente com o usuário, que corrigiu ao perceber (matéria deveria ser
+UMA linha, só a TELA decide o que exibir). Gerou dado de teste duplicado no
+Supabase, limpo via `018_materias_unicas_escola_enem.sql` (DELETE em cascata
+manual, já que `conteudos_materias`/`provas`/`atividades`/etc. referenciavam
+as linhas duplicadas). **Lição:** decisões de modelagem que afetam "a mesma
+entidade existe em módulos diferentes" devem ser confirmadas explicitamente
+antes de implementar, nunca assumidas por conveniência de query. Ver DEC-040.
+
 ### proxy.ts — substitui auth.js ✅ implementado (Fase 7.0, DEC-021; renomeado de middleware.ts em 2026-07-19, ver DEC-031)
 Protege toda rota por padrão (fail-safe), exceto as listadas em
 `ROTAS_PUBLICAS` (hoje só `/login`). Usa `createServerClient` de
@@ -148,6 +162,17 @@ guardada só no servidor, devolve o resultado já formatado.
 
 ### v1 (HTML puro) — aposentada, ver DEC-031
 Usava `assets/supabase.js` (client global `window.sb` + helpers de auth/storage/soft-delete) e `assets/auth.js` (`window.authReady`, redirect manual pra `/login.html`). Removida do projeto em 2026-07-19 — sem arquivo real correspondente hoje. Os equivalentes ativos são `lib/supabase.ts` e `proxy.ts`, documentados acima. Se precisar do código exato de referência, está em `CHANGELOG.md`/backup local da v1, não precisa viver aqui.
+
+### Acesso ao repositório via GitHub (2026-08)
+
+Repositório conectado como público
+(`github.com/GabrielGmp13/05-Sistema-Pessoal`) — qualquer sessão de IA com
+acesso a rede pode clonar e ler arquivos reais do projeto diretamente, em
+vez de depender só de cópia manual colada pelo usuário. Reduz risco de
+assinatura de função assumida incorretamente (ver `PROJECT_PRINCIPLES.md`
+#12). Não altera o fluxo de aplicação de mudanças — geração de código
+continua sendo entregue como arquivo/diff pro usuário substituir
+manualmente, nunca commitado diretamente pela IA.
 
 ---
 

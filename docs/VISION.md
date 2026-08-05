@@ -13,7 +13,7 @@ Visão macro de onde o Sistema Pessoal pretende chegar. Não é um roadmap detal
 | Revisão Espaçada | ✅ Implementado | Bug de schema corrigido em 2026-07-11, ver DATABASE.md → Gotchas |
 | Biblioteca | ✅ v1 completa | Catálogo de mídia, ver DEC-011. Escopo de v2 não definido. |
 | Agenda | 🔄 Parcial | Hoje existe só dentro de `treino.html`; não é módulo dedicado. Escopo de v2 não definido. |
-| Estudos | 🔄 v2 em planejamento | Fase 1 (núcleo) desenhada — DEC-035. Fase 2 (Cursos, Flashcards/Anki, Redação versionada, Calendário próprio) registrada, não descartada. |
+| Estudos | 🔄 v2 em construção avançada | ENEM, Escola, Curso, Redações, Matéria e Gabarito implementados e restilizados; matéria única compartilhada entre Escola/ENEM (DEC-040); gabarito em 2 fases (DEC-041); domínio de conteúdo calculado via SM-2 (DEC-042). Fase 2 (Cursos com certificação rica, Flashcards/Anki, Redação versionada, Calendário próprio, modo "fazer prova" com cronômetro) registrada em BACKLOG.md, não descartada. |
 | Hábitos | ⏳ Não iniciado | Sem tabela, sem decisão de escopo ainda |
 | Metas | ⏳ Não iniciado | Sem tabela, sem decisão de escopo ainda |
 | Projetos | ⏳ Não iniciado | Sem tabela, sem decisão de escopo ainda |

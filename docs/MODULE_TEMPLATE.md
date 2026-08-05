@@ -116,8 +116,9 @@ gabarito questão-a-questão, simulados informais que alimentam revisão
 espaçada, e redação por competência.
 
 **Escopo**
-Dentro: matérias/conteúdos (compartilháveis entre módulos via
-`conteudos_materias`), anotações, materiais de apoio, sessões de estudo
+Dentro: matéria única compartilhada entre Escola/ENEM via flags
+`mostra_escola`/`mostra_enem` (DEC-040), conteúdos (compartilháveis entre
+módulos via `conteudos_materias`), anotações, materiais de apoio, sessões de estudo
 (tempo), questões avulsas, gabarito digital de prova oficial, simulados
 (dispara SM-2 quando vinculados a conteúdo), atividades (Escola/Curso),
 hierarquia Curso → Módulo → Aula, redação leve com 5 competências.
@@ -150,7 +151,9 @@ Não. Todo CRUD é direto via `lib/*.ts` → Supabase client, sob RLS — nenhum
 API externa envolvida neste módulo (diferente de Biblioteca/TMDB).
 
 **Banco de dados**
-Ver `DATABASE.md` → Schema `015_estudos_v2.sql` e `016_estudos_v2_fase1b.sql`.
+Ver `DATABASE.md` → Schema `015_estudos_v2.sql`, `016_estudos_v2_fase1b.sql`,
+`017_estudos_gabarito_enem_redacao.sql`, `018_materias_unicas_escola_enem.sql`,
+`019_gabarito_dominio_dificuldade.sql`.
 Tabelas: `materias` (reaproveitada), `conteudos`, `conteudos_materias`,
 `anotacoes_estudo`, `materiais_estudo`, `sessoes_estudo`,
 `questoes_individuais`, `provas`, `simulados`, `redacoes`, `modulos_curso`,
@@ -180,20 +183,16 @@ como lembrete, não flashcard — ver DEC-035.
 Nenhuma.
 
 **Pendências**
-- `lib/simulados.ts` estava bloqueado por dependência de `lib/revisao.ts`
-  inexistente — resolvido nesta sessão.
-- Teste end-to-end ainda não realizado pelo usuário (arquivos gerados,
-  aplicação/teste adiados pra outra sessão — ver nota de exceção em
-  `DECISIONS.md`, mesmo padrão já usado uma vez em DEC-036).
-- `materiais_estudo` (materiais de apoio) sem página — schema existe, UI não.
-- `anotacoes_estudo` sem página — schema existe, UI não.
-- `sessoes_estudo` (tempo de estudo) sem página — schema existe, UI não.
-- Vínculo de conteúdo compartilhado (`vincularConteudoAMateria`) exposto de
-  forma crua (prompt pedindo UUID manual) — inutilizável na prática sem uma
-  UI de seleção de matéria.
-- Edição de prova/atividade/conteúdo — só criação, toggle e exclusão; sem
-  formulário de edição completo (ex: mudar data de uma prova já criada).
-
+- `SubjectManager` exibe `topics`/`accuracy` fixos em 0 (placeholder) — não
+  resolvido ainda.
+- `materiais_estudo`, `anotacoes_estudo`, `sessoes_estudo` — schema existe,
+  sem página ainda.
+- Vínculo de conteúdo compartilhado (`vincularConteudoAMateria`) via
+  `window.prompt` — sem seletor de matéria de verdade.
+- Teste manual completo no navegador das correções de 2026-08 (matéria
+  única, gabarito 2 fases, domínio de conteúdo) — em andamento.
+- Modo "fazer prova" com cronômetro/upload de PDF — não desenhado, ver
+  BACKLOG.md e DEC-041.
 **Melhorias futuras**
 Ver `BACKLOG.md` (Fase 2 de Estudos) e o design definitivo via Figma —
 Sidebar/Banner/Card documentados em `DESIGN.md` ainda não aplicados neste

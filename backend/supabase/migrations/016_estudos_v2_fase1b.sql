@@ -57,12 +57,21 @@ ALTER TABLE conteudos
 -- 5. conteudos_materias (novo) — N:N, substitui conteudos.materia_uuid
 -- =========================================================
 CREATE TABLE conteudos_materias (
-  uuid          TEXT PRIMARY KEY,
-  user_id       UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  conteudo_uuid TEXT NOT NULL REFERENCES conteudos(uuid),
-  materia_uuid  TEXT NOT NULL REFERENCES materias(uuid),
-  updated_at    TIMESTAMPTZ DEFAULT NOW(),
-  deleted       BOOLEAN DEFAULT FALSE
+  uuid        TEXT PRIMARY KEY,
+user_id     UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+tema        TEXT NOT NULL,
+texto       TEXT,  -- nullable desde migration 017 — pode registrar só a foto
+nota        NUMERIC(4,1),
+comentario  TEXT,  -- observação/correção do professor — só exposto na EDIÇÃO, não na criação (decisão do usuário)
+data        DATE NOT NULL,
+competencia_1 NUMERIC(5,1),
+competencia_2 NUMERIC(5,1),
+competencia_3 NUMERIC(5,1),
+competencia_4 NUMERIC(5,1),
+competencia_5 NUMERIC(5,1),
+imagem_path TEXT,  -- path no bucket 'redacoes', foto da folha manuscrita · migration 017
+updated_at  TIMESTAMPTZ DEFAULT NOW(),
+deleted     BOOLEAN DEFAULT FALSE
 );
 
 CREATE INDEX idx_conteudos_materias_conteudo ON conteudos_materias(conteudo_uuid) WHERE NOT deleted;

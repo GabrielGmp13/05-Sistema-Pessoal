@@ -23,15 +23,16 @@
 -- Disciplinas de estudo com tipo e cor para identificação visual
 -- ─────────────────────────────────────────────────────────────
 CREATE TABLE materias (
-  uuid       TEXT        PRIMARY KEY,
-  user_id    UUID        NOT NULL REFERENCES auth.users(id),
-  nome       TEXT        NOT NULL,
-  tipo       TEXT        NOT NULL DEFAULT 'escola',
-    -- valores: 'enem' | 'olimpiada' | 'escola' | 'concurso' | 'outro'
-  cor        TEXT,
-    -- hex para identificação visual na UI, ex: '#b8f566'
-  updated_at TIMESTAMPTZ DEFAULT NOW(),
-  deleted    BOOLEAN     DEFAULT FALSE
+  uuid           TEXT PRIMARY KEY,
+user_id        UUID NOT NULL REFERENCES auth.users(id),
+nome           TEXT NOT NULL,
+tipo           TEXT NOT NULL DEFAULT 'academica',  -- 'academica' | 'olimpiada' | 'concurso' | 'curso' | 'outro'
+cor            TEXT,
+mostra_escola  BOOLEAN NOT NULL DEFAULT false,  -- ver DEC-040 · migration 018
+mostra_enem    BOOLEAN NOT NULL DEFAULT false,  -- ver DEC-040 · migration 018
+area_enem      TEXT,  -- 'linguagens'|'humanas'|'natureza'|'matematica', só quando mostra_enem=true · migration 017
+updated_at     TIMESTAMPTZ DEFAULT NOW(),
+deleted        BOOLEAN DEFAULT FALSE
 );
 
 ALTER TABLE materias ENABLE ROW LEVEL SECURITY;

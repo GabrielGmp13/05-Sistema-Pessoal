@@ -7,7 +7,11 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 ## Status geral
 **Fase atual:** Fase 7 (v2) — v1 aposentada (DEC-031), `frontend/` é o único frontend ativo. Biblioteca consolidada em página única + sidebar (DEC-032) e redesenhada visualmente (DEC-034), ambas concluídas pelo usuário.
 **Bloqueio:** nenhum
-**Próxima ação:** gerar as 4 páginas de Estudos v2 (Hub, ENEM, Gabarito, Escola) com mock data do zip do v0.dev, pra validação visual do Tailwind/toggle dentro do projeto real — ver seção "Estudos v2 — Design (Tailwind)" abaixo. Pendências antigas (login e2e Vercel, imagens de banner, integração de APIs externas) continuam em aberto, sem prioridade nesta sessão.
+**Próxima ação:** finalizar teste manual no navegador das correções de
+2026-08 (matéria única, gabarito em 2 fases, domínio de conteúdo) — ver
+CHANGELOG.md pra lista completa. Repositório conectado publicamente no
+GitHub (`GabrielGmp13/05-Sistema-Pessoal`) — Claude já pode ler arquivos
+reais em vez de depender de cópia colada.
 
 ---
 
@@ -67,6 +71,20 @@ visual. Precisa de `MODULE_TEMPLATE.md` completo antes de começar:
 - [ ] Rodar `MODULE_TEMPLATE.md` completo antes de qualquer schema ou código
 - [ ] Agenda (módulo dedicado) fica para depois — abordagem "camada por camada", DEC-031
 
+
+## 🟢 Estudos v2 — Correção de modelagem pós-design (2026-08) — concluída, teste manual em andamento
+
+- [x] Migration 017 (área ENEM, letra do gabarito, redação com imagem) executada
+- [x] Migration 018 (matéria única, mostra_escola/mostra_enem, limpeza de dado duplicado) executada
+- [x] Migration 019 (gabarito 2 fases, domínio de conteúdo, dificuldade) executada
+- [x] `lib/materias.ts`, `lib/conteudos.ts`, `lib/questoes-individuais.ts`,
+      `lib/provas.ts`, `lib/revisao.ts`, `lib/redacoes.ts` atualizados
+- [x] Páginas de Estudos atualizadas (Hub, ENEM, área ENEM nova, Escola,
+      Curso×2, Matéria, Gabarito) — `npx tsc --noEmit` limpo
+- [ ] **Teste manual completo no navegador** — em andamento pelo usuário
+- [ ] `SubjectManager`: `topics`/`accuracy` ainda fixos em 0 (pendência antiga, não tocada)
+- [ ] `materiais_estudo`, `anotacoes_estudo`, `sessoes_estudo` — schema existe, sem página ainda (pendência antiga)
+- [ ] Vínculo de conteúdo compartilhado ainda via `window.prompt` (pendência antiga)
 ## Pendências de polimento
 
 Ver `BACKLOG.md` — `confirm()` nativo (Treino e Biblioteca), menu "⋯" não
@@ -101,18 +119,32 @@ fecha ao clicar fora, upload de capa/banner manual, edição de itens em
       solto (`MODULE_ESTUDOS_V2.md`, gerado 2026-07-25) — falta decidir onde
       ele mora de fato (seção em `ROADMAP.md` ou arquivo próprio permanente)
 
-## 🟡 Estudos v2 — Design (Tailwind + shadcn, DEC-037/038/039) — infra concluída
+## 🟢 Estudos v2 — Design (Tailwind + shadcn, DEC-037/038/039) — Hub/ENEM/Gabarito restilizados e testados
 
 - [x] Paleta nova (v0.dev) adotada como padrão do sistema, exceto Biblioteca (DEC-037)
 - [x] Tailwind v4 + shadcn/ui adotado, escopo inicial: só Estudos (DEC-038)
 - [x] Toggle claro/escuro real, sistema inteiro exceto Biblioteca (DEC-039)
-- [x] `package.json`, `postcss.config.mjs`, `components.json`, `lib/utils.ts` — aplicados e testados (`npm install` + `npm run dev` sem erro)
+- [x] `package.json`, `postcss.config.mjs`, `components.json`, `lib/utils.ts` — aplicados e testados
 - [x] `app/globals.css` mesclado (dois vocabulários de variável + tema fixo da Biblioteca) — aplicado
 - [x] `components/ThemeProvider.tsx`, `components/ThemeToggle.tsx` — aplicados
 - [x] `app/layout.tsx` com script anti-flash + provider — aplicado
 - [x] `app/biblioteca/layout.tsx` com classe `.bibliotecaTheme` — aplicado
-- [ ] **Próximo:** gerar as 4 páginas do zip do v0 (Hub, ENEM, Gabarito, Escola) + `components/study/*`/`components/ui/*`, com o mock data que já vem nelas — validação visual antes de conectar dado real
-- [ ] Depois da validação visual: trocar mock data pelos `lib/*.ts` reais (`materias.ts`, `conteudos.ts`, `provas.ts`, `atividades.ts`, `simulados.ts`, `redacoes.ts`, `questoes-individuais.ts`) — preciso do conteúdo real desses arquivos antes, sem assumir assinatura
-- [ ] v0.dev ainda tem 4 de 8 telas pendentes de geração (limite de uso do usuário) — integrar conforme forem saindo
+- [x] `components/ui/*` (10 arquivos) e `components/study/*` (7 arquivos) copiados pro projeto real via Cline+DeepSeek, a partir do zip gerado pelo v0.dev (Hub, ENEM, Gabarito — Escola só foi iniciado pelo v0, não usado)
+- [x] `app/estudos/page.tsx` (Hub), `app/estudos/enem/page.tsx`, `app/estudos/enem/gabarito/[provaUuid]/page.tsx` restilizados via diff, preservando 100% da lógica de dados real (`lib/materias.ts`, `lib/provas.ts`, `lib/atividades.ts`, `lib/simulados.ts`, `lib/questoes-individuais.ts`)
+- [x] `SubjectManager` integrado na página ENEM (Bloco 1), substituindo grid inline — corrigido para ser componente controlado (sem `useState` interno duplicando a prop `subjects`)
+- [x] Teste end-to-end confirmado: adicionar matéria reflete na lista sem F5, clicar nela abre `/estudos/materia/[materiaUuid]` corretamente
+- [x] **Pendência aberta, ainda não resolvida:** `SubjectManager` exibe `topics: 0` e `accuracy: 0` fixos (placeholder falso) em ENEM e agora também em Escola. Resolver quando fizer sentido buscar contagem de conteúdos/taxa de acerto por matéria.
+- [x] Escola restilizada manualmente (2026-07-31) — sem esperar v0.dev, usando `components/study/*`/`ui/*` já existentes.
+- [x] v0.dev resetou limite de geração numa sessão que Gabriel não acompanhou (~1 semana sem mexer no projeto) e entregou, sem supervisão prévia, 5 telas extras: Matéria (detalhe), Curso (lista), Curso (detalhe), Escola, Redações — com data mockada própria (`lib/study-data.ts`) e rotas fora do padrão do projeto (`/materia/[id]` em vez de `/estudos/materia/[materiaUuid]`, etc). Tratado com a mesma disciplina de sempre: só visual/estrutura aproveitado, mock data e rotas descartados, cada tela reescrita em cima dos `lib/*.ts` reais.
+- [x] Curso (lista + detalhe) restilizado (2026-07-31) — `lib/modulos-curso.ts` + `lib/conteudos.ts` reais. Diferente do mock do v0, toggle de aula concluída agora funciona nos dois sentidos (marcar/desmarcar), não só marcar — melhoria trivial sem mudança de schema.
+- [x] Redações restilizada (2026-07-31) — `lib/redacoes.ts` real, `somaCompetencias()` original preservada.
+- [x] Matéria (detalhe) restilizada (2026-07-31) — decisão tomada: `GradeManager` do v0 (nota ponderada por avaliação, com peso e nota máxima customizável) **descartado por completo**, não existe no schema real. Tela mostra conteúdos (com progresso, vínculo N:N, +25%), provas por tipo, atividades (feita/entregue), questão avulsa e simulados (com disparo de SM-2) — tudo já existente em `lib/*.ts`. Seção de "materiais de apoio" do mock também descartada — não existe `lib/materiais-estudo.ts`, `materiais_estudo` segue sem página (mesma pendência já registrada abaixo).
+- [x] Todas as 8 telas de Estudos v2 (Hub, ENEM, Gabarito, Escola, Curso×2, Matéria, Redações) restilizadas e testadas localmente (`tsc --noEmit` limpo + teste funcional manual). **Ainda não testado em produção.**
 
----
+
+## ✅ Correção de tipos em `lib/supabase.ts` (sessão 2026-07-27)
+
+- [x] `sbErr()` corrigida de `boolean` fixo para genérica (`<T = null>`), resolvendo 37 erros de TypeScript espalhados por `lib/atividades.ts`, `lib/conteudos.ts`, `lib/materias.ts`, `lib/modulos-curso.ts`, `lib/provas.ts`, `lib/questoes-individuais.ts`, `lib/redacoes.ts`, `lib/revisao.ts`, `lib/simulados.ts`
+- [x] `softDelete()` corrigida de `Promise<{ error: unknown }>` para `Promise<boolean>` — 15 callers ajustados em cascata (Biblioteca: `animes*.ts`, `elenco.ts`, `filmes.ts`, `livros*.ts`, `mangas*.ts`, `openings-endings.ts`, `podcasts.ts`, `series*.ts`, `trilha-sonora.ts`)
+- [x] `npx tsc --noEmit` confirmado limpo: 0 erros
+- [x] Bug de rota corrigido: pasta `app/estudos/materia/[materialUuid]/` renomeada para `[materiaUuid]/` (erro de digitação desde a geração original), alinhando com o padrão usado no resto do projeto e resolvendo página travada em "Carregando..." indefinidamente

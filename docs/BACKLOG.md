@@ -27,8 +27,21 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 - [ ] Redação versionada (múltiplas versões, competências detalhadas), Fase 1 entrega só versão leve (DEC-035)
 - [ ] Calendário acadêmico próprio — não deve ser construído isolado; absorver pelo módulo Agenda dedicado quando planejado, evitar duplicar dado de compromisso
 - [ ] Metas diárias/semanais/mensais e sequência de dias estudando (streak) — avaliar sobreposição com o módulo Hábitos (ainda não iniciado) antes de construir algo específico de Estudos
+- [ ] Notas por avaliação com peso (ex: "Prova bimestral" peso 2, "Lista" peso 1) e nota máxima customizável por avaliação, com média ponderada calculada — ideia trazida por um componente gerado pelo v0.dev (`GradeManager`) na tela de Matéria, descartada da restilização de 2026-07-31 por não ter schema equivalente. `provas.nota` hoje é só uma nota simples por prova. Se for adotada, exige tabela nova (algo como `lancamentos_nota`) e entra como decisão de schema em `DECISIONS.md`, não como ajuste de UI.
 - [ ] Estatísticas avançadas de Estudos (ranking de conteúdos fracos/fortes, eficiência de estudo) — depende de volume real de dado acumulado, sem sentido construir com o schema vazio
 - [ ] Upload de arquivo de prova/gabarito em `simulados` — Fase 1 entrega só campos numéricos/observação, sem anexo
+- [ ] Modo "fazer prova na hora" — upload do PDF da prova, cronômetro de
+      fundo (dia 1 ~5h30 / dia 2 ~5h, confirmar minutos exatos), PDF aberto
+      no navegador enquanto o cronômetro roda, gabarito digital preenchido
+      em paralelo (redação fica de fora — escrita à mão, só foto depois).
+      Dois modos de exibição do cronômetro: contagem regressiva simples e
+      estilo "relógio de sala de aplicador" (blocos de 30 em 30 min,
+      riscando o que já passou). Trava novas respostas quando o tempo
+      esgota. Feature grande, própria — ver DEC-041 (registrado, não
+      esquecido) — precisa de `MODULE_TEMPLATE.md` antes de qualquer schema.
+- [ ] Horário/duração por sessão de revisão espaçada (agenda própria dentro
+      de Estudos) — recusado por ora (DEC-043), pertence ao módulo Agenda
+      quando ele for iniciado. Não duplicar aqui quando a Agenda existir.
 
 ## Documentação / processo
 

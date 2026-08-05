@@ -122,3 +122,134 @@ localmente, ganha de qualquer `.dark` herdada).
   testado (`npm install` + `npm run dev`, sem erros). Próximo passo: gerar
   as 4 páginas do zip do v0 com mock data pra validação visual, antes de
   conectar aos `lib/*.ts` reais de Estudos.
+
+  - **2026-07-27** — Estudos v2: Hub, ENEM e Gabarito Digital restilizados com
+  os componentes `study/*`/`ui/*` gerados pelo v0.dev (Tailwind v4 +
+  shadcn/ui + Base UI), aplicados via Cline+DeepSeek em cima das páginas
+  reais já existentes — lógica de dados 100% preservada, nenhuma chamada a
+  `lib/*.ts` alterada. v0.dev entregou só 2 de 8 telas antes de atingir
+  limite de geração (Hub confirmado; ENEM e Gabarito construídos mas não
+  testados pelo próprio v0; Escola foi iniciada e descartada desta leva —
+  incompleta). `SubjectManager` integrado na página ENEM, exigindo correção
+  própria: o componente vindo do v0 mantinha estado interno via `useState`
+  duplicando a prop de matérias — corrigido para componente controlado
+  (fonte da verdade é a página pai). Durante os testes, 3 bugs reais foram
+  encontrados e corrigidos, nenhum deles causado por esta restilização:
+  (1) `lib/supabase.ts` — `sbErr()` e `softDelete()` com assinatura
+  incompatível com o resto do projeto, gerando 37 erros de TypeScript em 9
+  arquivos de Estudos + 15 callers de Biblioteca corrigidos em cascata;
+  (2) pasta de rota `app/estudos/materia/[materialUuid]/` com erro de
+  digitação desde a geração original (Fase 1B), travando a página em
+  "Carregando..." permanentemente sem erro visível — corrigida a causa raiz
+  (rename de pasta), não só o sintoma; (3) cache `.next/` desatualizado após
+  o rename de pasta, exigindo limpeza manual (`rm -rf .next`) e restart
+  limpo do `npm run dev` — Fast Refresh sozinho não bastou.
+  Pendência aberta: `SubjectManager` exibe contagem de conteúdos e taxa de
+  acerto como `0` fixo (placeholder), já que a página ENEM não carrega esses
+  dados reais ainda — resolver em leva futura.
+
+  - **2026-07-31** — Estudos v2: as 4 telas restantes restilizadas (Escola,
+  Curso — lista e detalhe —, Redações, Matéria/detalhe), fechando as 8 telas
+  do módulo com o design Tailwind v4/shadcn (`components/study/*`, `ui/*`)
+  iniciado em 2026-07-27. Mesmo tratamento das telas anteriores: só
+  visual/estrutura aproveitado, lógica de dados 100% dos `lib/*.ts` reais.
+
+  **Contexto da leva de origem:** após ~1 semana sem atividade no projeto, o
+  usuário pediu ao v0.dev pra continuar de onde parou; o limite de geração
+  havia resetado, e o agente gerou sozinho, sem revisão prévia, as 5 telas
+  que faltavam de uma vez — incluindo um data layer mockado próprio
+  (`lib/study-data.ts`) e rotas fora da convenção do projeto (`/materia/[id]`,
+  `/curso`, `/escola`, `/redacoes`, sem prefixo `/estudos/` nem os UUIDs
+  nomeados corretamente). Nenhum desses artefatos foi usado — mesmo
+  princípio já aplicado a toda geração do v0.dev (DEC-034/038): só
+  visual/estrutura, nunca dado mockado nem decisão estrutural.
+
+  **Decisões tomadas durante a adaptação:**
+  - `GradeManager` do v0 (notas por avaliação com peso, nota máxima
+    customizável, média ponderada calculada no client) **descartado por
+    completo** na tela de Matéria — não existe schema equivalente (`provas`
+    só tem uma `nota` por prova, sem peso). Ideia registrada em
+    `BACKLOG.md` como possibilidade futura, não perdida.
+  - Seção de "materiais de apoio" do mock de Matéria também descartada —
+    não existe `lib/materiais-estudo.ts`; `materiais_estudo` segue sem
+    página (pendência já registrada, ver `TASKS_NOW.md`).
+  - Curso (detalhe): toggle de aula agora marca/desmarca concluída (o crú
+    original só marcava) — melhoria de UX trivial, sem mudança de schema,
+    dentro do escopo da restilização.
+  - Curso (lista): barra de progresso mostra só 0%/100% (`concluido`), não
+    o cálculo granular do mock do v0 — buscar contagem de aulas de todos os
+    cursos na tela de lista teria custo desproporcional; o progresso
+    detalhado continua disponível na tela de detalhe.
+
+  Todos os 5 arquivos testados localmente: `tsc --noEmit` limpo, navegação e
+  CRUD confirmados manualmente pelo usuário em ambiente de desenvolvimento.
+  **Teste em produção (Vercel) ainda pendente** — nenhuma das 8 telas de
+  Estudos foi validada fora do `localhost` até agora.
+
+  - **2026-08** — Estudos v2: sessão extensa de correção pós-restilização,
+  motivada pelo usuário revisando o resultado contra o que havia sido
+  originalmente planejado (dois documentos de referência trazidos: rascunho
+  original "Módulo Estudos" e uma auditoria prévia "Especificação — módulo
+  Estudos" gerada em outra conversa). Diagnóstico: várias decisões da leva
+  anterior seguiram estrutura importada do v0.dev/Figma em vez de
+  questionar se batia com o domínio real do ENEM — indo contra a regra já
+  estabelecida (do v0 só se aproveita visual, nunca lógica/estrutura).
+
+  **Correções de modelagem, em ordem:**
+  1. Hierarquia real confirmada por pesquisa (Inep): ENEM tem 4 áreas fixas
+     (Linguagens, Humanas, Natureza, Matemática — não a lista solta
+     cadastrada antes), cada dia com 90 questões numeradas 1-90 (não
+     corrido 1-180), Linguagens/Humanas no dia 1 (1-45/46-90),
+     Natureza/Matemática no dia 2, mesma numeração. Redação não é área nem
+     matéria — vira tile de navegação separado.
+  2. `materia.tipo` perde `'enem'`/`'escola'`, ganha `'academica'`; matéria
+     é linha única com `mostra_escola`/`mostra_enem` (booleans) — reverte
+     um erro de modelagem cometido e corrigido na mesma sessão (matéria
+     havia sido duplicada em duas linhas por engano). Migration `018`
+     limpa o dado de teste duplicado em cascata. Ver DEC-040.
+  3. Gabarito ENEM reformulado pra 2 fases reais: lançar (grade visual tipo
+     cartão-resposta, só a letra, sem matéria) e corrigir (linha a linha,
+     matéria+conteúdo+dificuldade+motivo em toda questão, não só erradas).
+     `acertou` sempre derivado (nunca campo manual); letra em branco
+     detectada automaticamente, nunca escolhida manualmente. Prova ENEM
+     também deixou de poder ser criada dentro da tela de Matéria (bug
+     encontrado pelo usuário) — só existe em `/estudos/enem`. Ver DEC-041.
+  4. `conteudos.progresso` (número solto, "+25%" sem critério) removido,
+     substituído por `teoria_vista` (primeiro contato) + `dominado_manual`
+     (override); "dominado" de fato é calculado
+     (`dominado_manual OR revisao_espacada.repeticoes >= 5`), sem
+     duplicar contagem que o SM-2 já faz. Ver DEC-042.
+  5. Card "Revisões pendentes" adicionado ao Hub de Estudos — pedido de
+     visibilidade rápida do usuário. Pedido de agendamento com
+     horário/duração próprio dentro de Estudos foi recusado, por já ser
+     escopo do módulo Agenda (reafirma DEC-035). Ver DEC-043.
+  6. Redação ganhou upload de imagem (`imagem_path`, bucket novo `redacoes`)
+     e `texto` virou opcional — permite registrar a redação com foto da
+     folha manuscrita, sem digitar. Campo de observação/correção do
+     professor (`comentario`) exposto só na edição, por decisão do
+     usuário (normalmente não existe ainda na criação).
+
+  **Migrations executadas:** `017_estudos_gabarito_enem_redacao.sql`,
+  `018_materias_unicas_escola_enem.sql`,
+  `019_gabarito_dominio_dificuldade.sql` — todas confirmadas pelo usuário no
+  Supabase.
+
+  **Arquivos alterados:** `lib/materias.ts`, `lib/conteudos.ts`,
+  `lib/questoes-individuais.ts`, `lib/provas.ts`, `lib/revisao.ts`,
+  `lib/redacoes.ts` (trocado de chamada direta `sb.storage` pros helpers
+  `uploadFile`/`getSignedUrl`/`deleteFile` já existentes em
+  `lib/supabase.ts`, por consistência — só percebido depois de ler o
+  arquivo real via acesso ao repositório), `app/estudos/page.tsx`,
+  `app/estudos/enem/page.tsx`, `app/estudos/enem/[area]/page.tsx` (nova
+  rota), `app/estudos/enem/gabarito/[provaUuid]/page.tsx`,
+  `app/estudos/escola/page.tsx`, `app/estudos/curso/page.tsx`,
+  `app/estudos/curso/[materiaUuid]/page.tsx`,
+  `app/estudos/materia/[materiaUuid]/page.tsx`. `npx tsc --noEmit` limpo
+  ao final. Teste manual no navegador ainda em andamento pelo usuário no
+  momento desta entrada.
+
+  **Mudança de processo relevante:** usuário conectou o repositório
+  (`github.com/GabrielGmp13/05-Sistema-Pessoal`) como público — a partir
+  desta sessão, Claude pode ler arquivos reais do projeto diretamente via
+  clone, em vez de depender exclusivamente de cópia manual colada pelo
+  usuário. Reduz risco de assinatura assumida incorretamente.

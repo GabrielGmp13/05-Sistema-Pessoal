@@ -506,3 +506,137 @@ global seja acionado em outra aba/rota.
   (oculto condicionalmente em `/biblioteca/*` via `usePathname`)
 - `globals.css` ganha bloco `.dark` completo ao lado do `:root` (claro),
   nos dois vocabulários de variável (CSS Modules antigo + shadcn novo)
+
+  ## DEC-040 — Matéria é linha única, compartilhada entre Escola e ENEM (corrige modelagem errada da mesma sessão)
+
+**Data:** 2026-08
+**Status:** ✅ Aprovada e executada (migration 018)
+
+### Contexto
+Ao desenhar o gabarito ENEM com hierarquia Área→Matéria→Conteúdo, uma
+primeira tentativa modelou matéria como duas linhas (`tipo='escola'` /
+`tipo='enem'`) pra separar o que cada módulo mostra. O usuário corrigiu:
+matéria (ex: "Física") é uma única entidade — o que muda entre os módulos é
+só o que a tela decide exibir (Escola mostra Provas+Atividades+Simulados;
+ENEM mostra só Conteúdos+Simulados), não o dado em si.
+
+### Decisão
+`materias.tipo` perde os valores `'enem'`/`'escola'`, ganha `'academica'`
+(cobre ambos os módulos). Duas colunas booleanas novas — `mostra_escola`,
+`mostra_enem` — controlam em qual(is) tela(s) a matéria aparece; não são
+mutuamente exclusivas. `area_enem` continua existindo, significativa só
+quando `mostra_enem = true`. Página de Matéria
+(`app/estudos/materia/[materiaUuid]/page.tsx`) decide o que renderizar pelo
+parâmetro `?from=escola|enem` da URL, não por um campo da matéria.
+
+### Impacto
+Migration `018` limpa as matérias duplicadas de teste (cascata manual — ver
+`DATABASE.md` → Gotchas) e adiciona as duas flags. `lib/materias.ts`
+reescrito: seed cria uma linha por matéria (não duas), funções novas
+`listarMateriasEscola()`, `listarTodasMateriasEnem()`,
+`listarMateriasPorAreaEnem()`, `buscarMateria()`.
+
+---
+
+## DEC-041 — Gabarito ENEM: fluxo em 2 fases (lançar / corrigir), matéria decidida só na correção
+
+**Data:** 2026-08
+**Status:** ✅ Aprovada e executada (migrations 017 + 019)
+
+### Contexto
+O usuário descreveu o uso real: durante a prova, só dá tempo de marcar a
+letra escolhida (como o cartão-resposta oficial do ENEM — 6 blocos de 15
+questões, círculos A-E). Matéria, conteúdo/assunto, motivo do erro e
+dificuldade só são classificados depois, com calma, na correção — e nem
+sempre a correção acontece no mesmo momento em que a prova termina (pode
+ficar pendente por dias).
+
+### Decisão
+- **Fase lançar:** grade visual (não formulário linha-a-linha) — clicar na
+  letra de cada questão. Sem select de "em branco": questão sem clique vira
+  `letra_marcada = NULL` automaticamente ao salvar, nunca escolha manual.
+  Sem matéria nesta fase.
+- **Fase corrigir:** volta a ser lista linha-a-linha, mas agora pede
+  **matéria + conteúdo + dificuldade + motivo em toda questão**, não só nas
+  erradas (necessário pra estatística de desempenho por matéria/conteúdo
+  incluir as questões certas também). `letra_correta` obrigatória por linha;
+  `acertou` é sempre derivado (nunca campo manual): `letra_marcada IS NULL`
+  → permanece `NULL` (perdida — ficou em branco e o tempo acabou, nem certo
+  nem errado); senão, compara `letra_marcada` com `letra_correta`.
+- `letra_correta IS NULL` é o sinal de "correção pendente" — cobre tanto
+  "ainda não corrigida" quanto, quando preenchida com `acertou = NULL`,
+  "perdida de fato". Sem coluna de status redundante.
+- `questoes_individuais.materia_uuid` vira nullable (só é preenchida na
+  correção). Questão avulsa (fora de gabarito) continua preenchendo tudo na
+  hora, sem essa fase dupla.
+
+### Fora de escopo desta leva (registrado, não perdido)
+Modo "fazer prova na hora" com upload do PDF, cronômetro (dia 1: 5h30 / dia
+2: 5h, a confirmar minutos exatos), trava de edição quando o tempo acaba,
+dois modos de exibição de cronômetro (contagem regressiva simples + estilo
+"relógio de aplicador" com blocos de 30 em 30 min riscados). Tratado como
+módulo/feature própria, grande demais pra entrar junto — ver `BACKLOG.md`.
+
+---
+
+## DEC-042 — Domínio de conteúdo: sem número solto, calculado a partir de repetições + override manual
+
+**Data:** 2026-08
+**Status:** ✅ Aprovada e executada (migration 019)
+
+### Contexto
+`conteudos.progresso` (0-100, incrementado manualmente em saltos de 25% via
+botão "+25%") não tinha critério claro — o usuário não entendia o que ele
+representava. Inspirado em uma tabela pessoal (Notion) e no site
+Planejativo, o usuário quer dois sinais separados: "já vi a teoria"
+(primeiro contato) e "domínio" (baseado em quantas vezes revisou com
+sucesso, não um número arbitrário).
+
+### Decisão
+- `conteudos.progresso` **removido** (migration 019, `DROP COLUMN`).
+- `conteudos.teoria_vista` (novo) — toggle simples de primeiro contato
+  (aula/leitura), independente de revisão.
+- `conteudos.dominado_manual` (novo) — override manual do usuário.
+- **"Dominado" não é gravado, é calculado:** `dominado_manual = true OU
+  revisao_espacada.repeticoes >= 5`. `repeticoes` já existe e já conta
+  repetições bem-sucedidas via SM-2 (`lib/revisao.ts` — zera no erro,
+  incrementa no acerto) — nenhuma coluna de contagem nova foi necessária.
+- **Desempenho de questões** por conteúdo também não ganhou coluna nova —
+  calculado sob demanda a partir de `questoes_individuais` filtradas por
+  `conteudo_uuid` (`lib/questoes-individuais.ts` → `taxaDeAcertoPorConteudo()`).
+
+### Alternativa descartada
+Reabrir a DEC-035 e substituir o SM-2 por um checklist fixo de intervalos
+(1/3/7/14/30 dias, como no rascunho original do Notion). Descartado porque
+o SM-2 adaptativo já é estritamente melhor (intervalo cresce/encolhe
+conforme desempenho real, não é fixo) — a real lacuna não era o algoritmo de
+revisão, era a ausência de um indicador de "primeiro contato" e de um
+critério claro de "domínio", que este DEC resolve sem tocar no SM-2.
+
+---
+
+## DEC-043 — Calendário de revisões no Hub fica simples por ora (sem horário/duração) — reafirma DEC-035
+
+**Data:** 2026-08
+**Status:** ✅ Aprovada
+
+### Contexto
+O usuário pediu visibilidade rápida do que precisa revisar ("não adianta a
+matéria ter 'próxima revisão em X' se eu não vejo isso de forma rápida") e,
+na sequência, pediu também poder escolher horário e duração pra cada
+revisão — uma "agenda própria" dentro de Estudos.
+
+### Decisão
+A parte 1 (visibilidade) foi resolvida com um card "Revisões pendentes" no
+Hub (`app/estudos/page.tsx`), listando os cards de `revisao_espacada`
+(`modulo='estudos'`) vencidos ou a vencer nos próximos 7 dias — sem coluna
+nova, `pergunta` já guarda o nome do conteúdo. A parte 2 (horário/duração,
+agendamento) foi **recusada por ora**: isso é escopo do módulo Agenda (ainda
+não iniciado, ver `VISION.md`), e DEC-035 já havia decidido explicitamente
+não duplicar essa responsabilidade dentro de Estudos. O usuário concordou em
+manter a lista simples até a Agenda existir de verdade.
+
+### Impacto
+`lib/revisao.ts` ganha `listarRevisoesPendentes(diasNoFuturo)`. Nenhuma
+tabela nova, nenhum campo de horário/duração em `revisao_espacada` ou
+`conteudos`.

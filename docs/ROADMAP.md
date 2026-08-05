@@ -139,6 +139,6 @@ módulo a módulo.
 | 7.0 | Setup do projeto Next.js — estrutura de pastas, `lib/supabase.ts`, `middleware.ts` (substitui `lib/auth.ts`, ver DEC-021), layout base, CSS global migrado | ✅ |
 | 7.1 | Treino v2 | ✅ |
 | 7.2 | Biblioteca v2 (B1–B6) | ✅ frontend completo · teste E2E geral pendente |
-| 7.3 | Estudos v2 (Fase 1 + Fase 1B) | 🔄 Schema completo (`015` + `016`) executado; camada `lib/` gerada; páginas ainda não geradas — bloqueado por dependência não resolvida de `lib/revisao.ts` |
+| 7.3 | Estudos v2 (Fase 1 + Fase 1B) | 🔄 8 telas geradas e restilizadas (Tailwind/shadcn); schema estendido por `017`/`018`/`019` (gabarito ENEM em 2 fases, matéria única Escola/ENEM, domínio de conteúdo); teste manual completo em andamento — ver CHANGELOG.md (2026-08) |
 | 7.4 | Revisão Espaçada v2 | ⏳ a planejar |
 | 7.5 | Agenda v2 (módulo dedicado, hoje só existia dentro do treino.html da v1) | ⏳ a planejar |
