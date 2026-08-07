@@ -42,3 +42,9 @@ refactor(supabase): softDelete passa a retornar {error} em vez de boolean
 - Descrição curta sempre no imperativo ("corrige", não "corrigido" ou "corrigindo").
 - Um commit, uma mudança lógica — evitar misturar `feat` com `fix` não relacionado no mesmo commit.
 - Commits de documentação (`docs`) separados de commits de código, mesmo quando nascem da mesma sessão de trabalho.
+
+> **Nota (2026-08):** nem todo commit real do projeto até agora segue esse
+> formato à risca (ex: commits de aplicação manual de arquivo gerado por
+> chat, sem prefixo `tipo(escopo):`). A convenção vale como padrão daqui pra
+> frente, especialmente para commits gerados por um agente de IA — não é
+> motivo pra reescrever histórico de commit já feito.

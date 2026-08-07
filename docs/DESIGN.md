@@ -54,12 +54,6 @@ com mais presença. Isso é intencional do design aprovado, não bug.
 Aplicada via classe `.bibliotecaTheme` em `app/biblioteca/layout.tsx` —
 fixa, sem modo claro, sem toggle (DEC-039). Nenhum componente da Biblioteca
 precisou mudar.
-```
-
-Aplicada via classe `.bibliotecaTheme` em `app/biblioteca/layout.tsx` —
-fixa, sem modo claro, sem toggle (DEC-039). Nenhum componente da Biblioteca
-precisou mudar.
-```
 
 Cores secundárias usadas em contexto (não são variáveis CSS formais, mas aparecem consistentemente):
 

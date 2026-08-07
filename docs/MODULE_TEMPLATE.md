@@ -130,21 +130,23 @@ avançadas, upload de gabarito/prova em arquivo.
 **Páginas**
 | Rota | Descrição | Status |
 |---|---|---|
-| `app/estudos/page.tsx` | Hub — 3 entradas (ENEM/Escola/Curso) + próximas provas/atividades/simulados | ✅ (versão crua) |
-| `app/estudos/enem/page.tsx` | Matérias ENEM, agendar prova ENEM, listar próximas | ✅ (versão crua) |
-| `app/estudos/escola/page.tsx` | Matérias Escola, próximas provas, atividades pendentes | ✅ (versão crua) |
-| `app/estudos/curso/page.tsx` | Lista de cursos, criar curso novo | ✅ (versão crua) |
-| `app/estudos/curso/[materiaUuid]/page.tsx` | Curso → Módulo → Aula, progresso, concluir curso | ✅ (versão crua) |
-| `app/estudos/materia/[materiaUuid]/page.tsx` | Detalhe de matéria ENEM/Escola: conteúdos, provas, atividades, questões avulsas, simulados | ✅ (versão crua) |
-| `app/estudos/enem/gabarito/[provaUuid]/page.tsx` | Gabarito digital em lote por área | ✅ (versão crua) |
-| `app/estudos/redacoes/page.tsx` | Lista/cria redações com 5 competências | ✅ (versão crua) |
+| `app/estudos/page.tsx` | Hub — 3 entradas (ENEM/Escola/Curso) + próximas provas/atividades/simulados | ✅ (restilizada, Tailwind/shadcn) |
+| `app/estudos/enem/page.tsx` | Matérias ENEM, agendar prova ENEM, listar próximas | ✅ (restilizada, Tailwind/shadcn) |
+| `app/estudos/escola/page.tsx` | Matérias Escola, próximas provas, atividades pendentes | ✅ (restilizada, Tailwind/shadcn) |
+| `app/estudos/curso/page.tsx` | Lista de cursos, criar curso novo | ✅ (restilizada, Tailwind/shadcn) |
+| `app/estudos/curso/[materiaUuid]/page.tsx` | Curso → Módulo → Aula, progresso, concluir curso | ✅ (restilizada, Tailwind/shadcn) |
+| `app/estudos/materia/[materiaUuid]/page.tsx` | Detalhe de matéria ENEM/Escola: conteúdos, provas, atividades, questões avulsas, simulados | ✅ (restilizada, Tailwind/shadcn) |
+| `app/estudos/enem/gabarito/[provaUuid]/page.tsx` | Gabarito digital em lote por área | ✅ (restilizada, Tailwind/shadcn) |
+| `app/estudos/redacoes/page.tsx` | Lista/cria redações com 5 competências | ✅ (restilizada, Tailwind/shadcn) |
 
 **Componentes**
-Nenhum componente reutilizável extraído ainda — toda a leva atual é
-implementada inline em cada página (decisão deliberada: "cru" primeiro,
-componentização/design vem depois via Figma, ver TASKS_NOW.md). Candidatos
-óbvios pra extração futura: card de conteúdo com progresso, formulário de
-prova, tabela de gabarito.
+Atualizado (2026-08): as 8 telas foram restilizadas com componentes gerados
+via v0.dev e adaptados ao projeto — `components/study/*` (componentes de
+domínio: `SubjectManager`, cards de conteúdo, tabela de gabarito) e
+`components/ui/*` (base shadcn: botões, inputs, etc.), confirmados presentes
+no repositório real. A fase "cru" (tudo inline, sem componentização) descrita
+originalmente aqui já foi superada — ver `CHANGELOG.md` (2026-07-26 a
+2026-07-31) para o histórico completo da restilização.
 
 **Precisa de API Route (segredo/servidor)?**
 Não. Todo CRUD é direto via `lib/*.ts` → Supabase client, sob RLS — nenhuma
@@ -161,11 +163,13 @@ Tabelas: `materias` (reaproveitada), `conteudos`, `conteudos_materias`,
 como lembrete, não flashcard — ver DEC-035.
 
 **Dependências**
-- Nenhuma biblioteca externa nova.
-- Nenhum bucket de Storage usado ainda (materiais de estudo com
-  `arquivo_path` existem no schema, mas a UI de upload não foi gerada nesta
-  leva — `materiais_estudo` inteiro ficou de fora das páginas até agora).
-- Depende de `lib/revisao.ts` (criado nesta sessão para desbloquear
+- Tailwind v4 + shadcn/ui + Base UI (DEC-038) — única exceção à convenção de
+  CSS Modules do resto do sistema.
+- Bucket `redacoes` em uso (`lib/redacoes.ts`, foto da folha manuscrita).
+  Bucket `documentos` (materiais de estudo com `arquivo_path`) tem schema
+  pronto mas ainda sem UI de upload — `materiais_estudo` inteiro segue fora
+  das páginas.
+- Depende de `lib/revisao.ts` (criado em 2026-07-25 para desbloquear
   `lib/simulados.ts`).
 
 **Fluxo de funcionamento**
@@ -194,6 +198,9 @@ Nenhuma.
 - Modo "fazer prova" com cronômetro/upload de PDF — não desenhado, ver
   BACKLOG.md e DEC-041.
 **Melhorias futuras**
-Ver `BACKLOG.md` (Fase 2 de Estudos) e o design definitivo via Figma —
-Sidebar/Banner/Card documentados em `DESIGN.md` ainda não aplicados neste
-módulo.
+Ver `BACKLOG.md` (Fase 2 de Estudos, mais os itens de gap identificados na
+auditoria de 2026-08: áreas de Olimpíadas/Idiomas/Vestibulares, dono do
+"cronograma de estudo", widgets de tempo estudado no Hub). O design
+Tailwind/shadcn já foi aplicado nas 8 telas — os padrões de Sidebar/Banner/
+Card de `DESIGN.md` são específicos da Biblioteca (CSS Modules) e não se
+aplicam a Estudos, que segue seu próprio sistema visual.

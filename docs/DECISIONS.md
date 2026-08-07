@@ -73,7 +73,7 @@ Pasta `frontend/` (v1) removida do projeto (backup local, fora do Git). `fronten
 2. Vercel mantinha Framework Preset "Other" congelado no deployment antigo mesmo após trocar Project Settings — resolvido com um Redeploy forçado.
 
 ### DEC-032 — Biblioteca v2: página única com sidebar de categorias (reabre estrutura de rotas)
-**Status:** ✅ Aprovada · 🔄 Código pendente (outra sessão).
+**Status:** ✅ Aprovada e implementada (código gerado via Cline+DeepSeek em 2026-07-19 — ver CHANGELOG.md).
 As 6 rotas por tipo (`/biblioteca/filmes` etc.) são descontinuadas em favor de `app/biblioteca/page.tsx` única, com `app/biblioteca/layout.tsx` (sidebar 2/9 + conteúdo 7/9). Categoria ativa é `useState` no client, sem navegação de rota. Sidebar: Filmes, Séries, Animes, Mangás, Livros, Podcasts + botão fixo "Adicionar obra". Toda lógica de dados (`lib/*.ts`) e componentes de painel (DEC-027) são 100% reaproveitados — mudança é só de composição/layout.
 Novo componente genérico `components/Sidebar.tsx`, pensado para reaproveite futuro em Treino/Estudos.
 **Decidido também:** sem sidebar global de nível 1 por ora (dashboard ainda sem design definido) — cada módulo com navegação por categoria ganha sua própria sidebar local.
@@ -81,7 +81,7 @@ Novo componente genérico `components/Sidebar.tsx`, pensado para reaproveite fut
 ## DEC-033 — Nota volta de escala 1-5 (estrela) para 0-10 (reabre parte da DEC-023)
 
 **Data:** 2026-07-19/20 (revisão de design da Biblioteca)
-**Status:** ✅ Aprovada · 🔄 Migration criada (`014_nota_escala_dez.sql`), execução pendente
+**Status:** ✅ Aprovada · ✅ Migration executada (confirmado no dump real do schema, 2026-08 — `nota NUMERIC(3,1)` com `CHECK` de faixa presente nas 6 tabelas de mídia)
 
 ### Contexto
 DEC-023 padronizou `nota` em `NUMERIC(2,1)`, escala 1-5 com meia estrela, para
@@ -191,7 +191,7 @@ são prerrogativa do usuário, não pauta de análise técnica de trade-off.
 ## DEC-035 — Estudos v2: schema novo do zero, reaproveitando Revisão Espaçada existente (Fase 1 / núcleo)
 
 **Data:** 2026-07-20 (planejamento Fase 7.3)
-**Status:** ✅ Aprovada · 🔄 Migration criada (`015_estudos_v2.sql`), execução pendente
+**Status:** ✅ Aprovada · ✅ Migration executada (confirmada pelo usuário em 2026-07-22, ver CHANGELOG.md; confirmada novamente no dump real do schema em 2026-08)
 
 ### Contexto
 Usuário trouxe um rascunho de escopo amplo para Estudos v2 (hierarquia
@@ -260,12 +260,11 @@ proporcional sem descartar a visão de longo prazo do usuário — tudo que
 ficou de fora está registrado, não perdido.
 
 ### Impacto
-`015_estudos_v2.sql` — aguardando execução no Supabase. Depois de executada
-e confirmada: `DATABASE.md` ganha a seção "Schema — 015_estudos_v2.sql";
-`VISION.md` atualiza status de Estudos; `ROADMAP.md` Fase 7.3 passa de
-"a planejar" para "planejamento concluído, schema pendente de execução".
-Frontend (`app/estudos/`) só é gerado depois da confirmação de execução —
-disciplina de schema-first do projeto.
+`015_estudos_v2.sql` — executada e confirmada em 2026-07-22. `DATABASE.md`
+tem a seção "Schema — Estudos v2" com o schema final consolidado (`015`–`019`).
+`VISION.md` reflete o status atual de Estudos; `ROADMAP.md` Fase 7.3 reflete
+o estado avançado do módulo. Frontend (`app/estudos/`) foi gerado depois da
+confirmação de execução, seguindo a disciplina de schema-first do projeto.
 
 **Fase 2 registrada (não descartada), ver `BACKLOG.md`:** Cursos (estrutura
 própria), Flashcards/integração Anki, Redação versionada (múltiplas
@@ -380,12 +379,12 @@ o que conta pra SM-2. O conteúdo compartilhado evita a alternativa pior
 simplicidade sem sacrificar corretude do dado.
 
 ### Impacto
-`016_estudos_v2_fase1b.sql` — aguardando execução no Supabase. Depois de
-executada e confirmada: `DATABASE.md` atualiza a seção de Estudos v2 (já
-refletido abaixo neste mesmo commit de documentação, marcado como pendente
-de confirmação); frontend de Estudos (`app/estudos/`) só é gerado depois —
-disciplina de schema-first do projeto, agora bloqueado por **duas**
-migrations pendentes (`015` já executada, `016` ainda não).
+`016_estudos_v2_fase1b.sql` — executada e confirmada em 2026-07-23.
+`DATABASE.md` reflete o schema final consolidado de Estudos v2. Frontend de
+Estudos (`app/estudos/`) foi gerado depois da confirmação, seguindo a
+disciplina de schema-first do projeto (com uma exceção pontual registrada
+logo abaixo, referente só à ordem de geração de frontend vs. teste manual,
+não à execução da migration em si).
 
 ### Nota — Exceção pontual à disciplina schema-first (2026-07-23)
 Por indisponibilidade do usuário para testar no momento, o frontend de

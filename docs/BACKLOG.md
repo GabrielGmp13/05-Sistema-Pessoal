@@ -2,6 +2,12 @@
 
 Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — é uma lista de possibilidades para quando o núcleo do sistema estiver estável. Ver também `ROADMAP.md` → Fase 6 (Integrações Externas) e `VISION.md` para módulos ainda mais distantes.
 
+> **Nota (2026-08):** este arquivo estava com todo o conteúdo duplicado — a
+> segunda metade era uma cópia mais antiga e menos completa da primeira.
+> Removida a duplicação nesta reconciliação; os dois itens que existiam só
+> na cópia antiga (banners estáticos, perfil da sidebar) foram trazidos para
+> a seção de Biblioteca abaixo.
+
 ---
 
 ## Treino
@@ -17,6 +23,7 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 - [ ] Google Calendar OAuth via Supabase Edge Function (ver DEC-009 — decisão de não fazer isso no MVP)
 - [ ] Dashboard analytics avançado
 - [ ] Modo múltiplos usuários (RLS já suporta — bastaria criar contas; não é objetivo do projeto por princípio, ver PROJECT_PRINCIPLES.md)
+- [ ] Navegação global entre módulos e botão de logout visível — hoje cada módulo (`/treino`, `/biblioteca`, `/estudos`) só é acessado direto pela URL, sem menu comum nem forma visível de sair da conta (confirmado por inspeção do código, 2026-08)
 
 ## Estudos
 
@@ -42,90 +49,67 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 - [ ] Horário/duração por sessão de revisão espaçada (agenda própria dentro
       de Estudos) — recusado por ora (DEC-043), pertence ao módulo Agenda
       quando ele for iniciado. Não duplicar aqui quando a Agenda existir.
+- [ ] Áreas de estudo além de ENEM/Escola/Curso — o rascunho original do
+      módulo (ver histórico de chat) previa Olimpíadas Científicas, Idiomas
+      e Vestibulares específicos como áreas completas e independentes.
+      `materias.tipo` aceita esses valores tecnicamente (sem `CHECK`
+      constraint no banco), mas nenhuma tela, dashboard ou decisão de escopo
+      existe pra elas ainda — nem em `VISION.md`. Não construir sem antes
+      confirmar com o usuário qual entra primeiro e se o modelo
+      Matéria→Conteúdo de ENEM/Escola serve como está ou precisa de ajuste.
+- [ ] Cronograma/planejamento de estudo (o que estudar, quando, prioridade,
+      metas semanais/mensais — diferente de "calendário de eventos" como
+      provas/simulados, que já foi decidido como escopo da Agenda via
+      DEC-035/043). Hoje não tem dono definido: pode ser Estudos, pode ser
+      Agenda, pode ser Hábitos (metas). Decidir antes de construir, para não
+      duplicar entre módulos.
+- [ ] Widgets de tempo estudado no Hub (hoje / semana / mês) — dependem de
+      `sessoes_estudo`, que tem schema pronto mas nenhuma UI (ver pendência
+      abaixo). Registrado aqui como consumidor futuro dessa tabela.
+- [ ] Campo "questões anuladas" em `simulados` — presente no rascunho
+      original do módulo, sem equivalente no schema atual.
 
 ## Documentação / processo
 
-- [ ] Revisar `NAMING_CONVENTIONS.md` de classes CSS  hoje há mistura de prefixo por página (`.rev-`, `.cal-`, `.ex-`) com nomes genéricos (`.btn-sm`, `.toast`); avaliar se vale padronizar
-- [ ] Auditoria completa de `style.css` contra `DESIGN.md` para confirmar que todas as classes documentadas realmente existem
+- [ ] Revisar `NAMING_CONVENTIONS.md` de classes CSS — hoje há mistura de prefixo por página (`.rev-`, `.cal-`, `.ex-`) com nomes genéricos (`.btn-sm`, `.toast`); avaliar se vale padronizar
+- [ ] Auditoria completa do CSS contra `DESIGN.md` para confirmar que todas as classes documentadas realmente existem
+- [ ] `frontend/README.md` ainda é o boilerplate padrão do Create Next App (menciona Geist/`next/font`, mas o projeto usa Syne e JetBrains Mono self-hosted) — reescrever com setup real do projeto
+- [ ] `estrutura.txt` na raiz é um dump de terminal desatualizado (ainda aponta pra `frontend-v2`, `middleware.ts`, árvore sem Estudos) — artefato de diagnóstico pontual, não documentação sustentável; remover ou substituir por algo gerado sob demanda
+- [ ] SVGs padrão do Create Next App (`file.svg`, `globe.svg`, `next.svg`, `vercel.svg`, `window.svg`) sem nenhuma referência no código — limpar
+- [ ] `frontend/app/page.module.css` não é importado pela página atual — órfão, confirmar e remover
+- [ ] Rodar `supabase db dump` periodicamente e comparar contra `backend/supabase/migrations/*.sql` locais — evita que a divergência banco-real vs. arquivo-local (corrigida em 2026-08, ver `DATABASE.md`) se repita silenciosamente
 
 ## Biblioteca
 
-## Biblioteca v2 (B2–B6) — polimento
+### Biblioteca v2 (B2–B6) — polimento
 
 - [ ] Integrar o seletor de gênero (B1, `SeletorGenero`/`lib/generos.ts`) nas 6 telas novas (filmes, séries, animes, mangás, livros, podcasts) — deixado de fora deliberadamente ao gerar cada tela
 - [ ] Upload de capa/banner — campos `capa_path`/`banner_path` existem no schema desde DEC-023, mas nenhum bucket de Storage nem UI de upload foi criado para eles; hoje só é possível usar `capa_url`/`banner_url` (link externo)
-- [ ] Integração de busca por API externa (TMDB, Google Books, Jikan, iTunes) nas telas novas da Biblioteca v2 — a v1 (`biblioteca.html`) tinha essa integração, as 6 telas v2 geradas até agora são só cadastro manual
+- [ ] Integração de busca por API externa (TMDB, Google Books, Jikan, iTunes) nas telas novas da Biblioteca v2 — a v1 tinha essa integração, as 6 telas v2 geradas até agora são só cadastro manual. TMDB é a única que exige API Route (segredo) — nenhuma `app/api/**` existe ainda no projeto (confirmado por inspeção, 2026-08), então essa é a motivação real mais próxima pra criar a primeira.
 - [ ] Edição de itens já criados em listas aninhadas (elenco, trilha sonora, temporadas, openings/endings, volumes) — hoje só dá pra criar ou apagar; os únicos campos editáveis depois de criado são os toggles (`lido`, `filler`, `assistido`)
 - [ ] Reordenação manual (drag-and-drop) do campo `ordem` em elenco/trilha sonora/openings-endings/volumes — hoje `ordem` só reflete sequência de criação
 - [ ] `animes_generos` (schema já existe desde `009_biblioteca_v2_b3.sql`) sem `lib/` nem UI — nenhuma tela permite associar gênero a um anime ainda
-- [ ] `confirm()` nativo do navegador usado em todas as 6 telas novas ao apagar item — mesma pendência já registrada para Treino v2 acima, contraria `DESIGN.md`
+- [ ] `confirm()` nativo do navegador ao apagar item — confirmado em 8 arquivos por inspeção do código (2026-08): `app/biblioteca/generos/page.tsx` + as 6 `*Section.tsx` de Biblioteca, além de 2 arquivos de Treino v2 (ver seção Treino v2 abaixo). Contraria `DESIGN.md`.
 - [ ] Menu de ações "⋯" (Editar/Apagar) nos cards não fecha sozinho ao clicar fora — só fecha ao escolher uma opção ou clicar de novo no próprio botão
 - [ ] Velocidade de leitura (páginas/hora) em Livros (B5) — `paginas_total`/`pagina_atual` permitem progresso, mas não velocidade; exigiria registro de sessões de leitura com data, não desenhado ainda (ver DEC-029)
-
-## Treino v2
-
-- [ ] Substituir `confirm()` nativo do navegador por modal de confirmação (padrão `.open`) ao apagar treino — inconsistência com `DESIGN.md` introduzida na geração inicial das páginas v2, adiada por decisão explícita (2026-07-16)
-- [ ] Gráfico de evolução de peso em `app/treino/shape/page.tsx` — decisão de dependência (Chart.js via CDN solto vs. `react-chartjs-2`) ainda não tomada para v2
-- [ ] Upload de imagem/GIF de exercício (`imagem_path`, bucket `exercicios`) — CRUD de exercício ficou só textual na primeira leva
-- [ ] Reordenação de exercícios (`ordem`) via drag-and-drop ou setas — hoje `ordem` só reflete sequência de criação
-
-
-## v3 (futuro distante)
-
-- [ ] Migrar Treino/Biblioteca (CSS Modules) para Tailwind — Estudos já migrou (DEC-038, 2026-07-25); decisão de estender pro resto do sistema ainda não tomada, sem data
-
-# BACKLOG.md
-
-Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — é uma lista de possibilidades para quando o núcleo do sistema estiver estável. Ver também `ROADMAP.md` → Fase 6 (Integrações Externas) e `VISION.md` para módulos ainda mais distantes.
-
----
-
-## Treino
-
-- [ ] Notificações push (Service Worker Push API) — lembrete de treino — **depende de M2, fora de escopo v1**
-- [ ] Gráfico de evolução de carga por exercício
-- [ ] Volume semanal por grupo muscular
-- [ ] Página dedicada para `cardio` — **adiado para v2**, módulo de Treino será revisado por completo
-
-## Geral
-
-- [ ] Exportação de dados CSV/JSON via Supabase
-- [ ] Google Calendar OAuth via Supabase Edge Function (ver DEC-009 — decisão de não fazer isso no MVP)
-- [ ] Dashboard analytics avançado
-- [ ] Modo múltiplos usuários (RLS já suporta — bastaria criar contas; não é objetivo do projeto por princípio, ver PROJECT_PRINCIPLES.md)
-
-## Estudos
-
-- [ ] Questões individuais estruturadas (hoje `sessoes_questoes` só registra desempenho agregado por sessão, não questão a questão)
-- [ ] Importação de dados do sistema ENEM standalone antigo, se houver conteúdo relevante a resgatar
-
-## Documentação / processo
-
-- [ ] Revisar `NAMING_CONVENTIONS.md` de classes CSS  hoje há mistura de prefixo por página (`.rev-`, `.cal-`, `.ex-`) com nomes genéricos (`.btn-sm`, `.toast`); avaliar se vale padronizar
-- [ ] Auditoria completa de `style.css` contra `DESIGN.md` para confirmar que todas as classes documentadas realmente existem
-
-## Biblioteca
-
-## Biblioteca v2 (B2–B6) — polimento- [ ] Integrar o seletor de gênero (B1, `SeletorGenero`/`lib/generos.ts`) nas 6 telas novas (filmes, séries, animes, mangás, livros, podcasts) — deixado de fora deliberadamente ao gerar cada tela
-- [ ] Upload de capa/banner — campos `capa_path`/`banner_path` existem no schema desde DEC-023, mas nenhum bucket de Storage nem UI de upload foi criado para eles; hoje só é possível usar `capa_url`/`banner_url` (link externo)
-- [ ] Integração de busca por API externa (TMDB, Google Books, Jikan, iTunes) nas telas novas da Biblioteca v2 — a v1 (`biblioteca.html`) tinha essa integração, as 6 telas v2 geradas até agora são só cadastro manual
-- [ ] Edição de itens já criados em listas aninhadas (elenco, trilha sonora, temporadas, openings/endings, volumes) — hoje só dá pra criar ou apagar; os únicos campos editáveis depois de criado são os toggles (`lido`, `filler`, `assistido`)
-- [ ] Reordenação manual (drag-and-drop) do campo `ordem` em elenco/trilha sonora/openings-endings/volumes — hoje `ordem` só reflete sequência de criação
-- [ ] `animes_generos` (schema já existe desde `009_biblioteca_v2_b3.sql`) sem `lib/` nem UI — nenhuma tela permite associar gênero a um anime ainda
-- [ ] `confirm()` nativo do navegador usado em todas as 6 categorias ao apagar item — pendência da geração inicial das telas, sobreviveu à consolidação em página única (DEC-032) e ao redesign visual (DEC-034): migrado sem correção em nenhuma das duas levas. Mesma pendência já registrada para Treino v2
-- [ ] Menu de ações "⋯" (Editar/Apagar) nos cards não fecha sozinho ao clicar fora — só fecha ao escolher uma opção ou clicar de novo no próprio botão
-- [ ] Velocidade de leitura (páginas/hora) em Livros (B5) — `paginas_total`/`pagina_atual` permitem progresso, mas não velocidade; exigiria registro de sessões de leitura com data, não desenhado ainda (ver DEC-029)
-- [ ] Imagens estáticas de banner por categoria (`public/biblioteca/banners/{filmes,series,animes,mangas,livros,podcasts}.jpg`) — suporte já existe no `BibliotecaBanner` (DEC-034), mas depende do usuário fornecer as imagens; sem elas, cada categoria usa o mosaico automático das próprias capas cadastradas (funcional, mas não é o visual final pretendido)
+- [ ] Imagens estáticas de banner por categoria (`public/biblioteca/banners/{filmes,series,animes,mangas,livros,podcasts}.jpg`) — suporte já existe no `BibliotecaBanner` (DEC-034), mas depende do usuário fornecer as imagens; sem elas, cada categoria usa o mosaico automático das próprias capas cadastradas (funcional, mas não é o visual final pretendido). Confirmado que ao menos `animes.jpg` já está versionado — as outras 5 ainda faltam.
 - [ ] Perfil da sidebar (avatar + imagem de fundo) depende de `user_metadata.avatar_url`/`background_url` no Supabase Auth, hoje vazios — sem UI de "editar perfil" no sistema; população precisa ser manual via SQL/dashboard do Supabase até existir uma tela de Configurações (ver `VISION.md`)
 
 ## Treino v2
 
-- [ ] Substituir `confirm()` nativo do navegador por modal de confirmação (padrão `.open`) ao apagar treino — inconsistência com `DESIGN.md` introduzida na geração inicial das páginas v2, adiada por decisão explícita (2026-07-16)
-- [ ] Gráfico de evolução de peso em `app/treino/shape/page.tsx` — decisão de dependência (Chart.js via CDN solto vs. `react-chartjs-2`) ainda não tomada para v2
+- [ ] Substituir `confirm()` nativo do navegador por modal de confirmação (padrão `.open`) ao apagar treino — confirmado em `app/treino/[moduloUuid]/page.tsx` e `app/treino/[moduloUuid]/[treinoUuid]/page.tsx` — inconsistência com `DESIGN.md` introduzida na geração inicial das páginas v2, adiada por decisão explícita (2026-07-16)
+- [ ] Gráfico de evolução de peso em `app/treino/shape/page.tsx` — decisão de dependência ainda não tomada para v2 (Chart.js não está no `package.json` atual — se retomado, escolher biblioteca do zero, não assumir Chart.js como já decidido)
 - [ ] Upload de imagem/GIF de exercício (`imagem_path`, bucket `exercicios`) — CRUD de exercício ficou só textual na primeira leva
 - [ ] Reordenação de exercícios (`ordem`) via drag-and-drop ou setas — hoje `ordem` só reflete sequência de criação
 
+## Dívida técnica de código (achados da auditoria de 2026-08)
+
+- [ ] `package.json`: dependência `shadcn` não deveria estar listada (é CLI, não lib de runtime — o próprio `globals.css` já documenta isso) e `name` ainda é `"frontend-v2"` em vez de `"frontend"`. Corrigir e regenerar o lockfile.
+- [ ] Lint: 26 ocorrências de `react-hooks/set-state-in-effect` — investigar caso a caso antes de corrigir em lote; pode ser só estilo ou pode indicar `setState` mal guardado dentro de `useEffect`.
+- [ ] `materias.user_id` é a única FK do projeto sem `ON DELETE CASCADE` (confirmado no dump real, 2026-08) — corrigir numa migration dedicada, não em conjunto com uma feature nova. Ver `DATABASE.md` → Gotchas.
+- [ ] `materias.tipo` nunca teve `CHECK constraint` — considerar adicionar depois de confirmar com o código quais valores `lib/materias.ts` usa hoje de fato. Ver `DATABASE.md` → Gotchas.
+- [ ] Sem testes automatizados nem CI configurado no projeto — fora do princípio de simplicidade por ora (uso pessoal, um usuário), mas vale reavaliar se o volume de módulos crescer muito.
 
 ## v3 (futuro distante)
 
-- [ ] Migrar estilização de CSS Modules para Tailwind — decisão tomada durante planejamento da v2 (2026-07-14), fora de escopo da v2
+- [ ] Migrar Treino/Biblioteca (CSS Modules) para Tailwind — Estudos já migrou (DEC-038, 2026-07-25); decisão de estender pro resto do sistema ainda não tomada, sem data

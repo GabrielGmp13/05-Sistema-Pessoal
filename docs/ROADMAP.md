@@ -6,139 +6,110 @@ Sistema de gestão pessoal online, multi-dispositivo, para uso pessoal de longo 
 
 ---
 
-## Fase M — Migração para Supabase 🔄 EM ANDAMENTO
+## Fase M — Migração para Supabase ✅ CONCLUÍDA
 
 **Objetivo:** Adaptar toda a arquitetura para hospedagem online antes de continuar o desenvolvimento de features.
-**Fase M: CONCLUÍDA** — M0 e M1 entregues e testados. M2 e M3 descartados do
-escopo (ver justificativa na tabela de sub-fases acima). Este projeto é considerado "terminado" na v1 sem essas duas sub-fases.
+
+M0 e M1 entregues e testados. M2 e M3 descartados do escopo (ver
+justificativa na tabela de sub-fases abaixo). Este projeto é considerado
+"terminado" na v1 sem essas duas sub-fases — a v1 em si foi aposentada por
+completo em 2026-07-19 (DEC-031), toda esta fase é histórico.
 
 ### Sub-fases
 
 | Sub-fase | Descrição | Status |
 |---|---|---|
-| M0 — Infraestrutura | Projeto Supabase, schema PostgreSQL, buckets, repositório GitHub | ✅ Supabase completo · 🔄 Vercel deferido de propósito |
-| M1 — Auth + Core JS | `login.html`, `supabase.js`, `auth.js`, `sm2.js`, `treino-plano.html`, `treino-academia.html` | ✅ Todos os arquivos gerados — pendente testes e limpeza de arquivos LAN |
+| M0 — Infraestrutura | Projeto Supabase, schema PostgreSQL, buckets, repositório GitHub | ✅ Completo |
+| M1 — Auth + Core JS | `login.html`, `supabase.js`, `auth.js`, `sm2.js`, `treino-plano.html`, `treino-academia.html` (v1, arquivos não existem mais no repositório) | ✅ Completo |
 | M2 — Storage + SW | Service Worker, upload real de arquivos | ⛔ Fora de escopo — uso real sempre terá wifi disponível (inclusive na academia), offline não é necessário. Reavaliar só se essa premissa mudar. |
 | M3 — Realtime | Subscrições Postgres Changes em páginas principais | ⛔ Fora de escopo — sync entre dispositivos já ocorre via banco central; a única diferença de Realtime é atualização automática sem reload, o que não importa no uso sequencial real (um dispositivo por vez). |
 
 ### Critério de conclusão da Fase M
 - [x] Sistema acessível via URL pública com HTTPS (Vercel) — deploy em 2026-07-13
-- [x] Login funciona (email + senha) — testado com usuário real na URL do Vercel (2026-07-13, após recriação do usuário — ver CHANGELOG)
+- [x] Login funciona (email + senha) — testado com usuário real na URL do Vercel (2026-07-13)
 - [x] `treino-plano.html` testado e confirmado com Supabase (2026-07-13 — sem bugs encontrados)
-- [x] `treino-academia.html` testado com Supabase (2026-07-13 — sem bugs encontrados; offline continua pendente, Fase M2 — Service Worker)
+- [x] `treino-academia.html` testado com Supabase (2026-07-13 — sem bugs encontrados)
 - [x] Dados sincronizados entre PC e celular automaticamente — confirmado via acesso multi-dispositivo (2026-07-13)
 - [x] Upload de foto funciona via Supabase Storage (`treino-shape.html`, bucket `shape` — 2026-07-13)
 
-### O que já foi entregue (M0 + M1 completo)
-- Schema PostgreSQL completo executado e verificado (`001_schema_inicial.sql`): 8 tabelas, RLS em todas, 3 buckets privados, índices parciais
-- Repositório GitHub criado como privado, projeto enviado
-- `supabase.js` — cliente configurado + helpers (auth, storage com signed URL, soft delete)
-- `auth.js` — verificação de sessão com redirect automático
-- `sm2.js` — algoritmo SM-2 completo, incluindo integração direta com o Supabase
-- `login.html` — tela de autenticação funcionando (testada com conta real)
-- `index.html` — dashboard adaptado para Supabase (testado e confirmado)
-- `treino-plano.html` — CRUD de divisões e exercícios via Supabase, reordenação por `ordem` (gerado — aguardando teste)
-- `treino-academia.html` — modo academia: sessão salva incrementalmente, timer 90s, detecção de PR, sem Chart.js (gerado — aguardando teste)
+### Arquivos LAN removidos (histórico)
+`app.py`, `database.db`, `requirements.txt`, `iniciar.bat`, `db.js`, `api.js`, `sync.js` e a pasta `backend/` da arquitetura LAN antiga foram removidos do projeto. (Nota: a pasta `backend/` que existe hoje no repositório é outra coisa — só guarda `backend/supabase/migrations/*.sql`, não tem relação com o `backend/` da arquitetura LAN descontinuada.)
 
-### O que é aproveitado da Fase 1/2 existente
-- `style.css` — 100% (zero mudança)
-- Fontes e ícones — 100%
-- Estrutura HTML das páginas — ~80%
-- Lógica de negócio (timer, PR detection, modais) — ~80%
-- Schema das tabelas — 100% (já migrado para PostgreSQL e executado)
-
-### Arquivos LAN removidos
-`app.py`, `database.db`, `requirements.txt`, `iniciar.bat`, `db.js`, `api.js`, `sync.js` e a pasta `backend/` foram removidos do projeto.
-
-## Fase 1 — Fundação ✅ COMPLETA (arquitetura LAN — aproveitada na migração)
+## Fase 1 — Fundação ✅ COMPLETA (histórico — arquitetura LAN, aproveitada na migração)
 
 - 20 tabelas (schema migrado para PostgreSQL)
 - CRUD genérico (substituído por Supabase JS)
-- Algoritmo SM-2 (reimplementado em JavaScript — `sm2.js`)
-- Biblioteca CSS completa (100% aproveitada)
+- Algoritmo SM-2 (reimplementado em JavaScript — `sm2.js`, v1; hoje vive em `frontend/lib/revisao.ts`, TypeScript)
+- Biblioteca CSS completa (100% aproveitada na v1, substituída por CSS Modules/Tailwind na v2)
 - PWA manifest + ícones
 - Fontes self-hosted
 - Dashboard básico
 
 ---
 
-## Fase 2 — Módulo de Treino ✅ COMPLETA
+## Fase 2 — Módulo de Treino ✅ COMPLETA (v1, histórico — ver Fase 7.1 para o estado real em v2)
 
-**Objetivo:** sistema completo de gestão de treino físico.
+**Arquivo (v1, não existe mais):** `treino-plano.html`, `treino-academia.html`, `treino.html`, `treino-shape.html`
 
-| Arquivo | Descrição | Status |
-|---|---|---|
-| `treino-plano.html` | CRUD divisões + exercícios | ⚠️ Implementado — verificar nomes de coluna (ver DATABASE.md → Gotchas) |
-| `treino-academia.html` | Modo Academia mobile | ✅ Implementado e corrigido (auditoria M1) |
-| `treino.html` | Hub: calendário + radar chart | ✅ Implementado |
-| `treino-shape.html` | Shape: fotos (Supabase Storage) + gráfico peso | ✅ Implementado |
-
-### Funcionalidades (inalteradas — só a camada de dados muda)
+### Funcionalidades herdadas pela v2
 - CRUD de divisões e exercícios
 - Modo Academia: séries, timer, detecção de PR (carga real acima do máximo histórico do exercício)
 - Calendário mensal (verde = treino feito · azul = treino feito com PR · vermelho = agendado e não feito · cinza = agendado no futuro)
-- Agenda semanal manual (tabela `agenda` já criada)
 - Upload de foto de shape via Supabase Storage (bucket `shape`, privado)
-- Gráfico de evolução de peso
-- Radar chart: Disciplina / Força / Resistência
+- Gráfico de evolução de peso (ainda não portado pra v2, ver `BACKLOG.md`)
 
 ---
 
-## Fase 3 — Módulo de Estudos ✅ COMPLETA
+## Fase 3 — Módulo de Estudos ✅ COMPLETA (v1, histórico — ver Fase 7.3 para o estado real em v2)
 
-**Arquivo:** `estudos.html` (página única com filtro por tipo — ver DEC-013)
-**Migração:** `supabase/migrations/002_estudos.sql` — ✅ criado · ✅ executado e confirmado no Supabase (2026-07-11) · ✅ RLS + GRANT confirmados (2026-07-13)
+**Arquivo (v1, não existe mais):** `estudos.html` (página única com filtro por tipo — ver DEC-013)
+**Migração:** `002_estudos.sql` — executada e confirmada no Supabase (2026-07-11). Tabelas substituídas pela v2 em `015_estudos_v2.sql` (ver `DATABASE.md`).
 
 ---
-## Fase 4 — Biblioteca 🔄 EM ANDAMENTO
 
-**Arquivo:** `biblioteca.html` (não iniciado)
-**Migração:** `supabase/migrations/003_biblioteca.sql` — ✅ criada · ✅ executada e confirmada no Supabase (2026-07-11)
+## Fase 4 — Biblioteca ✅ COMPLETA (v1, histórico — ver Fase 7.2 para o estado real em v2)
 
-Schema: 11 tabelas (`livros`, `filmes`, `series`, `mangas`, `podcasts`, `tags`,
-5 tabelas de junção `*_tags`) — ver DEC-014.
+**Arquivo (v1, não existe mais):** `biblioteca.html`
+**Migração:** `003_biblioteca.sql` — executada e confirmada no Supabase (2026-07-11)
 
-APIs de metadados (buscadas ao vivo, não persistidas): TMDB (filmes/séries),
-Google Books (livros), MyAnimeList/Jikan (mangás). Podcasts seguem manuais —
-sem API definida ainda.
+Schema original: 11 tabelas (`livros`, `filmes`, `series`, `mangas`, `podcasts`, `tags`, 5 tabelas de junção `*_tags`) — ver DEC-014. Estendido pela v2 (`006`–`014`, ver `DATABASE.md`).
 
-## Fase 5 — Revisão Espaçada ✅ COMPLETA
+## Fase 5 — Revisão Espaçada ✅ COMPLETA (v1, histórico — sem equivalente de página dedicada em v2 ainda)
 
-**Arquivo:** `revisao.html` — implementado e corrigido
+**Arquivo (v1, não existe mais):** `revisao.html`
 
-A página havia sido gerada assumindo colunas (`frente`, `verso`, `intervalo`, `fator`) diferentes das reais (`pergunta`, `resposta`, `intervalo_dias`, `ef`), e uma assinatura de `calcularSM2()` incompatível com a de `sm2.js`. Corrigido em 2026-07-11 (via Cline+DeepSeek) — ver `DATABASE.md` → Gotchas e `CHANGELOG.md` para o detalhamento.
+A página havia sido gerada assumindo colunas (`frente`, `verso`, `intervalo`, `fator`) diferentes das reais (`pergunta`, `resposta`, `intervalo_dias`, `ef`), e uma assinatura de `calcularSM2()` incompatível. Corrigido em 2026-07-11 — ver `DATABASE.md` → Gotchas. O algoritmo SM-2 em si está ativo e em uso pela v2 via `frontend/lib/revisao.ts`, reaproveitado por Estudos (ver DEC-035) — só não existe uma tela dedicada de Revisão Espaçada na v2 ainda (Fase 7.4, abaixo).
+
 ## Fase 6 — Integrações Externas ⏳ FUTURO
 
 | Integração | Finalidade | Via |
 |---|---|---|
-| Google Calendar OAuth | Importar agenda de treinos | Supabase Edge Function (ver DEC-009) |
-| TMDB API | Metadados filmes/séries | Fetch no frontend |
-| Google Books API | Metadados livros | Fetch no frontend |
+| Google Calendar OAuth | Importar agenda de treinos | Supabase Edge Function (ver DEC-009 — decisão de não fazer isso no MVP) |
+| TMDB API | Metadados filmes/séries | API Route (`app/api/tmdb/search/route.ts`) — nenhuma API Route existe no projeto ainda |
+| Google Books, Jikan, iTunes Search | Metadados livros/mangás/podcasts | Fetch direto no client (sem key) |
 | Notificações push | Lembretes de treino e revisão | Service Worker Push API |
 
-## Fase 7 — v2: Migração para Next.js/React 🔄 PLANEJAMENTO
+## Fase 7 — v2: Migração para Next.js/React 🔄 EM ANDAMENTO
 
 **Objetivo:** migrar o frontend de HTML puro para Next.js/React (DEC-018), de
-+forma incremental, módulo por módulo.
-+
-+**Importante:** v1 foi removida do projeto em 2026-07-19 (DEC-031) — o
-+frontend Next.js (pasta `frontend/`, renomeada de `frontend-v2/`) é agora o
-+único frontend ativo. Estudos, Revisão Espaçada e Agenda dedicada ainda não
-+têm equivalente v2 — ausência deliberada e temporária (ver DEC-031), não bug.
+forma incremental, módulo por módulo.
 
-**Escopo de features por módulo:** ainda não definido. Cada módulo migrado
-passa primeiro por `MODULE_TEMPLATE.md` completo — incluindo a nova pergunta
-"precisa de API Route?" — antes de qualquer linha de código. Nenhuma novidade
-de funcionalidade deve ser assumida como decidida até esse processo acontecer
-módulo a módulo.
+**Importante:** v1 foi removida do projeto em 2026-07-19 (DEC-031) — o
+frontend Next.js (pasta `frontend/`, renomeada de `frontend-v2/`) é o único
+frontend ativo. Revisão Espaçada dedicada e Agenda ainda não têm equivalente
+v2 — ausência deliberada e temporária (ver DEC-031), não bug.
+
+**Escopo de features por módulo:** cada módulo migrado passa primeiro por
+`MODULE_TEMPLATE.md` completo — incluindo a pergunta "precisa de API Route?"
+— antes de qualquer linha de código.
 
 ### Sub-fases
 
 | Sub-fase | Descrição | Status |
 |---|---|---|
-| 7.0 | Setup do projeto Next.js — estrutura de pastas, `lib/supabase.ts`, `middleware.ts` (substitui `lib/auth.ts`, ver DEC-021), layout base, CSS global migrado | ✅ |
-| 7.1 | Treino v2 | ✅ |
-| 7.2 | Biblioteca v2 (B1–B6) | ✅ frontend completo · teste E2E geral pendente |
-| 7.3 | Estudos v2 (Fase 1 + Fase 1B) | 🔄 8 telas geradas e restilizadas (Tailwind/shadcn); schema estendido por `017`/`018`/`019` (gabarito ENEM em 2 fases, matéria única Escola/ENEM, domínio de conteúdo); teste manual completo em andamento — ver CHANGELOG.md (2026-08) |
-| 7.4 | Revisão Espaçada v2 | ⏳ a planejar |
-| 7.5 | Agenda v2 (módulo dedicado, hoje só existia dentro do treino.html da v1) | ⏳ a planejar |
+| 7.0 | Setup do projeto Next.js — estrutura de pastas, `lib/supabase.ts`, `proxy.ts` (renomeado de `middleware.ts`, DEC-031), layout base, CSS global | ✅ Completo |
+| 7.1 | Treino v2 | ✅ Completo — pendências de polimento em `BACKLOG.md` (confirm() nativo, gráfico de peso, upload de imagem de exercício) |
+| 7.2 | Biblioteca v2 (B1–B6) | ✅ Frontend completo, consolidado em página única com sidebar (DEC-032), identidade visual própria (DEC-034) — teste E2E geral em produção ainda pendente (ver `TASKS_NOW.md`) |
+| 7.3 | Estudos v2 (Fase 1 + Fase 1B) | ✅ 8 telas implementadas e restilizadas (Tailwind/shadcn); schema estendido por `017`/`018`/`019` (gabarito ENEM em 2 fases, matéria única Escola/ENEM, domínio de conteúdo) — todas as migrations confirmadas executadas via dump real do banco (2026-08). Teste manual completo no navegador em andamento; teste em produção ainda pendente — ver `TASKS_NOW.md` |
+| 7.4 | Revisão Espaçada v2 (página dedicada) | ⏳ a planejar |
+| 7.5 | Agenda v2 (módulo dedicado, hoje só existe como tabela `agenda` sem UI) | ⏳ a planejar — depende de decidir onde mora "cronograma de estudo" primeiro, ver `BACKLOG.md` |

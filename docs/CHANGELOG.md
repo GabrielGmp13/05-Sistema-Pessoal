@@ -253,3 +253,76 @@ localmente, ganha de qualquer `.dark` herdada).
   desta sessão, Claude pode ler arquivos reais do projeto diretamente via
   clone, em vez de depender exclusivamente de cópia manual colada pelo
   usuário. Reduz risco de assinatura assumida incorretamente.
+
+- **2026-08 (cont.)** — **Auditoria de migração para o Codex e reconciliação
+  completa da documentação.** Preparação para adotar Codex CLI como agente
+  de execução de código (Claude segue como arquiteto/documentador via chat).
+  Codex rodou uma auditoria completa do repositório (estrutura, stack,
+  divergências entre documentação e código, estado do Git) sem alterar
+  nenhum arquivo. Principais achados e resolução:
+  1. **Migrations `004`, `005`, `007`, `010`, `014`, `019` nunca foram
+     copiadas para o VS Code** (falha de cópia manual, confirmado pelo
+     usuário — não foi perda de dado, todas estavam executadas no Supabase).
+     Usuário extraiu um dump real do schema de produção via Supabase CLI
+     (`supabase db dump`, exigiu instalar Docker) e forneceu o arquivo
+     (`schema_real.sql`). As 6 migrations foram reconstruídas a partir do
+     dump e adicionadas de volta a `backend/supabase/migrations/`.
+  2. **`015_estudos_v2.sql` e `016_estudos_v2_fase1b.sql` locais estavam com
+     conteúdo corrompido** (referências circulares entre tabelas — provável
+     colagem incorreta em sessão de chat anterior). Confirmado, comparando
+     contra o dump real, que **o banco de produção nunca teve esse
+     problema** — só a cópia no repositório estava malformada. Ambos os
+     arquivos foram reescritos para bater exatamente com o schema real,
+     reordenando a criação de `modulos_curso` para antes do vínculo em
+     `conteudos` (a versão corrompida referenciava a tabela antes dela
+     existir).
+  3. **`DATABASE.md` reconciliado linha a linha contra o dump real:**
+     `conteudos` e `questoes_individuais` estavam documentadas de forma
+     desatualizada (mostravam `progresso`/`materia_uuid NOT NULL`/`acertou
+     NOT NULL` quando o schema real já refletia DEC-041/042 há semanas —
+     `materia_uuid` nullable, `acertou` nullable, `letra_marcada`/
+     `letra_correta`/`dificuldade` presentes). Dois gotchas novos
+     descobertos no dump: `materias.user_id` é a única FK do projeto sem
+     `ON DELETE CASCADE`; `materias.tipo` nunca teve `CHECK constraint`.
+  4. **`DECISIONS.md` corrigido:** `014` e `015` estavam marcadas "execução
+     pendente" havia semanas depois de já confirmadas; DEC-032 estava
+     marcada "código pendente" apesar de implementada desde 2026-07-19.
+  5. **`ARCHITECTURE.md` reescrito por completo** — descrevia partes da v1
+     (HTML puro, `window.sb`, `sm2.js`) como arquitetura atual e afirmava
+     "deploy do Vercel ainda não feito" (deploy real é de 2026-07-13).
+     Também documentado, por inspeção real do código: nenhuma
+     `app/api/**/route.ts` existe ainda; `confirm()` nativo confirmado em 8
+     arquivos (não só "algumas telas"); `window.prompt()` confirmado em
+     Estudos; SM-2 vive em `lib/revisao.ts` (TypeScript), não `sm2.js`.
+  6. **`BACKLOG.md` estava com todo o conteúdo duplicado** a partir da
+     metade do arquivo (cópia mais antiga colada junto da versão atual) —
+     deduplicado, preservando os 2 itens que só existiam na cópia antiga.
+  7. **`ROADMAP.md` corrigido:** cabeçalho da Fase M se contradizia ("EM
+     ANDAMENTO" no título, "CONCLUÍDA" no corpo); marcadores de diff (`+`)
+     deixados por engano no meio do texto da Fase 7; status de Biblioteca/
+     Estudos desatualizado (Fase 4 ainda marcada "EM ANDAMENTO" apesar de
+     completa há muito tempo).
+  8. **`VISION.md` corrigido:** Dashboard estava marcado "✅ Implementado
+     (`index.html`)" — a rota `/` real da v2 é uma tela técnica de
+     diagnóstico, não um dashboard funcional (confirmado por inspeção do
+     código). Referências a `documentos_estudo` (tabela removida)
+     trocadas por `materiais_estudo` (equivalente real em v2).
+  9. **`TASKS_NOW.md`, `MODULE_TEMPLATE.md`, `PROJECT_PRINCIPLES.md`,
+     `NAMING_CONVENTIONS.md`, `COMMIT_CONVENTIONS.md`, `AI_CONTEXT.md`**
+     ajustados pontualmente: caminhos de arquivo corrigidos
+     (`backend/supabase/migrations/`, não `supabase/migrations/`;
+     documentação em `docs/`, não na raiz), papel de "codificador
+     principal" deixou de ser amarrado a uma ferramenta específica
+     (Claude + Codex convivendo), status "versão crua" de Estudos
+     atualizado para refletir a restilização já concluída, exemplos de
+     nome de coluna/tabela trocados para os nomes reais atuais (v1 tinha
+     `assunto_uuid`/`documento_uuid`, não existem mais).
+  10. **`package.json`** (achado, correção ainda pendente de aplicação):
+      dependência `shadcn` não deveria estar listada (é CLI, não lib de
+      runtime) e `name` ainda é `"frontend-v2"`. Registrado em
+      `TASKS_NOW.md`/`BACKLOG.md` para correção na próxima sessão de código.
+
+  Nenhuma alteração foi commitada diretamente — todos os arquivos corrigidos
+  (documentação + 6 migrations reconstruídas + 2 migrations reescritas)
+  foram entregues como arquivos completos para o usuário revisar e aplicar
+  manualmente, seguindo a disciplina de sempre.

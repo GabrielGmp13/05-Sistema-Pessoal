@@ -23,7 +23,7 @@ Princípios permanentes do Sistema Pessoal. Servem para impedir que futuras IAs 
 
 8. **Offline sempre que possível.** Onde fizer sentido para o uso real (ex: modo Academia sem internet no ginásio), o sistema deve degradar graciosamente em vez de travar. Ver DEC-004.
 
-9. **Não alterar stack sem justificativa forte e nova informação.** A stack atual (Supabase + HTML puro) foi escolhida depois de comparar alternativas reais (ver DEC-001). Reabrir essa escolha exige um motivo concreto, não preferência estética.
+9. **Não alterar stack sem justificativa forte e nova informação.** A stack atual (Next.js/TypeScript + Supabase + Vercel, ver DEC-018) foi escolhida depois de comparar alternativas reais (ver DEC-001, DEC-006, DEC-018). Reabrir essa escolha exige um motivo concreto, não preferência estética.
 
 10. **Custo zero.** O projeto deve continuar operando dentro do free tier do Supabase e do Vercel indefinidamente. Qualquer decisão que arrisque sair do free tier (ex: armazenar arquivos de mídia pesados) precisa ser questionada — ver DEC-011 como exemplo desse limite sendo respeitado deliberadamente.
 
@@ -35,15 +35,23 @@ Princípios permanentes do Sistema Pessoal. Servem para impedir que futuras IAs 
 
 ## Fluxo de trabalho com IAs
 
-| Ferramenta | Papel |
-|---|---|
-| Claude (codificador principal) | Gera arquivos completos, decide arquitetura, escreve schema SQL, mantém a documentação |
-| ChatGPT | Dúvidas conceituais rápidas; respostas relevantes voltam para o codificador principal antes de virarem decisão de projeto |
+**Atualização (2026-08):** o projeto passou a ser desenvolvido com apoio de
+mais de um agente de IA — Claude (via chat, arquitetura/documentação/decisões
+maiores) e Codex (via `AGENTS.md`, análise de repositório e execução de
+tarefas de código). Não há mais um "codificador principal" fixo amarrado a
+uma ferramenta específica — qualquer agente que assumir esse papel numa
+sessão deve seguir a mesma disciplina:
 
-Qualquer IA que assumir o papel de codificador principal deve ler `AI_CONTEXT.md` primeiro, e este documento em seguida antes de propor qualquer mudança estrutural.
+1. Ler `AI_CONTEXT.md` primeiro, depois este documento, antes de propor
+   qualquer mudança estrutural.
+2. Nunca commitar diretamente — geração de código é entregue como arquivo
+   completo (criação nova) ou diff old→new (alteração), para Gabriel aplicar
+   manualmente.
+3. Nunca reabrir uma decisão de `DECISIONS.md` sem informação nova e concreta.
+4. Nunca assumir nome de coluna/tabela/rota de memória — conferir em
+   `DATABASE.md` ou no código real do repositório (público em
+   `github.com/GabrielGmp13/05-Sistema-Pessoal`).
 
-**Atualização (2026-07-23):** Cline+DeepSeek foi desativado do projeto. Claude
-+passa a gerar arquivos de código diretamente e completos, sem prompt
-+intermediário pra outra ferramenta executar. Gabriel aplica os arquivos
-+manualmente (mesma disciplina de sempre — diffs em vermelho/verde para
-+alterações, arquivo completo para criação nova).
+**Histórico:** Cline+DeepSeek (VS Code) foi usado situacionalmente até
+2026-07-23, quando foi desativado — o fluxo passou a ser geração direta de
+arquivo/diff completo por chat, sem ferramenta intermediária de execução.
