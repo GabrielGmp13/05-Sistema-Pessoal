@@ -291,8 +291,8 @@ localmente, ganha de qualquer `.dark` herdada).
      (HTML puro, `window.sb`, `sm2.js`) como arquitetura atual e afirmava
      "deploy do Vercel ainda não feito" (deploy real é de 2026-07-13).
      Também documentado, por inspeção real do código: nenhuma
-     `app/api/**/route.ts` existe ainda; `confirm()` nativo confirmado em 8
-     arquivos (não só "algumas telas"); `window.prompt()` confirmado em
+     `app/api/**/route.ts` existe ainda; `confirm()` nativo confirmado em 9
+     arquivos e 10 ocorrências (não só "algumas telas"); `window.prompt()` confirmado em
      Estudos; SM-2 vive em `lib/revisao.ts` (TypeScript), não `sm2.js`.
   6. **`BACKLOG.md` estava com todo o conteúdo duplicado** a partir da
      metade do arquivo (cópia mais antiga colada junto da versão atual) —
@@ -326,3 +326,15 @@ localmente, ganha de qualquer `.dark` herdada).
   (documentação + 6 migrations reconstruídas + 2 migrations reescritas)
   foram entregues como arquivos completos para o usuário revisar e aplicar
   manualmente, seguindo a disciplina de sempre.
+
+- **2026-08 (reconciliação final)** — Nova conferência independente do
+  `schema_real.sql` confirmou 44 tabelas em `public`, todas com RLS, policy
+  `user_own_data` e GRANT para `authenticated`; o número 46 era erro manual
+  propagado entre documentos, não tabela ausente. Corrigida também a dívida
+  de `confirm()` para 9 arquivos/10 ocorrências, os status atuais em
+  `DECISIONS.md` e `TASKS_NOW.md`, e a contagem atual de 9 rotas de página em
+  Estudos. O dump não inclui o inventário de Storage: a documentação agora
+  distingue buckets provisionados em migration, criação manual instruída e
+  nomes apenas planejados. Registrado também que as migrations reconstruídas
+  refletem o estado final, mas a cadeia `001`–`019` ainda precisa de validação
+  e correção de replay em banco vazio.

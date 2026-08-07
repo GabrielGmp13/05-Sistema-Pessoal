@@ -61,7 +61,7 @@ ver `docs/DATABASE.md`).
 3. **Diffs, não reescritas.** Para alterações em arquivo existente, mostrar só o trecho antigo → novo. Reescrever o arquivo inteiro só quando for criação nova ou mudança extensa justificada.
 4. **GRANT obrigatório em toda migration nova**: `GRANT SELECT, INSERT, UPDATE, DELETE ON <table> TO authenticated;` — Supabase não concede isso automaticamente (ver `docs/DATABASE.md` → Gotchas).
 5. **Convenção de FK**: sempre `<tabela_singular>_uuid`, nunca `_id`.
-6. **Nunca usar `confirm()` nativo do navegador** para ações destrutivas — sempre modal (ver `docs/DESIGN.md`). Dívida técnica já presente em 8 arquivos hoje (ver `docs/BACKLOG.md`) — não introduzir mais, mas também não é bloqueio para outras tarefas.
+6. **Nunca usar `confirm()` nativo do navegador** para ações destrutivas — sempre modal (ver `docs/DESIGN.md`). Dívida técnica já presente em 9 arquivos, com 10 ocorrências, hoje (ver `docs/BACKLOG.md`) — não introduzir mais, mas também não é bloqueio para outras tarefas.
 7. **Não alterar a stack** sem justificativa técnica forte e documentada (ver `docs/PROJECT_PRINCIPLES.md` #9).
 8. **`npx tsc --noEmit` deve rodar de dentro de `frontend/`**, não da raiz do projeto (a raiz invoca um `tsc` standalone depreciado).
 9. **Nenhuma alteração é commitada diretamente por um agente.** Geração de código é entregue como arquivo completo (criação nova) ou diff old→new (alteração), para o usuário aplicar manualmente.

@@ -132,6 +132,7 @@ avançadas, upload de gabarito/prova em arquivo.
 |---|---|---|
 | `app/estudos/page.tsx` | Hub — 3 entradas (ENEM/Escola/Curso) + próximas provas/atividades/simulados | ✅ (restilizada, Tailwind/shadcn) |
 | `app/estudos/enem/page.tsx` | Matérias ENEM, agendar prova ENEM, listar próximas | ✅ (restilizada, Tailwind/shadcn) |
+| `app/estudos/enem/[area]/page.tsx` | Área ENEM → matérias e conteúdos da área | ✅ (adicionada na correção de modelagem de 2026-08) |
 | `app/estudos/escola/page.tsx` | Matérias Escola, próximas provas, atividades pendentes | ✅ (restilizada, Tailwind/shadcn) |
 | `app/estudos/curso/page.tsx` | Lista de cursos, criar curso novo | ✅ (restilizada, Tailwind/shadcn) |
 | `app/estudos/curso/[materiaUuid]/page.tsx` | Curso → Módulo → Aula, progresso, concluir curso | ✅ (restilizada, Tailwind/shadcn) |
@@ -140,7 +141,7 @@ avançadas, upload de gabarito/prova em arquivo.
 | `app/estudos/redacoes/page.tsx` | Lista/cria redações com 5 competências | ✅ (restilizada, Tailwind/shadcn) |
 
 **Componentes**
-Atualizado (2026-08): as 8 telas foram restilizadas com componentes gerados
+Atualizado (2026-08): as 9 rotas de página foram restilizadas com componentes gerados
 via v0.dev e adaptados ao projeto — `components/study/*` (componentes de
 domínio: `SubjectManager`, cards de conteúdo, tabela de gabarito) e
 `components/ui/*` (base shadcn: botões, inputs, etc.), confirmados presentes
@@ -165,10 +166,10 @@ como lembrete, não flashcard — ver DEC-035.
 **Dependências**
 - Tailwind v4 + shadcn/ui + Base UI (DEC-038) — única exceção à convenção de
   CSS Modules do resto do sistema.
-- Bucket `redacoes` em uso (`lib/redacoes.ts`, foto da folha manuscrita).
-  Bucket `documentos` (materiais de estudo com `arquivo_path`) tem schema
-  pronto mas ainda sem UI de upload — `materiais_estudo` inteiro segue fora
-  das páginas.
+- O código integra o nome de bucket `redacoes` (`lib/redacoes.ts`, foto da
+  folha manuscrita); sua criação é uma ação manual descrita em `017`, não
+  confirmada pelo dump atual. `documentos` é provisionado por `001`, mas ainda
+  não tem UI de upload — `materiais_estudo` inteiro segue fora das páginas.
 - Depende de `lib/revisao.ts` (criado em 2026-07-25 para desbloquear
   `lib/simulados.ts`).
 
@@ -201,6 +202,6 @@ Nenhuma.
 Ver `BACKLOG.md` (Fase 2 de Estudos, mais os itens de gap identificados na
 auditoria de 2026-08: áreas de Olimpíadas/Idiomas/Vestibulares, dono do
 "cronograma de estudo", widgets de tempo estudado no Hub). O design
-Tailwind/shadcn já foi aplicado nas 8 telas — os padrões de Sidebar/Banner/
+Tailwind/shadcn já foi aplicado nas 9 rotas de página — os padrões de Sidebar/Banner/
 Card de `DESIGN.md` são específicos da Biblioteca (CSS Modules) e não se
 aplicam a Estudos, que segue seu próprio sistema visual.

@@ -67,7 +67,7 @@ Dois componentes de painel **somente leitura** (edição sempre via modal, nunca
 
 ### DEC-031 — v1 aposentada, frontend-v2 renomeada para frontend
 **Status:** ✅ Aprovada e implementada.
-Pasta `frontend/` (v1) removida do projeto (backup local, fora do Git). `frontend-v2/` renomeada para `frontend/`, único frontend ativo. Projeto Vercel reaproveitado (mesma URL, sem reconfigurar Auth Redirect). **Estudos, Revisão Espaçada e Agenda dedicada ficam deliberadamente ausentes da v2** por ora — abordagem "camada por camada": schema intacto no Supabase, só sem tela.
+Pasta `frontend/` (v1) removida do projeto (backup local, fora do Git). `frontend-v2/` renomeada para `frontend/`, único frontend ativo. Projeto Vercel reaproveitado (mesma URL, sem reconfigurar Auth Redirect). **No momento do cutover**, Estudos, Revisão Espaçada e Agenda dedicada ficaram deliberadamente ausentes da v2 — abordagem "camada por camada": schema intacto no Supabase, inicialmente sem tela. Estudos foi implementado depois; Revisão Espaçada segue apenas como motor usado por Estudos, e Agenda continua sem tela dedicada.
 **Dois bugs de infra corrigidos no cutover:**
 1. `middleware.ts` dava 500 (`__dirname is not defined`) — `@supabase/ssr`→`realtime-js` usa APIs Node incompatíveis com Edge Runtime. Resolvido migrando para `proxy.ts` (Next.js 16, roda em Node runtime por padrão) — rename de arquivo/função, sem mudança de lógica.
 2. Vercel mantinha Framework Preset "Other" congelado no deployment antigo mesmo após trocar Project Settings — resolvido com um Redeploy forçado.
@@ -103,12 +103,9 @@ fazia sentido pro layout antigo (ícone de estrela), o layout novo referencia
 exibição numérica decimal, que só funciona bem numa escala mais granular.
 
 ### Impacto
-`014_nota_escala_dez.sql` — aguardando execução no Supabase. Depois de
-executada, `DATABASE.md` deve atualizar a definição de `nota` nas 6 tabelas
-(hoje documentada como `NUMERIC(2,1)` desde `006_biblioteca_v2_base.sql`).
-Frontend (cards, modais de avaliação) precisa trocar qualquer input/exibição
-de estrela por input numérico decimal — parte do escopo do redesign visual
-da Biblioteca, ver TASKS_NOW.md.
+`014_nota_escala_dez.sql` executada; o dump real de 2026-08 confirma
+`NUMERIC(3,1)` e o `CHECK` de 0 a 10 nas 6 tabelas. `DATABASE.md` e o frontend
+da Biblioteca já refletem a escala decimal de 0 a 10.
 
 **Nota:** `favorito BOOLEAN` já existe desde DEC-023 — o coração do card novo
 não exige schema novo, só exibição condicional no frontend.
@@ -277,7 +274,7 @@ upload de arquivo de prova/gabarito em simulados.
 ## DEC-036 — Estudos v2 Fase 1B: conteúdo compartilhado entre módulos, Curso com hierarquia própria, Prova vs. Simulado como estruturas distintas
 
 **Data:** 2026-07-23 (planejamento detalhado de ENEM/Escola/Curso)
-**Status:** ✅ Aprovada · ✅ Migration executada no Supabase (2026-07-23) · 🔄 Camada de dados (`lib/`) gerada e aplicada, páginas pendentes
+**Status:** ✅ Aprovada, migration executada, camada de dados e páginas implementadas
 
 ### Contexto
 Sessão de brainstorm estruturado (pergunta-resposta) sobre o funcionamento real
@@ -286,13 +283,13 @@ usuário (escrito originalmente como brainstorm livre, sem compromisso de
 escopo). A sessão revelou 3 decisões estruturais que a Fase 1 (DEC-035) não cobria:
 
 1. O mesmo conteúdo (ex: "Funções") pode ser estudado simultaneamente para
-+   ENEM e Escola, com um único checklist/progresso — não duplicado por módulo.
+   ENEM e Escola, com um único checklist/progresso — não duplicado por módulo.
 2. **Prova** (evento oficial — Escola ou dia de ENEM, com gabarito
-+   questão-a-questão) e **Simulado** (sessão informal por conteúdo, iniciada
-+   livremente pelo usuário) são conceitos diferentes. Só o Simulado alimenta a
-+   revisão espaçada (SM-2); Prova nunca influencia `revisao_espacada`.
+   questão-a-questão) e **Simulado** (sessão informal por conteúdo, iniciada
+   livremente pelo usuário) são conceitos diferentes. Só o Simulado alimenta a
+   revisão espaçada (SM-2); Prova nunca influencia `revisao_espacada`.
 3. Curso tem hierarquia própria (Curso → Módulo → Aula), diferente da
-+   estrutura flat de ENEM/Escola (Matéria → Conteúdo direto).
+   estrutura flat de ENEM/Escola (Matéria → Conteúdo direto).
 
 ### Decisão
 
@@ -399,7 +396,7 @@ exceção ocorreu uma vez na v1 (`estudos.html`, ver `CHANGELOG.md`,
 ## DEC-037 — Nova paleta (verde-oliva/off-white, via v0.dev) vira padrão do sistema, exceto Biblioteca
 
 **Data:** 2026-07-25
-**Status:** ✅ Aprovada
+**Status:** ✅ Aprovada e implementada
 
 ### Contexto
 Durante o design de Estudos v2 no v0.dev, o usuário aprovou o resultado visual
@@ -428,7 +425,7 @@ resolvida por enquanto como "não mexe na Biblioteca").
 ## DEC-038 — Adoção antecipada de Tailwind v4 + shadcn/ui, escopo inicial: só Estudos (reabre parcialmente o item de v3 do BACKLOG)
 
 **Data:** 2026-07-25
-**Status:** ✅ Aprovada
+**Status:** ✅ Aprovada e implementada
 
 ### Contexto
 O design de Estudos v2 foi gerado no v0.dev, que produz Tailwind v4 +
@@ -458,9 +455,10 @@ aprovado, não preferência técnica não fundamentada — mesmo padrão de
 "decisão de design é prerrogativa do usuário" já usado na DEC-034.
 
 ### Impacto
-- `package.json` do projeto ganha dependências novas: Tailwind v4,
-  `shadcn/ui`, `lucide-react`, `tw-animate-css` (a conferir contra o que o
-  zip do v0 already lista)
+- O projeto ganhou Tailwind v4, `lucide-react`, `tw-animate-css` e componentes
+  `components/ui/*` gerados segundo o padrão shadcn. A CLI `shadcn` não é
+  dependência de runtime; sua presença atual em `package.json` é uma pendência
+  de manutenção registrada em `TASKS_NOW.md`.
 - `app/estudos/**` passa a usar classes Tailwind + componentes de
   `components/ui/*` (shadcn) em vez de CSS Modules
 - `BACKLOG.md` → item "Migrar estilização de CSS Modules para Tailwind"
@@ -468,10 +466,10 @@ aprovado, não preferência técnica não fundamentada — mesmo padrão de
 - `ARCHITECTURE.md` → seção Frontend ganha nota sobre stack mista
   (CSS Modules em Treino/Biblioteca, Tailwind+shadcn em Estudos)
 
-  ## DEC-039 — Toggle claro/escuro no sistema, exceto Biblioteca
+## DEC-039 — Toggle claro/escuro no sistema, exceto Biblioteca
 
 **Data:** 2026-07-25
-**Status:** ✅ Aprovada
+**Status:** ✅ Aprovada e implementada
 
 ### Contexto
 O site hoje não tem modo claro — `:root` único, sempre escuro, sem mecanismo
@@ -506,7 +504,7 @@ global seja acionado em outra aba/rota.
 - `globals.css` ganha bloco `.dark` completo ao lado do `:root` (claro),
   nos dois vocabulários de variável (CSS Modules antigo + shadcn novo)
 
-  ## DEC-040 — Matéria é linha única, compartilhada entre Escola e ENEM (corrige modelagem errada da mesma sessão)
+## DEC-040 — Matéria é linha única, compartilhada entre Escola e ENEM (corrige modelagem errada da mesma sessão)
 
 **Data:** 2026-08
 **Status:** ✅ Aprovada e executada (migration 018)
@@ -617,7 +615,7 @@ critério claro de "domínio", que este DEC resolve sem tocar no SM-2.
 ## DEC-043 — Calendário de revisões no Hub fica simples por ora (sem horário/duração) — reafirma DEC-035
 
 **Data:** 2026-08
-**Status:** ✅ Aprovada
+**Status:** ✅ Aprovada e implementada
 
 ### Contexto
 O usuário pediu visibilidade rápida do que precisa revisar ("não adianta a

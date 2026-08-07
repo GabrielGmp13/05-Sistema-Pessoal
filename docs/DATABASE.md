@@ -34,7 +34,7 @@ Chaves estrangeiras seguem `<tabela_singular>_uuid` (ex: `treino_uuid`, `materia
 
 **GRANT é obrigatório em toda migration, não opcional.** Projetos Supabase criados a partir de 2026-05-30 não recebem GRANT automático em nenhuma tabela nova, mesmo com RLS e policy corretos — sem o GRANT explícito para `authenticated`, a tabela fica inacessível via Data API (badge "API DISABLED" no dashboard) e o `supabase-js` recebe erro 42501 mesmo com policies válidas. RLS e GRANT são camadas independentes: GRANT decide se o papel alcança a tabela; RLS decide quais linhas ele vê dentro dela.
 
-**Confirmado no dump real (2026-08):** as 46 tabelas de `public` têm `ROW LEVEL SECURITY` habilitada, policy `user_own_data` (`auth.uid() = user_id`) e `GRANT ALL` para `authenticated`. Nenhuma tabela sem proteção. `anon` só recebe `REFERENCES, TRIGGER, TRUNCATE, MAINTAIN` (grants estruturais padrão do Supabase, sem `SELECT`/`INSERT`) — não representa acesso de dado.
+**Confirmado no dump real (2026-08):** são 44 tabelas em `public`; todas têm `ROW LEVEL SECURITY` habilitada, policy `user_own_data` (`auth.uid() = user_id`) e `GRANT ALL` para `authenticated`. Nenhuma tabela sem proteção. `anon` só recebe `REFERENCES, TRIGGER, TRUNCATE, MAINTAIN` (grants estruturais padrão do Supabase, sem `SELECT`/`INSERT`) — não representa acesso de dado. O número 46 que apareceu em versões anteriores deste documento era erro de contagem manual, não indicação de tabelas ausentes.
 
 Índices parciais `WHERE NOT deleted` existem nas tabelas principais para acelerar as queries que sempre filtram registros ativos — confirmados no dump para praticamente todas as tabelas de alto volume (ver lista completa na seção Índices, ao final).
 
@@ -70,9 +70,11 @@ Chaves estrangeiras seguem `<tabela_singular>_uuid` (ex: `treino_uuid`, `materia
 | `018_materias_unicas_escola_enem.sql` | ✅ Executado | `materias.mostra_escola`/`mostra_enem`, limpeza de dado duplicado. Ver DEC-040 |
 | `019_gabarito_dominio_dificuldade.sql` | ✅ Executado · 🔧 arquivo local recriado | `questoes_individuais.materia_uuid` nullable, `letra_marcada`/`letra_correta`/`dificuldade`; `conteudos.progresso` removido, `teoria_vista`/`dominado_manual` adicionados. Ver DEC-041/DEC-042 |
 
-**🔧 Nota sobre arquivos recriados (2026-08):** seis migrations (`004`, `005`, `007`, `010`, `014`, `019`) nunca foram copiadas para a pasta local do projeto (falha de cópia manual do usuário para o VS Code, não perda de dado — todas estavam executadas no Supabase o tempo todo). Foram reconstruídas nesta sessão a partir do dump real do schema, então o `.sql` local agora é fiel ao que rodou em produção, mesmo sem ser byte-a-byte idêntico ao script original que foi colado no SQL Editor na época.
+**🔧 Nota sobre arquivos recriados (2026-08):** seis migrations (`004`, `005`, `007`, `010`, `014`, `019`) nunca foram copiadas para a pasta local do projeto (falha de cópia manual do usuário para o VS Code, não perda de dado — todas estavam executadas no Supabase o tempo todo). Foram reconstruídas a partir do estado final observado no dump. Elas documentam o efeito pretendido, mas não são cópias dos scripts originais e a sequência completa ainda não foi validada por replay em banco vazio.
 
 **⚠️ Nota sobre `015`/`016` corrompidas (2026-08):** os arquivos locais dessas duas migrations continham erros internos (colunas de uma tabela referenciadas em índice de outra, tabela referenciada antes de ser criada) — provavelmente uma cópia/colagem errada em sessão de chat anterior sobrescreveu o conteúdo correto. **O banco de produção nunca teve esse problema** — o que rodou no SQL Editor na época estava correto, só a cópia que ficou no repositório é que ficou malformada. Ambos os arquivos foram reescritos nesta sessão para bater exatamente com o dump real.
+
+**⚠️ Replay local ainda pendente (confirmado por inspeção em 2026-08):** a cadeia `001`–`019` não deve ser tratada como reproduzível hoje. `002_estudos.sql` já contém `area_enem`, `mostra_escola` e `mostra_enem`, que `017`/`018` tentam adicionar novamente; `017` e `019` também repetem os nomes das constraints de `letra_marcada`/`letra_correta`. O schema de produção está confirmado pelo dump, mas corrigir o histórico exige tarefa dedicada e teste em banco descartável.
 
 **Convenção para novas migrações:** numeração sequencial de 3 dígitos + nome do módulo em snake_case (`00N_nome-modulo.sql`). Depois de rodar no SQL Editor, atualizar a tabela acima e a seção correspondente deste documento — e, a partir de agora, **também rodar um novo `db dump` periodicamente** para evitar que o repositório volte a divergir do banco real sem que ninguém perceba.
 
@@ -833,7 +835,14 @@ CONSTRAINT redacoes_competencia_1_check CHECK (competencia_1 IS NULL OR competen
 
 ## Storage
 
-3 buckets ativos, confirmados via `ARCHITECTURE.md` e uso real no código: `shape`, `documentos`, `capas`, `exercicios`, `redacoes` — todos privados, sempre via signed URL, path `{user_id}/arquivo.ext`. Ver DEC-010.
+O `schema_real.sql` atual contém apenas o schema `public` e **não permite confirmar a quantidade nem o inventário de buckets existentes em produção**. O que o repositório comprova é:
+
+- `001_schema_inicial.sql` provisiona `shape`, `documentos` e `capas` como privados e cria suas policies;
+- `017_estudos_gabarito_enem_redacao.sql` instrui criar `redacoes` manualmente, e `frontend/lib/redacoes.ts` implementa upload/signed URL/remoção nesse nome;
+- `exercicios` aparece como bucket planejado na documentação, mas não possui criação ou policy versionada;
+- o frontend usa efetivamente `shape` e contém integração para `redacoes`; isso não substitui consultar `storage.buckets` no Supabase.
+
+Até uma consulta direta (`SELECT id, name, public FROM storage.buckets ORDER BY 1`) ser registrada, a documentação não atribui um total confirmado de buckets de produção. A decisão permanente continua sendo mantê-los privados e usar signed URLs/path `{user_id}/arquivo.ext` (DEC-010).
 
 > ⚠️ **Pendência:** `banner_path` (existente desde `006_biblioteca_v2_base.sql`) não tem bucket de Storage definido — só `banner_url` (link externo) funciona hoje. Ver `BACKLOG.md`.
 
@@ -855,11 +864,11 @@ Confirmados em: `agenda`, `animes`, `animes_episodios`, `animes_temporadas`, `an
 | `series_executadas` (v1) | `exercicio_id`, `sessao_id`, `serie_num`, `peso`, `repeticoes` | `exercicio_uuid`, `sessao_uuid`, `serie_numero`, `carga_real`, `reps_real` | `treino-academia.html` — corrigido |
 | `revisao_espacada` | `frente`, `verso`, `intervalo`, `fator` | `pergunta`, `resposta`, `intervalo_dias`, `ef` | `revisao.html` (v1) — corrigido |
 
-**Gotcha (GRANT ausente, 2026-07):** migrations `001`–`003` foram executadas sem `GRANT` explícito — corrigido retroativamente via `GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO authenticated;`. Toda migration desde então inclui a linha por tabela. **Confirmado no dump 2026-08:** todas as 46 tabelas atuais têm o GRANT correto.
+**Gotcha (GRANT ausente, 2026-07):** migrations `001`–`003` foram executadas sem `GRANT` explícito — corrigido retroativamente via `GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO authenticated;`. Toda migration desde então inclui a linha por tabela. **Confirmado no dump 2026-08:** todas as 44 tabelas atuais de `public` têm o GRANT correto.
 
 **Gotcha (cascade de deleção de usuário):** quase todas as tabelas usam `user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE` — apagar um usuário em Authentication → Users apaga em cascata todos os dados dele, sem confirmação extra, sem backup no free tier. Confirmado na prática em 2026-07-13 (ver `CHANGELOG.md`). **Nunca deletar um usuário sem certeza absoluta.**
 
-**Gotcha NOVO confirmado no dump (2026-08): `materias.user_id` é a única FK do projeto sem `ON DELETE CASCADE`** (`REFERENCES auth.users(id)` puro, sem cláusula de cascata). Na prática, apagar o usuário deixaria linhas de `materias` órfãs (ou o `DELETE` falharia, dependendo de outras constraints) em vez de limpar em cascata como todas as outras 45 tabelas. Não é um bug ativo (nenhuma tela depende desse comportamento), mas é uma inconsistência real que vale corrigir numa migration futura (`ALTER TABLE materias DROP CONSTRAINT materias_user_id_fkey, ADD CONSTRAINT materias_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE`) — não fazer isso às pressas, é baixo risco mas deve ser feito deliberadamente, não como parte de uma migration de feature.
+**Gotcha NOVO confirmado no dump (2026-08): `materias.user_id` é a única FK do projeto sem `ON DELETE CASCADE`** (`REFERENCES auth.users(id)` puro, sem cláusula de cascata). Na prática, apagar o usuário deixaria linhas de `materias` órfãs (ou o `DELETE` falharia, dependendo de outras constraints) em vez de limpar em cascata como nas outras 43 tabelas. Não é um bug ativo (nenhuma tela depende desse comportamento), mas é uma inconsistência real que vale corrigir numa migration futura (`ALTER TABLE materias DROP CONSTRAINT materias_user_id_fkey, ADD CONSTRAINT materias_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE`) — não fazer isso às pressas, é baixo risco mas deve ser feito deliberadamente, não como parte de uma migration de feature.
 
 **Gotcha NOVO confirmado no dump (2026-08): `materias.tipo` nunca teve `CHECK constraint`.** A coluna é `TEXT` livre — a DEC-040 ("tipo perde 'enem'/'escola', ganha 'academica'") é uma convenção de aplicação, não é imposta pelo banco. Isso significa que um bug de frontend poderia gravar `tipo = 'enem'` de novo sem o banco reclamar. Considerar adicionar `CHECK (tipo IN ('academica','curso','olimpiada','outro'))` numa migration futura, depois de confirmar com o código real quais valores `lib/materias.ts` efetivamente usa hoje.
 

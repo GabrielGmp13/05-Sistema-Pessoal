@@ -43,7 +43,7 @@ fica na raiz, por convenção da ferramenta).
 **Fase:** Fase 7 — v2 é o único frontend ativo (v1 removida do projeto em 2026-07-19, DEC-031)
 **Decisão-chave:** DEC-018 (reabre DEC-006) — frontend migrou de HTML puro para Next.js/React
 **Deploy:** ✅ em produção no Vercel desde 2026-07-13 (não "pendente" — ver `ARCHITECTURE.md`)
-**Schema:** confirmado via dump real do Supabase em 2026-08 — 46 tabelas, RLS e GRANT corretos em todas (ver `DATABASE.md`)
+**Schema:** confirmado via dump real do Supabase em 2026-08 — 44 tabelas em `public`, RLS e GRANT corretos em todas (ver `DATABASE.md`)
 **Próxima tarefa imediata:** ver `TASKS_NOW.md`
 
 ---
@@ -52,9 +52,9 @@ fica na raiz, por convenção da ferramenta).
 
 | Camada | Tecnologia |
 |---|---|
-| Banco de dados | PostgreSQL via Supabase (46 tabelas, confirmado via dump real 2026-08) |
+| Banco de dados | PostgreSQL via Supabase (44 tabelas em `public`, confirmado via dump real 2026-08) |
 | Auth | Supabase Auth (email+senha) |
-| Storage | Supabase Storage — 5 buckets privados (`shape`, `documentos`, `capas`, `exercicios`, `redacoes`) |
+| Storage | Supabase Storage — inventário real de produção não incluído no dump atual; evidências versionadas e lacunas descritas em `DATABASE.md` |
 | Frontend | Next.js 16 (React 19) + TypeScript — pasta `frontend/`, único frontend do projeto |
 | Estilização | CSS Modules (Treino/Biblioteca/Dashboard) + Tailwind v4/shadcn (Estudos) — stack mista intencional, DEC-038 |
 | Backend leve | API Routes (Next.js, serverless no Vercel) — **planejado, nenhuma rota `app/api/**` existe ainda** |

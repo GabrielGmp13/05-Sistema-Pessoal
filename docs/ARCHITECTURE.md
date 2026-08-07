@@ -25,9 +25,9 @@ Vercel — frontend/                  Supabase                Supabase
 **Sem servidor customizado.** O frontend (Next.js) é servido pelo Vercel. Todos os dados, auth e arquivos passam pelo Supabase.
 
 **Status de implementação real (2026-08):**
-- Schema PostgreSQL ✅ executado — 46 tabelas confirmadas via dump real do banco (ver `DATABASE.md`).
+- Schema PostgreSQL ✅ executado — 44 tabelas em `public` confirmadas via dump real do banco (ver `DATABASE.md`).
 - Auth ✅ funcionando (email + senha).
-- Storage ✅ buckets criados e com RLS/policy; **uso real no código hoje está limitado ao bucket `shape`** (Treino) e à lógica de upload de `redacoes` (Estudos) — os demais buckets (`documentos`, `capas`, `exercicios`) têm schema/policy prontos mas ainda sem tela que efetivamente faça upload.
+- Storage ⚠️ o dump atual cobre `public`, não o inventário de `storage.buckets`. O repositório provisiona `shape`, `documentos` e `capas` em `001_schema_inicial.sql`; `017` instrui criar `redacoes` manualmente e o frontend contém sua integração; não há criação/policy versionada para `exercicios`. Ver a seção abaixo e `DATABASE.md`.
 - Deploy no Vercel ✅ feito (`frontend/` como Root Directory) desde 2026-07-13.
 - Realtime 🔄 não implementado.
 - Service Worker 🔄 não implementado.
@@ -55,15 +55,15 @@ Banco de dados relacional. Schema completo executado e confirmado via dump real 
 
 **Decisão (DEC-010): todos os buckets são privados.** Nenhum arquivo é publicamente acessível. Acesso exclusivo via signed URL com expiração de 1 hora.
 
-| Bucket | Conteúdo | Limite | Tipos aceitos | Uso real no código hoje |
+| Bucket | Conteúdo | Limite | Tipos aceitos | Evidência atual no repositório |
 |---|---|---|---|---|
-| `shape` | Fotos de shape | 10MB | JPEG, PNG, WebP | ✅ em uso (Treino) |
-| `documentos` | PDFs de provas, apostilas, documentos pessoais | 50MB | PDF | Schema pronto, sem UI de upload ainda |
-| `capas` | Capas de obras da Biblioteca sem cobertura de API | 2MB | JPEG, PNG, WebP | Schema pronto, sem UI de upload ainda (ver `BACKLOG.md`) |
-| `exercicios` | Imagens/GIFs demonstrativos de exercícios (força e cardio) | 5MB | JPEG, PNG, WebP, GIF | Schema pronto, sem UI de upload ainda |
-| `redacoes` | Foto da folha manuscrita de redação (ENEM/Escola) | 10MB | JPEG, PNG, WebP | ✅ em uso (`lib/redacoes.ts`) |
+| `shape` | Fotos de shape | 10MB | JPEG, PNG, WebP | Provisionamento e policies em `001`; uso no frontend confirmado |
+| `documentos` | PDFs de provas, apostilas, documentos pessoais | 50MB | PDF | Provisionamento e policies em `001`; sem UI de upload atual |
+| `capas` | Capas de obras da Biblioteca sem cobertura de API | 2MB | JPEG, PNG, WebP | Provisionamento e policies em `001`; sem UI de upload atual |
+| `exercicios` | Imagens/GIFs demonstrativos de exercícios (força e cardio) | Não definido em migration | Não definido em migration | Nome planejado, mas sem criação/policy versionada e sem UI |
+| `redacoes` | Foto da folha manuscrita de redação (ENEM/Escola) | 10MB sugeridos em `017` | JPEG, PNG, WebP | Criação manual instruída em `017`; integração presente em `lib/redacoes.ts` |
 
-Convenção de path obrigatória: `{user_id}/nome-do-arquivo.ext`. Storage Policies usam `(storage.foldername(name))[1] = auth.uid()::text` para isolar o acesso — cada usuário só vê seus próprios arquivos, mesmo dentro do mesmo bucket.
+Convenção de path obrigatória: `{user_id}/nome-do-arquivo.ext`. As policies versionadas em `001` e a policy instruída em `017` usam `(storage.foldername(name))[1] = auth.uid()::text` para isolar o acesso. O inventário e as policies efetivamente presentes em produção exigem consulta direta ao Supabase.
 
 ### Supabase Realtime
 - Subscrições a `postgres_changes` por tabela
@@ -202,8 +202,9 @@ continua sendo entregue como arquivo/diff pro usuário aplicar manualmente;
 ## Confirm() nativo e outras dívidas de UX conhecidas (2026-08)
 
 Confirmado por inspeção do código real: `confirm()` nativo do navegador
-ainda está em uso em 8 arquivos (`app/biblioteca/generos/page.tsx`, as 6
-`*Section.tsx` de Biblioteca, `app/treino/[moduloUuid]/page.tsx` e
+ainda está em uso em 9 arquivos, com 10 ocorrências
+(`app/biblioteca/generos/page.tsx`, as 6 `*Section.tsx` de Biblioteca,
+`app/treino/[moduloUuid]/page.tsx` e
 `app/treino/[moduloUuid]/[treinoUuid]/page.tsx`) — contraria `DESIGN.md` e
 `CLAUDE.md`/`AGENTS.md` regra 6, é dívida técnica já registrada, ver
 `BACKLOG.md`. Também confirmado: `window.prompt()` em

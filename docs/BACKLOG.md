@@ -84,12 +84,12 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 ### Biblioteca v2 (B2–B6) — polimento
 
 - [ ] Integrar o seletor de gênero (B1, `SeletorGenero`/`lib/generos.ts`) nas 6 telas novas (filmes, séries, animes, mangás, livros, podcasts) — deixado de fora deliberadamente ao gerar cada tela
-- [ ] Upload de capa/banner — campos `capa_path`/`banner_path` existem no schema desde DEC-023, mas nenhum bucket de Storage nem UI de upload foi criado para eles; hoje só é possível usar `capa_url`/`banner_url` (link externo)
+- [ ] Upload de capa/banner — o bucket privado `capas` e suas policies estão versionados em `001_schema_inicial.sql`, mas não existe UI de upload; `banner_path` não tem bucket definido. Hoje a interface usa apenas `capa_url`/`banner_url` (link externo)
 - [ ] Integração de busca por API externa (TMDB, Google Books, Jikan, iTunes) nas telas novas da Biblioteca v2 — a v1 tinha essa integração, as 6 telas v2 geradas até agora são só cadastro manual. TMDB é a única que exige API Route (segredo) — nenhuma `app/api/**` existe ainda no projeto (confirmado por inspeção, 2026-08), então essa é a motivação real mais próxima pra criar a primeira.
 - [ ] Edição de itens já criados em listas aninhadas (elenco, trilha sonora, temporadas, openings/endings, volumes) — hoje só dá pra criar ou apagar; os únicos campos editáveis depois de criado são os toggles (`lido`, `filler`, `assistido`)
 - [ ] Reordenação manual (drag-and-drop) do campo `ordem` em elenco/trilha sonora/openings-endings/volumes — hoje `ordem` só reflete sequência de criação
 - [ ] `animes_generos` (schema já existe desde `009_biblioteca_v2_b3.sql`) sem `lib/` nem UI — nenhuma tela permite associar gênero a um anime ainda
-- [ ] `confirm()` nativo do navegador ao apagar item — confirmado em 8 arquivos por inspeção do código (2026-08): `app/biblioteca/generos/page.tsx` + as 6 `*Section.tsx` de Biblioteca, além de 2 arquivos de Treino v2 (ver seção Treino v2 abaixo). Contraria `DESIGN.md`.
+- [ ] `confirm()` nativo do navegador ao apagar item — confirmado em 9 arquivos e 10 ocorrências por inspeção do código (2026-08): `app/biblioteca/generos/page.tsx` + as 6 `*Section.tsx` de Biblioteca, além de 2 arquivos de Treino v2 (uma das páginas contém 2 ocorrências; ver seção Treino v2 abaixo). Contraria `DESIGN.md`.
 - [ ] Menu de ações "⋯" (Editar/Apagar) nos cards não fecha sozinho ao clicar fora — só fecha ao escolher uma opção ou clicar de novo no próprio botão
 - [ ] Velocidade de leitura (páginas/hora) em Livros (B5) — `paginas_total`/`pagina_atual` permitem progresso, mas não velocidade; exigiria registro de sessões de leitura com data, não desenhado ainda (ver DEC-029)
 - [ ] Imagens estáticas de banner por categoria (`public/biblioteca/banners/{filmes,series,animes,mangas,livros,podcasts}.jpg`) — suporte já existe no `BibliotecaBanner` (DEC-034), mas depende do usuário fornecer as imagens; sem elas, cada categoria usa o mosaico automático das próprias capas cadastradas (funcional, mas não é o visual final pretendido). Confirmado que ao menos `animes.jpg` já está versionado — as outras 5 ainda faltam.
@@ -99,7 +99,7 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 
 - [ ] Substituir `confirm()` nativo do navegador por modal de confirmação (padrão `.open`) ao apagar treino — confirmado em `app/treino/[moduloUuid]/page.tsx` e `app/treino/[moduloUuid]/[treinoUuid]/page.tsx` — inconsistência com `DESIGN.md` introduzida na geração inicial das páginas v2, adiada por decisão explícita (2026-07-16)
 - [ ] Gráfico de evolução de peso em `app/treino/shape/page.tsx` — decisão de dependência ainda não tomada para v2 (Chart.js não está no `package.json` atual — se retomado, escolher biblioteca do zero, não assumir Chart.js como já decidido)
-- [ ] Upload de imagem/GIF de exercício (`imagem_path`, bucket `exercicios`) — CRUD de exercício ficou só textual na primeira leva
+- [ ] Upload de imagem/GIF de exercício (`imagem_path`) — CRUD ficou só textual; o nome de bucket `exercicios` aparece no planejamento, mas não há criação nem policy versionada para ele. Confirmar o inventário real do Storage antes de implementar
 - [ ] Reordenação de exercícios (`ordem`) via drag-and-drop ou setas — hoje `ordem` só reflete sequência de criação
 
 ## Dívida técnica de código (achados da auditoria de 2026-08)

@@ -5,7 +5,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 ---
 
 ## Status geral
-**Fase atual:** Fase 7 (v2) — v1 aposentada (DEC-031), `frontend/` é o único frontend ativo. Biblioteca e Treino v2 funcionalmente prontos; Estudos v2 com as 8 telas implementadas e restilizadas, correções de modelagem de 2026-08 aplicadas.
+**Fase atual:** Fase 7 (v2) — v1 aposentada (DEC-031), `frontend/` é o único frontend ativo. Biblioteca e Treino v2 funcionalmente prontos; Estudos v2 com 9 rotas de página implementadas e restilizadas, correções de modelagem de 2026-08 aplicadas.
 **Bloqueio:** nenhum.
 **Próxima ação:** aplicar as correções de documentação e código listadas na seção "🔴 Auditoria de migração para o Codex" abaixo, começando pelo `package.json`.
 
@@ -21,10 +21,13 @@ O projeto passou por uma auditoria completa (feita pelo Codex, revisada e reconc
 - [x] `DECISIONS.md` corrigido: `014` e `015` estavam marcadas como "execução pendente" quando já estavam executadas há semanas; DEC-032 estava marcada como "código pendente" quando já foi implementada em 2026-07-19.
 - [x] `ARCHITECTURE.md` reescrito — descrevia partes da v1 (HTML puro, `window.sb`, `sm2.js`) como se fossem a arquitetura atual, e dizia "deploy do Vercel ainda não feito" (o deploy é de 2026-07-13).
 - [x] `BACKLOG.md` estava com todo o conteúdo duplicado a partir da metade do arquivo — deduplicado.
+- [x] Recontado `schema_real.sql`: são 44 tabelas em `public` (não 46), todas com RLS, policy `user_own_data` e GRANT para `authenticated`; o número 46 era erro documental propagado.
 - [ ] **Corrigir `frontend/package.json`:** remover a dependência `shadcn` (é CLI, não lib de runtime) e trocar `"name": "frontend-v2"` para `"name": "frontend"`. Depois, `rm -rf node_modules package-lock.json && npm install` para regenerar o lockfile limpo.
 - [ ] Investigar as 26 ocorrências de lint `react-hooks/set-state-in-effect` antes de corrigir em lote — pode ser estilo ou pode ser `setState` mal guardado dentro de `useEffect`. Ver `BACKLOG.md`.
-- [ ] Criar `AGENTS.md` (adaptado de `CLAUDE.md`) com os caminhos corretos confirmados nesta auditoria — `docs/` (não raiz), `backend/supabase/migrations/` (não `supabase/migrations/`), sem menção a `frontend-v2`.
-- [ ] `CLAUDE.md` na raiz deve virar um stub curto apontando pra `AGENTS.md`, não duas fontes de instrução paralelas.
+- [x] `AGENTS.md` criado com os caminhos corretos — `docs/` e `backend/supabase/migrations/` — e instruções agnósticas de ferramenta.
+- [x] `CLAUDE.md` transformado em stub curto apontando para `AGENTS.md`, que é a fonte única de instruções.
+- [ ] Validar diretamente no Supabase o inventário de `storage.buckets`: o dump atual cobre apenas `public`; o repositório não prova a contagem real de buckets em produção. Ver `DATABASE.md` → Storage.
+- [ ] Tornar a sequência histórica de migrations reproduzível em banco vazio: há adições duplicadas entre `002`/`017`/`018` e constraints repetidas entre `017`/`019`. Não alterar migrations sem uma tarefa dedicada e validação em ambiente descartável.
 - [ ] Confirmar diretamente no Supabase se `materias.user_id` deveria ganhar `ON DELETE CASCADE` (hoje é a única FK do projeto sem essa cláusula) e se vale adicionar `CHECK` em `materias.tipo` — ver `DATABASE.md` → Gotchas e `BACKLOG.md`.
 
 ---
@@ -62,16 +65,16 @@ no projeto — esta será a primeira.
 - [x] Migration 018 (matéria única, mostra_escola/mostra_enem, limpeza de dado duplicado) executada
 - [x] Migration 019 (gabarito 2 fases, domínio de conteúdo, dificuldade) executada — **reconfirmado no dump real do schema em 2026-08**
 - [x] `lib/materias.ts`, `lib/conteudos.ts`, `lib/questoes-individuais.ts`, `lib/provas.ts`, `lib/revisao.ts`, `lib/redacoes.ts` atualizados
-- [x] Páginas de Estudos atualizadas (Hub, ENEM, área ENEM nova, Escola, Curso×2, Matéria, Gabarito) — `npx tsc --noEmit` limpo
+- [x] Páginas de Estudos atualizadas (Hub, ENEM, área ENEM nova, Escola, Curso×2, Matéria, Gabarito e Redações: 9 rotas de página) — `npx tsc --noEmit` limpo
 - [ ] **Teste manual completo no navegador** — em andamento pelo usuário
-- [ ] **Teste em produção (Vercel)** — nenhuma das 8 telas de Estudos foi validada fora do `localhost` até agora (mesma pendência da seção de Cutover, acima)
+- [ ] **Teste em produção (Vercel)** — nenhuma das 9 rotas de página de Estudos foi validada fora do `localhost` até agora (mesma pendência da seção de Cutover, acima)
 - [ ] `SubjectManager`: `topics`/`accuracy` ainda fixos em 0 (pendência antiga, não tocada)
 - [ ] `materiais_estudo`, `anotacoes_estudo`, `sessoes_estudo` — schema existe e confere com o banco real (reconfirmado em 2026-08), sem página ainda
 - [ ] Vínculo de conteúdo compartilhado ainda via `window.prompt` (confirmado por inspeção do código em `app/estudos/materia/[materiaUuid]/page.tsx`, 2026-08)
 
 ## Pendências de polimento
 
-Ver `BACKLOG.md` — `confirm()` nativo (8 arquivos confirmados: Treino e Biblioteca), menu "⋯" não fecha ao clicar fora, upload de capa/banner manual, edição de itens em listas aninhadas.
+Ver `BACKLOG.md` — `confirm()` nativo (9 arquivos, 10 ocorrências, em Treino e Biblioteca), menu "⋯" não fecha ao clicar fora, upload de capa/banner manual, edição de itens em listas aninhadas.
 
 ---
 
