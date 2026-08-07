@@ -1,0 +1,313 @@
+manifest_version: 1
+captured_at: "2026-08-07"
+repository_head_at_capture: "022d1dd"
+hash_algorithm: "SHA-256"
+history_scope: "legacy migrations 001-019"
+remote_migration_history_present: false
+literal_history_recovery_closed: true
+notes:
+  - "O schema final de public é confirmado pelo snapshot, mas não prova a sequência histórica."
+  - "Todos os SQLs eram aplicados manualmente; o texto literal executado não é conhecido."
+  - "Nenhum arquivo deste manifesto é suportado para replay."
+
+migrations:
+  - id: "001"
+    name: "001_schema_inicial.sql"
+    status: "original_aparentemente_preservada"
+    relevant_commits: ["1e79504"]
+    sha256: "35567a26523cdb83e595c97dd67167a725b57008ff41f7411b018cc87b4531ce"
+    production_execution_reported: true
+    literal_sql_executed_known: false
+    final_schema_effect_confirmed: true
+    data_effect_confirmed: false
+    replay_supported: false
+    known_divergences:
+      - "Não concede grants de tabela; grants foram aplicados manualmente depois."
+      - "Provisiona apenas shape, documentos e capas; exercicios e redacoes surgiram fora deste arquivo."
+      - "Três tabelas criadas aqui foram removidas pela evolução posterior."
+    observations:
+      - "O snapshot public confirma as cinco tabelas sobreviventes e a ausência das três removidas posteriormente."
+      - "O inventário literal de Storage ainda precisa ser exportado para o snapshot datado."
+
+  - id: "002"
+    name: "002_estudos.sql"
+    status: "posteriormente_modificada"
+    relevant_commits: ["3360998", "08978e6"]
+    sha256: "b01b4077cb3ecb0c6428fb7a5cf027485f90d92f23ddee781f872725ef17e62c"
+    production_execution_reported: true
+    literal_sql_executed_known: false
+    final_schema_effect_confirmed: true
+    data_effect_confirmed: false
+    replay_supported: false
+    known_divergences:
+      - "A versão de 2026-08 adicionou area_enem, mostra_escola e mostra_enem retroativamente."
+      - "Essas colunas colidem com 017 e 018 durante replay."
+      - "O arquivo atual usa DEFAULT 'academica' para materias.tipo; produção confirma DEFAULT 'escola'."
+      - "Quatro das cinco tabelas criadas foram removidas por 015."
+    observations:
+      - "O Git comprova modificação material posterior à primeira versão conhecida."
+
+  - id: "003"
+    name: "003_biblioteca.sql"
+    status: "original_aparentemente_preservada"
+    relevant_commits: ["c4b6970", "a2d7f39"]
+    sha256: "faf8ebaec9d55dbc5a1a4147eea3c134df8e5b535c5d1b2e1a279a8ac177c836"
+    production_execution_reported: true
+    literal_sql_executed_known: false
+    final_schema_effect_confirmed: true
+    data_effect_confirmed: false
+    replay_supported: false
+    known_divergences:
+      - "Não concede grants de tabela; grants foram aplicados manualmente depois."
+      - "Tags e cinco junções *_tags foram removidas posteriormente por 007."
+    observations:
+      - "O commit a2d7f39 registra rename para acrescentar a extensão .sql, sem mudança material conhecida."
+
+  - id: "004"
+    name: "004_podcasts_itunes.sql"
+    status: "reconstruida"
+    relevant_commits: ["78c68dc"]
+    sha256: "720284bd56803f8751911c59d10b866956a68eafc238bf453a69d842d7292128"
+    production_execution_reported: true
+    literal_sql_executed_known: false
+    final_schema_effect_confirmed: true
+    data_effect_confirmed: false
+    replay_supported: false
+    known_divergences:
+      - "Criada por engenharia reversa; o SQL literal original não é conhecido."
+    observations:
+      - "O snapshot confirma itunes_id e capa_url em podcasts."
+
+  - id: "005"
+    name: "005_treino_v2.sql"
+    status: "reconstruida"
+    relevant_commits: ["78c68dc"]
+    sha256: "6a3cc416d8012e718557037656d9d802dd4f5091e1512b64062f04f1386ac08e"
+    production_execution_reported: true
+    literal_sql_executed_known: false
+    final_schema_effect_confirmed: true
+    data_effect_confirmed: false
+    replay_supported: false
+    known_divergences:
+      - "Criada por engenharia reversa; ordem e SQL literal original não são conhecidos."
+      - "Remove series_executadas, exercicios e cardio."
+    observations:
+      - "O snapshot confirma as cinco tabelas v2 e a ausência das três tabelas removidas."
+
+  - id: "006"
+    name: "006_biblioteca_v2_base.sql"
+    status: "original_aparentemente_preservada"
+    relevant_commits: ["a2d7f39"]
+    sha256: "f2b55748afe4c559d2f4b254e2c8a15fa9699ca4521c7b259447dd15f466dd28"
+    production_execution_reported: true
+    literal_sql_executed_known: false
+    final_schema_effect_confirmed: true
+    data_effect_confirmed: false
+    replay_supported: false
+    known_divergences:
+      - "Remove e recria a coluna nota em cinco tabelas, operação potencialmente destrutiva."
+    observations:
+      - "O snapshot confirma generos, as cinco junções e as colunas sobreviventes."
+
+  - id: "007"
+    name: "007_remover_tags.sql"
+    status: "reconstruida"
+    relevant_commits: ["78c68dc"]
+    sha256: "86fc08582be52c8972217ce0cafedfac4575797af124bbf324ac1a4c68872be5"
+    production_execution_reported: true
+    literal_sql_executed_known: false
+    final_schema_effect_confirmed: true
+    data_effect_confirmed: false
+    replay_supported: false
+    known_divergences:
+      - "Criada por engenharia reversa; o SQL literal original não é conhecido."
+      - "Operação integralmente destrutiva sobre tags e junções."
+    observations:
+      - "O snapshot confirma que os seis objetos não existem no estado final."
+
+  - id: "008"
+    name: "008_biblioteca_v2_b2.sql"
+    status: "original_aparentemente_preservada"
+    relevant_commits: ["a2d7f39"]
+    sha256: "3711e02684789f7a5c96de11b17cacb3f9476e22a09979309e2831eaed4aad00"
+    production_execution_reported: true
+    literal_sql_executed_known: false
+    final_schema_effect_confirmed: true
+    data_effect_confirmed: false
+    replay_supported: false
+    known_divergences:
+      - "Cria filmes.tecnologias, removida posteriormente por 010."
+    observations:
+      - "Os demais efeitos estruturais estão presentes no snapshot final."
+
+  - id: "009"
+    name: "009_biblioteca_v2_b3.sql"
+    status: "original_aparentemente_preservada"
+    relevant_commits: ["a2d7f39"]
+    sha256: "6e33eb8570da17e7285cd4b4c600dd3658c490137862f3916c281c5a1041d8bd"
+    production_execution_reported: true
+    literal_sql_executed_known: false
+    final_schema_effect_confirmed: true
+    data_effect_confirmed: false
+    replay_supported: false
+    known_divergences: []
+    observations:
+      - "As tabelas, colunas e índices finais correspondentes aparecem no snapshot."
+
+  - id: "010"
+    name: "010_remover_tecnologias_filmes.sql"
+    status: "reconstruida"
+    relevant_commits: ["78c68dc"]
+    sha256: "22499634a8a57347f0f829d8484a282c3844c1b56726cce4496a2597660578a1"
+    production_execution_reported: true
+    literal_sql_executed_known: false
+    final_schema_effect_confirmed: true
+    data_effect_confirmed: false
+    replay_supported: false
+    known_divergences:
+      - "Criada por engenharia reversa; o SQL literal original não é conhecido."
+      - "Remove uma coluna e qualquer dado que ela contivesse."
+    observations:
+      - "O snapshot confirma que filmes.tecnologias não existe."
+
+  - id: "011"
+    name: "011_biblioteca_v2_b4_mangas.sql"
+    status: "original_aparentemente_preservada"
+    relevant_commits: ["aad75e9"]
+    sha256: "e4e0b4071059d7834f6bf2e4c296c3ceeb73edb41603f943c923655913c3ed49"
+    production_execution_reported: true
+    literal_sql_executed_known: false
+    final_schema_effect_confirmed: true
+    data_effect_confirmed: false
+    replay_supported: false
+    known_divergences: []
+    observations:
+      - "O snapshot confirma as colunas de mangas e a tabela mangas_volumes."
+
+  - id: "012"
+    name: "012_biblioteca_v2_b5_livros.sql"
+    status: "original_aparentemente_preservada"
+    relevant_commits: ["aad75e9"]
+    sha256: "4ccf8a61f4b887e9df259f8c347992204a226b0f41fe2901763aa68cc58263b1"
+    production_execution_reported: true
+    literal_sql_executed_known: false
+    final_schema_effect_confirmed: true
+    data_effect_confirmed: false
+    replay_supported: false
+    known_divergences: []
+    observations:
+      - "O snapshot confirma as colunas de livros e a tabela livros_anotacoes."
+
+  - id: "013"
+    name: "013_biblioteca_v2_b6_podcasts.sql"
+    status: "original_aparentemente_preservada"
+    relevant_commits: ["aad75e9"]
+    sha256: "1fbd3fe3b1d7db64746dcedeeeec6d9b27fe6e6902868ad2e95a04411379d21d"
+    production_execution_reported: true
+    literal_sql_executed_known: false
+    final_schema_effect_confirmed: true
+    data_effect_confirmed: false
+    replay_supported: false
+    known_divergences: []
+    observations:
+      - "O snapshot confirma podcasts.produtora."
+
+  - id: "014"
+    name: "014_nota_escala_dez.sql"
+    status: "reconstruida"
+    relevant_commits: ["78c68dc"]
+    sha256: "66c9925664ff936b3d4ac4e919b7b2a9a6edf886d628358e8f0afb3a0fa04633"
+    production_execution_reported: true
+    literal_sql_executed_known: false
+    final_schema_effect_confirmed: true
+    data_effect_confirmed: false
+    replay_supported: false
+    known_divergences:
+      - "Criada por engenharia reversa; o SQL literal original não é conhecido."
+    observations:
+      - "O snapshot confirma NUMERIC(3,1) e checks 0-10 nas seis tabelas."
+
+  - id: "015"
+    name: "015_estudos_v2.sql"
+    status: "corrigida_reconstruida"
+    relevant_commits: ["e484344", "08978e6", "78c68dc"]
+    sha256: "404408f549cf138a4326bc8980defc488c62ede7b833cc8f6f76f3f9a107e90e"
+    production_execution_reported: true
+    literal_sql_executed_known: false
+    final_schema_effect_confirmed: true
+    data_effect_confirmed: false
+    replay_supported: false
+    known_divergences:
+      - "O arquivo atual foi refeito em 2026-08 após corrupção estrutural da cópia local."
+      - "Não há evidência de qual versão foi executada no SQL Editor."
+      - "Remove quatro tabelas da versão anterior de Estudos."
+    observations:
+      - "O Git preserva versões anteriores, mas isso não prova o texto executado."
+
+  - id: "016"
+    name: "016_estudos_v2_fase1b.sql"
+    status: "corrigida_reconstruida"
+    relevant_commits: ["e484344", "08978e6", "78c68dc"]
+    sha256: "a757635336b119b9b2071bf124d372a20813e0bcd6eacf60d280b9b90b7bfc00"
+    production_execution_reported: true
+    literal_sql_executed_known: false
+    final_schema_effect_confirmed: true
+    data_effect_confirmed: false
+    replay_supported: false
+    known_divergences:
+      - "O arquivo atual foi refeito em 2026-08 após corrupção estrutural da cópia local."
+      - "O INSERT de preservação em conteudos_materias foi decisão da reconstrução, sem evidência histórica."
+      - "Não há evidência de qual versão foi executada no SQL Editor."
+    observations:
+      - "O snapshot confirma o estado estrutural final, não a migração dos vínculos existentes."
+
+  - id: "017"
+    name: "017_estudos_gabarito_enem_redacao.sql"
+    status: "original_aparentemente_preservada"
+    relevant_commits: ["08978e6"]
+    sha256: "02614a23dbd4d20d67e6e80bd62adf14ee1b9632e64505779e4cc8162ff9f7c7"
+    production_execution_reported: true
+    literal_sql_executed_known: false
+    final_schema_effect_confirmed: true
+    data_effect_confirmed: false
+    replay_supported: false
+    known_divergences:
+      - "area_enem já está presente na versão atual de 002."
+      - "As constraints de letras são repetidas pela 019 reconstruída."
+      - "A criação do bucket redacoes é apenas instrução manual, não SQL executável."
+    observations:
+      - "Não se sabe se 017-019 foram executadas exatamente como os arquivos atuais."
+
+  - id: "018"
+    name: "018_materias_unicas_escola_enem.sql"
+    status: "original_aparentemente_preservada"
+    relevant_commits: ["08978e6"]
+    sha256: "62e1bab29a557fc4e1916b709fddffec1efb7eec86af76ec6d579b704b3e1a83"
+    production_execution_reported: true
+    literal_sql_executed_known: false
+    final_schema_effect_confirmed: true
+    data_effect_confirmed: false
+    replay_supported: false
+    known_divergences:
+      - "mostra_escola e mostra_enem já estão presentes na versão atual de 002."
+      - "Executa DELETE de matérias antigas; o efeito sobre dados não é verificável pelo snapshot."
+      - "Não altera o default de materias.tipo, que permanece 'escola' em produção."
+    observations:
+      - "Não se sabe se 017-019 foram executadas exatamente como os arquivos atuais."
+
+  - id: "019"
+    name: "019_gabarito_dominio_dificuldade.sql"
+    status: "reconstruida"
+    relevant_commits: ["78c68dc"]
+    sha256: "bf4e662e760aba59bbd56bec3ce6423ddc79cdbbe6627410042c13e6857fb510"
+    production_execution_reported: true
+    literal_sql_executed_known: false
+    final_schema_effect_confirmed: true
+    data_effect_confirmed: false
+    replay_supported: false
+    known_divergences:
+      - "Criada por engenharia reversa; o SQL literal original não é conhecido."
+      - "Repete duas constraints já criadas por 017."
+      - "Repete ALTER acertou DROP NOT NULL, operação legítima mas historicamente não atribuível."
+    observations:
+      - "O snapshot confirma o estado final de questoes_individuais e conteudos."
