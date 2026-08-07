@@ -1,0 +1,252 @@
+{
+  "buckets": [
+    {
+      "id": "capas",
+      "name": "capas",
+      "type": "STANDARD",
+      "public": false,
+      "created_at": "2026-06-28T01:52:14.495141+00:00",
+      "updated_at": "2026-06-28T01:52:14.495141+00:00",
+      "file_size_limit": 3145728,
+      "allowed_mime_types": null,
+      "avif_autodetection": false
+    },
+    {
+      "id": "documentos",
+      "name": "documentos",
+      "type": "STANDARD",
+      "public": false,
+      "created_at": "2026-06-27T04:59:25.819942+00:00",
+      "updated_at": "2026-06-27T04:59:25.819942+00:00",
+      "file_size_limit": 52428800,
+      "allowed_mime_types": [
+        "application/pdf",
+        "application/epub+zip",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/vnd.ms-powerpoint",
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        "text/plain",
+        "application/json"
+      ],
+      "avif_autodetection": false
+    },
+    {
+      "id": "exercicios",
+      "name": "exercicios",
+      "type": "STANDARD",
+      "public": false,
+      "created_at": "2026-07-15T04:44:16.406282+00:00",
+      "updated_at": "2026-07-15T04:44:16.406282+00:00",
+      "file_size_limit": 5242880,
+      "allowed_mime_types": [
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "image/gif"
+      ],
+      "avif_autodetection": false
+    },
+    {
+      "id": "redacoes",
+      "name": "redacoes",
+      "type": "STANDARD",
+      "public": false,
+      "created_at": "2026-08-02T11:50:09.873807+00:00",
+      "updated_at": "2026-08-02T11:50:09.873807+00:00",
+      "file_size_limit": 10485760,
+      "allowed_mime_types": null,
+      "avif_autodetection": false
+    },
+    {
+      "id": "shape",
+      "name": "shape",
+      "type": "STANDARD",
+      "public": false,
+      "created_at": "2026-06-28T01:53:35.716113+00:00",
+      "updated_at": "2026-06-28T01:53:35.716113+00:00",
+      "file_size_limit": 10485760,
+      "allowed_mime_types": [
+        "image/jpeg",
+        "image/png",
+        "image/webp"
+      ],
+      "avif_autodetection": false
+    }
+  ],
+  "policies": [
+    {
+      "name": "capas_delete",
+      "roles": [
+        "authenticated"
+      ],
+      "table": "objects",
+      "using": "((bucket_id = 'capas'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))",
+      "schema": "storage",
+      "command": "DELETE",
+      "permissive": "PERMISSIVE",
+      "with_check": null
+    },
+    {
+      "name": "capas_insert",
+      "roles": [
+        "authenticated"
+      ],
+      "table": "objects",
+      "using": null,
+      "schema": "storage",
+      "command": "INSERT",
+      "permissive": "PERMISSIVE",
+      "with_check": "((bucket_id = 'capas'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))"
+    },
+    {
+      "name": "capas_select",
+      "roles": [
+        "authenticated"
+      ],
+      "table": "objects",
+      "using": "((bucket_id = 'capas'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))",
+      "schema": "storage",
+      "command": "SELECT",
+      "permissive": "PERMISSIVE",
+      "with_check": null
+    },
+    {
+      "name": "capas_update",
+      "roles": [
+        "authenticated"
+      ],
+      "table": "objects",
+      "using": "((bucket_id = 'capas'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))",
+      "schema": "storage",
+      "command": "UPDATE",
+      "permissive": "PERMISSIVE",
+      "with_check": null
+    },
+    {
+      "name": "docs_delete",
+      "roles": [
+        "authenticated"
+      ],
+      "table": "objects",
+      "using": "((bucket_id = 'documentos'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))",
+      "schema": "storage",
+      "command": "DELETE",
+      "permissive": "PERMISSIVE",
+      "with_check": null
+    },
+    {
+      "name": "docs_insert",
+      "roles": [
+        "authenticated"
+      ],
+      "table": "objects",
+      "using": null,
+      "schema": "storage",
+      "command": "INSERT",
+      "permissive": "PERMISSIVE",
+      "with_check": "((bucket_id = 'documentos'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))"
+    },
+    {
+      "name": "docs_select",
+      "roles": [
+        "authenticated"
+      ],
+      "table": "objects",
+      "using": "((bucket_id = 'documentos'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))",
+      "schema": "storage",
+      "command": "SELECT",
+      "permissive": "PERMISSIVE",
+      "with_check": null
+    },
+    {
+      "name": "docs_update",
+      "roles": [
+        "authenticated"
+      ],
+      "table": "objects",
+      "using": "((bucket_id = 'documentos'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))",
+      "schema": "storage",
+      "command": "UPDATE",
+      "permissive": "PERMISSIVE",
+      "with_check": null
+    },
+    {
+      "name": "redacoes_isolamento_usuario",
+      "roles": [
+        "public"
+      ],
+      "table": "objects",
+      "using": "((bucket_id = 'redacoes'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))",
+      "schema": "storage",
+      "command": "ALL",
+      "permissive": "PERMISSIVE",
+      "with_check": "((bucket_id = 'redacoes'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))"
+    },
+    {
+      "name": "shape_delete",
+      "roles": [
+        "authenticated"
+      ],
+      "table": "objects",
+      "using": "((bucket_id = 'shape'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))",
+      "schema": "storage",
+      "command": "DELETE",
+      "permissive": "PERMISSIVE",
+      "with_check": null
+    },
+    {
+      "name": "shape_insert",
+      "roles": [
+        "authenticated"
+      ],
+      "table": "objects",
+      "using": null,
+      "schema": "storage",
+      "command": "INSERT",
+      "permissive": "PERMISSIVE",
+      "with_check": "((bucket_id = 'shape'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))"
+    },
+    {
+      "name": "shape_select",
+      "roles": [
+        "authenticated"
+      ],
+      "table": "objects",
+      "using": "((bucket_id = 'shape'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))",
+      "schema": "storage",
+      "command": "SELECT",
+      "permissive": "PERMISSIVE",
+      "with_check": null
+    },
+    {
+      "name": "shape_update",
+      "roles": [
+        "authenticated"
+      ],
+      "table": "objects",
+      "using": "((bucket_id = 'shape'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))",
+      "schema": "storage",
+      "command": "UPDATE",
+      "permissive": "PERMISSIVE",
+      "with_check": null
+    },
+    {
+      "name": "user_own_files_exercicios",
+      "roles": [
+        "public"
+      ],
+      "table": "objects",
+      "using": "((bucket_id = 'exercicios'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))",
+      "schema": "storage",
+      "command": "ALL",
+      "permissive": "PERMISSIVE",
+      "with_check": null
+    }
+  ],
+  "captured_at": "2026-08-07T22:28:28.899688+00:00",
+  "bucket_count": 5,
+  "policy_count": 14
+}

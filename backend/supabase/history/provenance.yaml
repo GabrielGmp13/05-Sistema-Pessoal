@@ -25,6 +25,8 @@ migrations:
       - "Não concede grants de tabela; grants foram aplicados manualmente depois."
       - "Provisiona apenas shape, documentos e capas; exercicios e redacoes surgiram fora deste arquivo."
       - "Três tabelas criadas aqui foram removidas pela evolução posterior."
+      - "O remoto atual diverge da configuração literal de capas: 3 MiB e MIME types livres, contra 2 MiB e JPEG/PNG/WebP no arquivo."
+      - "O remoto atual ampliou documentos de apenas PDF para dez MIME types."
     observations:
       - "O snapshot public confirma as cinco tabelas sobreviventes e a ausência das três removidas posteriormente."
       - "O inventário literal de Storage ainda precisa ser exportado para o snapshot datado."
@@ -275,6 +277,7 @@ migrations:
       - "area_enem já está presente na versão atual de 002."
       - "As constraints de letras são repetidas pela 019 reconstruída."
       - "A criação do bucket redacoes é apenas instrução manual, não SQL executável."
+      - "O bucket remoto redacoes tem allowed_mime_types nulo, enquanto o comentário sugeria JPEG/PNG/WebP."
     observations:
       - "Não se sabe se 017-019 foram executadas exatamente como os arquivos atuais."
 

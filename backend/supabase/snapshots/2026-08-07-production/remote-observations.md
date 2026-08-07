@@ -1,8 +1,8 @@
 # Observações remotas já confirmadas
 
-Este arquivo transcreve resultados informados após consultas manuais somente
-leitura no Supabase de produção. Ele não substitui a exportação literal dos
-grids solicitados em `capture_queries.sql`.
+Este arquivo transcreve resultados informados antes da captura crítica literal.
+Os resultados canônicos posteriores estão em `critical_storage_metadata.json`
+e `critical_public_security_metadata.json`.
 
 ## Histórico de migrations
 
@@ -22,8 +22,8 @@ Foram encontrados exatamente cinco buckets, todos privados:
 | `exercicios` | 5 MB | 2026-07-15 |
 | `redacoes` | 10 MB | 2026-08-02 |
 
-Os valores literais em bytes, MIME types e demais colunas ainda precisam ser
-exportados. Os números acima não devem ser convertidos em SQL por inferência.
+Os valores literais em bytes, MIME types e demais colunas foram posteriormente
+capturados em `critical_storage_metadata.json`.
 
 ## Policies de `storage.objects`
 
@@ -39,8 +39,9 @@ exportados. Os números acima não devem ser convertidos em SQL por inferência.
   `USING` restringindo bucket e primeira pasta; `WITH CHECK` apareceu como
   `NULL` em `pg_policies`.
 
-As expressões literais ainda precisam ser exportadas. Nenhuma conclusão de
-hardening é aplicada neste snapshot.
+As expressões literais foram posteriormente capturadas em
+`critical_storage_metadata.json`. Nenhuma conclusão de hardening é aplicada
+neste snapshot.
 
 ## Função e event trigger customizados
 
@@ -52,8 +53,8 @@ hardening é aplicada neste snapshot.
 - Tags: `CREATE TABLE`, `CREATE TABLE AS`, `SELECT INTO`.
 - Função chamada: `public.rls_auto_enable()`.
 
-Definição literal, owner, ACL e `proconfig`/`search_path` ainda precisam ser
-exportados.
+Definição literal, owner, ACL e `proconfig`/`search_path` foram posteriormente
+capturados em `critical_public_security_metadata.json`.
 
 ## Event triggers de plataforma observados
 

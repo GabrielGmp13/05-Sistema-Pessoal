@@ -13,10 +13,29 @@
 - `public_schema.sql`: preservação byte a byte do `schema_real.sql` que estava
   na raiz do repositório.
 - `capture_queries.sql`: consultas somente leitura para completar a captura.
+- `critical_capture_queries.sql`: captura mínima obrigatória, consolidada em
+  apenas dois resultados JSON; executada manualmente em 2026-08-07.
+- `critical_storage_metadata.json`: resultado literal validado da captura de
+  buckets e policies de Storage.
+- `critical_public_security_metadata.json`: resultado literal validado da
+  captura da função, event trigger e objetos residuais de `public`.
+- `capture-notes.md`: método, validações, divergências e limitações da captura.
 - `remote-observations.md`: transcrição dos resultados remotos já informados;
-  não substitui os grids literais pendentes.
+  preservada como registro anterior à captura literal.
 
-## Resultados que ainda devem ser exportados manualmente
+## Captura mínima concluída
+
+Os dois blocos de `critical_capture_queries.sql` foram executados e preservados
+como:
+
+- `critical_storage_metadata.json`;
+- `critical_public_security_metadata.json`.
+
+Os resultados foram validados estruturalmente e confrontados com o dump e o
+acervo histórico. A captura ampla abaixo permanece opcional e não é necessária
+para gerar a baseline.
+
+## Captura ampla opcional
 
 Ao executar cada bloco de `capture_queries.sql`, exportar o resultado para:
 
@@ -48,12 +67,11 @@ Os arquivos só devem ser adicionados ao repositório depois de revisão para
 remover identificadores ou metadados sensíveis. Não exportar resultados de
 consultas diferentes para o mesmo arquivo.
 
-## Limitações atuais
+## Limitações
 
 O dump `public_schema.sql` não contém o schema `storage`, os registros de
-`storage.buckets` nem event triggers. Os resultados resumidos dessas consultas
-foram informados durante a auditoria, mas a saída literal ainda precisa ser
-capturada para gerar uma baseline sem inferências.
+`storage.buckets` nem event triggers. Essas lacunas são complementadas pelos
+dois JSONs críticos; consultar `capture-notes.md` para o escopo exato.
 
 SHA-256 de `public_schema.sql` no momento da preservação:
 `a5b71dfde138b0da61d69afe0ff754b27d2145d13d4337503708a69bcf1e7d2d`.
