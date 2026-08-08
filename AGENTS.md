@@ -41,7 +41,7 @@ Stack real (não inventar/assumir outra):
 │   └── supabase/
 │       ├── config.toml            ← configuração exclusivamente local do CLI
 │       ├── history/               ← migrations 001–019 arquivadas; não reproduzíveis
-│       ├── migrations/*.sql       ← baseline operacional; NÃO é código de servidor
+│       ├── migrations/*.sql       ← cadeia operacional ativa do Supabase CLI
 │       └── snapshots/             ← evidência forense; não executar como migration
 └── frontend/                       ← único frontend ativo
 ```
@@ -52,12 +52,16 @@ infraestrutura SQL, snapshots e ferramentas locais do Supabase, sem código de
 aplicação — não é um servidor. O `package.json` de `backend/` existe apenas
 para fixar a versão da CLI e não transforma o projeto em monorepo de aplicações.
 
-Existe Supabase CLI configurado em `backend/` **somente para desenvolvimento e
-replay local**. A produção não está vinculada ao CLI; não usar `supabase link`,
-`--linked`, `db push`, `migration repair` ou comandos remotos sem uma etapa
-específica, evidência nova e autorização explícita. A baseline foi validada
-com dois resets locais completos e testes estruturais/comportamentais em
-2026-08-07; ver `docs/TASKS_NOW.md` e `backend/supabase/tests/`.
+Existe Supabase CLI `2.112.0` configurado em `backend/`. As três migrations
+timestamped de `backend/supabase/migrations/` formam o início oficial da cadeia
+ativa; foram validadas por dois resets locais completos e registradas como
+`applied` em produção em 2026-08-08, sem executar novamente seus SQLs. A
+produção não está vinculada ao CLI. Enquanto `supabase link` permanecer
+incompatível com a Management API, operações remotas excepcionalmente
+autorizadas usam `--db-url` com variável de ambiente — nunca credencial em
+arquivo, argumento documentado ou Git. Não usar `--linked`, `db push`,
+`migration repair` ou outro comando remoto sem precheck, dry-run quando
+aplicável e autorização explícita. Ver `backend/supabase/README.md`.
 
 ## Regras inegociáveis
 
@@ -71,6 +75,8 @@ com dois resets locais completos e testes estruturais/comportamentais em
 8. **`npx tsc --noEmit` deve rodar de dentro de `frontend/`**, não da raiz do projeto (a raiz invoca um `tsc` standalone depreciado).
 9. **Nenhuma alteração é commitada diretamente por um agente.** Geração de código é entregue como arquivo completo (criação nova) ou diff old→new (alteração), para o usuário aplicar manualmente.
 10. **O banco de produção é a fonte da verdade, não o `.sql` local**, sempre que houver dúvida. Já aconteceu de arquivos de migration locais divergirem do que realmente rodou no Supabase (ver `docs/DATABASE.md`, seção "Migrações", nota de 2026-08) — em caso de dúvida real sobre schema, o caminho seguro é pedir um novo `supabase db dump` em vez de confiar cegamente no `.sql` do repositório.
+11. **Nunca editar uma baseline já aplicada.** Toda alteração futura de banco deve ser uma nova migration timestamped incremental, testada com `db reset --local --no-seed`, testes relevantes, revisão do SQL e `db push --dry-run` antes de qualquer autorização remota.
+12. **Acervo e snapshots não são migrations.** Nunca executar arquivos de `history/legacy-migrations/` ou `snapshots/`; somente `backend/supabase/migrations/` é cadeia operacional.
 
 ## Ao terminar qualquer tarefa
 

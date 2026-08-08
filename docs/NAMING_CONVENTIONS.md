@@ -58,7 +58,11 @@ Sempre conferir contra `DATABASE.md` antes de escrever uma query — ver os gotc
 
 ## Migrações SQL
 
-`00N_nome-do-modulo.sql`, numeração sequencial de 3 dígitos: `001_schema_inicial.sql`, `002_estudos.sql`, `003_biblioteca.sql` — todas em `backend/supabase/migrations/`, não `supabase/migrations/`. Ver `DATABASE.md` para a lista completa e status de cada uma.
+Timestamp UTC de 14 dígitos + descrição em `snake_case`, por exemplo
+`20260808093000_ajuste_materias.sql`. A cadeia ativa fica em
+`backend/supabase/migrations/`; os arquivos `001`–`019` são acervo em
+`backend/supabase/history/legacy-migrations/` e não podem ser reutilizados.
+Nunca editar migration já aplicada.
 
 ## Módulos/Fases no roadmap
 

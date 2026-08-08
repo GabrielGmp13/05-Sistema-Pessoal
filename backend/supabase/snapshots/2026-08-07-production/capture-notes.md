@@ -107,8 +107,9 @@ identidade pessoal.
   objeto que entrará na baseline do projeto.
 - Extensões continuam responsabilidade da plataforma e não foram recapturadas
   com versão/owner porque esses dados não são necessários à baseline.
-- A equivalência operacional ainda precisará ser comprovada por replay local em
-  etapa posterior; nenhum CLI foi inicializado nesta captura.
+- Na data desta captura, a equivalência operacional ainda não havia sido
+  comprovada e nenhum CLI havia sido inicializado. Depois, dois replays locais
+  completos confirmaram equivalência com produção.
 
 ## Suficiência para baseline
 
@@ -116,5 +117,7 @@ identidade pessoal.
 - `baseline_rls_guard.sql`: evidência suficiente.
 - `baseline_storage.sql`: evidência suficiente.
 
-Esta conclusão autoriza somente a futura geração dos arquivos. Não autoriza
-execução local, alinhamento remoto ou mudança de segurança.
+Naquele momento, esta conclusão autorizava somente a geração futura dos
+arquivos. Posteriormente, as baselines foram geradas, validadas localmente e
+adotadas no histórico de produção em 2026-08-08 sem reexecução de SQL. A
+captura continua sem autorizar mudança de segurança por si só.

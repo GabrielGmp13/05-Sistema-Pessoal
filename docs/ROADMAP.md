@@ -89,6 +89,19 @@ A página havia sido gerada assumindo colunas (`frente`, `verso`, `intervalo`, `
 | Google Books, Jikan, iTunes Search | Metadados livros/mangás/podcasts | Fetch direto no client (sem key) |
 | Notificações push | Lembretes de treino e revisão | Service Worker Push API |
 
+## Infraestrutura do banco — cadeia CLI ✅ CONSOLIDADA
+
+Em 2026-08-08, a arqueologia `001`–`019`, o snapshot forense, as três
+baselines, dois replays locais, o ensaio remoto descartável e a adoção do
+histórico em produção foram concluídos. `backend/supabase/migrations/` é a
+cadeia ativa; `history/legacy-migrations/` é somente acervo; `snapshots/` é
+somente evidência. Produção registra as três baselines como `applied`, sem
+reexecução de SQL, e o dry-run final não encontrou migrations pendentes.
+
+Próximo marco técnico antes de novas features: reprodutibilidade do frontend
+(`package.json`, lockfile, `npm ci`, typecheck, build e lint), conforme
+`TASKS_NOW.md`.
+
 ## Fase 7 — v2: Migração para Next.js/React 🔄 EM ANDAMENTO
 
 **Objetivo:** migrar o frontend de HTML puro para Next.js/React (DEC-018), de

@@ -27,7 +27,7 @@ Vercel — frontend/                  Supabase                Supabase
 **Status de implementação real (2026-08):**
 - Schema PostgreSQL ✅ executado — 44 tabelas em `public` confirmadas via dump real do banco (ver `DATABASE.md`).
 - Auth ✅ funcionando (email + senha).
-- Storage ⚠️ o dump atual cobre `public`, não o inventário de `storage.buckets`. O repositório provisiona `shape`, `documentos` e `capas` em `001_schema_inicial.sql`; `017` instrui criar `redacoes` manualmente e o frontend contém sua integração; não há criação/policy versionada para `exercicios`. Ver a seção abaixo e `DATABASE.md`.
+- Storage ✅ cinco buckets privados e 14 policies confirmados por captura direta de produção em 2026-08-07 e reproduzidos pela baseline ativa. Ver a seção abaixo, `DATABASE.md` e `backend/supabase/snapshots/`.
 - Deploy no Vercel ✅ feito (`frontend/` como Root Directory) desde 2026-07-13.
 - Realtime 🔄 não implementado.
 - Service Worker 🔄 não implementado.
@@ -57,13 +57,13 @@ Banco de dados relacional. Schema completo executado e confirmado via dump real 
 
 | Bucket | Conteúdo | Limite | Tipos aceitos | Evidência atual no repositório |
 |---|---|---|---|---|
-| `shape` | Fotos de shape | 10MB | JPEG, PNG, WebP | Provisionamento e policies em `001`; uso no frontend confirmado |
-| `documentos` | PDFs de provas, apostilas, documentos pessoais | 50MB | PDF | Provisionamento e policies em `001`; sem UI de upload atual |
-| `capas` | Capas de obras da Biblioteca sem cobertura de API | 2MB | JPEG, PNG, WebP | Provisionamento e policies em `001`; sem UI de upload atual |
-| `exercicios` | Imagens/GIFs demonstrativos de exercícios (força e cardio) | Não definido em migration | Não definido em migration | Nome planejado, mas sem criação/policy versionada e sem UI |
-| `redacoes` | Foto da folha manuscrita de redação (ENEM/Escola) | 10MB sugeridos em `017` | JPEG, PNG, WebP | Criação manual instruída em `017`; integração presente em `lib/redacoes.ts` |
+| `shape` | Fotos de shape | 10 MiB | JPEG, PNG, WebP | Confirmado no snapshot e reproduzido pela baseline |
+| `documentos` | Provas, apostilas e documentos | 50 MiB | 10 MIME types documentados no snapshot | Confirmado no snapshot e reproduzido pela baseline |
+| `capas` | Capas de obras da Biblioteca | 3 MiB | sem restrição MIME no estado capturado | Confirmado no snapshot e reproduzido pela baseline |
+| `exercicios` | Imagens/GIFs de exercícios | 5 MiB | 4 MIME types de imagem | Confirmado no snapshot; origem histórica era configuração manual |
+| `redacoes` | Foto da folha manuscrita | 10 MiB | sem restrição MIME no estado capturado | Confirmado no snapshot; origem histórica era configuração manual |
 
-Convenção de path obrigatória: `{user_id}/nome-do-arquivo.ext`. As policies versionadas em `001` e a policy instruída em `017` usam `(storage.foldername(name))[1] = auth.uid()::text` para isolar o acesso. O inventário e as policies efetivamente presentes em produção exigem consulta direta ao Supabase.
+Convenção de path obrigatória: `{user_id}/nome-do-arquivo.ext`. Produção possui 14 policies de `storage.objects`: 12 policies separadas de CRUD para `shape`, `documentos` e `capas`, além das policies atuais de `redacoes` e `exercicios`. As definições literais estão em `critical_storage_metadata.json`; eventuais hardenings devem ser migrations futuras separadas, nunca edição retroativa da baseline.
 
 ### Supabase Realtime
 - Subscrições a `postgres_changes` por tabela
@@ -85,7 +85,18 @@ Ver DEC-011 em `DECISIONS.md` para o raciocínio completo. Resumo prático: cat�
 
 ## Frontend (Next.js / React — DEC-018)
 
-Pasta única do frontend: `frontend/` (renomeada de `frontend-v2/` em 2026-07-19, DEC-031). **Não existe pasta `backend/` com código de aplicação** — existe, sim, uma pasta `backend/supabase/migrations/` na raiz do repositório, contendo só os arquivos `.sql` das migrations (não é um servidor, é apenas onde as migrations ficam versionadas). Qualquer menção anterior a `supabase/migrations/` (sem o prefixo `backend/`) está desatualizada — o caminho real é `backend/supabase/migrations/`.
+Pasta única do frontend: `frontend/` (renomeada de `frontend-v2/` em 2026-07-19, DEC-031). **Não existe pasta `backend/` com código de aplicação** — a pasta atual contém somente ferramentas e infraestrutura SQL. Em `backend/supabase/`, `migrations/` é a cadeia ativa, `history/legacy-migrations/` é acervo não reproduzível e `snapshots/` é evidência diagnóstica. Nenhum arquivo de history/snapshot deve ser executado como migration.
+
+### Histórico operacional do banco
+
+As três baselines timestamped de `backend/supabase/migrations/` são o ponto
+inicial oficial do histórico CLI. Foram reproduzidas localmente duas vezes e
+registradas como `applied` em produção em 2026-08-08 sem reexecutar seus SQLs.
+O `db push --dry-run` posterior confirmou nenhuma migration pendente. Mudanças
+futuras são exclusivamente migrations incrementais novas; baseline aplicada é
+imutável. A produção não possui link persistido e operações remotas autorizadas
+podem usar `--db-url` enquanto a CLI 2.112.0 permanecer incompatível com a API
+de link, sempre sem registrar credenciais.
 
 ### Layout por módulo com sidebar interna (DEC-032)
 Módulos com navegação por categoria (Biblioteca; possivelmente Treino/Estudos

@@ -74,10 +74,10 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 - [ ] Revisar `NAMING_CONVENTIONS.md` de classes CSS — hoje há mistura de prefixo por página (`.rev-`, `.cal-`, `.ex-`) com nomes genéricos (`.btn-sm`, `.toast`); avaliar se vale padronizar
 - [ ] Auditoria completa do CSS contra `DESIGN.md` para confirmar que todas as classes documentadas realmente existem
 - [ ] `frontend/README.md` ainda é o boilerplate padrão do Create Next App (menciona Geist/`next/font`, mas o projeto usa Syne e JetBrains Mono self-hosted) — reescrever com setup real do projeto
-- [ ] `estrutura.txt` na raiz é um dump de terminal desatualizado (ainda aponta pra `frontend-v2`, `middleware.ts`, árvore sem Estudos) — artefato de diagnóstico pontual, não documentação sustentável; remover ou substituir por algo gerado sob demanda
+- [x] `estrutura.txt` substituído em 2026-08-08 por um mapa conciso da estrutura atual; não incluir novamente dumps de `.next`/`node_modules`.
 - [ ] SVGs padrão do Create Next App (`file.svg`, `globe.svg`, `next.svg`, `vercel.svg`, `window.svg`) sem nenhuma referência no código — limpar
 - [ ] `frontend/app/page.module.css` não é importado pela página atual — órfão, confirmar e remover
-- [ ] Rodar `supabase db dump` periodicamente e comparar contra `backend/supabase/migrations/*.sql` locais — evita que a divergência banco-real vs. arquivo-local (corrigida em 2026-08, ver `DATABASE.md`) se repita silenciosamente
+- [ ] Recapturar snapshots de produção periodicamente e comparar com a cadeia ativa em `backend/supabase/migrations/` — nunca usar o acervo `history/legacy-migrations/` como referência operacional.
 
 ## Biblioteca
 
@@ -99,7 +99,7 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 
 - [ ] Substituir `confirm()` nativo do navegador por modal de confirmação (padrão `.open`) ao apagar treino — confirmado em `app/treino/[moduloUuid]/page.tsx` e `app/treino/[moduloUuid]/[treinoUuid]/page.tsx` — inconsistência com `DESIGN.md` introduzida na geração inicial das páginas v2, adiada por decisão explícita (2026-07-16)
 - [ ] Gráfico de evolução de peso em `app/treino/shape/page.tsx` — decisão de dependência ainda não tomada para v2 (Chart.js não está no `package.json` atual — se retomado, escolher biblioteca do zero, não assumir Chart.js como já decidido)
-- [ ] Upload de imagem/GIF de exercício (`imagem_path`) — CRUD ficou só textual; o nome de bucket `exercicios` aparece no planejamento, mas não há criação nem policy versionada para ele. Confirmar o inventário real do Storage antes de implementar
+- [ ] Upload de imagem/GIF de exercício (`imagem_path`) — CRUD ficou só textual; o bucket privado `exercicios` e sua policy existem e estão na baseline, mas a policy atual tem `WITH CHECK = NULL`. Qualquer hardening deve vir em migration separada antes/ junto da UI, nunca por edição da baseline.
 - [ ] Reordenação de exercícios (`ordem`) via drag-and-drop ou setas — hoje `ordem` só reflete sequência de criação
 
 ## Dívida técnica de código (achados da auditoria de 2026-08)

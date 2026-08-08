@@ -7,48 +7,49 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 ## Status geral
 **Fase atual:** Fase 7 (v2) — v1 aposentada (DEC-031), `frontend/` é o único frontend ativo. Biblioteca e Treino v2 funcionalmente prontos; Estudos v2 com 9 rotas de página implementadas e restilizadas, correções de modelagem de 2026-08 aplicadas.
 **Bloqueio:** nenhum.
-**Próxima ação:** revisar o ensaio remoto descartável de adoção do histórico e, somente com autorização específica, planejar o procedimento equivalente para produção; produção continua sem link no CLI.
+**Banco:** cadeia ativa consolidada; as três baselines estão registradas como `applied` em produção e o dry-run final não encontrou pendências.
+**Próxima ação:** validar a reprodutibilidade do frontend/repositório, sem mudança funcional.
 
 ---
 
-## 🔴 Auditoria de migração para o Codex (2026-08) — em andamento
+## 🔴 Próximo bloco técnico — reprodutibilidade do frontend/repositório
 
-O projeto passou por uma auditoria completa (feita pelo Codex, revisada e reconciliada com o Claude) para preparar a transição de desenvolvimento assistido por IA de chat para Codex/`AGENTS.md`. Achados principais e o que já foi resolvido nesta sessão de documentação:
+Não resolver junto com features. Executar como uma etapa própria, preservando
+o comportamento atual:
 
-- [x] Extraído dump real do schema de produção (`schema_real.sql`, via Supabase CLI) e reconciliado contra `DATABASE.md` — duas tabelas estavam documentadas de forma desatualizada (`conteudos`, `questoes_individuais`); corrigidas.
-- [x] Confirmado que as migrations `004`, `005`, `007`, `010`, `014`, `019` nunca foram copiadas para o VS Code (falha de cópia manual, não perda de dado) — todas estavam executadas no Supabase. Arquivos `.sql` reconstruídos e adicionados a `backend/supabase/migrations/`.
-- [x] Confirmado que `015_estudos_v2.sql` e `016_estudos_v2_fase1b.sql` locais estavam com conteúdo corrompido (referências circulares entre tabelas) — o banco de produção nunca teve esse problema, só a cópia no repositório. Ambos os arquivos foram reescritos para bater com o dump real.
-- [x] `DECISIONS.md` corrigido: `014` e `015` estavam marcadas como "execução pendente" quando já estavam executadas há semanas; DEC-032 estava marcada como "código pendente" quando já foi implementada em 2026-07-19.
-- [x] `ARCHITECTURE.md` reescrito — descrevia partes da v1 (HTML puro, `window.sb`, `sm2.js`) como se fossem a arquitetura atual, e dizia "deploy do Vercel ainda não feito" (o deploy é de 2026-07-13).
-- [x] `BACKLOG.md` estava com todo o conteúdo duplicado a partir da metade do arquivo — deduplicado.
-- [x] Recontado `schema_real.sql`: são 44 tabelas em `public` (não 46), todas com RLS, policy `user_own_data` e GRANT para `authenticated`; o número 46 era erro documental propagado.
-- [ ] **Corrigir `frontend/package.json`:** remover a dependência `shadcn` (é CLI, não lib de runtime) e trocar `"name": "frontend-v2"` para `"name": "frontend"`. Depois, `rm -rf node_modules package-lock.json && npm install` para regenerar o lockfile limpo.
-- [ ] Investigar as 26 ocorrências de lint `react-hooks/set-state-in-effect` antes de corrigir em lote — pode ser estilo ou pode ser `setState` mal guardado dentro de `useEffect`. Ver `BACKLOG.md`.
-- [x] `AGENTS.md` criado com os caminhos corretos — `docs/` e `backend/supabase/migrations/` — e instruções agnósticas de ferramenta.
-- [x] `CLAUDE.md` transformado em stub curto apontando para `AGENTS.md`, que é a fonte única de instruções.
-- [ ] Validar diretamente no Supabase o inventário de `storage.buckets`: o dump atual cobre apenas `public`; o repositório não prova a contagem real de buckets em produção. Ver `DATABASE.md` → Storage.
-- [ ] Tornar a sequência histórica de migrations reproduzível em banco vazio: há adições duplicadas entre `002`/`017`/`018` e constraints repetidas entre `017`/`019`. Não alterar migrations sem uma tarefa dedicada e validação em ambiente descartável.
-- [ ] Confirmar diretamente no Supabase se `materias.user_id` deveria ganhar `ON DELETE CASCADE` (hoje é a única FK do projeto sem essa cláusula) e se vale adicionar `CHECK` em `materias.tipo` — ver `DATABASE.md` → Gotchas e `BACKLOG.md`.
+- [ ] Corrigir `frontend/package.json`: `name` ainda é `frontend-v2` e
+  `shadcn` precisa ser avaliada/removida como dependência de runtime.
+- [ ] Regenerar e revisar `frontend/package-lock.json` de forma controlada.
+- [ ] Confirmar instalação limpa com `npm ci`.
+- [ ] Rodar typecheck (`npx tsc --noEmit`, de dentro de `frontend/`).
+- [ ] Rodar `npm run build`.
+- [ ] Rodar `npm run lint` e registrar/classificar os achados antes de
+  qualquer correção em lote.
 
-## 🟢 Baseline e replay local do Supabase — STOP 3 concluído
+## 🟢 Consolidação do banco — concluída em 2026-08-08
 
-- [x] Migrations `001`–`019` preservadas byte a byte em `backend/supabase/history/legacy-migrations/`, com proveniência e hashes.
-- [x] Captura forense de produção consolidada em `backend/supabase/snapshots/2026-08-07-production/`, sem dados pessoais.
-- [x] Baseline estática aprovada em três migrations operacionais (`public`, guard de RLS e Storage).
-- [x] Supabase CLI `2.112.0` fixada em `backend/package.json`/`package-lock.json`; `supabase init` executado sem link remoto.
-- [x] Espaço liberado e Docker reiniciado sem excluir migrations ou dados do projeto; o pull interrompido foi retomado com sucesso.
-- [x] Primeiro e segundo `db reset --local --no-seed` concluídos, ambos aplicando as três migrations na ordem esperada.
-- [x] Testes estruturais, RLS/Storage e `ensure_rls` concluídos em `backend/supabase/tests/`, sem dados reais e com rollback integral.
-- [x] Dump local comparado com a captura de produção: objetos do projeto equivalentes; diferenças limitadas a defaults/extensões gerenciados pela plataforma e timestamps locais dos buckets.
+- [x] Arqueologia e proveniência de `001`–`019` encerradas; arquivos movidos
+  para `backend/supabase/history/legacy-migrations/`, sem suporte a replay.
+- [x] Snapshot forense de produção consolidado, sem dados pessoais.
+- [x] Cinco buckets, 14 policies Storage, RLS, grants, função e event trigger
+  recapturados e validados.
+- [x] Três baselines timestamped geradas e preservadas como cadeia ativa.
+- [x] Dois replays locais completos, testes estruturais/comportamentais e
+  comparação local × produção aprovados.
+- [x] Ensaio remoto descartável comprovou que `migration repair` registra
+  histórico sem executar SQL de migration.
+- [x] Produção recapturada imediatamente antes da adoção e confirmada
+  equivalente às baselines.
+- [x] Produção passou a registrar exatamente `20260807000100`,
+  `20260807000200` e `20260807000300` como `applied`.
+- [x] `migration list` local/remoto alinhado e `db push --dry-run` final com
+  `upToDate=true`, `dryRun=true`, `migrations=[]`.
+- [x] Nenhum `db push` real e nenhuma baseline SQL executados em produção.
+- [x] `AGENTS.md` e `CLAUDE.md` consolidados como instrução principal e stub.
 
-## 🟢 Ensaio remoto descartável do histórico — concluído
-
-- [x] Confirmado que a CLI estável `2.112.0` não conclui `supabase link` por incompatibilidade de parsing da Management API; nenhum link foi fabricado manualmente.
-- [x] Ensaio retomado por conexão PostgreSQL direta com `--db-url`, sem registrar URL ou credenciais no repositório.
-- [x] Estado inicial: histórico remoto ausente, nenhuma das 44 tabelas e nenhum dos cinco buckets da baseline.
-- [x] `migration repair --status applied` registrou somente `20260807000100`, `20260807000200` e `20260807000300`, sem executar os SQLs.
-- [x] Estado final: três versões no histórico, schema de aplicação ainda vazio e `db push --dry-run` sem migrations pendentes.
-- [ ] Antes de qualquer ação em produção: revisar o relatório do ensaio, confirmar novamente o schema real e autorizar explicitamente cada comando remoto.
+Hardenings conhecidos (`materias.user_id`, `materias.tipo`, policies de
+Storage e grants atuais) não pertencem à baseline retroativamente. Permanecem
+no `BACKLOG.md` para migrations incrementais futuras e separadas.
 
 ---
 
@@ -62,7 +63,7 @@ O projeto passou por uma auditoria completa (feita pelo Codex, revisada e reconc
 - [ ] **Confirmar teste de login end-to-end na URL de produção** — ainda não formalmente confirmado pelo usuário, apesar do deploy estar de pé há semanas
 - [ ] Confirmar navegação funcionando em `/treino`, `/biblioteca` e `/estudos` na URL de produção (Estudos nunca foi testado em produção — só em `localhost`, ver seção Estudos abaixo)
 
-## Próxima tarefa de escopo — Integração de APIs externas
+## Próxima tarefa de feature, depois da reprodutibilidade — Integração de APIs externas
 
 Precisa de `MODULE_TEMPLATE.md` completo antes de começar. Confirmado por
 inspeção do código (2026-08): **nenhuma `app/api/**/route.ts` existe ainda**

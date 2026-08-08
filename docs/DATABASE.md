@@ -42,11 +42,37 @@ Chaves estrangeiras seguem `<tabela_singular>_uuid` (ex: `treino_uuid`, `materia
 
 ## Local dos arquivos de migration
 
-`backend/supabase/migrations/*.sql` — **não** `supabase/migrations/` (caminho antigo, ainda mencionado em alguns documentos legados; já corrigido neste arquivo). Migrations são coladas manualmente no SQL Editor do Supabase pelo usuário — não existe Supabase CLI configurado neste projeto para aplicar migration via comando, apenas para operações pontuais de leitura (ex: `db dump`).
+`backend/supabase/migrations/*.sql` é a cadeia operacional ativa do Supabase
+CLI. `backend/supabase/history/legacy-migrations/` é somente acervo histórico e
+`backend/supabase/snapshots/` é somente evidência diagnóstica; nenhum arquivo
+dessas duas pastas deve ser executado como migration.
 
 ---
 
 ## Migrações
+
+### Cadeia ativa
+
+| Versão | Arquivo | Estado oficial |
+|---|---|---|
+| `20260807000100` | `20260807000100_baseline_public.sql` | ✅ Baseline de `public`, replay local aprovado e registrada como `applied` em produção |
+| `20260807000200` | `20260807000200_baseline_rls_guard.sql` | ✅ `rls_auto_enable()` + `ensure_rls`, replay local aprovado e registrada como `applied` |
+| `20260807000300` | `20260807000300_baseline_storage.sql` | ✅ Cinco buckets + 14 policies, replay local aprovado e registrada como `applied` |
+
+As três versões foram adotadas no histórico remoto em 2026-08-08 por
+`migration repair --status applied`, depois de recaptura somente leitura de
+produção e ensaio equivalente em projeto descartável. O repair não executou
+os SQLs. `schema_migrations` passou a conter exatamente as três versões; os
+objetos da aplicação permaneceram inalterados; `db push --dry-run` retornou
+`upToDate=true`, `dryRun=true` e `migrations=[]`. Nenhum `db push` real foi
+necessário.
+
+### Acervo histórico `001`–`019` — não operacional
+
+A tabela abaixo descreve a evolução histórica. Os arquivos correspondentes
+estão em `backend/supabase/history/legacy-migrations/`, não formam cadeia
+reproduzível, não são lidos pelo CLI e nunca devem ser executados. Proveniência
+e hashes ficam em `history/provenance.yaml`.
 
 | Arquivo | Status real (confirmado via dump 2026-08) | Conteúdo |
 |---|---|---|
@@ -70,13 +96,25 @@ Chaves estrangeiras seguem `<tabela_singular>_uuid` (ex: `treino_uuid`, `materia
 | `018_materias_unicas_escola_enem.sql` | ✅ Executado | `materias.mostra_escola`/`mostra_enem`, limpeza de dado duplicado. Ver DEC-040 |
 | `019_gabarito_dominio_dificuldade.sql` | ✅ Executado · 🔧 arquivo local recriado | `questoes_individuais.materia_uuid` nullable, `letra_marcada`/`letra_correta`/`dificuldade`; `conteudos.progresso` removido, `teoria_vista`/`dominado_manual` adicionados. Ver DEC-041/DEC-042 |
 
-**🔧 Nota sobre arquivos recriados (2026-08):** seis migrations (`004`, `005`, `007`, `010`, `014`, `019`) nunca foram copiadas para a pasta local do projeto (falha de cópia manual do usuário para o VS Code, não perda de dado — todas estavam executadas no Supabase o tempo todo). Foram reconstruídas a partir do estado final observado no dump. Elas documentam o efeito pretendido, mas não são cópias dos scripts originais e a sequência completa ainda não foi validada por replay em banco vazio.
+**🔧 Nota sobre arquivos recriados (2026-08):** seis migrations (`004`, `005`, `007`, `010`, `014`, `019`) nunca foram copiadas para a pasta local do projeto (falha de cópia manual do usuário para o VS Code, não perda de dado — todas estavam executadas no Supabase o tempo todo). Foram reconstruídas a partir do estado final observado no dump. Elas documentam o efeito pretendido, mas não são cópias dos scripts originais; por isso permanecem somente no acervo e têm `replay_supported: false`.
 
-**⚠️ Nota sobre `015`/`016` corrompidas (2026-08):** os arquivos locais dessas duas migrations continham erros internos (colunas de uma tabela referenciadas em índice de outra, tabela referenciada antes de ser criada) — provavelmente uma cópia/colagem errada em sessão de chat anterior sobrescreveu o conteúdo correto. **O banco de produção nunca teve esse problema** — o que rodou no SQL Editor na época estava correto, só a cópia que ficou no repositório é que ficou malformada. Ambos os arquivos foram reescritos nesta sessão para bater exatamente com o dump real.
+**⚠️ Nota sobre `015`/`016` corrompidas (2026-08):** os arquivos locais dessas duas migrations continham erros internos (colunas de uma tabela referenciadas em índice de outra, tabela referenciada antes de ser criada) — provavelmente uma cópia/colagem errada em sessão de chat anterior sobrescreveu o conteúdo correto. **O banco de produção nunca teve esse problema.** As versões reconciliadas também permanecem somente no acervo; a cadeia ativa não depende delas.
 
-**⚠️ Replay local ainda pendente (confirmado por inspeção em 2026-08):** a cadeia `001`–`019` não deve ser tratada como reproduzível hoje. `002_estudos.sql` já contém `area_enem`, `mostra_escola` e `mostra_enem`, que `017`/`018` tentam adicionar novamente; `017` e `019` também repetem os nomes das constraints de `letra_marcada`/`letra_correta`. O schema de produção está confirmado pelo dump, mas corrigir o histórico exige tarefa dedicada e teste em banco descartável.
+**Encerramento do replay legado:** a cadeia `001`–`019` não é e não será
+tratada como reproduzível. Suas colisões foram preservadas no acervo. A
+reprodutibilidade foi resolvida pelas três baselines timestamped, aprovadas em
+dois resets locais completos e comparadas com produção.
 
-**Convenção para novas migrações:** numeração sequencial de 3 dígitos + nome do módulo em snake_case (`00N_nome-modulo.sql`). Depois de rodar no SQL Editor, atualizar a tabela acima e a seção correspondente deste documento — e, a partir de agora, **também rodar um novo `db dump` periodicamente** para evitar que o repositório volte a divergir do banco real sem que ninguém perceba.
+**Workflow obrigatório para novas migrations:** criar uma nova migration
+timestamped; nunca editar baseline/migration já aplicada; executar `db reset
+--local --no-seed`; rodar testes estruturais e comportamentais relevantes;
+revisar SQL, RLS, policies, grants e efeitos destrutivos; executar `db push
+--dry-run`; somente depois de novo precheck e autorização executar operação
+remota; por fim atualizar `DATABASE.md`, `CHANGELOG.md` e, quando aplicável,
+`DECISIONS.md`. A produção não tem link persistido. Enquanto a CLI `2.112.0`
+não conseguir usar `supabase link`, operações remotas especificamente
+autorizadas podem usar `--db-url` com variável de ambiente da sessão. Nunca
+registrar connection strings, tokens, senhas ou project refs temporários.
 
 ---
 
@@ -835,14 +873,18 @@ CONSTRAINT redacoes_competencia_1_check CHECK (competencia_1 IS NULL OR competen
 
 ## Storage
 
-O `schema_real.sql` atual contém apenas o schema `public` e **não permite confirmar a quantidade nem o inventário de buckets existentes em produção**. O que o repositório comprova é:
+Captura direta de produção em 2026-08-07 confirmou exatamente cinco buckets
+privados: `shape`, `documentos`, `capas`, `exercicios` e `redacoes`, com 14
+policies em `storage.objects`. Configuração literal, limites, MIME types,
+roles, `USING` e `WITH CHECK` estão preservados em
+`backend/supabase/snapshots/2026-08-07-production/critical_storage_metadata.json`
+e reproduzidos por `20260807000300_baseline_storage.sql`.
 
-- `001_schema_inicial.sql` provisiona `shape`, `documentos` e `capas` como privados e cria suas policies;
-- `017_estudos_gabarito_enem_redacao.sql` instrui criar `redacoes` manualmente, e `frontend/lib/redacoes.ts` implementa upload/signed URL/remoção nesse nome;
-- `exercicios` aparece como bucket planejado na documentação, mas não possui criação ou policy versionada;
-- o frontend usa efetivamente `shape` e contém integração para `redacoes`; isso não substitui consultar `storage.buckets` no Supabase.
-
-Até uma consulta direta (`SELECT id, name, public FROM storage.buckets ORDER BY 1`) ser registrada, a documentação não atribui um total confirmado de buckets de produção. A decisão permanente continua sendo mantê-los privados e usar signed URLs/path `{user_id}/arquivo.ext` (DEC-010).
+O estado atual inclui policies historicamente configuradas de formas
+diferentes para `redacoes` e `exercicios`. Isso é estado preservado, não
+aprovação de hardening: qualquer ajuste deve ser uma migration incremental
+separada. A decisão permanente continua sendo manter buckets privados e usar
+signed URLs/path `{user_id}/arquivo.ext` (DEC-010).
 
 > ⚠️ **Pendência:** `banner_path` (existente desde `006_biblioteca_v2_base.sql`) não tem bucket de Storage definido — só `banner_url` (link externo) funciona hoje. Ver `BACKLOG.md`.
 
@@ -877,3 +919,10 @@ Confirmados em: `agenda`, `animes`, `animes_episodios`, `animes_temporadas`, `an
 **Gotcha (arquivo sobrescrito por engano, Biblioteca v2):** `AnotacoesLivroEditor.tsx` foi acidentalmente sobrescrito com lógica de `VolumesEditor.tsx` numa correção em massa — os dois componentes têm estrutura muito parecida. Corrigido em 2026-07-18. Atenção redobrada com reaproveitamento de correção automática entre componentes de "mesma forma".
 
 **Gotcha (migrations locais divergindo do banco, 2026-08):** seis arquivos de migration nunca foram copiados para o VS Code (falha de cópia manual, não perda de dado) e dois outros (`015`, `016`) tinham conteúdo corrompido no repositório enquanto o banco real estava correto. Ver seção "Migrações" no topo deste documento para o que foi feito. **Lição:** rodar `supabase db dump` periodicamente e comparar contra os arquivos locais evita que essa divergência se acumule silenciosamente de novo.
+
+**Estado preservado pela baseline, não correção retroativa:** produção possui
+`GRANT ALL` para `authenticated` nas 44 tabelas, as policies atuais de
+`redacoes`/`exercicios`, `materias.user_id` sem `ON DELETE CASCADE` e nenhuma
+constraint `materias_tipo_check`. Esses pontos e os demais hardenings conhecidos
+devem ser tratados em migrations incrementais futuras e independentes. Nunca
+editar as baselines para “corrigir” o passado.

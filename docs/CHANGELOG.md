@@ -336,8 +336,9 @@ localmente, ganha de qualquer `.dark` herdada).
   Estudos. O dump não inclui o inventário de Storage: a documentação agora
   distingue buckets provisionados em migration, criação manual instruída e
   nomes apenas planejados. Registrado também que as migrations reconstruídas
-  refletem o estado final, mas a cadeia `001`–`019` ainda precisa de validação
-  e correção de replay em banco vazio.
+  refletem o estado final; naquele momento, a cadeia `001`–`019` ainda
+  aguardava investigação. A conclusão posterior foi arquivá-la como acervo não
+  reproduzível e criar as três baselines timestamped validadas.
 
 - **2026-08-07 (preparação e conclusão local do STOP 3)** —
   Supabase CLI `2.112.0` fixada em um manifesto próprio de ferramentas em
@@ -360,3 +361,17 @@ localmente, ganha de qualquer `.dark` herdada).
   schema de aplicação e os buckets permaneceram ausentes, e `db push
   --dry-run` retornou banco atualizado, sem migrations pendentes. Nenhum dado
   de conexão ou identificador do ambiente descartável foi versionado.
+
+- **2026-08-08 (adoção do histórico de migrations em produção)** — Produção
+  foi recapturada por consultas somente leitura imediatamente antes da
+  operação: PostgreSQL 17.6, 44 tabelas, 44 PKs, 92 FKs, 15 checks, 42 índices
+  explícitos, 44 RLS/policies, cinco buckets, 14 policies Storage e guard de
+  RLS equivalentes às baselines. Com histórico remoto inicialmente ausente,
+  `migration repair --status applied --db-url` registrou somente
+  `20260807000100`, `20260807000200` e `20260807000300`. Nenhum SQL de baseline
+  foi executado e os objetos da aplicação permaneceram inalterados. A
+  `migration list` final ficou alinhada e `db push --dry-run` retornou
+  `upToDate=true`, `dryRun=true`, `migrations=[]`; nenhum push real ocorreu.
+  Credenciais e metadata de vínculo não foram versionados. A partir deste
+  marco, as três baselines são o início oficial e imutável da cadeia ativa;
+  toda mudança futura será migration timestamped incremental (DEC-044).

@@ -10,8 +10,8 @@
 
 ## Arquivos presentes
 
-- `public_schema.sql`: preservação byte a byte do `schema_real.sql` que estava
-  na raiz do repositório.
+- `public_schema.sql`: preservação byte a byte do antigo `schema_real.sql` da
+  raiz; o arquivo não permanece no caminho antigo.
 - `capture_queries.sql`: consultas somente leitura para completar a captura.
 - `critical_capture_queries.sql`: captura mínima obrigatória, consolidada em
   apenas dois resultados JSON; executada manualmente em 2026-08-07.
@@ -75,3 +75,11 @@ dois JSONs críticos; consultar `capture-notes.md` para o escopo exato.
 
 SHA-256 de `public_schema.sql` no momento da preservação:
 `a5b71dfde138b0da61d69afe0ff754b27d2145d13d4337503708a69bcf1e7d2d`.
+
+## Estado posterior à captura
+
+A captura permaneceu imutável como evidência. Com base nela, as três
+baselines foram geradas, validadas por dois replays locais e registradas como
+`applied` em produção em 2026-08-08, sem executar novamente seus SQLs. O
+histórico ausente descrito nos arquivos desta pasta é o estado observado na
+data da captura, não o estado atual.

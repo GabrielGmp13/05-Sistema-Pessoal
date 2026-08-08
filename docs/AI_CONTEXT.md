@@ -30,7 +30,7 @@ de trabalho com IAs" para o histórico completo de ferramentas já usadas.
 │   └── supabase/
 │       ├── config.toml    ← configuração local, sem link de produção
 │       ├── history/       ← acervo histórico 001–019
-│       ├── migrations/    ← baseline operacional SQL
+│       ├── migrations/    ← cadeia operacional ativa (baselines + incrementais futuras)
 │       └── snapshots/     ← evidência forense do remoto
 └── frontend/               ← único frontend ativo, Next.js App Router
 ```
@@ -49,6 +49,7 @@ com múltiplas aplicações. Documentação fica em `docs/`, não na raiz (só
 **Decisão-chave:** DEC-018 (reabre DEC-006) — frontend migrou de HTML puro para Next.js/React
 **Deploy:** ✅ em produção no Vercel desde 2026-07-13 (não "pendente" — ver `ARCHITECTURE.md`)
 **Schema:** confirmado via dump real do Supabase em 2026-08 — 44 tabelas em `public`, RLS e GRANT corretos em todas (ver `DATABASE.md`)
+**Histórico CLI:** adotado em produção em 2026-08-08 — as três baselines timestamped estão registradas como `applied`; `db push --dry-run` sem pendências
 **Próxima tarefa imediata:** ver `TASKS_NOW.md`
 
 ---
@@ -59,7 +60,7 @@ com múltiplas aplicações. Documentação fica em `docs/`, não na raiz (só
 |---|---|
 | Banco de dados | PostgreSQL via Supabase (44 tabelas em `public`, confirmado via dump real 2026-08) |
 | Auth | Supabase Auth (email+senha) |
-| Storage | Supabase Storage — inventário real de produção não incluído no dump atual; evidências versionadas e lacunas descritas em `DATABASE.md` |
+| Storage | Supabase Storage — 5 buckets privados e 14 policies confirmados por captura remota versionada em `backend/supabase/snapshots/` |
 | Frontend | Next.js 16 (React 19) + TypeScript — pasta `frontend/`, único frontend do projeto |
 | Estilização | CSS Modules (Treino/Biblioteca/Dashboard) + Tailwind v4/shadcn (Estudos) — stack mista intencional, DEC-038 |
 | Backend leve | API Routes (Next.js, serverless no Vercel) — **planejado, nenhuma rota `app/api/**` existe ainda** |
@@ -76,6 +77,7 @@ com múltiplas aplicações. Documentação fica em `docs/`, não na raiz (só
 4. Toda nova página segue o padrão descrito em `ARCHITECTURE.md` → Frontend.
 5. Todo nome de coluna/tabela deve ser conferido em `DATABASE.md` antes de escrever queries — a causa mais comum de bugs neste projeto até agora foi nome de coluna inventado sem checar o schema real. Em segundo lugar: arquivo de migration local divergindo do banco real (ver `DATABASE.md`, nota de 2026-08) — quando em dúvida, o banco de produção é a fonte da verdade, não o `.sql` local.
 6. Nenhuma alteração é commitada diretamente por um agente de IA — sempre entregue pro usuário aplicar manualmente.
+7. Banco: `history/legacy-migrations/` é somente acervo; `snapshots/` é somente evidência; a cadeia ativa fica em `backend/supabase/migrations/`. Baseline aplicada nunca é editada — toda mudança futura nasce em migration timestamped incremental.
 
 ---
 

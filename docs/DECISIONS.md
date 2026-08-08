@@ -637,3 +637,49 @@ manter a lista simples até a Agenda existir de verdade.
 `lib/revisao.ts` ganha `listarRevisoesPendentes(diasNoFuturo)`. Nenhuma
 tabela nova, nenhum campo de horário/duração em `revisao_espacada` ou
 `conteudos`.
+
+---
+
+## DEC-044 — Baseline híbrida e adoção do histórico Supabase CLI
+
+**Data:** 2026-08-07/08
+**Status:** ✅ Aprovada, replay validado e histórico adotado em produção
+
+### Contexto
+
+O banco evoluiu por `001`–`019` aplicadas manualmente no SQL Editor, sem
+`supabase_migrations.schema_migrations`. Parte dos SQLs locais foi perdida,
+reconstruída ou alterada depois da execução, tornando impossível provar a
+cadeia literal e reproduzi-la com segurança. Produção, porém, pôde ser
+capturada por dump e consultas somente leitura.
+
+### Decisão
+
+- `history/legacy-migrations/` preserva `001`–`019` byte a byte como acervo,
+  todos com `replay_supported: false`.
+- `snapshots/2026-08-07-production/` preserva a evidência do estado remoto,
+  sem dados pessoais.
+- A cadeia ativa começa em três baselines timestamped: `public`, guard de RLS
+  e Storage.
+- As baselines reproduzem o estado observado, inclusive imperfeições e
+  hardenings pendentes; não reescrevem o passado.
+- Depois de dois replays locais completos e ensaio remoto descartável,
+  produção registrou as três versões como `applied` por `migration repair`,
+  sem executar seus SQLs. `db push --dry-run` confirmou cadeia alinhada.
+- Toda alteração futura será migration timestamped incremental. Baseline já
+  aplicada é imutável.
+
+### Operação remota
+
+A produção não fica vinculada ao CLI. Enquanto `supabase link` da versão
+`2.112.0` permanecer incompatível com o formato atual da Management API,
+operações remotas especificamente autorizadas podem usar `--db-url` com
+variável de ambiente da sessão. Credenciais, tokens, connection strings e
+project refs temporários nunca são versionados ou documentados.
+
+### Estado preservado
+
+`GRANT ALL` nas 44 tabelas, policies atuais de `redacoes` e `exercicios`,
+`materias.user_id` sem cascade, ausência de `materias_tipo_check` e demais
+hardenings conhecidos permanecem como estado atual. Qualquer alteração nesses
+pontos exige migration futura separada; nunca edição retroativa das baselines.

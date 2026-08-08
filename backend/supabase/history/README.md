@@ -39,7 +39,7 @@ atomicidade, versões intermediárias ou transformações de dados. Campos como
 2. Se um arquivo precisar ser estudado, comparar primeiro seu SHA-256.
 3. Novas descobertas históricas são registradas no manifesto ou neste README,
    não por alteração retroativa do SQL.
-4. A futura cadeia operacional ficará exclusivamente em
+4. A cadeia operacional ativa fica exclusivamente em
    `backend/supabase/migrations/`.
 5. Nenhum arquivo desta pasta deve ser copiado para a cadeia operacional como
    solução de replay.
@@ -59,3 +59,9 @@ atomicidade, versões intermediárias ou transformações de dados. Campos como
 Todos os 19 arquivos têm `replay_supported: false`, independentemente de sua
 classificação individual, porque o conjunto possui colisões e divergências
 documentadas.
+
+## Estado posterior do histórico CLI
+
+Em 2026-08-08, produção passou a registrar como `applied` somente as três
+baselines timestamped da cadeia ativa. Isso não torna `001`–`019` reproduzíveis
+nem altera sua proveniência: eles continuam sendo exclusivamente acervo.

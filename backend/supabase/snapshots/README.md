@@ -33,5 +33,5 @@ o procedimento em `capture-notes.md`.
 - variáveis de ambiente ou connection strings;
 - objetos internos da plataforma sem relevância para o diagnóstico.
 
-Os arquivos desta pasta não são fonte operacional. A cadeia executável futura
-ficará exclusivamente em `backend/supabase/migrations/`.
+Os arquivos desta pasta não são fonte operacional. A cadeia executável ativa
+fica exclusivamente em `backend/supabase/migrations/`.

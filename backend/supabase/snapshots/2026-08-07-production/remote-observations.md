@@ -4,6 +4,10 @@ Este arquivo transcreve resultados informados antes da captura crítica literal.
 Os resultados canônicos posteriores estão em `critical_storage_metadata.json`
 e `critical_public_security_metadata.json`.
 
+> **Estado posterior:** o histórico ausente abaixo descreve a captura. Em
+> 2026-08-08, produção passou a registrar exatamente as três baselines ativas
+> como `applied`, sem executar novamente seus SQLs.
+
 ## Histórico de migrations
 
 A consulta a `supabase_migrations.schema_migrations` retornou `42P01`: a

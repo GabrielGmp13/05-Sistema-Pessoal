@@ -3,7 +3,8 @@ captured_at: "2026-08-07"
 repository_head_at_capture: "022d1dd"
 hash_algorithm: "SHA-256"
 history_scope: "legacy migrations 001-019"
-remote_migration_history_present: false
+remote_migration_history_present_at_capture: false
+active_history_adopted_in_production_at: "2026-08-08"
 literal_history_recovery_closed: true
 notes:
   - "O schema final de public é confirmado pelo snapshot, mas não prova a sequência histórica."
@@ -29,7 +30,7 @@ migrations:
       - "O remoto atual ampliou documentos de apenas PDF para dez MIME types."
     observations:
       - "O snapshot public confirma as cinco tabelas sobreviventes e a ausência das três removidas posteriormente."
-      - "O inventário literal de Storage ainda precisa ser exportado para o snapshot datado."
+      - "O inventário literal de Storage foi exportado depois para critical_storage_metadata.json."
 
   - id: "002"
     name: "002_estudos.sql"
