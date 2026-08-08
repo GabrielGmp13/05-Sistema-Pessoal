@@ -37,22 +37,27 @@ Stack real (não inventar/assumir outra):
 ├── AGENTS.md
 ├── docs/                          ← TODA a documentação vive aqui, não na raiz
 ├── backend/
+│   ├── package.json               ← ferramentas locais do banco (Supabase CLI fixada)
 │   └── supabase/
-│       └── migrations/*.sql       ← só migrations SQL, NÃO é código de servidor
+│       ├── config.toml            ← configuração exclusivamente local do CLI
+│       ├── history/               ← migrations 001–019 arquivadas; não reproduzíveis
+│       ├── migrations/*.sql       ← baseline operacional; NÃO é código de servidor
+│       └── snapshots/             ← evidência forense; não executar como migration
 └── frontend/                       ← único frontend ativo
 ```
 
 **Existe sim uma pasta `backend/`** — versões anteriores desta instrução
 afirmavam o contrário, o que estava errado. Ela contém exclusivamente
-`backend/supabase/migrations/*.sql`, sem nenhum código de aplicação — não é
-um servidor, é só onde as migrations ficam versionadas. Não existe monorepo
-com múltiplos pacotes.
+infraestrutura SQL, snapshots e ferramentas locais do Supabase, sem código de
+aplicação — não é um servidor. O `package.json` de `backend/` existe apenas
+para fixar a versão da CLI e não transforma o projeto em monorepo de aplicações.
 
-Não existe Supabase CLI configurado para *aplicar* migration via comando —
-migrations em `backend/supabase/migrations/*.sql` são coladas manualmente no
-SQL Editor do Supabase pelo usuário. O CLI é usado só pontualmente para
-leitura (`supabase db dump`, feito em 2026-08 para validar o schema real —
-ver `docs/DATABASE.md`).
+Existe Supabase CLI configurado em `backend/` **somente para desenvolvimento e
+replay local**. A produção não está vinculada ao CLI; não usar `supabase link`,
+`--linked`, `db push`, `migration repair` ou comandos remotos sem uma etapa
+específica, evidência nova e autorização explícita. A baseline foi validada
+com dois resets locais completos e testes estruturais/comportamentais em
+2026-08-07; ver `docs/TASKS_NOW.md` e `backend/supabase/tests/`.
 
 ## Regras inegociáveis
 

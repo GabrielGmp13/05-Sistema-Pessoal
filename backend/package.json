@@ -1,0 +1,13 @@
+{
+  "name": "sistema-pessoal-backend-tools",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "supabase": "supabase"
+  },
+  "devDependencies": {
+    "supabase": "2.112.0"
+  }
+}

@@ -338,3 +338,15 @@ localmente, ganha de qualquer `.dark` herdada).
   nomes apenas planejados. Registrado também que as migrations reconstruídas
   refletem o estado final, mas a cadeia `001`–`019` ainda precisa de validação
   e correção de replay em banco vazio.
+
+- **2026-08-07 (preparação e conclusão local do STOP 3)** —
+  Supabase CLI `2.112.0` fixada em um manifesto próprio de ferramentas em
+  `backend/`; `backend/supabase/config.toml` criado por `supabase init`, sem
+  link ou credenciais de produção. A primeira tentativa de `supabase start`
+  foi interrompida por falta de espaço; após liberação de 9 GB e reinício
+  limpo do Docker, o stack iniciou. Dois `db reset --local --no-seed`
+  consecutivos aplicaram as três migrations sem erro. Testes transacionais
+  confirmaram contagens, grants, RLS, guard, cinco buckets, 14 policies e
+  isolamento entre usuários/primeira pasta. O dump `public` local ficou
+  equivalente ao remoto, exceto por defaults/extensões da plataforma. Nenhuma
+  migration foi alterada e nenhuma operação remota foi executada.

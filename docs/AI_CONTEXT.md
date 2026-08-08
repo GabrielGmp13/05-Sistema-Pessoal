@@ -26,15 +26,20 @@ de trabalho com IAs" para o histórico completo de ferramentas já usadas.
 ├── AGENTS.md              ← instruções para agentes de IA (Codex e outros)
 ├── docs/                  ← toda a documentação do projeto (este arquivo incluído)
 ├── backend/
+│   ├── package.json       ← ferramentas locais do banco; não é aplicação
 │   └── supabase/
-│       └── migrations/    ← só arquivos .sql, sem código de servidor
+│       ├── config.toml    ← configuração local, sem link de produção
+│       ├── history/       ← acervo histórico 001–019
+│       ├── migrations/    ← baseline operacional SQL
+│       └── snapshots/     ← evidência forense do remoto
 └── frontend/               ← único frontend ativo, Next.js App Router
 ```
 
 **Não existe** pasta `backend/` com código de aplicação/servidor — o nome é
-enganoso, mas ela guarda só as migrations SQL. Não existe monorepo com
-múltiplos pacotes. Documentação fica em `docs/`, não na raiz (só `AGENTS.md`
-fica na raiz, por convenção da ferramenta).
+enganoso, mas ela guarda infraestrutura SQL, snapshots e a Supabase CLI local
+fixada. O manifesto de `backend/` é apenas de ferramentas; não existe monorepo
+com múltiplas aplicações. Documentação fica em `docs/`, não na raiz (só
+`AGENTS.md` fica na raiz, por convenção da ferramenta).
 
 ---
 

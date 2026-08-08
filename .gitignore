@@ -1,1 +1,11 @@
 .claude/
+
+# Supabase CLI local state and credentials
+backend/supabase/.temp/
+backend/supabase/.branches/
+backend/supabase/.env
+backend/supabase/.env.*
+!backend/supabase/.env.example
+
+# Backend tooling dependencies
+backend/node_modules/

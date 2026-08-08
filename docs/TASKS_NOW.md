@@ -7,7 +7,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 ## Status geral
 **Fase atual:** Fase 7 (v2) — v1 aposentada (DEC-031), `frontend/` é o único frontend ativo. Biblioteca e Treino v2 funcionalmente prontos; Estudos v2 com 9 rotas de página implementadas e restilizadas, correções de modelagem de 2026-08 aplicadas.
 **Bloqueio:** nenhum.
-**Próxima ação:** aplicar as correções de documentação e código listadas na seção "🔴 Auditoria de migração para o Codex" abaixo, começando pelo `package.json`.
+**Próxima ação:** revisar o relatório do STOP 3 e só então autorizar a próxima etapa da estratégia híbrida; produção continua fora de escopo e sem link no CLI.
 
 ---
 
@@ -29,6 +29,17 @@ O projeto passou por uma auditoria completa (feita pelo Codex, revisada e reconc
 - [ ] Validar diretamente no Supabase o inventário de `storage.buckets`: o dump atual cobre apenas `public`; o repositório não prova a contagem real de buckets em produção. Ver `DATABASE.md` → Storage.
 - [ ] Tornar a sequência histórica de migrations reproduzível em banco vazio: há adições duplicadas entre `002`/`017`/`018` e constraints repetidas entre `017`/`019`. Não alterar migrations sem uma tarefa dedicada e validação em ambiente descartável.
 - [ ] Confirmar diretamente no Supabase se `materias.user_id` deveria ganhar `ON DELETE CASCADE` (hoje é a única FK do projeto sem essa cláusula) e se vale adicionar `CHECK` em `materias.tipo` — ver `DATABASE.md` → Gotchas e `BACKLOG.md`.
+
+## 🟢 Baseline e replay local do Supabase — STOP 3 concluído
+
+- [x] Migrations `001`–`019` preservadas byte a byte em `backend/supabase/history/legacy-migrations/`, com proveniência e hashes.
+- [x] Captura forense de produção consolidada em `backend/supabase/snapshots/2026-08-07-production/`, sem dados pessoais.
+- [x] Baseline estática aprovada em três migrations operacionais (`public`, guard de RLS e Storage).
+- [x] Supabase CLI `2.112.0` fixada em `backend/package.json`/`package-lock.json`; `supabase init` executado sem link remoto.
+- [x] Espaço liberado e Docker reiniciado sem excluir migrations ou dados do projeto; o pull interrompido foi retomado com sucesso.
+- [x] Primeiro e segundo `db reset --local --no-seed` concluídos, ambos aplicando as três migrations na ordem esperada.
+- [x] Testes estruturais, RLS/Storage e `ensure_rls` concluídos em `backend/supabase/tests/`, sem dados reais e com rollback integral.
+- [x] Dump local comparado com a captura de produção: objetos do projeto equivalentes; diferenças limitadas a defaults/extensões gerenciados pela plataforma e timestamps locais dos buckets.
 
 ---
 
