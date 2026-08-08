@@ -7,7 +7,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 ## Status geral
 **Fase atual:** Fase 7 (v2) — v1 aposentada (DEC-031), `frontend/` é o único frontend ativo. Biblioteca e Treino v2 funcionalmente prontos; Estudos v2 com 9 rotas de página implementadas e restilizadas, correções de modelagem de 2026-08 aplicadas.
 **Bloqueio:** nenhum.
-**Próxima ação:** revisar o relatório do STOP 3 e só então autorizar a próxima etapa da estratégia híbrida; produção continua fora de escopo e sem link no CLI.
+**Próxima ação:** revisar o ensaio remoto descartável de adoção do histórico e, somente com autorização específica, planejar o procedimento equivalente para produção; produção continua sem link no CLI.
 
 ---
 
@@ -40,6 +40,15 @@ O projeto passou por uma auditoria completa (feita pelo Codex, revisada e reconc
 - [x] Primeiro e segundo `db reset --local --no-seed` concluídos, ambos aplicando as três migrations na ordem esperada.
 - [x] Testes estruturais, RLS/Storage e `ensure_rls` concluídos em `backend/supabase/tests/`, sem dados reais e com rollback integral.
 - [x] Dump local comparado com a captura de produção: objetos do projeto equivalentes; diferenças limitadas a defaults/extensões gerenciados pela plataforma e timestamps locais dos buckets.
+
+## 🟢 Ensaio remoto descartável do histórico — concluído
+
+- [x] Confirmado que a CLI estável `2.112.0` não conclui `supabase link` por incompatibilidade de parsing da Management API; nenhum link foi fabricado manualmente.
+- [x] Ensaio retomado por conexão PostgreSQL direta com `--db-url`, sem registrar URL ou credenciais no repositório.
+- [x] Estado inicial: histórico remoto ausente, nenhuma das 44 tabelas e nenhum dos cinco buckets da baseline.
+- [x] `migration repair --status applied` registrou somente `20260807000100`, `20260807000200` e `20260807000300`, sem executar os SQLs.
+- [x] Estado final: três versões no histórico, schema de aplicação ainda vazio e `db push --dry-run` sem migrations pendentes.
+- [ ] Antes de qualquer ação em produção: revisar o relatório do ensaio, confirmar novamente o schema real e autorizar explicitamente cada comando remoto.
 
 ---
 

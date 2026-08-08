@@ -350,3 +350,13 @@ localmente, ganha de qualquer `.dark` herdada).
   isolamento entre usuários/primeira pasta. O dump `public` local ficou
   equivalente ao remoto, exceto por defaults/extensões da plataforma. Nenhuma
   migration foi alterada e nenhuma operação remota foi executada.
+
+- **2026-08-07 (ensaio remoto descartável de adoção do histórico)** — A CLI
+  estável `2.112.0` falhou em `supabase link` por incompatibilidade ao validar
+  metadados de API keys. Sem fabricar estado de link, o ensaio foi retomado
+  por conexão PostgreSQL direta e protegida. `migration list` mostrou três
+  migrations locais e nenhuma remota; `migration repair --status applied`
+  criou o histórico com exatamente as três versões sem executar baseline. O
+  schema de aplicação e os buckets permaneceram ausentes, e `db push
+  --dry-run` retornou banco atualizado, sem migrations pendentes. Nenhum dado
+  de conexão ou identificador do ambiente descartável foi versionado.
