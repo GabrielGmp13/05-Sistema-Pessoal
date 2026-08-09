@@ -24,6 +24,9 @@ de trabalho com IAs" para o histórico completo de ferramentas já usadas.
 ```
 05-Sistema-Pessoal/
 ├── AGENTS.md              ← instruções para agentes de IA (Codex e outros)
+├── README.md              ← entrada operacional: instalação e validação
+├── .nvmrc                 ← Node.js 24.15.0
+├── .github/workflows/     ← CI mínima do frontend
 ├── docs/                  ← toda a documentação do projeto (este arquivo incluído)
 ├── backend/
 │   ├── package.json       ← ferramentas locais do banco; não é aplicação
@@ -38,8 +41,9 @@ de trabalho com IAs" para o histórico completo de ferramentas já usadas.
 **Não existe** pasta `backend/` com código de aplicação/servidor — o nome é
 enganoso, mas ela guarda infraestrutura SQL, snapshots e a Supabase CLI local
 fixada. O manifesto de `backend/` é apenas de ferramentas; não existe monorepo
-com múltiplas aplicações. Documentação fica em `docs/`, não na raiz (só
-`AGENTS.md` fica na raiz, por convenção da ferramenta).
+com múltiplas aplicações. Documentação aprofundada fica em `docs/`;
+`README.md`, `AGENTS.md` e o stub `CLAUDE.md` ficam na raiz por função
+operacional.
 
 ---
 
@@ -50,6 +54,7 @@ com múltiplas aplicações. Documentação fica em `docs/`, não na raiz (só
 **Deploy:** ✅ em produção no Vercel desde 2026-07-13 (não "pendente" — ver `ARCHITECTURE.md`)
 **Schema:** confirmado via dump real do Supabase em 2026-08 — 44 tabelas em `public`, RLS e GRANT corretos em todas (ver `DATABASE.md`)
 **Histórico CLI:** adotado em produção em 2026-08-08 — as três baselines timestamped estão registradas como `applied`; `db push --dry-run` sem pendências
+**Reprodutibilidade:** Node.js `24.15.0`, npm `12.0.1`, `npm ci`, typecheck e build validados; CI mínima ativa. Lint mantém 43 achados conhecidos e informativos.
 **Próxima tarefa imediata:** ver `TASKS_NOW.md`
 
 ---
@@ -66,6 +71,8 @@ com múltiplas aplicações. Documentação fica em `docs/`, não na raiz (só
 | Backend leve | API Routes (Next.js, serverless no Vercel) — **planejado, nenhuma rota `app/api/**` existe ainda** |
 | Offline | Service Worker — fora de escopo por ora (Fase M2, ver `ROADMAP.md`) |
 | Hosting | Vercel — **em produção desde 2026-07-13** |
+| Toolchain | Node.js 24.15.0 + npm 12.0.1; versões fixadas no repositório |
+| CI/testes | GitHub Actions: `npm ci`, typecheck e build bloqueantes; lint informativo. Testes automatizados existentes: baseline SQL local; frontend sem suíte |
 
 ---
 

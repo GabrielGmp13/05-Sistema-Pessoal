@@ -35,6 +35,9 @@ Stack real (não inventar/assumir outra):
 ```
 05-Sistema-Pessoal/
 ├── AGENTS.md
+├── README.md                     ← ponto de entrada operacional
+├── .nvmrc                       ← Node.js fixado para todo o repositório
+├── .github/workflows/validate.yml ← CI de frontend sem credenciais reais
 ├── docs/                          ← TODA a documentação vive aqui, não na raiz
 ├── backend/
 │   ├── package.json               ← ferramentas locais do banco (Supabase CLI fixada)
@@ -62,6 +65,13 @@ autorizadas usam `--db-url` com variável de ambiente — nunca credencial em
 arquivo, argumento documentado ou Git. Não usar `--linked`, `db push`,
 `migration repair` ou outro comando remoto sem precheck, dry-run quando
 aplicável e autorização explícita. Ver `backend/supabase/README.md`.
+
+O toolchain do repositório é Node.js `24.15.0` e npm `12.0.1`. No frontend,
+usar `npm ci`, `npm run typecheck`, `npm run build` e `npm run lint`, sempre a
+partir de `frontend/`. Typecheck e build são bloqueantes na CI; lint é
+temporariamente informativo por causa da dívida factual registrada em
+`docs/BACKLOG.md`. Não há suíte automatizada de frontend; os testes existentes
+são os testes SQL locais em `backend/supabase/tests/`.
 
 ## Regras inegociáveis
 

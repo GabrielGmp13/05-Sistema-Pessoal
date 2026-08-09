@@ -375,3 +375,17 @@ localmente, ganha de qualquer `.dark` herdada).
   Credenciais e metadata de vínculo não foram versionados. A partir deste
   marco, as três baselines são o início oficial e imutável da cadeia ativa;
   toda mudança futura será migration timestamped incremental (DEC-044).
+
+- **2026-08-08 (handoff Claude → Codex e reprodutibilidade do repositório)** —
+  O manifesto do frontend deixou o nome residual `frontend-v2`, a dependência
+  de CLI `shadcn` sem lock foi removida e os lockfiles permaneceram sem upgrade
+  oportunista. Node.js `24.15.0` e npm `12.0.1` foram fixados; `.env.example`,
+  README raiz, README do frontend e CI mínima sem segredos foram adicionados.
+  Uma instalação limpa adicionou 380 pacotes; typecheck e build passaram, com
+  18 páginas de aplicação reconhecidas. Cinco warnings triviais de imports
+  não usados foram corrigidos; o lint final mantém 43 achados em 33 arquivos
+  (28 erros e 15 warnings) e permanece informativo na CI. Não há
+  testes automatizados de frontend; a validação SQL local da baseline continua
+  sendo a suíte existente. Foram removidos cinco SVGs padrão do Next e o CSS
+  inicial órfão, todos sem referências. Nenhuma migration, snapshot, código de
+  produto ou ambiente remoto foi alterado.

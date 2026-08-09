@@ -457,8 +457,9 @@ aprovado, não preferência técnica não fundamentada — mesmo padrão de
 ### Impacto
 - O projeto ganhou Tailwind v4, `lucide-react`, `tw-animate-css` e componentes
   `components/ui/*` gerados segundo o padrão shadcn. A CLI `shadcn` não é
-  dependência de runtime; sua presença atual em `package.json` é uma pendência
-  de manutenção registrada em `TASKS_NOW.md`.
+  dependência de runtime e foi removida do `package.json` durante a consolidação
+  de reprodutibilidade de 2026-08-08. `components.json` e os componentes gerados
+  permanecem.
 - `app/estudos/**` passa a usar classes Tailwind + componentes de
   `components/ui/*` (shadcn) em vez de CSS Modules
 - `BACKLOG.md` → item "Migrar estilização de CSS Modules para Tailwind"
@@ -683,3 +684,34 @@ project refs temporários nunca são versionados ou documentados.
 `materias.user_id` sem cascade, ausência de `materias_tipo_check` e demais
 hardenings conhecidos permanecem como estado atual. Qualquer alteração nesses
 pontos exige migration futura separada; nunca edição retroativa das baselines.
+
+---
+
+## DEC-045 — Toolchain reproduzível e CI mínima do frontend
+
+**Data:** 2026-08-08
+**Status:** ✅ Aprovada e implementada
+
+### Decisão
+
+- Node.js `24.15.0` e npm `12.0.1` são o toolchain local/CI fixado para todo o
+  repositório. `.nvmrc` fixa o patch; `engines.node = 24.x` seleciona a major
+  suportada na Vercel, que atualiza patches automaticamente; `packageManager`
+  fixa o npm.
+- `npm ci` é o único fluxo normal de instalação; lockfiles não são atualizados
+  oportunisticamente.
+- A CI executa instalação, typecheck e build como etapas bloqueantes, sem
+  segredos ou deploy. Lint permanece informativo enquanto a dívida catalogada
+  de 43 achados existir.
+- Não se adiciona framework de testes só para criar cobertura nominal. Hoje os
+  testes automatizados são os testes SQL locais da baseline; a ausência de
+  testes de frontend fica explícita no backlog.
+
+### Justificativa
+
+Next.js 16 exige Node.js 20.9 ou superior; a linha 24 é LTS, é suportada pela
+Vercel e o patch local escolhido é o ambiente em que a instalação limpa, o
+typecheck e o build foram validados.
+Fixar também o npm evita comportamento divergente do npm 12 sobre scripts de
+instalação e lockfile. O lint não pode ser bloqueante sem manter a CI
+permanentemente vermelha nem pode ser silenciado sem resolver a dívida.

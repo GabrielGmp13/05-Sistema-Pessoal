@@ -87,6 +87,38 @@ Ver DEC-011 em `DECISIONS.md` para o raciocínio completo. Resumo prático: cat�
 
 Pasta única do frontend: `frontend/` (renomeada de `frontend-v2/` em 2026-07-19, DEC-031). **Não existe pasta `backend/` com código de aplicação** — a pasta atual contém somente ferramentas e infraestrutura SQL. Em `backend/supabase/`, `migrations/` é a cadeia ativa, `history/legacy-migrations/` é acervo não reproduzível e `snapshots/` é evidência diagnóstica. Nenhum arquivo de history/snapshot deve ser executado como migration.
 
+### Reprodutibilidade e validação
+
+O repositório fixa Node.js `24.15.0` em `.nvmrc` para uso local/CI, seleciona a
+major `24.x` em `engines` para a Vercel e fixa npm `12.0.1` nos dois
+manifestos. `frontend/package-lock.json` é a fonte da instalação determinística
+por `npm ci`; o nome do pacote é `frontend`. O padrão shadcn/ui continua no
+código gerado e em `components.json`, mas a CLI `shadcn` não é dependência de
+runtime nem de desenvolvimento instalada permanentemente.
+
+A CI em `.github/workflows/validate.yml` usa placeholders públicos e inertes
+para as duas variáveis Supabase do cliente; não acessa produção nem faz deploy.
+`npm ci`, typecheck e build são bloqueantes. O lint é informativo enquanto os
+43 achados catalogados em `BACKLOG.md` permanecerem. Não existe suíte de testes
+do frontend; a suíte automatizada atual é a validação SQL local da baseline em
+`backend/supabase/tests/`.
+
+### Rotas confirmadas pelo build
+
+O build de 2026-08-08 reconheceu 18 páginas da aplicação, além do `_not-found`
+gerado pelo Next.js:
+
+- base: `/` e `/login`;
+- Biblioteca: `/biblioteca` e `/biblioteca/generos`;
+- Estudos (9): `/estudos`, `/estudos/curso`,
+  `/estudos/curso/[materiaUuid]`, `/estudos/enem`,
+  `/estudos/enem/[area]`, `/estudos/enem/gabarito/[provaUuid]`,
+  `/estudos/escola`, `/estudos/materia/[materiaUuid]` e
+  `/estudos/redacoes`;
+- Treino (5): `/treino`, `/treino/shape`, `/treino/[moduloUuid]`,
+  `/treino/[moduloUuid]/[treinoUuid]` e
+  `/treino/[moduloUuid]/[treinoUuid]/academia`.
+
 ### Histórico operacional do banco
 
 As três baselines timestamped de `backend/supabase/migrations/` são o ponto

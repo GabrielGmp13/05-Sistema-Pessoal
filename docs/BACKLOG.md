@@ -104,11 +104,13 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 
 ## Dívida técnica de código (achados da auditoria de 2026-08)
 
-- [ ] `package.json`: dependência `shadcn` não deveria estar listada (é CLI, não lib de runtime — o próprio `globals.css` já documenta isso) e `name` ainda é `"frontend-v2"` em vez de `"frontend"`. Corrigir e regenerar o lockfile.
-- [ ] Lint: 26 ocorrências de `react-hooks/set-state-in-effect` — investigar caso a caso antes de corrigir em lote; pode ser só estilo ou pode indicar `setState` mal guardado dentro de `useEffect`.
+- [ ] Lint: 43 achados em 33 arquivos (auditoria reproduzível de 2026-08-08): 26 erros `react-hooks/set-state-in-effect`, 2 erros `no-explicit-any`, 11 warnings `exhaustive-deps` e 4 warnings `no-img-element`. Cinco warnings triviais de imports/tipo não usados foram removidos nesta auditoria. Investigar o restante caso a caso; não suprimir nem corrigir em lote sem revisar comportamento. Até isso ser resolvido, lint é informativo na CI.
+- [ ] npm 12 bloqueia por padrão os scripts de instalação transitivos de `sharp@0.34.5` e `unrs-resolver@1.12.2`. Instalação, typecheck e build passaram nesse estado; não aprovar scripts cegamente. Reavaliar somente se uma plataforma limpa demonstrar falha funcional (especialmente otimização de imagens ou resolução nativa).
+- [ ] `@types/node` permanece na linha 20, herdada do setup do Next, enquanto o runtime é Node 24. Typecheck e build passam e o código não depende de APIs exclusivas da major 24; alinhar os tipos apenas numa atualização deliberada, sem misturar com feature.
+- [ ] Hardening do banco, sempre em migrations incrementais separadas: revisar o `GRANT ALL` atual de `authenticated`; policies/`WITH CHECK` de `redacoes` e `exercicios`; `materias.user_id` sem cascade; ausência de `materias_tipo_check`; e a configuração `SECURITY DEFINER`/`search_path` de `public.rls_auto_enable()`. A baseline apenas preserva esses estados e nunca deve ser editada para corrigi-los.
 - [ ] `materias.user_id` é a única FK do projeto sem `ON DELETE CASCADE` (confirmado no dump real, 2026-08) — corrigir numa migration dedicada, não em conjunto com uma feature nova. Ver `DATABASE.md` → Gotchas.
 - [ ] `materias.tipo` nunca teve `CHECK constraint` — considerar adicionar depois de confirmar com o código quais valores `lib/materias.ts` usa hoje de fato. Ver `DATABASE.md` → Gotchas.
-- [ ] Sem testes automatizados nem CI configurado no projeto — fora do princípio de simplicidade por ora (uso pessoal, um usuário), mas vale reavaliar se o volume de módulos crescer muito.
+- [ ] Frontend sem testes unitários, de integração ou E2E automatizados. A CI mínima já valida instalação, tipos e build; a única suíte automatizada funcional existente é a validação SQL local da baseline. Adicionar testes quando houver um primeiro caso de alto valor, sem introduzir framework apenas por cobertura nominal.
 
 ## v3 (futuro distante)
 

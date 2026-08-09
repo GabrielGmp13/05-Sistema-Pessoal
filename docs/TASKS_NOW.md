@@ -8,48 +8,8 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 **Fase atual:** Fase 7 (v2) — v1 aposentada (DEC-031), `frontend/` é o único frontend ativo. Biblioteca e Treino v2 funcionalmente prontos; Estudos v2 com 9 rotas de página implementadas e restilizadas, correções de modelagem de 2026-08 aplicadas.
 **Bloqueio:** nenhum.
 **Banco:** cadeia ativa consolidada; as três baselines estão registradas como `applied` em produção e o dry-run final não encontrou pendências.
-**Próxima ação:** validar a reprodutibilidade do frontend/repositório, sem mudança funcional.
-
----
-
-## 🔴 Próximo bloco técnico — reprodutibilidade do frontend/repositório
-
-Não resolver junto com features. Executar como uma etapa própria, preservando
-o comportamento atual:
-
-- [ ] Corrigir `frontend/package.json`: `name` ainda é `frontend-v2` e
-  `shadcn` precisa ser avaliada/removida como dependência de runtime.
-- [ ] Regenerar e revisar `frontend/package-lock.json` de forma controlada.
-- [ ] Confirmar instalação limpa com `npm ci`.
-- [ ] Rodar typecheck (`npx tsc --noEmit`, de dentro de `frontend/`).
-- [ ] Rodar `npm run build`.
-- [ ] Rodar `npm run lint` e registrar/classificar os achados antes de
-  qualquer correção em lote.
-
-## 🟢 Consolidação do banco — concluída em 2026-08-08
-
-- [x] Arqueologia e proveniência de `001`–`019` encerradas; arquivos movidos
-  para `backend/supabase/history/legacy-migrations/`, sem suporte a replay.
-- [x] Snapshot forense de produção consolidado, sem dados pessoais.
-- [x] Cinco buckets, 14 policies Storage, RLS, grants, função e event trigger
-  recapturados e validados.
-- [x] Três baselines timestamped geradas e preservadas como cadeia ativa.
-- [x] Dois replays locais completos, testes estruturais/comportamentais e
-  comparação local × produção aprovados.
-- [x] Ensaio remoto descartável comprovou que `migration repair` registra
-  histórico sem executar SQL de migration.
-- [x] Produção recapturada imediatamente antes da adoção e confirmada
-  equivalente às baselines.
-- [x] Produção passou a registrar exatamente `20260807000100`,
-  `20260807000200` e `20260807000300` como `applied`.
-- [x] `migration list` local/remoto alinhado e `db push --dry-run` final com
-  `upToDate=true`, `dryRun=true`, `migrations=[]`.
-- [x] Nenhum `db push` real e nenhuma baseline SQL executados em produção.
-- [x] `AGENTS.md` e `CLAUDE.md` consolidados como instrução principal e stub.
-
-Hardenings conhecidos (`materias.user_id`, `materias.tipo`, policies de
-Storage e grants atuais) não pertencem à baseline retroativamente. Permanecem
-no `BACKLOG.md` para migrations incrementais futuras e separadas.
+**Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
+**Próxima ação:** concluir o smoke test manual do cutover v2 (login e navegação nas rotas principais), sem confundir esse teste operacional com a validação automatizada já concluída.
 
 ---
 
@@ -63,7 +23,7 @@ no `BACKLOG.md` para migrations incrementais futuras e separadas.
 - [ ] **Confirmar teste de login end-to-end na URL de produção** — ainda não formalmente confirmado pelo usuário, apesar do deploy estar de pé há semanas
 - [ ] Confirmar navegação funcionando em `/treino`, `/biblioteca` e `/estudos` na URL de produção (Estudos nunca foi testado em produção — só em `localhost`, ver seção Estudos abaixo)
 
-## Próxima tarefa de feature, depois da reprodutibilidade — Integração de APIs externas
+## Próxima tarefa de feature, depois do smoke test — Integração de APIs externas
 
 Precisa de `MODULE_TEMPLATE.md` completo antes de começar. Confirmado por
 inspeção do código (2026-08): **nenhuma `app/api/**/route.ts` existe ainda**
@@ -96,37 +56,3 @@ no projeto — esta será a primeira.
 ## Pendências de polimento
 
 Ver `BACKLOG.md` — `confirm()` nativo (9 arquivos, 10 ocorrências, em Treino e Biblioteca), menu "⋯" não fecha ao clicar fora, upload de capa/banner manual, edição de itens em listas aninhadas.
-
----
-
-## Histórico recente (para contexto, não ação pendente)
-
-As seções abaixo documentam trabalho já concluído e servem de referência —
-não são tarefas ativas.
-
-### Estudos v2 — Fase 1 (núcleo) e Fase 1B — concluídas
-Migration `015_estudos_v2.sql` gerada em 2026-07-20, executada e confirmada
-em 2026-07-22. `lib/revisao.ts` criado em 2026-07-25 (não existia na v2),
-desbloqueando `lib/simulados.ts`. Migration `016_estudos_v2_fase1b.sql`
-executada e confirmada em 2026-07-23. Primeira leva de frontend (versão crua)
-aplicada sem erros pelo usuário. Ver `CHANGELOG.md` para o detalhamento
-completo.
-
-### Estudos v2 — Design (Tailwind + shadcn, DEC-037/038/039) — concluído
-Paleta v0.dev adotada como padrão do sistema (exceto Biblioteca), Tailwind
-v4 + shadcn/ui adotado para Estudos, toggle claro/escuro implementado. As 8
-telas de Estudos (Hub, ENEM, Gabarito, Escola, Curso×2, Matéria, Redações)
-foram restilizadas entre 2026-07-26 e 2026-07-31, preservando 100% da
-lógica de dados real. `GradeManager` do v0.dev descartado por completo (sem
-schema equivalente) — registrado em `BACKLOG.md`. Ver `CHANGELOG.md`.
-
-### Correção de tipos em `lib/supabase.ts` (2026-07-27) — concluída
-`sbErr()` e `softDelete()` corrigidas, resolvendo 37 + 15 erros de
-TypeScript em cascata por todo o projeto. Bug de rota corrigido
-(`[materialUuid]` → `[materiaUuid]`). `npx tsc --noEmit` confirmado limpo —
-e reconfirmado nesta auditoria de 2026-08 (o relatório do Codex também
-encontrou 0 erros de TypeScript, só de lint).
-
-### Biblioteca v2: consolidação (DEC-032) e identidade visual (DEC-034) — concluídas
-Página única com sidebar por categoria (2026-07-19) e redesign dourado/âmbar
-(2026-07-20), ambas testadas e ajustadas pelo usuário. Ver `CHANGELOG.md`.

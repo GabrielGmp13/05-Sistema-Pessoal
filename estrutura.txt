@@ -3,6 +3,9 @@ Sistema Pessoal — estrutura atual (2026-08-08)
 05-Sistema-Pessoal/
 ├── AGENTS.md                     instruções canônicas para agentes
 ├── CLAUDE.md                     ponteiro curto para AGENTS.md
+├── README.md                     ponto de entrada operacional
+├── .nvmrc                       Node.js 24.15.0
+├── .github/workflows/validate.yml CI mínima do frontend
 ├── docs/                         documentação do projeto
 ├── backend/                      ferramentas e infraestrutura SQL; não é servidor
 │   ├── package.json              Supabase CLI 2.112.0 fixada
@@ -26,6 +29,7 @@ Sistema Pessoal — estrutura atual (2026-08-08)
     ├── lib/                      acesso ao Supabase e regras de domínio
     ├── public/                   fontes e assets estáticos
     ├── proxy.ts                 proteção de rotas no Next.js 16
+    ├── .env.example             nomes das variáveis públicas necessárias
     ├── package.json
     └── package-lock.json
 

@@ -98,9 +98,11 @@ cadeia ativa; `history/legacy-migrations/` é somente acervo; `snapshots/` é
 somente evidência. Produção registra as três baselines como `applied`, sem
 reexecução de SQL, e o dry-run final não encontrou migrations pendentes.
 
-Próximo marco técnico antes de novas features: reprodutibilidade do frontend
-(`package.json`, lockfile, `npm ci`, typecheck, build e lint), conforme
-`TASKS_NOW.md`.
+Reprodutibilidade do frontend/repositório foi consolidada em 2026-08-08:
+toolchain fixado, instalação limpa, typecheck e build aprovados, lint
+catalogado e CI mínima criada. O próximo marco operacional é o smoke test
+manual de login e navegação do cutover v2; depois dele, a próxima feature
+priorizada é a integração de APIs externas, conforme `TASKS_NOW.md`.
 
 ## Fase 7 — v2: Migração para Next.js/React 🔄 EM ANDAMENTO
 
