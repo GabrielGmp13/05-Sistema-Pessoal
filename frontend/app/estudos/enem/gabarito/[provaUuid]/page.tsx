@@ -6,7 +6,6 @@ import { Loader2, PenLine, Save } from 'lucide-react'
 import {
   listarTodasMateriasEnem,
   Materia,
-  AreaEnem,
 } from '../../../../../lib/materias'
 import { listarConteudosPorMateria, Conteudo } from '../../../../../lib/conteudos'
 import {

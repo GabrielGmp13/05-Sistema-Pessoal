@@ -1,5 +1,4 @@
 import { sb } from '@/lib/supabase';
-import { redirect } from 'next/navigation';
 
 export default async function HomePage() {
   const { data: { user } } = await sb.auth.getUser();

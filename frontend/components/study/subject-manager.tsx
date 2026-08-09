@@ -8,13 +8,6 @@ import { EmptyState } from '@/components/study/empty-state'
 import { InlineAddForm } from '@/components/study/inline-add-form'
 import { MonoLabel } from '@/components/study/mono-label'
 
-type Subject = {
-  id: string
-  name: string
-  topics: number
-  accuracy: number | null
-}
-
 export function SubjectManager({
   subjects,
   origin,

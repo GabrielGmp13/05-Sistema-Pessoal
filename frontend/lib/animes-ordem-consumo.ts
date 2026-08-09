@@ -1,4 +1,4 @@
-import { sb, getUserId, now, sbErr, softDelete } from './supabase';
+import { sb, getUserId, sbErr, softDelete } from './supabase';
 
 // animes_ordem_consumo — 009_biblioteca_v2_b3.sql
 // FK polimórfica: referencia_uuid aponta pra animes_temporadas.uuid (quando

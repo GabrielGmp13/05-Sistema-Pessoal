@@ -1,4 +1,4 @@
-import { sb, getUserId, now, sbErr, softDelete } from './supabase';
+import { sb, getUserId, sbErr, softDelete } from './supabase';
 
 // livros_anotacoes — 012_biblioteca_v2_b5_livros.sql
 export type TipoAnotacaoLivro = 'anotacao' | 'citacao';
