@@ -9,3 +9,11 @@ backend/supabase/.env.*
 
 # Backend tooling dependencies
 backend/node_modules/
+
+# Frontend dependencies, builds and local environment
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/tsconfig.tsbuildinfo
+frontend/.env*
+!frontend/.env.example

@@ -2,8 +2,10 @@
   "name": "sistema-pessoal-backend-tools",
   "private": true,
   "engines": {
-    "node": ">=20"
+    "node": "24.x",
+    "npm": "12.0.x"
   },
+  "packageManager": "npm@12.0.1",
   "scripts": {
     "supabase": "supabase"
   },
