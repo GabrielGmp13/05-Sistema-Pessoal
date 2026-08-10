@@ -5,11 +5,11 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 ---
 
 ## Status geral
-**Fase atual:** Fase 7 (v2) — v1 aposentada (DEC-031), `frontend/` é o único frontend ativo. Biblioteca e Treino v2 funcionalmente prontos; Estudos v2 com 9 rotas de página implementadas e restilizadas, correções de modelagem de 2026-08 aplicadas.
+**Fase atual:** Fase 7 (v2) — v1 aposentada (DEC-031), `frontend/` é o único frontend ativo. Hub inicial v2, navegação global e logout visível implementados; Biblioteca e Treino v2 funcionalmente prontos; Estudos v2 com 9 rotas de página implementadas e restilizadas, correções de modelagem de 2026-08 aplicadas.
 **Bloqueio:** nenhum.
 **Banco:** cadeia ativa consolidada; as três baselines estão registradas como `applied` em produção e o dry-run final não encontrou pendências.
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** concluir o smoke test manual do cutover v2 (login e navegação nas rotas principais), sem confundir esse teste operacional com a validação automatizada já concluída.
+**Próxima ação:** concluir o smoke test manual do cutover v2 (login, hub inicial, navegação nas rotas principais e logout), sem confundir esse teste operacional com a validação automatizada já concluída.
 
 ---
 
@@ -20,6 +20,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] Environment variables configuradas
 - [x] Deploy realizado (confirmado: 2026-07-13)
 - [x] Supabase → Auth → URL Configuration atualizado para a nova URL
+- [x] Hub inicial v2 com navegação para `/treino`, `/biblioteca`, `/estudos` e logout visível implementado localmente (2026-08-09)
 - [ ] **Confirmar teste de login end-to-end na URL de produção** — ainda não formalmente confirmado pelo usuário, apesar do deploy estar de pé há semanas
 - [ ] Confirmar navegação funcionando em `/treino`, `/biblioteca` e `/estudos` na URL de produção (Estudos nunca foi testado em produção — só em `localhost`, ver seção Estudos abaixo)
 
