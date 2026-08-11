@@ -10,6 +10,7 @@ import {
   apagarSerie,
 } from '@/lib/series';
 import PainelDetalheObra, { CampoInfo } from '@/components/PainelDetalheObra';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import ElencoEditor from '@/components/ElencoEditor';
 import TrilhaSonoraEditor from '@/components/TrilhaSonoraEditor';
 import TemporadasEditor from '@/components/TemporadasEditor';
@@ -58,6 +59,7 @@ export default function SeriesSection({ gatilhoAdicionar, busca = '', onTotalCar
 
   const [menuAbertoUuid, setMenuAbertoUuid] = useState<string | null>(null);
   const [painelSerie, setPainelSerie] = useState<Serie | null>(null);
+  const [serieParaApagar, setSerieParaApagar] = useState<string | null>(null);
 
   const [generos, setGeneros] = useState<Genero[]>([]);
   const [generosSelecionados, setGenerosSelecionados] = useState<string[]>([]);
@@ -181,9 +183,9 @@ export default function SeriesSection({ gatilhoAdicionar, busca = '', onTotalCar
     return campos;
   }
 
-  async function confirmarExclusao(uuid: string) {
-    if (!confirm('Apagar esta série?')) return;
-    const ok = await apagarSerie(uuid);
+  async function confirmarExclusao() {
+    if (!serieParaApagar) return;
+    const ok = await apagarSerie(serieParaApagar);
     if (!ok) {
       setErro('Não foi possível apagar a série.');
     } else {
@@ -232,7 +234,7 @@ export default function SeriesSection({ gatilhoAdicionar, busca = '', onTotalCar
               generos={generosPorItem[serie.uuid] ?? []}
               onClick={() => setPainelSerie(serie)}
               onEditar={() => abrirEdicao(serie)}
-              onApagar={() => confirmarExclusao(serie.uuid)}
+              onApagar={() => setSerieParaApagar(serie.uuid)}
               menuAberto={menuAbertoUuid === serie.uuid}
               onAlternarMenu={() =>
                 setMenuAbertoUuid(menuAbertoUuid === serie.uuid ? null : serie.uuid)
@@ -420,6 +422,17 @@ export default function SeriesSection({ gatilhoAdicionar, busca = '', onTotalCar
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={serieParaApagar !== null}
+        title="Apagar série?"
+        description="A série deixará de aparecer na Biblioteca. Esta ação pode ser cancelada agora."
+        confirmLabel="Apagar"
+        onOpenChange={(open) => {
+          if (!open) setSerieParaApagar(null);
+        }}
+        onConfirm={confirmarExclusao}
+      />
 
       {painelSerie && (
         <PainelDetalheObra

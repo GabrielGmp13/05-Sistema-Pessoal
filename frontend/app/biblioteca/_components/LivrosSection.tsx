@@ -11,6 +11,7 @@ import {
 } from '@/lib/livros';
 import PainelSimples from '@/components/PainelSimples';
 import { CampoInfo } from '@/components/PainelDetalheObra';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import AnotacoesLivroEditor from '@/components/AnotacoesLivroEditor';
 import SeletorGenero from '@/components/SeletorGenero';
 import BibliotecaBanner from './BibliotecaBanner';
@@ -62,6 +63,7 @@ export default function LivrosSection({ gatilhoAdicionar, busca = '', onTotalCar
 
   const [menuAbertoUuid, setMenuAbertoUuid] = useState<string | null>(null);
   const [painelLivro, setPainelLivro] = useState<Livro | null>(null);
+  const [livroParaApagar, setLivroParaApagar] = useState<string | null>(null);
 
   const [generos, setGeneros] = useState<Genero[]>([]);
   const [generosSelecionados, setGenerosSelecionados] = useState<string[]>([]);
@@ -159,9 +161,9 @@ export default function LivrosSection({ gatilhoAdicionar, busca = '', onTotalCar
     setSalvando(false);
   }
 
-  async function confirmarExclusao(uuid: string) {
-    if (!confirm('Apagar este livro?')) return;
-    const ok = await apagarLivro(uuid);
+  async function confirmarExclusao() {
+    if (!livroParaApagar) return;
+    const ok = await apagarLivro(livroParaApagar);
     if (!ok) {
       setErro('Não foi possível apagar o livro.');
     } else {
@@ -232,7 +234,7 @@ export default function LivrosSection({ gatilhoAdicionar, busca = '', onTotalCar
               generos={generosPorItem[livro.uuid] ?? []}
               onClick={() => setPainelLivro(livro)}
               onEditar={() => abrirEdicao(livro)}
-              onApagar={() => confirmarExclusao(livro.uuid)}
+              onApagar={() => setLivroParaApagar(livro.uuid)}
               menuAberto={menuAbertoUuid === livro.uuid}
               onAlternarMenu={() =>
                 setMenuAbertoUuid(menuAbertoUuid === livro.uuid ? null : livro.uuid)
@@ -405,6 +407,17 @@ export default function LivrosSection({ gatilhoAdicionar, busca = '', onTotalCar
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={livroParaApagar !== null}
+        title="Apagar livro?"
+        description="O livro deixará de aparecer na Biblioteca. Esta ação pode ser cancelada agora."
+        confirmLabel="Apagar"
+        onOpenChange={(open) => {
+          if (!open) setLivroParaApagar(null);
+        }}
+        onConfirm={confirmarExclusao}
+      />
 
       {painelLivro && (
         <PainelSimples

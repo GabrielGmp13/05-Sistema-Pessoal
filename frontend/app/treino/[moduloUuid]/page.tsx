@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { createBrowserClient } from '@supabase/ssr'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { getTreinosPorModulo, criarTreino, softDeleteTreino, type Treino } from '@/lib/treino'
 import styles from './page.module.css'
 
@@ -14,6 +15,7 @@ export default function PlanoModuloPage() {
   const [carregando, setCarregando] = useState(true)
   const [nomeNovo, setNomeNovo] = useState('')
   const [descNova, setDescNova] = useState('')
+  const [treinoParaApagar, setTreinoParaApagar] = useState<string | null>(null)
 
   const sb = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -47,10 +49,9 @@ export default function PlanoModuloPage() {
     }
   }
 
-  async function handleApagar(uuid: string) {
-    if (!userId) return
-    if (!confirm('Apagar este treino? Os exercícios dele também deixam de aparecer.')) return
-    await softDeleteTreino(sb, uuid)
+  async function handleApagarConfirmado() {
+    if (!userId || !treinoParaApagar) return
+    await softDeleteTreino(sb, treinoParaApagar)
     await recarregar(userId)
   }
 
@@ -93,13 +94,24 @@ export default function PlanoModuloPage() {
               <Link href={`/treino/${moduloUuid}/${t.uuid}/academia`} className={styles.btnPrimario}>
                 Treinar
               </Link>
-              <button className={styles.btnDanger} onClick={() => handleApagar(t.uuid)}>
+              <button className={styles.btnDanger} onClick={() => setTreinoParaApagar(t.uuid)}>
                 Apagar
               </button>
             </div>
           </div>
         ))}
       </div>
+
+      <ConfirmDialog
+        open={treinoParaApagar !== null}
+        title="Apagar treino?"
+        description="Os exercícios deste treino também deixarão de aparecer. Esta ação pode ser cancelada agora."
+        confirmLabel="Apagar"
+        onOpenChange={(open) => {
+          if (!open) setTreinoParaApagar(null)
+        }}
+        onConfirm={handleApagarConfirmado}
+      />
     </div>
   )
 }

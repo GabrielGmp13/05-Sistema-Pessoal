@@ -8,7 +8,7 @@ Visão macro de onde o Sistema Pessoal pretende chegar. Não é um roadmap detal
 
 | Módulo | Status | Observação |
 |---|---|---|
-| Dashboard | 🔄 Placeholder | `app/page.tsx` hoje é uma tela técnica confirmando login/proxy/CSS funcionando — não é um dashboard real com widgets/resumo (confirmado por inspeção do código, 2026-08). Sem navegação global entre módulos nem logout visível em nenhuma tela ainda, ver `TASKS_NOW.md`. |
+| Dashboard | ✅ Hub inicial | `app/page.tsx` oferece acesso a Treino, Biblioteca e Estudos. `GlobalNav` mantém navegação global e logout visíveis; widgets, resumo e polimento adicional do hub ficam para uma etapa futura. |
 | Treino | ✅ Implementado (v2) | Plano, academia, hub, shape — completo. Pendências de polimento em `BACKLOG.md`. |
 | Revisão Espaçada | 🔄 Motor ativo, sem tela dedicada | O algoritmo SM-2 (`frontend/lib/revisao.ts`) está em uso — reaproveitado por Estudos v2 (DEC-035) como lembrete de revisão de conteúdo. Não existe uma página própria de Revisão Espaçada na v2 ainda (era `revisao.html` na v1, removida) — ver `ROADMAP.md` Fase 7.4. |
 | Biblioteca | ✅ v2 completa | Catálogo de mídia (6 categorias: filmes, séries, animes, mangás, livros, podcasts), consolidado em página única com sidebar (DEC-032), identidade visual própria dourado/âmbar (DEC-034). Ver DEC-011 para o princípio geral (catálogo, nunca hospedagem de mídia). Pendências de polimento em `BACKLOG.md`. |

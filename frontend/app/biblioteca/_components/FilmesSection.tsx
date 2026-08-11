@@ -10,6 +10,7 @@ import {
   apagarFilme,
 } from '@/lib/filmes';
 import PainelDetalheObra, { CampoInfo } from '@/components/PainelDetalheObra';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import ElencoEditor from '@/components/ElencoEditor';
 import TrilhaSonoraEditor from '@/components/TrilhaSonoraEditor';
 import SeletorGenero from '@/components/SeletorGenero';
@@ -55,6 +56,7 @@ export default function FilmesSection({ gatilhoAdicionar, busca = '', onTotalCar
 
   const [menuAbertoUuid, setMenuAbertoUuid] = useState<string | null>(null);
   const [painelFilme, setPainelFilme] = useState<Filme | null>(null);
+  const [filmeParaApagar, setFilmeParaApagar] = useState<string | null>(null);
 
   const [generos, setGeneros] = useState<Genero[]>([]);
   const [generosSelecionados, setGenerosSelecionados] = useState<string[]>([]);
@@ -170,9 +172,9 @@ export default function FilmesSection({ gatilhoAdicionar, busca = '', onTotalCar
     return campos;
   }
 
-  async function confirmarExclusao(uuid: string) {
-    if (!confirm('Apagar este filme?')) return;
-    const ok = await apagarFilme(uuid);
+  async function confirmarExclusao() {
+    if (!filmeParaApagar) return;
+    const ok = await apagarFilme(filmeParaApagar);
     if (!ok) {
       setErro('Não foi possível apagar o filme.');
     } else {
@@ -222,7 +224,7 @@ export default function FilmesSection({ gatilhoAdicionar, busca = '', onTotalCar
               generos={generosPorFilme[filme.uuid] ?? []}
               onClick={() => setPainelFilme(filme)}
               onEditar={() => abrirEdicao(filme)}
-              onApagar={() => confirmarExclusao(filme.uuid)}
+              onApagar={() => setFilmeParaApagar(filme.uuid)}
               menuAberto={menuAbertoUuid === filme.uuid}
               onAlternarMenu={() =>
                 setMenuAbertoUuid(menuAbertoUuid === filme.uuid ? null : filme.uuid)
@@ -397,6 +399,17 @@ export default function FilmesSection({ gatilhoAdicionar, busca = '', onTotalCar
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={filmeParaApagar !== null}
+        title="Apagar filme?"
+        description="O filme deixará de aparecer na Biblioteca. Esta ação pode ser cancelada agora."
+        confirmLabel="Apagar"
+        onOpenChange={(open) => {
+          if (!open) setFilmeParaApagar(null);
+        }}
+        onConfirm={confirmarExclusao}
+      />
 
       {painelFilme && (
         <PainelDetalheObra

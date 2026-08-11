@@ -100,9 +100,10 @@ reexecução de SQL, e o dry-run final não encontrou migrations pendentes.
 
 Reprodutibilidade do frontend/repositório foi consolidada em 2026-08-08:
 toolchain fixado, instalação limpa, typecheck e build aprovados, lint
-catalogado e CI mínima criada. O próximo marco operacional é o smoke test
-manual de login e navegação do cutover v2; depois dele, a próxima feature
-priorizada é a integração de APIs externas, conforme `TASKS_NOW.md`.
+catalogado e CI mínima criada. O smoke test principal de login, hub,
+navegação e logout passou em produção em 2026-08-09; a dívida de confirmação
+nativa foi zerada em 2026-08-11. As próximas prioridades dependem das decisões
+registradas em `TASKS_NOW.md`.
 
 ## Fase 7 — v2: Migração para Next.js/React 🔄 EM ANDAMENTO
 
@@ -123,8 +124,8 @@ v2 — ausência deliberada e temporária (ver DEC-031), não bug.
 | Sub-fase | Descrição | Status |
 |---|---|---|
 | 7.0 | Setup do projeto Next.js — estrutura de pastas, `lib/supabase.ts`, `proxy.ts` (renomeado de `middleware.ts`, DEC-031), layout base, CSS global | ✅ Completo |
-| 7.1 | Treino v2 | ✅ Completo — pendências de polimento em `BACKLOG.md` (confirm() nativo, gráfico de peso, upload de imagem de exercício) |
-| 7.2 | Biblioteca v2 (B1–B6) | ✅ Frontend completo, consolidado em página única com sidebar (DEC-032), identidade visual própria (DEC-034) — teste E2E geral em produção ainda pendente (ver `TASKS_NOW.md`) |
-| 7.3 | Estudos v2 (Fase 1 + Fase 1B) | ✅ 9 rotas de página implementadas e restilizadas (Tailwind/shadcn), incluindo `/estudos/enem/[area]`; schema estendido por `017`/`018`/`019` (gabarito ENEM em 2 fases, matéria única Escola/ENEM, domínio de conteúdo) — todas as migrations confirmadas executadas via dump real do banco (2026-08). Teste manual completo no navegador em andamento; teste em produção ainda pendente — ver `TASKS_NOW.md` |
+| 7.1 | Treino v2 | ✅ Completo — pendências de polimento em `BACKLOG.md` (gráfico de peso, upload de imagem de exercício) |
+| 7.2 | Biblioteca v2 (B1–B6) | ✅ Frontend completo, consolidado em página única com sidebar (DEC-032), identidade visual própria (DEC-034); acesso principal passou no smoke de produção, com validações profundas opcionais ainda pendentes |
+| 7.3 | Estudos v2 (Fase 1 + Fase 1B) | ✅ 9 rotas de página implementadas e restilizadas (Tailwind/shadcn), incluindo `/estudos/enem/[area]`; schema estendido por `017`/`018`/`019` (gabarito ENEM em 2 fases, matéria única Escola/ENEM, domínio de conteúdo) — todas as migrations confirmadas executadas via dump real do banco (2026-08). Acesso principal passou no smoke de produção; teste profundo das 9 rotas internas permanece opcional — ver `TASKS_NOW.md` |
 | 7.4 | Revisão Espaçada v2 (página dedicada) | ⏳ a planejar |
 | 7.5 | Agenda v2 (módulo dedicado, hoje só existe como tabela `agenda` sem UI) | ⏳ a planejar — depende de decidir onde mora "cronograma de estudo" primeiro, ver `BACKLOG.md` |

@@ -9,7 +9,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 **Bloqueio:** nenhum.
 **Banco:** cadeia ativa consolidada; as três baselines estão registradas como `applied` em produção e o dry-run final não encontrou pendências.
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** corrigir pendências de usabilidade seguras restantes (começando por `confirm()` nativo em Treino/Biblioteca), sem misturar com features novas ou mudanças de banco.
+**Próxima ação:** validar manualmente os novos modais de confirmação e decidir se Revisão Espaçada dedicada ou Agenda entra primeiro, sem misturar com módulos novos ou mudanças de banco.
 
 ---
 
@@ -44,7 +44,7 @@ no projeto — esta será a primeira.
 
 ---
 
-## 🟢 Estudos v2 — Correção de modelagem pós-design (2026-08) — concluída, teste manual em andamento
+## 🟢 Estudos v2 — Correção de modelagem pós-design (2026-08) — concluída, smoke principal aprovado
 
 - [x] Migration 017 (área ENEM, letra do gabarito, redação com imagem) executada
 - [x] Migration 018 (matéria única, mostra_escola/mostra_enem, limpeza de dado duplicado) executada
@@ -53,11 +53,13 @@ no projeto — esta será a primeira.
 - [x] Páginas de Estudos atualizadas (Hub, ENEM, área ENEM nova, Escola, Curso×2, Matéria, Gabarito e Redações: 9 rotas de página) — `npx tsc --noEmit` limpo
 - [x] **Teste manual completo no navegador** — smoke test online das rotas principais concluído pelo usuário em produção (2026-08-09)
 - [x] **Teste em produção (Vercel)** — acesso a `/estudos` confirmado no smoke test online (2026-08-09); teste profundo das 9 rotas internas ainda pode ser feito em etapa própria
-- [ ] `SubjectManager`: `topics`/`accuracy` ainda fixos em 0 (pendência antiga, não tocada)
+- [ ] `SubjectManager`: o componente existe, mas não é usado pelas rotas atuais; decidir entre reintegrá-lo com métricas reais ou remover o componente órfão
 - [ ] `materiais_estudo`, `anotacoes_estudo`, `sessoes_estudo` — schema existe e confere com o banco real (reconfirmado em 2026-08), sem página ainda
 - [x] Vínculo de conteúdo compartilhado deixou de usar `window.prompt` e passou a usar seleção visível de matéria (2026-08-09)
 - [x] Ações destrutivas de Estudos agora passam por modal de confirmação (conteúdo, prova, atividade, módulo de curso e foto de redação)
+- [x] As 10 ocorrências restantes de `confirm()` nativo em Treino/Biblioteca foram substituídas pelo `ConfirmDialog` reutilizável (2026-08-11)
+- [ ] Validar manualmente os novos modais de Treino/Biblioteca: confirmar, cancelar, fechar por Escape e clicar no backdrop
 
 ## Pendências de polimento
 
-Ver `BACKLOG.md` — `confirm()` nativo remanescente em Treino/Biblioteca, menu "⋯" não fecha ao clicar fora, upload de capa/banner manual, edição de itens em listas aninhadas.
+Ver `BACKLOG.md` — menu "⋯" não fecha ao clicar fora, upload de capa/banner manual e edição de itens em listas aninhadas.

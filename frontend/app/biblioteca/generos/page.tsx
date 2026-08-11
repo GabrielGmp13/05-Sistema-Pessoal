@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { createBrowserClient } from '@supabase/ssr'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { seedGenerosSeNecessario, getGeneros, criarGenero, atualizarGenero, softDeleteGenero, type Genero } from '@/lib/generos'
 import styles from './page.module.css'
 
@@ -15,6 +16,7 @@ export default function GenerosPage() {
   const [editando, setEditando] = useState<string | null>(null)
   const [nomeEdit, setNomeEdit] = useState('')
   const [descEdit, setDescEdit] = useState('')
+  const [generoParaApagar, setGeneroParaApagar] = useState<string | null>(null)
 
   const sb = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -64,10 +66,9 @@ export default function GenerosPage() {
     }
   }
 
-  async function handleApagar(uuid: string) {
-    if (!userId) return
-    if (!confirm('Apagar este gênero? Ele deixa de aparecer nas obras que já o usam.')) return
-    await softDeleteGenero(sb, uuid)
+  async function handleApagarConfirmado() {
+    if (!userId || !generoParaApagar) return
+    await softDeleteGenero(sb, generoParaApagar)
     await recarregar(userId)
   }
 
@@ -104,13 +105,24 @@ export default function GenerosPage() {
                 </div>
                 <div className={styles.acoes}>
                   <button className={styles.btnGhost} onClick={() => iniciarEdicao(g)}>Editar</button>
-                  <button className={styles.btnDanger} onClick={() => handleApagar(g.uuid)}>Apagar</button>
+                  <button className={styles.btnDanger} onClick={() => setGeneroParaApagar(g.uuid)}>Apagar</button>
                 </div>
               </>
             )}
           </div>
         ))}
       </div>
+
+      <ConfirmDialog
+        open={generoParaApagar !== null}
+        title="Apagar gênero?"
+        description="O gênero deixará de aparecer nas obras que já o utilizam. Esta ação pode ser cancelada agora."
+        confirmLabel="Apagar"
+        onOpenChange={(open) => {
+          if (!open) setGeneroParaApagar(null)
+        }}
+        onConfirm={handleApagarConfirmado}
+      />
     </div>
   )
 }

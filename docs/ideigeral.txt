@@ -1,0 +1,48 @@
+quero fazer um brainstorm, esqueça limitações eu quero escrever tudo que eu pensar e achar bom para 
+o meu site eu vivo esquecendo o que quero fazer, o que deixei de fora de proposito, o que é para o 
+futuro e o que já está feito.
+    vamos começar com uma chuva de falas pessoais minhas de agora, talvez eu diga algo que queira 
+junto do site mas não vou lembrar se já foi decidio ou não, eu também vou esquecer funções que já 
+foi decidido que queria.
+"A princípio eu quero um site que eu entre nele e tenha tudo da minha vida na página inicial, ou seja, 
+naquele dashboard inicial eu saiba tudo o que eu precisa saber para organizar o meu dia, semana, mês
+e talvez até ano.
+Eu saiba por exemplo algumas funções que sirvam realmente com uma agenda conectada ao Google Calendar,
+informações de próximas provas, informações de próximos treinos, rebrise do que consumi de obras no mês,
+o que estou lendo essa parte do dashboard principal ainda está pouco vaga na minha mente, mas ele deve
+mostrar informações úteis das outras páginas e partes da minha vida.
+esse site deve englobar diversas partes da minha vida a principio eu só pensei em estudos (uma parte da mente)
+treino(uma parte do corpo), biblioteca(uma parte da minha memória), digo uma parte disso e aquilo, pois 
+pode ter mais funções a se por que sejam para aquela emsma parte de mim. 
+algumas coisas inclusive que já fizemos e outras que vamos fazer e outras que talvez nem pensamos 
+ou deixamos para o futuro são, esse site ele precisa ter uma biblioteca digital completa. 
+Ou seja tudo o que eu consumi de obra tem que ser documentado nele, tanto para estingar a minha memória 
+quanto para documentar quanto para relacionar meu consumo midiático com outras informações pessoais. 
+Outra função que esse site deve ter é organizar todos os meus estudos. Algumas coisas, principais como o 
+o ENEM, escola e cursos eu já sugeri pelo que lembro. Aí eu preciso de várias sugestões, 
+a parte de ENEM creio que eu já consegui documentar muito bem mas é muito importante que a 
+gente revise tudo, (estamos revisando tudo do zero).
+Então eu quero que ele tenha tudo nos meus estudos. Talvez até coisas que eu nem saiba que precisa. 
+Outra coisa que esse site deve ter é sobre os meus treinos, eu acho que essa parte já está completa,
+ porque creio que documentei bem ela, mas como estamos realizando tudo, eu vou repassar algumas ideias
+Dessa página de treino também. eu saber exatamente o que eu vou treinar quando e como eu treinarei. 
+Eu quero ver várias informações de treino, inclusive aqueles dashboardzinhos de anime onde você tem
+lá pontos de força, agilidade, essas coisas, só que tudo de uma forma clara, bem estruturada e que 
+faça real sentido. Como por exemplo a gente teria um medidor de disciplina, que seria o contador de 
+quantas vezes eu treinei e deixei de treinar. E tem todas aqueles gráficozinhos eu sou uma pessoa 
+que gosta bastante de gráficos, Além de ter essas informações eu teria outras informações como o 
+que vou treinar guiadamente. Outra coisa seria a organização e a editação desses treinos, o que eu 
+fiz primordialmente foi a criação de módulos onde eu, por módulos eu habilito uma área da minha vida 
+e do meu físico como por exemplo força, agilidade, resistência, flexibilidade... isso já foi feito.
+dentro desses módulos eu teria todos os meus treinos como por exemplo no modulo força, eu teria o meu treino
+de força para superiores, de força para pernas, de força para tal atividade que eu mesmo criei. 
+E dentro desse meu treino teria todos os exercícios que eu preciso fazer, como eu preciso fazer, 
+y de x repetições nesse exercício com explicação de imagem ou gif além de parte de dicas, e aí 
+marcação de carga. E tudo isso para quando eu fosse treinar eu apertasse sei lá um botãozinho de 
+estou treinando e registrasse que eu treinei, onde eu registraria a carga do do treino que eu fiz, 
+do exercício que eu fiz, as repetições, acho que essa parte está toda bem documentada e até tem um sistema de pr 
+até porque ela já está quase que completa faltando so a parte do designe.
+até onde consigo pensar não veem mais ideias na cabeça, por hora só me veem o quê? Que eu preciso 
+documentar estudos, o que eu consumo e 
+treino. Mas agora que vem o brainstorming e você de forma crítica e bastante criativa, fará com que 
+esse sistema precisa ter para literalmente só com ele organizar toda a minha vida. toda a minha vida. 

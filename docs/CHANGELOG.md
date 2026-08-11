@@ -20,6 +20,13 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 (Next.js) — em andamento
 
+- **2026-08-11** — Fechamento seguro de UX da v2: as 10 ocorrências restantes
+  de `confirm()` nativo em Treino e Biblioteca foram substituídas pelo
+  `ConfirmDialog` reutilizável, preservando as mesmas operações de exclusão.
+  `window.prompt` continua ausente. Documentação reconciliada com o hub `/`,
+  navegação global, logout, smoke principal de produção e modais atuais. Sem
+  mudança de banco, migration, dependência ou infraestrutura.
+
 - **2026-08-09** — Primeira etapa segura para tornar a v2 usável como site:
   rota `/` deixou de ser placeholder técnico e virou hub inicial com acesso
   direto a Treino, Biblioteca e Estudos. Navegação global simples adicionada
@@ -44,7 +51,7 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 - **2026-07-20** — Redesign visual completo da Biblioteca + nova identidade visual do sistema inteiro (DEC-034). Usuário trouxe referência real (export do Figma Make: `theme.css` + `App.tsx`), usada como fonte da verdade de cor e estrutura em vez de aproximação. Paleta trocada de verde-limão para dourado/âmbar via `globals.css` — cascateia pra todo o sistema por já usar CSS Modules com variáveis. `Sidebar` ganhou faixa de perfil com imagem de fundo, avatar com anel dourado, badge de contagem só no item ativo. `BibliotecaBanner` reescrito com hero de 168px, prioridade de fundo (imagem estática do módulo → mosaico das capas reais do usuário → gradiente), sub-header fora do hero em fluxo normal (não fixo). `BibliotecaCard` reescrito: título 1 linha, ano+nota★ na mesma linha, 1 gênero, menu "⋯" só no hover. Nota migrada de escala 1-5 para 0-10 nos 6 formulários e nos painéis de detalhe (DEC-033, migration `014_nota_escala_dez.sql` confirmada executada pelo usuário). Contagem por categoria conectada via callback `onTotalCarregado` (Section → page.tsx → Sidebar). Dois bugs de estrutura JSX corrigidos pelo usuário durante a aplicação manual (key prop espalhada incorretamente; `<div>` do container sem fechamento ao trocar por Fragment). Integração de APIs externas (TMDB/Google Books/Jikan/iTunes) explicitamente adiada como próxima tarefa de escopo, não incluída neste redesign.
 
 ### Pendências ativas
-Ver `TASKS_NOW.md` para o que está em aberto agora. Ver `BACKLOG.md` para polimento não bloqueante (gráficos, upload de imagem, reordenação, `confirm()` nativo, etc.).
+Ver `TASKS_NOW.md` para o que está em aberto agora. Ver `BACKLOG.md` para polimento não bloqueante (gráficos, upload de imagem, reordenação etc.).
 
 - **2026-07-20** — Planejamento de Estudos v2 (Fase 1/núcleo, DEC-035): rascunho amplo do usuário analisado, 3 sobreposições identificadas com módulos existentes/planejados (checklist de revisão duplicando SM-2; calendário próprio duplicando Agenda; Cursos/Flashcards como escopo de produto à parte). Escopo fasado com o usuário: núcleo cobre matérias (mantidas), conteúdos, anotações, materiais, sessões de estudo com tempo, questões individuais, simulados e redação leve — todas como tabelas novas, substituindo as equivalentes da v1 a pedido do usuário. Revisão de conteúdo reaproveita `revisao_espacada` existente como lembrete (não flashcard). Migration `015_estudos_v2.sql` gerada, execução pendente. Fase 2 (Cursos, Flashcards/Anki, Redação versionada, Calendário próprio, metas/streak, estatísticas avançadas) registrada em `BACKLOG.md`, não descartada.
 

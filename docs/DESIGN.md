@@ -130,7 +130,7 @@ Foco: borda muda para `--accent`.
 .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; max-width: 320–420px; }
 ```
 Sempre com header (título + botão fechar `✕`), body, footer (botão fantasma + ação). Fecham via clique no backdrop, tecla Escape, ou botão `✕`.
-**Toda ação destrutiva passa por modal de confirmação — nunca `confirm()` nativo do browser.** (Dívida técnica ainda presente em algumas telas — ver `BACKLOG.md`.)
+**Toda ação destrutiva passa por modal de confirmação — nunca `confirm()` nativo do browser.** O padrão reutilizável atual é `components/ui/confirm-dialog.tsx`; a dívida conhecida foi zerada em 2026-08-11.
 
 ### Toast
 ```css

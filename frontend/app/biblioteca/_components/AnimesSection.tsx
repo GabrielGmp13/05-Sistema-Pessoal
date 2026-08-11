@@ -10,6 +10,7 @@ import {
   apagarAnime,
 } from '@/lib/animes';
 import PainelDetalheObra, { CampoInfo } from '@/components/PainelDetalheObra';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import ElencoEditor from '@/components/ElencoEditor';
 import OpeningsEndingsEditor from '@/components/OpeningsEndingsEditor';
 import TemporadasAnimeEditor from '@/components/TemporadasAnimesEditor';
@@ -65,6 +66,7 @@ export default function AnimesSection({ gatilhoAdicionar, busca = '', onTotalCar
 
   const [menuAbertoUuid, setMenuAbertoUuid] = useState<string | null>(null);
   const [painelAnime, setPainelAnime] = useState<Anime | null>(null);
+  const [animeParaApagar, setAnimeParaApagar] = useState<string | null>(null);
 
   const [generos, setGeneros] = useState<Genero[]>([]);
   const [generosSelecionados, setGenerosSelecionados] = useState<string[]>([]);
@@ -168,9 +170,9 @@ export default function AnimesSection({ gatilhoAdicionar, busca = '', onTotalCar
     setSalvando(false);
   }
 
-  async function confirmarExclusao(uuid: string) {
-    if (!confirm('Apagar este anime?')) return;
-    const ok = await apagarAnime(uuid);
+  async function confirmarExclusao() {
+    if (!animeParaApagar) return;
+    const ok = await apagarAnime(animeParaApagar);
     if (!ok) {
       setErro('Não foi possível apagar o anime.');
     } else {
@@ -250,7 +252,7 @@ export default function AnimesSection({ gatilhoAdicionar, busca = '', onTotalCar
               generos={generosPorItem[anime.uuid] ?? []}
               onClick={() => setPainelAnime(anime)}
               onEditar={() => abrirEdicao(anime)}
-              onApagar={() => confirmarExclusao(anime.uuid)}
+              onApagar={() => setAnimeParaApagar(anime.uuid)}
               menuAberto={menuAbertoUuid === anime.uuid}
               onAlternarMenu={() =>
                 setMenuAbertoUuid(menuAbertoUuid === anime.uuid ? null : anime.uuid)
@@ -466,6 +468,17 @@ export default function AnimesSection({ gatilhoAdicionar, busca = '', onTotalCar
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={animeParaApagar !== null}
+        title="Apagar anime?"
+        description="O anime deixará de aparecer na Biblioteca. Esta ação pode ser cancelada agora."
+        confirmLabel="Apagar"
+        onOpenChange={(open) => {
+          if (!open) setAnimeParaApagar(null);
+        }}
+        onConfirm={confirmarExclusao}
+      />
 
       {painelAnime && (
         <PainelDetalheObra

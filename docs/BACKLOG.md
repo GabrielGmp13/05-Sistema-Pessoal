@@ -89,7 +89,7 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 - [ ] Edição de itens já criados em listas aninhadas (elenco, trilha sonora, temporadas, openings/endings, volumes) — hoje só dá pra criar ou apagar; os únicos campos editáveis depois de criado são os toggles (`lido`, `filler`, `assistido`)
 - [ ] Reordenação manual (drag-and-drop) do campo `ordem` em elenco/trilha sonora/openings-endings/volumes — hoje `ordem` só reflete sequência de criação
 - [ ] `animes_generos` (schema já existe desde `009_biblioteca_v2_b3.sql`) sem `lib/` nem UI — nenhuma tela permite associar gênero a um anime ainda
-- [ ] `confirm()` nativo do navegador ao apagar item — confirmado em 9 arquivos e 10 ocorrências por inspeção do código (2026-08): `app/biblioteca/generos/page.tsx` + as 6 `*Section.tsx` de Biblioteca, além de 2 arquivos de Treino v2 (uma das páginas contém 2 ocorrências; ver seção Treino v2 abaixo). Contraria `DESIGN.md`.
+- [x] `confirm()` nativo do navegador ao apagar item — as 10 ocorrências em Biblioteca e Treino foram substituídas pelo `ConfirmDialog` reutilizável em 2026-08-11; busca no frontend ficou zerada.
 - [ ] Menu de ações "⋯" (Editar/Apagar) nos cards não fecha sozinho ao clicar fora — só fecha ao escolher uma opção ou clicar de novo no próprio botão
 - [ ] Velocidade de leitura (páginas/hora) em Livros (B5) — `paginas_total`/`pagina_atual` permitem progresso, mas não velocidade; exigiria registro de sessões de leitura com data, não desenhado ainda (ver DEC-029)
 - [ ] Imagens estáticas de banner por categoria (`public/biblioteca/banners/{filmes,series,animes,mangas,livros,podcasts}.jpg`) — suporte já existe no `BibliotecaBanner` (DEC-034), mas depende do usuário fornecer as imagens; sem elas, cada categoria usa o mosaico automático das próprias capas cadastradas (funcional, mas não é o visual final pretendido). Confirmado que ao menos `animes.jpg` já está versionado — as outras 5 ainda faltam.
@@ -97,7 +97,7 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 
 ## Treino v2
 
-- [ ] Substituir `confirm()` nativo do navegador por modal de confirmação (padrão `.open`) ao apagar treino — confirmado em `app/treino/[moduloUuid]/page.tsx` e `app/treino/[moduloUuid]/[treinoUuid]/page.tsx` — inconsistência com `DESIGN.md` introduzida na geração inicial das páginas v2, adiada por decisão explícita (2026-07-16)
+- [x] Substituir `confirm()` nativo do navegador por modal de confirmação ao apagar treino — concluído com o `ConfirmDialog` reutilizável em 2026-08-11.
 - [ ] Gráfico de evolução de peso em `app/treino/shape/page.tsx` — decisão de dependência ainda não tomada para v2 (Chart.js não está no `package.json` atual — se retomado, escolher biblioteca do zero, não assumir Chart.js como já decidido)
 - [ ] Upload de imagem/GIF de exercício (`imagem_path`) — CRUD ficou só textual; o bucket privado `exercicios` e sua policy existem e estão na baseline, mas a policy atual tem `WITH CHECK = NULL`. Qualquer hardening deve vir em migration separada antes/ junto da UI, nunca por edição da baseline.
 - [ ] Reordenação de exercícios (`ordem`) via drag-and-drop ou setas — hoje `ordem` só reflete sequência de criação

@@ -166,9 +166,9 @@ como lembrete, não flashcard — ver DEC-035.
 **Dependências**
 - Tailwind v4 + shadcn/ui + Base UI (DEC-038) — única exceção à convenção de
   CSS Modules do resto do sistema.
-- O código integra o nome de bucket `redacoes` (`lib/redacoes.ts`, foto da
-  folha manuscrita); sua criação é uma ação manual descrita em `017`, não
-  confirmada pelo dump atual. `documentos` é provisionado por `001`, mas ainda
+- O código integra o bucket `redacoes` (`lib/redacoes.ts`, foto da folha
+  manuscrita), confirmado no snapshot de produção e reproduzido pela baseline.
+  `documentos` é provisionado por `001`, mas ainda
   não tem UI de upload — `materiais_estudo` inteiro segue fora das páginas.
 - Depende de `lib/revisao.ts` (criado em 2026-07-25 para desbloquear
   `lib/simulados.ts`).
@@ -188,14 +188,14 @@ como lembrete, não flashcard — ver DEC-035.
 Nenhuma.
 
 **Pendências**
-- `SubjectManager` exibe `topics`/`accuracy` fixos em 0 (placeholder) — não
-  resolvido ainda.
+- `SubjectManager` existe, mas não é usado pelas rotas atuais; decidir entre
+  reintegrá-lo com métricas reais ou remover o componente órfão.
 - `materiais_estudo`, `anotacoes_estudo`, `sessoes_estudo` — schema existe,
   sem página ainda.
-- Vínculo de conteúdo compartilhado (`vincularConteudoAMateria`) via
-  `window.prompt` — sem seletor de matéria de verdade.
-- Teste manual completo no navegador das correções de 2026-08 (matéria
-  única, gabarito 2 fases, domínio de conteúdo) — em andamento.
+- Vínculo de conteúdo compartilhado usa seleção visível de matéria; não há
+  `window.prompt` no frontend.
+- O acesso principal a Estudos passou no smoke de produção em 2026-08-09; o
+  teste profundo das 9 rotas internas ainda pode ser feito em etapa própria.
 - Modo "fazer prova" com cronômetro/upload de PDF — não desenhado, ver
   BACKLOG.md e DEC-041.
 **Melhorias futuras**

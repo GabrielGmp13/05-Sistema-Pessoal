@@ -11,6 +11,7 @@ import {
 } from '@/lib/mangas';
 import PainelSimples from '@/components/PainelSimples';
 import { CampoInfo } from '@/components/PainelDetalheObra';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import VolumesEditor from '@/components/VolumesEditor';
 import SeletorGenero from '@/components/SeletorGenero';
 import BibliotecaBanner from './BibliotecaBanner';
@@ -63,6 +64,7 @@ export default function MangasSection({ gatilhoAdicionar, busca = '', onTotalCar
 
   const [menuAbertoUuid, setMenuAbertoUuid] = useState<string | null>(null);
   const [painelManga, setPainelManga] = useState<Manga | null>(null);
+  const [mangaParaApagar, setMangaParaApagar] = useState<string | null>(null);
 
   const [generos, setGeneros] = useState<Genero[]>([]);
   const [generosSelecionados, setGenerosSelecionados] = useState<string[]>([]);
@@ -160,9 +162,9 @@ export default function MangasSection({ gatilhoAdicionar, busca = '', onTotalCar
     setSalvando(false);
   }
 
-  async function confirmarExclusao(uuid: string) {
-    if (!confirm('Apagar este mangá?')) return;
-    const ok = await apagarManga(uuid);
+  async function confirmarExclusao() {
+    if (!mangaParaApagar) return;
+    const ok = await apagarManga(mangaParaApagar);
     if (!ok) {
       setErro('Não foi possível apagar o mangá.');
     } else {
@@ -234,7 +236,7 @@ export default function MangasSection({ gatilhoAdicionar, busca = '', onTotalCar
               generos={generosPorItem[manga.uuid] ?? []}
               onClick={() => setPainelManga(manga)}
               onEditar={() => abrirEdicao(manga)}
-              onApagar={() => confirmarExclusao(manga.uuid)}
+              onApagar={() => setMangaParaApagar(manga.uuid)}
               menuAberto={menuAbertoUuid === manga.uuid}
               onAlternarMenu={() =>
                 setMenuAbertoUuid(menuAbertoUuid === manga.uuid ? null : manga.uuid)
@@ -411,6 +413,17 @@ export default function MangasSection({ gatilhoAdicionar, busca = '', onTotalCar
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={mangaParaApagar !== null}
+        title="Apagar mangá?"
+        description="O mangá deixará de aparecer na Biblioteca. Esta ação pode ser cancelada agora."
+        confirmLabel="Apagar"
+        onOpenChange={(open) => {
+          if (!open) setMangaParaApagar(null);
+        }}
+        onConfirm={confirmarExclusao}
+      />
 
       {painelManga && (
         <PainelSimples

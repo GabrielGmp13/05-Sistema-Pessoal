@@ -11,6 +11,7 @@ import {
 } from '@/lib/podcasts';
 import PainelSimples from '@/components/PainelSimples';
 import { CampoInfo } from '@/components/PainelDetalheObra';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import SeletorGenero from '@/components/SeletorGenero';
 import BibliotecaBanner from './BibliotecaBanner';
 import BibliotecaCard from './BibliotecaCard';
@@ -52,6 +53,7 @@ export default function PodcastsSection({ gatilhoAdicionar, busca = '', onTotalC
 
   const [menuAbertoUuid, setMenuAbertoUuid] = useState<string | null>(null);
   const [painelPodcast, setPainelPodcast] = useState<Podcast | null>(null);
+  const [podcastParaApagar, setPodcastParaApagar] = useState<string | null>(null);
 
   const [generos, setGeneros] = useState<Genero[]>([]);
   const [generosSelecionados, setGenerosSelecionados] = useState<string[]>([]);
@@ -144,9 +146,9 @@ export default function PodcastsSection({ gatilhoAdicionar, busca = '', onTotalC
     setSalvando(false);
   }
 
-  async function confirmarExclusao(uuid: string) {
-    if (!confirm('Apagar este podcast?')) return;
-    const ok = await apagarPodcast(uuid);
+  async function confirmarExclusao() {
+    if (!podcastParaApagar) return;
+    const ok = await apagarPodcast(podcastParaApagar);
     if (!ok) {
       setErro('Não foi possível apagar o podcast.');
     } else {
@@ -205,7 +207,7 @@ export default function PodcastsSection({ gatilhoAdicionar, busca = '', onTotalC
               generos={generosPorItem[podcast.uuid] ?? []}
               onClick={() => setPainelPodcast(podcast)}
               onEditar={() => abrirEdicao(podcast)}
-              onApagar={() => confirmarExclusao(podcast.uuid)}
+              onApagar={() => setPodcastParaApagar(podcast.uuid)}
               menuAberto={menuAbertoUuid === podcast.uuid}
               onAlternarMenu={() =>
                 setMenuAbertoUuid(menuAbertoUuid === podcast.uuid ? null : podcast.uuid)
@@ -315,6 +317,17 @@ export default function PodcastsSection({ gatilhoAdicionar, busca = '', onTotalC
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={podcastParaApagar !== null}
+        title="Apagar podcast?"
+        description="O podcast deixará de aparecer na Biblioteca. Esta ação pode ser cancelada agora."
+        confirmLabel="Apagar"
+        onOpenChange={(open) => {
+          if (!open) setPodcastParaApagar(null);
+        }}
+        onConfirm={confirmarExclusao}
+      />
 
       {painelPodcast && (
         <PainelSimples

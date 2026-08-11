@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import {
   getExerciciosForca, criarExercicioForca, softDeleteExercicioForca,
   getExerciciosCardio, criarExercicioCardio, softDeleteExercicioCardio,
@@ -24,6 +25,10 @@ export default function PlanoTreinoPage() {
   const [descanso, setDescanso] = useState('60')
   const [distancia, setDistancia] = useState('')
   const [duracao, setDuracao] = useState('')
+  const [exercicioParaApagar, setExercicioParaApagar] = useState<{
+    uuid: string
+    tipo: 'forca' | 'cardio'
+  } | null>(null)
 
   const sb = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -71,17 +76,13 @@ export default function PlanoTreinoPage() {
     await recarregar(userId)
   }
 
-  async function handleApagarForca(uuid: string) {
-    if (!userId) return
-    if (!confirm('Apagar este exercício?')) return
-    await softDeleteExercicioForca(sb, uuid)
-    await recarregar(userId)
-  }
-
-  async function handleApagarCardio(uuid: string) {
-    if (!userId) return
-    if (!confirm('Apagar este exercício?')) return
-    await softDeleteExercicioCardio(sb, uuid)
+  async function handleApagarConfirmado() {
+    if (!userId || !exercicioParaApagar) return
+    if (exercicioParaApagar.tipo === 'forca') {
+      await softDeleteExercicioForca(sb, exercicioParaApagar.uuid)
+    } else {
+      await softDeleteExercicioCardio(sb, exercicioParaApagar.uuid)
+    }
     await recarregar(userId)
   }
 
@@ -125,7 +126,7 @@ export default function PlanoTreinoPage() {
                   <p className={styles.nome}>{ex.nome}</p>
                   <p className={styles.meta}>{ex.series_alvo}x{ex.reps_alvo} · {ex.carga_alvo}kg · {ex.descanso_segundos}s descanso</p>
                 </div>
-                <button className={styles.btnDanger} onClick={() => handleApagarForca(ex.uuid)}>Apagar</button>
+                <button className={styles.btnDanger} onClick={() => setExercicioParaApagar({ uuid: ex.uuid, tipo: 'forca' })}>Apagar</button>
               </div>
             ))}
           </div>
@@ -142,7 +143,7 @@ export default function PlanoTreinoPage() {
                   <p className={styles.nome}>{ex.nome}</p>
                   <p className={styles.meta}>{ex.distancia_alvo_km ? `${ex.distancia_alvo_km}km` : ''} {ex.duracao_alvo_minutos ? `· ${ex.duracao_alvo_minutos}min` : ''}</p>
                 </div>
-                <button className={styles.btnDanger} onClick={() => handleApagarCardio(ex.uuid)}>Apagar</button>
+                <button className={styles.btnDanger} onClick={() => setExercicioParaApagar({ uuid: ex.uuid, tipo: 'cardio' })}>Apagar</button>
               </div>
             ))}
           </div>
@@ -152,6 +153,17 @@ export default function PlanoTreinoPage() {
       {forca.length === 0 && cardio.length === 0 && (
         <p className={styles.vazio}>Nenhum exercício ainda. Adicione o primeiro acima.</p>
       )}
+
+      <ConfirmDialog
+        open={exercicioParaApagar !== null}
+        title="Apagar exercício?"
+        description="O exercício deixará de aparecer neste treino. Esta ação pode ser cancelada agora."
+        confirmLabel="Apagar"
+        onOpenChange={(open) => {
+          if (!open) setExercicioParaApagar(null)
+        }}
+        onConfirm={handleApagarConfirmado}
+      />
     </div>
   )
 }

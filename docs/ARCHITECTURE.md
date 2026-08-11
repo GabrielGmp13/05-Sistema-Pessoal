@@ -135,14 +135,12 @@ Módulos com navegação por categoria (Biblioteca; possivelmente Treino/Estudos
 no futuro) usam um `layout.tsx` próprio dentro da pasta de rota do módulo
 (ex: `app/biblioteca/layout.tsx`), que envolve a página com uma sidebar
 lateral fixa (`components/Sidebar.tsx`, genérico e reutilizável) — proporção
-de layout **2/9 sidebar, 7/9 conteúdo**. Diferente de uma sidebar de
-navegação global de nível 1 (site inteiro) — cada módulo tem a sua própria,
-escopada à sua pasta de rota. Troca de categoria dentro do módulo é estado
-de cliente (`useState`), não navegação de rota — sem reload, sem URL nova.
-**Nota:** não existe hoje navegação global entre módulos nem botão de logout
-visível em nenhuma tela — cada módulo (`/treino`, `/biblioteca`, `/estudos`)
-é acessado diretamente pela URL. Isso é uma lacuna real de UX, não uma
-omissão documental — ver `TASKS_NOW.md`.
+de layout **2/9 sidebar, 7/9 conteúdo**. Diferente da navegação global de
+nível 1 (`components/GlobalNav.tsx`), cada sidebar é escopada à pasta de rota
+do próprio módulo. A navegação global dá acesso a `/`, `/treino`,
+`/biblioteca` e `/estudos` e mantém o logout visível; a troca de categoria
+dentro da Biblioteca continua sendo estado de cliente (`useState`), sem
+reload nem URL nova.
 
 ### Hierarquia de camadas
 
@@ -242,17 +240,13 @@ continua sendo entregue como arquivo/diff pro usuário aplicar manualmente;
 
 ---
 
-## Confirm() nativo e outras dívidas de UX conhecidas (2026-08)
+## Confirmações destrutivas e seleção de vínculo (2026-08)
 
-Confirmado por inspeção do código real: `confirm()` nativo do navegador
-ainda está em uso em 9 arquivos, com 10 ocorrências
-(`app/biblioteca/generos/page.tsx`, as 6 `*Section.tsx` de Biblioteca,
-`app/treino/[moduloUuid]/page.tsx` e
-`app/treino/[moduloUuid]/[treinoUuid]/page.tsx`) — contraria `DESIGN.md` e
-`CLAUDE.md`/`AGENTS.md` regra 6, é dívida técnica já registrada, ver
-`BACKLOG.md`. Também confirmado: `window.prompt()` em
-`app/estudos/materia/[materiaUuid]/page.tsx` para vínculo manual de conteúdo
-compartilhado (pendência já registrada em `TASKS_NOW.md`).
+`components/ui/confirm-dialog.tsx` é o padrão reutilizável para confirmações
+destrutivas. As 10 ocorrências nativas antes presentes em Treino e Biblioteca
+foram migradas em 2026-08-11; a busca por `confirm()` no frontend ficou
+zerada. `window.prompt` também está ausente: em Estudos, o vínculo de conteúdo
+compartilhado usa uma seleção visível de matéria.
 
 ---
 
