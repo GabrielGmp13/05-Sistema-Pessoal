@@ -23,7 +23,7 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 - [ ] Google Calendar OAuth via Supabase Edge Function (ver DEC-009 — decisão de não fazer isso no MVP)
 - [ ] Dashboard analytics avançado
 - [ ] Modo múltiplos usuários (RLS já suporta — bastaria criar contas; não é objetivo do projeto por princípio, ver PROJECT_PRINCIPLES.md)
-- [ ] Navegação global entre módulos e botão de logout visível — hoje cada módulo (`/treino`, `/biblioteca`, `/estudos`) só é acessado direto pela URL, sem menu comum nem forma visível de sair da conta (confirmado por inspeção do código, 2026-08)
+- [x] Navegação global entre módulos e botão de logout visível — implementado em 2026-08-09 com hub `/`, navegação para Treino/Biblioteca/Estudos e logout via Supabase Auth.
 
 ## Estudos
 

@@ -9,7 +9,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 **Bloqueio:** nenhum.
 **Banco:** cadeia ativa consolidada; as três baselines estão registradas como `applied` em produção e o dry-run final não encontrou pendências.
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** concluir o smoke test manual do cutover v2 (login, hub inicial, navegação nas rotas principais e logout), sem confundir esse teste operacional com a validação automatizada já concluída.
+**Próxima ação:** corrigir pendências de usabilidade seguras restantes (começando por `confirm()` nativo em Treino/Biblioteca), sem misturar com features novas ou mudanças de banco.
 
 ---
 
@@ -21,8 +21,11 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] Deploy realizado (confirmado: 2026-07-13)
 - [x] Supabase → Auth → URL Configuration atualizado para a nova URL
 - [x] Hub inicial v2 com navegação para `/treino`, `/biblioteca`, `/estudos` e logout visível implementado localmente (2026-08-09)
-- [ ] **Confirmar teste de login end-to-end na URL de produção** — ainda não formalmente confirmado pelo usuário, apesar do deploy estar de pé há semanas
-- [ ] Confirmar navegação funcionando em `/treino`, `/biblioteca` e `/estudos` na URL de produção (Estudos nunca foi testado em produção — só em `localhost`, ver seção Estudos abaixo)
+- [x] **Teste de login end-to-end na URL de produção confirmado pelo usuário** (2026-08-09)
+- [x] Hub `/` validado em produção pelo usuário (passou; polimento do hub fica para etapa futura)
+- [x] Navegação funcionando em produção para `/treino`, `/biblioteca` e `/estudos` (2026-08-09)
+- [x] Logout validado em produção pelo usuário (2026-08-09)
+- [x] Problemas observados no smoke test online: nenhum relatado pelo usuário
 
 ## Próxima tarefa de feature, depois do smoke test — Integração de APIs externas
 
@@ -48,12 +51,13 @@ no projeto — esta será a primeira.
 - [x] Migration 019 (gabarito 2 fases, domínio de conteúdo, dificuldade) executada — **reconfirmado no dump real do schema em 2026-08**
 - [x] `lib/materias.ts`, `lib/conteudos.ts`, `lib/questoes-individuais.ts`, `lib/provas.ts`, `lib/revisao.ts`, `lib/redacoes.ts` atualizados
 - [x] Páginas de Estudos atualizadas (Hub, ENEM, área ENEM nova, Escola, Curso×2, Matéria, Gabarito e Redações: 9 rotas de página) — `npx tsc --noEmit` limpo
-- [ ] **Teste manual completo no navegador** — em andamento pelo usuário
-- [ ] **Teste em produção (Vercel)** — nenhuma das 9 rotas de página de Estudos foi validada fora do `localhost` até agora (mesma pendência da seção de Cutover, acima)
+- [x] **Teste manual completo no navegador** — smoke test online das rotas principais concluído pelo usuário em produção (2026-08-09)
+- [x] **Teste em produção (Vercel)** — acesso a `/estudos` confirmado no smoke test online (2026-08-09); teste profundo das 9 rotas internas ainda pode ser feito em etapa própria
 - [ ] `SubjectManager`: `topics`/`accuracy` ainda fixos em 0 (pendência antiga, não tocada)
 - [ ] `materiais_estudo`, `anotacoes_estudo`, `sessoes_estudo` — schema existe e confere com o banco real (reconfirmado em 2026-08), sem página ainda
-- [ ] Vínculo de conteúdo compartilhado ainda via `window.prompt` (confirmado por inspeção do código em `app/estudos/materia/[materiaUuid]/page.tsx`, 2026-08)
+- [x] Vínculo de conteúdo compartilhado deixou de usar `window.prompt` e passou a usar seleção visível de matéria (2026-08-09)
+- [x] Ações destrutivas de Estudos agora passam por modal de confirmação (conteúdo, prova, atividade, módulo de curso e foto de redação)
 
 ## Pendências de polimento
 
-Ver `BACKLOG.md` — `confirm()` nativo (9 arquivos, 10 ocorrências, em Treino e Biblioteca), menu "⋯" não fecha ao clicar fora, upload de capa/banner manual, edição de itens em listas aninhadas.
+Ver `BACKLOG.md` — `confirm()` nativo remanescente em Treino/Biblioteca, menu "⋯" não fecha ao clicar fora, upload de capa/banner manual, edição de itens em listas aninhadas.

@@ -27,6 +27,13 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
   redirecionamento para `/login`. Nenhuma mudança de banco, migration,
   dependência, Storage, Vercel ou API externa.
 
+- **2026-08-09 (cont.)** — Smoke test online em produção consolidado:
+  login, hub, navegação para Treino/Biblioteca/Estudos e logout passaram,
+  sem problema relatado pelo usuário. Em Estudos, ações destrutivas
+  receberam modal de confirmação e o vínculo de conteúdo compartilhado
+  deixou de usar `window.prompt`, passando para seleção visível de matéria.
+  Sem mudança de schema, migration, dependência ou infraestrutura.
+
 - **2026-07-14** — Decisão de migrar para Next.js/React + TypeScript (DEC-018). Estrutura da v2 definida: `frontend-v2/`, App Router, CSS Modules (DEC-019).
 - **2026-07-15** — Fase 7.0 (setup técnico) concluída: projeto Next.js criado, `lib/supabase.ts` (bug real: precisa de `createBrowserClient`, não `createClient` — ver ARCHITECTURE.md), `middleware.ts` (DEC-021), login testado, CSS global com tokens de `DESIGN.md`. Treino v2 planejado (Fase 7.1, DEC-020): hierarquia `modulos_treino` → `treinos` → `exercicios_forca`/`exercicios_cardio`. `005_treino_v2.sql` executado.
 - **2026-07-16** — DEC-022: módulos de treino viram fixos (reabre parte da DEC-020). Páginas do Treino v2 geradas (hub, CRUD de treino/exercícios, modo academia, shape). Teste e2e: 3 bugs corrigidos (inputs numéricos com `useState<number>`, `.linhaSerie`/`.linhaCardio` vazando borda; `confirm()` nativo adiado deliberadamente, ver BACKLOG.md). Biblioteca v2: escopo completo definido, fatiado em B1–B6 (DEC-023 a DEC-025 abrem o desenho). B1 executado e gerado (`generos`, remoção de `tags`).
