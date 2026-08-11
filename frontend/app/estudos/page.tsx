@@ -29,6 +29,7 @@ import { EmptyState } from '@/components/study/empty-state'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Button } from '@/components/ui/button'
 
 function formatDateShort(iso: string) {
   const d = new Date(iso + 'T00:00:00')
@@ -111,6 +112,12 @@ export default function EstudosHubPage() {
           loading={carregando}
           empty={revisoes.length === 0}
           emptyText="Nenhuma revisão pendente por enquanto."
+          action={
+            <Button render={<Link href="/revisao" />} variant="outline" size="sm">
+              Abrir revisão
+              <ChevronRight className="size-3.5" />
+            </Button>
+          }
         >
           {revisoes.map((r) => {
             const hoje = new Date().toISOString().slice(0, 10)
@@ -226,6 +233,7 @@ function HubBlock({
   loading,
   empty,
   emptyText,
+  action,
   children,
 }: {
   label: string
@@ -234,6 +242,7 @@ function HubBlock({
   loading: boolean
   empty: boolean
   emptyText: string
+  action?: React.ReactNode
   children: React.ReactNode
 }) {
   return (
@@ -241,7 +250,8 @@ function HubBlock({
       <div className="flex items-center gap-2 border-b border-border px-5 py-3.5">
         <Icon className="size-4 text-muted-foreground" />
         <h2 className="text-sm font-semibold">{title}</h2>
-        <MonoLabel className="ml-auto">{label}</MonoLabel>
+        <MonoLabel className={action ? undefined : 'ml-auto'}>{label}</MonoLabel>
+        {action ? <div className="ml-auto">{action}</div> : null}
       </div>
       {loading ? (
         <div className="flex flex-col gap-3 p-5">

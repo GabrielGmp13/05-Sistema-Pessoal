@@ -58,6 +58,7 @@ dessas duas pastas deve ser executado como migration.
 | `20260807000100` | `20260807000100_baseline_public.sql` | ✅ Baseline de `public`, replay local aprovado e registrada como `applied` em produção |
 | `20260807000200` | `20260807000200_baseline_rls_guard.sql` | ✅ `rls_auto_enable()` + `ensure_rls`, replay local aprovado e registrada como `applied` |
 | `20260807000300` | `20260807000300_baseline_storage.sql` | ✅ Cinco buckets + 14 policies, replay local aprovado e registrada como `applied` |
+| `20260811000100` | `20260811000100_agenda_v2.sql` | ✅ Reset/testes locais aprovados e aplicada em produção em 2026-08-11; pós-check sem pendências |
 
 As três versões foram adotadas no histórico remoto em 2026-08-08 por
 `migration repair --status applied`, depois de recaptura somente leitura de
@@ -165,7 +166,16 @@ titulo      TEXT,
 updated_at  TIMESTAMPTZ DEFAULT NOW(),
 deleted     BOOLEAN DEFAULT FALSE
 ```
-> Schema existe e está ativo no banco; nenhuma tela do frontend consome esta tabela até agora (Agenda ainda não é módulo dedicado — ver `VISION.md`).
+> A migration incremental `20260811000100_agenda_v2.sql`, aplicada em
+> produção em 2026-08-11, torna `titulo` obrigatório e acrescenta:
+> `tipo TEXT NOT NULL DEFAULT 'geral'`
+> (`geral`, `estudo` ou `treino`), `hora_inicio TIME`,
+> `duracao_minutos INTEGER`, `descricao TEXT`,
+> `materia_uuid TEXT REFERENCES materias(uuid)`,
+> `conteudo_uuid TEXT REFERENCES conteudos(uuid)` e
+> `concluido BOOLEAN NOT NULL DEFAULT FALSE`. Ela também adiciona checks de
+> título, duração e coerência dos vínculos. O frontend `/agenda` está liberado
+> para publicação contra esse schema.
 
 ### `revisao_espacada`
 ```sql
@@ -182,7 +192,7 @@ proxima_revisao DATE DEFAULT CURRENT_DATE,
 updated_at      TIMESTAMPTZ DEFAULT NOW(),
 deleted         BOOLEAN DEFAULT FALSE
 ```
-> Reaproveitada por Estudos v2 (SM-2, ver DEC-035) — cada conteúdo pode ter um card com `modulo = 'estudos'`, `referencia_uuid = conteudos.uuid`. Sem página dedicada de Revisão Espaçada na v2 ainda (ver `ROADMAP.md` → 7.4).
+> Reaproveitada por Estudos v2 (SM-2, ver DEC-035) — cada conteúdo pode ter um card com `modulo = 'estudos'`, `referencia_uuid = conteudos.uuid`. A página dedicada `/revisao` também aceita cards independentes com `modulo = 'manual'` e `referencia_uuid = NULL`; nenhuma mudança de schema foi necessária.
 
 ### Tabelas descontinuadas de `001`
 `cardio`, `exercicios`, `series_executadas` — removidas em `005_treino_v2.sql`. Confirmado ausentes no dump real. Ver DEC-020.
@@ -797,7 +807,9 @@ observacoes      TEXT,
 updated_at       TIMESTAMPTZ DEFAULT NOW(),
 deleted          BOOLEAN DEFAULT FALSE
 ```
-> Schema existe e confere com o banco real. Sem página no frontend ainda.
+> Schema existe e confere com o banco real. A UI de Matéria e Curso registra
+> sessões concluídas com início, duração e fim calculado, vinculadas
+> opcionalmente a um conteúdo (`lib/sessoes-estudo.ts`).
 
 ### `materiais_estudo`
 ```sql
@@ -811,7 +823,10 @@ arquivo_path  TEXT,   -- bucket 'documentos'
 updated_at    TIMESTAMPTZ DEFAULT NOW(),
 deleted       BOOLEAN DEFAULT FALSE
 ```
-> Schema existe e confere com o banco real. Sem página no frontend ainda.
+> Schema existe e confere com o banco real. A UI de Matéria e Curso permite
+> cadastrar referências por conteúdo usando título, tipo e URL
+> (`lib/materiais-estudo.ts`). Upload em `arquivo_path` continua fora desta
+> etapa; nenhuma configuração de Storage foi alterada.
 
 ### `anotacoes_estudo`
 ```sql
@@ -824,7 +839,9 @@ corpo         TEXT NOT NULL,
 updated_at    TIMESTAMPTZ DEFAULT NOW(),
 deleted       BOOLEAN DEFAULT FALSE
 ```
-> Schema existe e confere com o banco real. Sem página no frontend ainda.
+> Schema existe e confere com o banco real. A UI de Matéria e Curso permite
+> anotações gerais da matéria ou vinculadas opcionalmente a um conteúdo
+> (`lib/anotacoes-estudo.ts`).
 
 ### `simulados`
 ```sql

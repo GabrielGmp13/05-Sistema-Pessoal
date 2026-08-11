@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { BookOpen, Dumbbell, GraduationCap, Home, LogOut } from 'lucide-react'
+import { BookOpen, Brain, CalendarDays, Dumbbell, GraduationCap, Home, LogOut } from 'lucide-react'
 import { useState } from 'react'
 
 import { sb } from '@/lib/supabase'
@@ -13,6 +13,8 @@ const links = [
   { href: '/treino', label: 'Treino', icon: Dumbbell },
   { href: '/biblioteca', label: 'Biblioteca', icon: BookOpen },
   { href: '/estudos', label: 'Estudos', icon: GraduationCap },
+  { href: '/revisao', label: 'Revisão', icon: Brain },
+  { href: '/agenda', label: 'Agenda', icon: CalendarDays },
 ]
 
 function isActive(pathname: string, href: string) {

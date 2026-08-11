@@ -20,12 +20,39 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 (Next.js) — em andamento
 
+- **2026-08-11 (cont.)** — Agenda v2 implementada localmente em `/agenda`,
+  com visão semanal, CRUD de compromissos, soft delete, eventos gerais, de
+  estudo e de treino, além da exibição de provas diretamente da fonte de
+  verdade de Estudos. Hub e navegação global passaram a incluir Agenda. A
+  migration incremental `20260811000100_agenda_v2.sql` evolui a tabela
+  existente sem recriá-la; reset, teste consolidado e teste específico da
+  Agenda passaram localmente. A migration foi aplicada em produção pela
+  cadeia ativa em 2026-08-11 e o pós-check remoto não encontrou pendências,
+  liberando a publicação do frontend.
+
 - **2026-08-11** — Fechamento seguro de UX da v2: as 10 ocorrências restantes
   de `confirm()` nativo em Treino e Biblioteca foram substituídas pelo
   `ConfirmDialog` reutilizável, preservando as mesmas operações de exclusão.
   `window.prompt` continua ausente. Documentação reconciliada com o hub `/`,
   navegação global, logout, smoke principal de produção e modais atuais. Sem
   mudança de banco, migration, dependência ou infraestrutura.
+
+- **2026-08-11 (cont.)** — Estudos v2 passou a consumir as três tabelas que
+  ainda não tinham fluxo: materiais por conteúdo, anotações por matéria com
+  conteúdo opcional e sessões manuais com início/duração. Foram adicionadas
+  três libs e um componente reutilizado nos detalhes de Matéria e Curso, com
+  soft delete e `ConfirmDialog`. O `SubjectManager` órfão, única fonte das
+  métricas artificiais antigas, foi removido. A auditoria concluiu que o
+  schema consolidado já era suficiente; nenhuma migration, dependência ou
+  configuração de Storage foi alterada.
+
+- **2026-08-11 (cont.)** — Revisão Espaçada ganhou página dedicada em
+  `/revisao`, acessível pelo hub, navegação global e Hub de Estudos. A tela
+  separa cards vencidos/para hoje dos futuros, permite revelar resposta,
+  registrar resultado pelos mesmos níveis do SM-2 existente, criar card
+  manual e apagar com `ConfirmDialog` + soft delete. Cards de Estudos são
+  identificados como conteúdo e têm `conteudos.revisao_uuid` desvinculado ao
+  apagar. O schema existente foi suficiente; sem migration ou dependência.
 
 - **2026-08-09** — Primeira etapa segura para tornar a v2 usável como site:
   rota `/` deixou de ser placeholder técnico e virou hub inicial com acesso

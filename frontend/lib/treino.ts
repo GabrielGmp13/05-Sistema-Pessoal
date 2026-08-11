@@ -164,3 +164,18 @@ export async function softDeleteExercicioCardio(sb: SB, uuid: string): Promise<{
   if (error) console.error('[softDeleteExercicioCardio]', error)
   return { error: error?.message ?? null }
 }
+
+export async function getTodosTreinos(sb: SB, userId: string): Promise<Treino[]> {
+  const { data, error } = await sb
+    .from('treinos')
+    .select('uuid, nome, descricao, modulo_uuid')
+    .eq('user_id', userId)
+    .eq('deleted', false)
+    .order('nome')
+
+  if (error) {
+    console.error('[getTodosTreinos]', error)
+    return []
+  }
+  return data ?? []
+}

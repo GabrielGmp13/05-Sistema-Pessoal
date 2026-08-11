@@ -105,10 +105,10 @@ do frontend; a suíte automatizada atual é a validação SQL local da baseline 
 
 ### Rotas confirmadas pelo build
 
-O build de 2026-08-08 reconheceu 18 páginas da aplicação, além do `_not-found`
+O build de 2026-08-11 reconheceu 19 páginas da aplicação, além do `_not-found`
 gerado pelo Next.js:
 
-- base: `/` e `/login`;
+- base: `/`, `/login` e `/revisao`;
 - Biblioteca: `/biblioteca` e `/biblioteca/generos`;
 - Estudos (9): `/estudos`, `/estudos/curso`,
   `/estudos/curso/[materiaUuid]`, `/estudos/enem`,

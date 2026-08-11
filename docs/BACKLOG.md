@@ -29,10 +29,11 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 
 - [x] ~~Questões individuais estruturadas~~ — resolvido no schema da Fase 1 do Estudos v2 (`questoes_individuais`, DEC-035)
 - [ ] Importação de dados do sistema ENEM standalone antigo, se houver conteúdo relevante a resgatar
-- [ ] Cursos (estrutura própria — módulos/aulas/certificado), adiado da Fase 1 de Estudos v2 (DEC-035)
+- [ ] Upload de materiais de estudo no bucket privado `documentos`, usando `arquivo_path` e signed URLs. A UI atual aceita URL; upload é evolução própria de Storage e não faz parte do fechamento da v2.
+- [x] Cursos (estrutura própria — módulos/aulas/certificado) — implementado na Fase 1B de Estudos v2 (DEC-036)
 - [ ] Flashcards / integração com Anki, adiado da Fase 1 de Estudos v2 (DEC-035) — escopo de produto próprio, avaliar necessidade real antes de construir
 - [ ] Redação versionada (múltiplas versões, competências detalhadas), Fase 1 entrega só versão leve (DEC-035)
-- [ ] Calendário acadêmico próprio — não deve ser construído isolado; absorver pelo módulo Agenda dedicado quando planejado, evitar duplicar dado de compromisso
+- [x] Calendário acadêmico/cronograma absorvido pela Agenda v2; provas continuam em Estudos e são apenas exibidas na Agenda, sem duplicação
 - [ ] Metas diárias/semanais/mensais e sequência de dias estudando (streak) — avaliar sobreposição com o módulo Hábitos (ainda não iniciado) antes de construir algo específico de Estudos
 - [ ] Notas por avaliação com peso (ex: "Prova bimestral" peso 2, "Lista" peso 1) e nota máxima customizável por avaliação, com média ponderada calculada — ideia trazida por um componente gerado pelo v0.dev (`GradeManager`) na tela de Matéria, descartada da restilização de 2026-07-31 por não ter schema equivalente. `provas.nota` hoje é só uma nota simples por prova. Se for adotada, exige tabela nova (algo como `lancamentos_nota`) e entra como decisão de schema em `DECISIONS.md`, não como ajuste de UI.
 - [ ] Estatísticas avançadas de Estudos (ranking de conteúdos fracos/fortes, eficiência de estudo) — depende de volume real de dado acumulado, sem sentido construir com o schema vazio
@@ -46,9 +47,9 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
       riscando o que já passou). Trava novas respostas quando o tempo
       esgota. Feature grande, própria — ver DEC-041 (registrado, não
       esquecido) — precisa de `MODULE_TEMPLATE.md` antes de qualquer schema.
-- [ ] Horário/duração por sessão de revisão espaçada (agenda própria dentro
-      de Estudos) — recusado por ora (DEC-043), pertence ao módulo Agenda
-      quando ele for iniciado. Não duplicar aqui quando a Agenda existir.
+- [ ] Vínculo direto entre um card de Revisão Espaçada e um compromisso da
+      Agenda. A Agenda v2 já oferece horário/duração para estudo por matéria e
+      conteúdo, mas não cria compromissos automaticamente a partir de cards.
 - [ ] Áreas de estudo além de ENEM/Escola/Curso — o rascunho original do
       módulo (ver histórico de chat) previa Olimpíadas Científicas, Idiomas
       e Vestibulares específicos como áreas completas e independentes.
@@ -57,15 +58,12 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
       existe pra elas ainda — nem em `VISION.md`. Não construir sem antes
       confirmar com o usuário qual entra primeiro e se o modelo
       Matéria→Conteúdo de ENEM/Escola serve como está ou precisa de ajuste.
-- [ ] Cronograma/planejamento de estudo (o que estudar, quando, prioridade,
-      metas semanais/mensais — diferente de "calendário de eventos" como
-      provas/simulados, que já foi decidido como escopo da Agenda via
-      DEC-035/043). Hoje não tem dono definido: pode ser Estudos, pode ser
-      Agenda, pode ser Hábitos (metas). Decidir antes de construir, para não
-      duplicar entre módulos.
-- [ ] Widgets de tempo estudado no Hub (hoje / semana / mês) — dependem de
-      `sessoes_estudo`, que tem schema pronto mas nenhuma UI (ver pendência
-      abaixo). Registrado aqui como consumidor futuro dessa tabela.
+- [x] Cronograma/planejamento temporal de estudo pertence à Agenda; Estudos
+      permanece fonte de verdade de matérias, conteúdos e provas. Metas e
+      prioridades avançadas continuam fora do escopo atual.
+- [ ] Widgets de tempo estudado no Hub (hoje / semana / mês) — sessões já
+      podem ser registradas nas telas de Matéria e Curso; falta apenas definir
+      e implementar a agregação no Hub quando houver dados reais suficientes.
 - [ ] Campo "questões anuladas" em `simulados` — presente no rascunho
       original do módulo, sem equivalente no schema atual.
 

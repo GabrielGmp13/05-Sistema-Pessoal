@@ -6,10 +6,10 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 
 ## Status geral
 **Fase atual:** Fase 7 (v2) — v1 aposentada (DEC-031), `frontend/` é o único frontend ativo. Hub inicial v2, navegação global e logout visível implementados; Biblioteca e Treino v2 funcionalmente prontos; Estudos v2 com 9 rotas de página implementadas e restilizadas, correções de modelagem de 2026-08 aplicadas.
-**Bloqueio:** nenhum.
-**Banco:** cadeia ativa consolidada; as três baselines estão registradas como `applied` em produção e o dry-run final não encontrou pendências.
+**Bloqueio:** nenhum bloqueio técnico para publicar a leva de Estudos, Revisão Espaçada e Agenda v2.
+**Banco:** três baselines e a migration incremental `20260811000100_agenda_v2.sql` estão registradas como `applied` em produção; reset/testes locais e pós-check remoto concluídos.
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** validar manualmente os novos modais de confirmação e decidir se Revisão Espaçada dedicada ou Agenda entra primeiro, sem misturar com módulos novos ou mudanças de banco.
+**Próxima ação:** publicar a leva acumulada e executar, na etapa final, os testes manuais detalhados de Estudos, Revisão e Agenda.
 
 ---
 
@@ -27,7 +27,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] Logout validado em produção pelo usuário (2026-08-09)
 - [x] Problemas observados no smoke test online: nenhum relatado pelo usuário
 
-## Próxima tarefa de feature, depois do smoke test — Integração de APIs externas
+## Integrações externas futuras
 
 Precisa de `MODULE_TEMPLATE.md` completo antes de começar. Confirmado por
 inspeção do código (2026-08): **nenhuma `app/api/**/route.ts` existe ainda**
@@ -36,11 +36,23 @@ no projeto — esta será a primeira.
 - Google Books (livros), Jikan/MyAnimeList (mangás), iTunes Search (podcasts) — sem key, podem ser chamadas direto do client
 - Animes: sem API própria definida ainda (Jikan cobre mangá, não anime — verificar se cobre também)
 
-## Próximo módulo a planejar (v2)
+## Ordem dos próximos módulos (v2)
 
-- [ ] Definir se Revisão Espaçada dedicada ou Agenda entra primeiro (Estudos já está em estado avançado)
-- [ ] Rodar `MODULE_TEMPLATE.md` completo antes de qualquer schema ou código
-- [ ] Antes de planejar Agenda: decidir onde mora "cronograma de estudo" (o que estudar, quando, prioridade — ver `BACKLOG.md`), porque toca os dois módulos
+- [x] Revisão Espaçada dedicada vem antes de Agenda; página `/revisao` implementada sobre o SM-2 existente, sem migration (2026-08-11)
+- [x] Agenda definida como dona do cronograma e planejamento temporal; Estudos continua dono das entidades acadêmicas (2026-08-11)
+- [x] Agenda v2 implementada localmente em `/agenda`, integrada ao hub e à navegação global (2026-08-11)
+- [x] Validar localmente `20260811000100_agenda_v2.sql` com reset, teste consolidado e teste específico (2026-08-11)
+- [x] Migration da Agenda aplicada em produção via cadeia ativa e pós-check remoto concluído (2026-08-11)
+
+## 🟢 Agenda v2 — pronta para publicação
+
+- [x] Visão semanal de compromissos por data
+- [x] CRUD de eventos manuais com soft delete e `ConfirmDialog`
+- [x] Eventos gerais, de estudo (matéria + conteúdo opcional) e de treino
+- [x] Provas de Estudos exibidas por leitura direta de `provas`, sem duplicação
+- [x] Acesso por `/`, `GlobalNav` e rota `/agenda`
+- [x] Reset local, `validate_baseline.sql` e `validate_agenda_v2.sql` aprovados
+- [ ] Teste manual responsivo e dos fluxos CRUD na etapa final
 
 ---
 
@@ -53,12 +65,23 @@ no projeto — esta será a primeira.
 - [x] Páginas de Estudos atualizadas (Hub, ENEM, área ENEM nova, Escola, Curso×2, Matéria, Gabarito e Redações: 9 rotas de página) — `npx tsc --noEmit` limpo
 - [x] **Teste manual completo no navegador** — smoke test online das rotas principais concluído pelo usuário em produção (2026-08-09)
 - [x] **Teste em produção (Vercel)** — acesso a `/estudos` confirmado no smoke test online (2026-08-09); teste profundo das 9 rotas internas ainda pode ser feito em etapa própria
-- [ ] `SubjectManager`: o componente existe, mas não é usado pelas rotas atuais; decidir entre reintegrá-lo com métricas reais ou remover o componente órfão
-- [ ] `materiais_estudo`, `anotacoes_estudo`, `sessoes_estudo` — schema existe e confere com o banco real (reconfirmado em 2026-08), sem página ainda
+- [x] `SubjectManager` órfão removido; nenhuma tela ativa exibe contagem ou taxa de acerto artificial (2026-08-11)
+- [x] `materiais_estudo`, `anotacoes_estudo`, `sessoes_estudo` ganharam camada `lib/` e UI funcional nos detalhes de Matéria e Curso, sem mudança de schema (2026-08-11)
 - [x] Vínculo de conteúdo compartilhado deixou de usar `window.prompt` e passou a usar seleção visível de matéria (2026-08-09)
 - [x] Ações destrutivas de Estudos agora passam por modal de confirmação (conteúdo, prova, atividade, módulo de curso e foto de redação)
 - [x] As 10 ocorrências restantes de `confirm()` nativo em Treino/Biblioteca foram substituídas pelo `ConfirmDialog` reutilizável (2026-08-11)
 - [ ] Validar manualmente os novos modais de Treino/Biblioteca: confirmar, cancelar, fechar por Escape e clicar no backdrop
+- [ ] Validar manualmente em Estudos: criar/listar/apagar material, anotação e sessão em Matéria e Curso
+
+## 🟢 Revisão Espaçada v2 — página dedicada implementada
+
+- [x] Rota `/revisao` com revisões vencidas/para hoje e futuras
+- [x] Avaliação usa o `calcularSM2`/`avaliarCard` existente
+- [x] Cards manuais simples usam o schema atual (`modulo = 'manual'`)
+- [x] Cards de Estudos permanecem lembretes de conteúdo (`modulo = 'estudos'`)
+- [x] Exclusão usa `ConfirmDialog`, soft delete e desvincula `conteudos.revisao_uuid`
+- [x] Acesso pelo hub `/`, navegação global e Hub de Estudos
+- [ ] Validar manualmente criação, revelação de resposta, avaliação, reagendamento e exclusão
 
 ## Pendências de polimento
 

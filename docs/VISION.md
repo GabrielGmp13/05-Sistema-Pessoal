@@ -8,11 +8,11 @@ Visão macro de onde o Sistema Pessoal pretende chegar. Não é um roadmap detal
 
 | Módulo | Status | Observação |
 |---|---|---|
-| Dashboard | ✅ Hub inicial | `app/page.tsx` oferece acesso a Treino, Biblioteca e Estudos. `GlobalNav` mantém navegação global e logout visíveis; widgets, resumo e polimento adicional do hub ficam para uma etapa futura. |
+| Dashboard | ✅ Hub inicial | `app/page.tsx` oferece acesso a Treino, Biblioteca, Estudos, Revisão Espaçada e Agenda. `GlobalNav` mantém navegação global e logout visíveis; widgets, resumo e polimento adicional do hub ficam para uma etapa futura. |
 | Treino | ✅ Implementado (v2) | Plano, academia, hub, shape — completo. Pendências de polimento em `BACKLOG.md`. |
-| Revisão Espaçada | 🔄 Motor ativo, sem tela dedicada | O algoritmo SM-2 (`frontend/lib/revisao.ts`) está em uso — reaproveitado por Estudos v2 (DEC-035) como lembrete de revisão de conteúdo. Não existe uma página própria de Revisão Espaçada na v2 ainda (era `revisao.html` na v1, removida) — ver `ROADMAP.md` Fase 7.4. |
+| Revisão Espaçada | ✅ Implementada (v2) | `/revisao` lista cards pendentes e futuros, registra resultados pelo SM-2, aceita card manual e preserva os lembretes de conteúdo criados por Estudos (DEC-035). |
 | Biblioteca | ✅ v2 completa | Catálogo de mídia (6 categorias: filmes, séries, animes, mangás, livros, podcasts), consolidado em página única com sidebar (DEC-032), identidade visual própria dourado/âmbar (DEC-034). Ver DEC-011 para o princípio geral (catálogo, nunca hospedagem de mídia). Pendências de polimento em `BACKLOG.md`. |
-| Agenda | 🔄 Só schema | Tabela `agenda` existe no banco (desde `001_schema_inicial.sql`) mas nenhuma tela do frontend a consome. Não é módulo dedicado ainda. Escopo de v2 não definido — decidir também onde mora "cronograma de estudo" antes de planejar (ver `BACKLOG.md`, toca os dois módulos). |
+| Agenda | ✅ v2 pronta para publicação | `/agenda` organiza compromissos gerais, cronograma de estudo, provas e treinos em visão semanal. Agenda é dona do planejamento temporal; Estudos continua fonte de verdade acadêmica. A migration incremental está aplicada em produção. |
 | Estudos | 🔄 v2 em construção avançada | ENEM, Escola, Curso, Redações, Matéria e Gabarito implementados e restilizados; matéria única compartilhada entre Escola/ENEM (DEC-040); gabarito em 2 fases (DEC-041); domínio de conteúdo calculado via SM-2 (DEC-042). Fase 2 (Cursos com certificação rica, Flashcards/Anki, Redação versionada, Calendário próprio, modo "fazer prova" com cronômetro) registrada em `BACKLOG.md`, não descartada. **Gap conhecido:** o escopo original do módulo também previa Olimpíadas Científicas, Idiomas e Vestibulares específicos como áreas próprias — nenhuma decisão de escopo foi tomada pra elas ainda, ver `BACKLOG.md`. |
 | Hábitos | ⏳ Não iniciado | Sem tabela, sem decisão de escopo ainda |
 | Metas | ⏳ Não iniciado | Sem tabela, sem decisão de escopo ainda |

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { BookOpen, ChevronRight, Dumbbell, GraduationCap } from 'lucide-react'
+import { BookOpen, Brain, CalendarDays, ChevronRight, Dumbbell, GraduationCap } from 'lucide-react'
 
 const modules = [
   {
@@ -23,6 +23,20 @@ const modules = [
     icon: GraduationCap,
     status: 'Hub acadêmico',
   },
+  {
+    href: '/revisao',
+    title: 'Revisão Espaçada',
+    description: 'Cards vencidos e futuros com intervalos calculados pelo SM-2.',
+    icon: Brain,
+    status: 'Memória ativa',
+  },
+  {
+    href: '/agenda',
+    title: 'Agenda',
+    description: 'Compromissos, cronograma de estudos, provas e treinos organizados por data.',
+    icon: CalendarDays,
+    status: 'Planejamento',
+  },
 ]
 
 export default function HomePage() {
@@ -41,7 +55,7 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
           {modules.map((module) => {
             const Icon = module.icon
 

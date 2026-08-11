@@ -53,7 +53,7 @@ operacional.
 **Decisão-chave:** DEC-018 (reabre DEC-006) — frontend migrou de HTML puro para Next.js/React
 **Deploy:** ✅ em produção no Vercel desde 2026-07-13 (não "pendente" — ver `ARCHITECTURE.md`)
 **Schema:** confirmado via dump real do Supabase em 2026-08 — 44 tabelas em `public`, RLS e GRANT corretos em todas (ver `DATABASE.md`)
-**Histórico CLI:** adotado em produção em 2026-08-08 — as três baselines timestamped estão registradas como `applied`; `db push --dry-run` sem pendências
+**Histórico CLI:** adotado em produção em 2026-08-08 — as três baselines timestamped e a migration incremental da Agenda estão registradas como `applied`; pós-check sem pendências em 2026-08-11
 **Reprodutibilidade:** Node.js `24.15.0`, npm `12.0.1`, `npm ci`, typecheck e build validados; CI mínima ativa. Lint mantém 43 achados conhecidos e informativos.
 **Próxima tarefa imediata:** ver `TASKS_NOW.md`
 

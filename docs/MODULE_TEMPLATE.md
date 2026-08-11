@@ -143,7 +143,7 @@ avançadas, upload de gabarito/prova em arquivo.
 **Componentes**
 Atualizado (2026-08): as 9 rotas de página foram restilizadas com componentes gerados
 via v0.dev e adaptados ao projeto — `components/study/*` (componentes de
-domínio: `SubjectManager`, cards de conteúdo, tabela de gabarito) e
+domínio, cards de conteúdo, registros de estudo e tabela de gabarito) e
 `components/ui/*` (base shadcn: botões, inputs, etc.), confirmados presentes
 no repositório real. A fase "cru" (tudo inline, sem componentização) descrita
 originalmente aqui já foi superada — ver `CHANGELOG.md` (2026-07-26 a
@@ -168,8 +168,8 @@ como lembrete, não flashcard — ver DEC-035.
   CSS Modules do resto do sistema.
 - O código integra o bucket `redacoes` (`lib/redacoes.ts`, foto da folha
   manuscrita), confirmado no snapshot de produção e reproduzido pela baseline.
-  `documentos` é provisionado por `001`, mas ainda
-  não tem UI de upload — `materiais_estudo` inteiro segue fora das páginas.
+  `documentos` é provisionado por `001`, mas ainda não tem UI de upload. A UI
+  atual de `materiais_estudo` trabalha com referências por título/tipo/URL.
 - Depende de `lib/revisao.ts` (criado em 2026-07-25 para desbloquear
   `lib/simulados.ts`).
 
@@ -188,10 +188,8 @@ como lembrete, não flashcard — ver DEC-035.
 Nenhuma.
 
 **Pendências**
-- `SubjectManager` existe, mas não é usado pelas rotas atuais; decidir entre
-  reintegrá-lo com métricas reais ou remover o componente órfão.
-- `materiais_estudo`, `anotacoes_estudo`, `sessoes_estudo` — schema existe,
-  sem página ainda.
+- Validar manualmente os fluxos de materiais, anotações e sessões nas telas
+  de Matéria e Curso. O `SubjectManager` órfão foi removido em 2026-08-11.
 - Vínculo de conteúdo compartilhado usa seleção visível de matéria; não há
   `window.prompt` no frontend.
 - O acesso principal a Estudos passou no smoke de produção em 2026-08-09; o

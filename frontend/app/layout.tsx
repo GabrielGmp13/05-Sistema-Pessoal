@@ -6,7 +6,7 @@ import { GlobalNav } from '@/components/GlobalNav';
 
 export const metadata: Metadata = {
   title: 'Sistema Pessoal',
-  description: 'Gestão pessoal — treino, estudos, biblioteca, revisão espaçada',
+  description: 'Gestão pessoal — treino, estudos, biblioteca, revisão espaçada e agenda',
 };
 
 // Script anti-flash: aplica a classe `.dark` antes da hidratação, lendo a

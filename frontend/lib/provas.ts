@@ -77,6 +77,24 @@ export async function listarProvasPorMateria(materiaUuid: string): Promise<Prova
   return data;
 }
 
+/** Provas de um intervalo para a Agenda. A linha continua pertencendo a Estudos. */
+export async function listarProvasNoPeriodo(inicio: string, fim: string): Promise<Prova[] | null> {
+  const userId = await getUserId();
+  if (!userId) return null;
+
+  const { data, error } = await sb
+    .from('provas')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('deleted', false)
+    .gte('data', inicio)
+    .lte('data', fim)
+    .order('data');
+
+  if (error) return sbErr(error, 'listarProvasNoPeriodo');
+  return data;
+}
+
 export async function criarProva(input: ProvaInput): Promise<Prova | null> {
   const userId = await getUserId();
   if (!userId) return null;

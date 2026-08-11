@@ -715,3 +715,28 @@ typecheck e o build foram validados.
 Fixar também o npm evita comportamento divergente do npm 12 sobre scripts de
 instalação e lockfile. O lint não pode ser bloqueante sem manter a CI
 permanentemente vermelha nem pode ser silenciado sem resolver a dívida.
+
+---
+
+## DEC-046 — Agenda é dona do planejamento temporal
+
+**Data:** 2026-08-11
+**Status:** ✅ Aprovada e implementada localmente
+
+### Decisão
+
+- Agenda organiza quando compromissos e estudos devem acontecer.
+- Estudos permanece fonte de verdade de matérias, conteúdos e provas; a
+  Agenda referencia essas entidades e lê `provas` sem duplicar registros.
+- Treinos podem ser vinculados pelo `treino_uuid` já existente.
+- Google Calendar, OAuth, sincronização externa e criação automática de
+  compromissos a partir da Revisão Espaçada ficam fora desta fase.
+- A tabela `agenda` evolui incrementalmente pela migration
+  `20260811000100_agenda_v2.sql`; nenhuma baseline é alterada.
+
+### Estado operacional
+
+O frontend e a migration foram preparados e validados localmente por reset,
+teste consolidado e teste específico. A migration foi aplicada em produção
+pela cadeia ativa em 2026-08-11, com pós-check remoto sem pendências; `/agenda`
+está liberada para publicação.

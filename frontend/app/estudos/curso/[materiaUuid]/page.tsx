@@ -9,6 +9,7 @@ import { Section } from '@/components/study/section'
 import { MonoLabel } from '@/components/study/mono-label'
 import { EmptyState } from '@/components/study/empty-state'
 import { Field } from '@/components/study/field'
+import { StudyRecords } from '@/components/study/study-records'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -65,16 +66,20 @@ export default function CursoDetalhePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [materiaUuid])
 
+  const todosConteudos = useMemo(
+    () => Object.values(conteudosPorModulo).flat(),
+    [conteudosPorModulo],
+  )
+
   const { total, done, progress } = useMemo(() => {
-    const aulas = Object.values(conteudosPorModulo).flat()
-    const t = aulas.length
-    const d = aulas.filter((a) => a.dominado_manual).length
+    const t = todosConteudos.length
+    const d = todosConteudos.filter((a) => a.dominado_manual).length
     return {
       total: t,
       done: d,
       progress: t === 0 ? (curso?.concluido ? 100 : 0) : Math.round((d / t) * 100),
     }
-  }, [conteudosPorModulo, curso])
+  }, [todosConteudos, curso])
 
   async function handleCriarModulo(e: React.FormEvent) {
     e.preventDefault()
@@ -340,6 +345,10 @@ export default function CursoDetalhePage() {
             </form>
           </Card>
         </Section>
+      </div>
+
+      <div className="mt-10">
+        <StudyRecords materiaUuid={materiaUuid} conteudos={todosConteudos} />
       </div>
 
       <ConfirmDialog

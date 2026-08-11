@@ -1,4 +1,4 @@
-import { sb, getUserId, now, sbErr } from './supabase'
+import { sb, getUserId, now, sbErr, softDelete } from './supabase'
 
 // ---------------------------------------------------------------------------
 // Tipos
@@ -24,6 +24,11 @@ export interface ResultadoSM2 {
   repeticoes: number
   intervaloDias: number
   proximaRevisao: string // DATE (YYYY-MM-DD)
+}
+
+export interface CardManualInput {
+  pergunta: string
+  resposta: string | null
 }
 
 // qualidade: 0-5, mesma escala do SM-2 original (Anki-like)
@@ -146,6 +151,88 @@ export async function buscarCardsRevisao(revisaoUuids: string[]): Promise<CardRe
 
   if (error) return sbErr(error, 'buscarCardsRevisao')
   return data
+}
+
+/** Lista todos os cards ativos do usuário, ordenados pela próxima revisão. */
+export async function listarCardsRevisao(): Promise<CardRevisao[] | null> {
+  const userId = await getUserId()
+  if (!userId) return null
+
+  const { data, error } = await sb
+    .from('revisao_espacada')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('deleted', false)
+    .order('proxima_revisao')
+    .order('updated_at', { ascending: false })
+
+  if (error) return sbErr(error, 'listarCardsRevisao')
+  return data
+}
+
+/** Cria um card simples, independente dos lembretes gerados por Estudos. */
+export async function criarCardManual(
+  input: CardManualInput,
+): Promise<CardRevisao | null> {
+  const userId = await getUserId()
+  if (!userId) return null
+
+  const { data, error } = await sb
+    .from('revisao_espacada')
+    .insert({
+      uuid: crypto.randomUUID(),
+      user_id: userId,
+      pergunta: input.pergunta,
+      resposta: input.resposta,
+      modulo: 'manual',
+      referencia_uuid: null,
+      updated_at: now(),
+    })
+    .select()
+    .single()
+
+  if (error) return sbErr(error, 'criarCardManual')
+  return data as CardRevisao
+}
+
+/**
+ * Soft delete com cuidado extra para cards gerados por Estudos: o conteúdo
+ * precisa perder o vínculo para poder criar um novo card na próxima revisão.
+ */
+export async function deletarCardRevisao(card: CardRevisao): Promise<boolean> {
+  const userId = await getUserId()
+  if (!userId) return false
+
+  const vinculadoAConteudo = card.modulo === 'estudos' && card.referencia_uuid
+
+  if (vinculadoAConteudo) {
+    const { error: erroVinculo } = await sb
+      .from('conteudos')
+      .update({ revisao_uuid: null, updated_at: now() })
+      .eq('uuid', card.referencia_uuid)
+      .eq('user_id', userId)
+      .eq('revisao_uuid', card.uuid)
+
+    if (erroVinculo) {
+      sbErr(erroVinculo, 'deletarCardRevisao:desvincularConteudo')
+      return false
+    }
+  }
+
+  const apagado = await softDelete('revisao_espacada', card.uuid)
+  if (apagado || !vinculadoAConteudo) return apagado
+
+  const { error: erroRestauracao } = await sb
+    .from('conteudos')
+    .update({ revisao_uuid: card.uuid, updated_at: now() })
+    .eq('uuid', card.referencia_uuid)
+    .eq('user_id', userId)
+    .is('revisao_uuid', null)
+
+  if (erroRestauracao) {
+    sbErr(erroRestauracao, 'deletarCardRevisao:restaurarVinculo')
+  }
+  return false
 }
 
 // ---------------------------------------------------------------------------

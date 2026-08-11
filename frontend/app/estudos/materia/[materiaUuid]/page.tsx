@@ -21,6 +21,7 @@ import { Section } from '@/components/study/section'
 import { MonoLabel } from '@/components/study/mono-label'
 import { EmptyState } from '@/components/study/empty-state'
 import { Field } from '@/components/study/field'
+import { StudyRecords } from '@/components/study/study-records'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -731,6 +732,8 @@ export default function MateriaDetalhePage() {
             </div>
           </Section>
         </div>
+
+        <StudyRecords materiaUuid={materiaUuid} conteudos={conteudos} />
       </div>
 
       <ConfirmDialog

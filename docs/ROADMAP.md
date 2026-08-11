@@ -74,11 +74,11 @@ completo em 2026-07-19 (DEC-031), toda esta fase é histórico.
 
 Schema original: 11 tabelas (`livros`, `filmes`, `series`, `mangas`, `podcasts`, `tags`, 5 tabelas de junção `*_tags`) — ver DEC-014. Estendido pela v2 (`006`–`014`, ver `DATABASE.md`).
 
-## Fase 5 — Revisão Espaçada ✅ COMPLETA (v1, histórico — sem equivalente de página dedicada em v2 ainda)
+## Fase 5 — Revisão Espaçada ✅ COMPLETA (v1, histórico; equivalente v2 em `/revisao`)
 
 **Arquivo (v1, não existe mais):** `revisao.html`
 
-A página havia sido gerada assumindo colunas (`frente`, `verso`, `intervalo`, `fator`) diferentes das reais (`pergunta`, `resposta`, `intervalo_dias`, `ef`), e uma assinatura de `calcularSM2()` incompatível. Corrigido em 2026-07-11 — ver `DATABASE.md` → Gotchas. O algoritmo SM-2 em si está ativo e em uso pela v2 via `frontend/lib/revisao.ts`, reaproveitado por Estudos (ver DEC-035) — só não existe uma tela dedicada de Revisão Espaçada na v2 ainda (Fase 7.4, abaixo).
+A página havia sido gerada assumindo colunas (`frente`, `verso`, `intervalo`, `fator`) diferentes das reais (`pergunta`, `resposta`, `intervalo_dias`, `ef`), e uma assinatura de `calcularSM2()` incompatível. Corrigido em 2026-07-11 — ver `DATABASE.md` → Gotchas. Na v2, o algoritmo vive em `frontend/lib/revisao.ts`, é reaproveitado por Estudos (DEC-035) e ganhou página dedicada em `/revisao` na Fase 7.4.
 
 ## Fase 6 — Integrações Externas ⏳ FUTURO
 
@@ -112,8 +112,8 @@ forma incremental, módulo por módulo.
 
 **Importante:** v1 foi removida do projeto em 2026-07-19 (DEC-031) — o
 frontend Next.js (pasta `frontend/`, renomeada de `frontend-v2/`) é o único
-frontend ativo. Revisão Espaçada dedicada e Agenda ainda não têm equivalente
-v2 — ausência deliberada e temporária (ver DEC-031), não bug.
+frontend ativo. Revisão Espaçada e Agenda ganharam páginas dedicadas em
+2026-08-11; a migration da Agenda já foi aplicada em produção.
 
 **Escopo de features por módulo:** cada módulo migrado passa primeiro por
 `MODULE_TEMPLATE.md` completo — incluindo a pergunta "precisa de API Route?"
@@ -127,5 +127,5 @@ v2 — ausência deliberada e temporária (ver DEC-031), não bug.
 | 7.1 | Treino v2 | ✅ Completo — pendências de polimento em `BACKLOG.md` (gráfico de peso, upload de imagem de exercício) |
 | 7.2 | Biblioteca v2 (B1–B6) | ✅ Frontend completo, consolidado em página única com sidebar (DEC-032), identidade visual própria (DEC-034); acesso principal passou no smoke de produção, com validações profundas opcionais ainda pendentes |
 | 7.3 | Estudos v2 (Fase 1 + Fase 1B) | ✅ 9 rotas de página implementadas e restilizadas (Tailwind/shadcn), incluindo `/estudos/enem/[area]`; schema estendido por `017`/`018`/`019` (gabarito ENEM em 2 fases, matéria única Escola/ENEM, domínio de conteúdo) — todas as migrations confirmadas executadas via dump real do banco (2026-08). Acesso principal passou no smoke de produção; teste profundo das 9 rotas internas permanece opcional — ver `TASKS_NOW.md` |
-| 7.4 | Revisão Espaçada v2 (página dedicada) | ⏳ a planejar |
-| 7.5 | Agenda v2 (módulo dedicado, hoje só existe como tabela `agenda` sem UI) | ⏳ a planejar — depende de decidir onde mora "cronograma de estudo" primeiro, ver `BACKLOG.md` |
+| 7.4 | Revisão Espaçada v2 (página dedicada) | ✅ `/revisao` implementada com listas pendente/futura, avaliação SM-2, card manual e soft delete; validação manual fica para a etapa final |
+| 7.5 | Agenda v2 | ✅ Implementada e liberada para publicação: visão semanal, CRUD, cronograma de estudo, provas sem duplicação e vínculo com treino; migration incremental aplicada em produção |
