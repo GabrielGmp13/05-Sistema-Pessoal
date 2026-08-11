@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { CheckCircle2, Circle, Clock, PlayCircle, Plus, Trophy } from 'lucide-react'
+import { CheckCircle2, Circle, Clock, PlayCircle, Plus, Trash2, Trophy } from 'lucide-react'
 
 import { BackLink, PageHeader, PageShell } from '@/components/study/page-shell'
 import { Section } from '@/components/study/section'
@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Progress } from '@/components/ui/progress'
 import { Skeleton } from '@/components/ui/skeleton'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { cn } from '@/lib/utils'
 
 import { listarMaterias, atualizarMateria, Materia } from '../../../../lib/materias'
@@ -41,6 +42,7 @@ export default function CursoDetalhePage() {
   const [novoModuloNome, setNovoModuloNome] = useState('')
   const [novaAulaNome, setNovaAulaNome] = useState<Record<string, string>>({})
   const [carregando, setCarregando] = useState(true)
+  const [moduloParaApagar, setModuloParaApagar] = useState<ModuloCurso | null>(null)
 
   async function carregar() {
     const [cursos, mods] = await Promise.all([
@@ -86,8 +88,10 @@ export default function CursoDetalhePage() {
     await carregar()
   }
 
-  async function handleDeletarModulo(uuid: string) {
-    await deletarModuloCurso(uuid)
+  async function handleDeletarModuloConfirmado() {
+    if (!moduloParaApagar) return
+    await deletarModuloCurso(moduloParaApagar.uuid)
+    setModuloParaApagar(null)
     await carregar()
   }
 
@@ -247,8 +251,9 @@ export default function CursoDetalhePage() {
                         type="button"
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleDeletarModulo(mod.uuid)}
+                        onClick={() => setModuloParaApagar(mod)}
                       >
+                        <Trash2 className="size-3.5" />
                         Apagar
                       </Button>
                     </div>
@@ -336,6 +341,17 @@ export default function CursoDetalhePage() {
           </Card>
         </Section>
       </div>
+
+      <ConfirmDialog
+        open={moduloParaApagar !== null}
+        title="Apagar módulo?"
+        description={`O módulo "${moduloParaApagar?.nome ?? ''}" será removido do curso. As aulas ligadas a ele podem deixar de aparecer nesta organização.`}
+        confirmLabel="Apagar"
+        onOpenChange={(open) => {
+          if (!open) setModuloParaApagar(null)
+        }}
+        onConfirm={handleDeletarModuloConfirmado}
+      />
     </PageShell>
   )
 }

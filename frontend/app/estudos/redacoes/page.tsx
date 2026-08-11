@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { cn } from '@/lib/utils'
 
 import {
@@ -252,6 +253,7 @@ function RedacaoCard({
   const [urlImagem, setUrlImagem] = useState<string | null>(null)
   const [enviandoImagem, setEnviandoImagem] = useState(false)
   const [salvando, setSalvando] = useState(false)
+  const [confirmarRemocaoImagem, setConfirmarRemocaoImagem] = useState(false)
 
   const [textoEdit, setTextoEdit] = useState(r.texto ?? '')
   const [comentarioEdit, setComentarioEdit] = useState(r.comentario ?? '')
@@ -280,9 +282,10 @@ function RedacaoCard({
     await onAtualizado()
   }
 
-  async function handleRemoverImagem() {
+  async function handleRemoverImagemConfirmada() {
     if (!r.imagem_path) return
     await removerImagemRedacao(r.uuid, r.imagem_path)
+    setConfirmarRemocaoImagem(false)
     await onAtualizado()
   }
 
@@ -363,7 +366,7 @@ function RedacaoCard({
               variant="ghost"
               size="icon-sm"
               className="absolute right-2 top-2 bg-background/80"
-              onClick={handleRemoverImagem}
+              onClick={() => setConfirmarRemocaoImagem(true)}
               aria-label="Remover imagem"
             >
               <X className="size-3.5" />
@@ -435,6 +438,15 @@ function RedacaoCard({
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmarRemocaoImagem}
+        title="Remover foto?"
+        description="A foto anexada a esta redação será removida. O registro da redação continua salvo."
+        confirmLabel="Remover"
+        onOpenChange={setConfirmarRemocaoImagem}
+        onConfirm={handleRemoverImagemConfirmada}
+      />
     </Card>
   )
 }

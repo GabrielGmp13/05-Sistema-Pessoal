@@ -27,8 +27,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 
-import { buscarMateria, Materia } from '../../../../lib/materias'
+import { buscarMateria, listarMaterias, Materia } from '../../../../lib/materias'
 import {
   criarConteudo,
   listarConteudosPorMateria,
@@ -78,6 +79,19 @@ const BOTOES_QUALIDADE: { label: string; qualidade: number }[] = [
   { label: 'Fácil', qualidade: 5 },
 ]
 
+interface Confirmacao {
+  title: string
+  description: string
+  confirmLabel: string
+  action: () => Promise<void>
+}
+
+interface VinculoPendente {
+  conteudoUuid: string
+  conteudoNome: string
+  materiaUuid: string
+}
+
 export default function MateriaDetalhePage() {
   const params = useParams<{ materiaUuid: string }>()
   const materiaUuid = params.materiaUuid
@@ -90,6 +104,7 @@ export default function MateriaDetalhePage() {
   const from = (searchParams.get('from') === 'enem' ? 'enem' : 'escola') as 'enem' | 'escola'
 
   const [materia, setMateria] = useState<Materia | null>(null)
+  const [materiasVinculaveis, setMateriasVinculaveis] = useState<Materia[]>([])
   const [conteudos, setConteudos] = useState<Conteudo[]>([])
   const [cardsRevisao, setCardsRevisao] = useState<Record<string, CardRevisao>>({})
   const [provas, setProvas] = useState<Prova[]>([])
@@ -107,17 +122,21 @@ export default function MateriaDetalhePage() {
     total_acertos: '',
     conteudo_uuid: '',
   })
+  const [confirmacao, setConfirmacao] = useState<Confirmacao | null>(null)
+  const [vinculoPendente, setVinculoPendente] = useState<VinculoPendente | null>(null)
 
   async function carregar() {
-    const [materiaAtual, cont, prov, ativ, sim, taxa] = await Promise.all([
+    const [materiaAtual, cont, prov, ativ, sim, taxa, materias] = await Promise.all([
       buscarMateria(materiaUuid),
       listarConteudosPorMateria(materiaUuid),
       from === 'escola' ? listarProvasPorMateria(materiaUuid) : Promise.resolve([]),
       from === 'escola' ? listarAtividades(materiaUuid) : Promise.resolve([]),
       listarSimuladosPorMateria(materiaUuid),
       taxaDeAcertoRecente(30, materiaUuid),
+      listarMaterias('academica'),
     ])
     setMateria(materiaAtual)
+    setMateriasVinculaveis((materias ?? []).filter((m) => m.uuid !== materiaUuid))
     setConteudos(cont ?? [])
     setProvas(prov ?? [])
     setAtividades(ativ ?? [])
@@ -170,17 +189,33 @@ export default function MateriaDetalhePage() {
     await carregar()
   }
 
-  async function handleApagarConteudo(uuid: string) {
-    await deletarConteudo(uuid)
-    await carregar()
+  function handleApagarConteudo(conteudo: Conteudo) {
+    setConfirmacao({
+      title: 'Apagar conteúdo?',
+      description: `O conteúdo "${conteudo.nome}" deixa de aparecer nesta matéria. Essa ação não apaga provas ou simulados já registrados.`,
+      confirmLabel: 'Apagar',
+      action: async () => {
+        await deletarConteudo(conteudo.uuid)
+        await carregar()
+      },
+    })
   }
 
-  async function handleVincularOutraMateria(conteudoUuid: string) {
-    const alvoUuid = window.prompt(
-      'UUID de outra matéria pra vincular este conteúdo também:',
+  function handleAbrirVinculo(conteudo: Conteudo) {
+    setVinculoPendente({
+      conteudoUuid: conteudo.uuid,
+      conteudoNome: conteudo.nome,
+      materiaUuid: '',
+    })
+  }
+
+  async function handleConfirmarVinculo() {
+    if (!vinculoPendente?.materiaUuid) return
+    await vincularConteudoAMateria(
+      vinculoPendente.conteudoUuid,
+      vinculoPendente.materiaUuid,
     )
-    if (!alvoUuid) return
-    await vincularConteudoAMateria(conteudoUuid, alvoUuid)
+    setVinculoPendente(null)
     await carregar()
   }
 
@@ -203,9 +238,16 @@ export default function MateriaDetalhePage() {
     await carregar()
   }
 
-  async function handleApagarProva(uuid: string) {
-    await deletarProva(uuid)
-    await carregar()
+  function handleApagarProva(prova: Prova) {
+    setConfirmacao({
+      title: 'Apagar prova?',
+      description: `A prova "${prova.titulo || 'sem título'}" será removida da lista desta matéria.`,
+      confirmLabel: 'Apagar',
+      action: async () => {
+        await deletarProva(prova.uuid)
+        await carregar()
+      },
+    })
   }
 
   async function handleCriarAtividade(e: React.FormEvent) {
@@ -228,9 +270,16 @@ export default function MateriaDetalhePage() {
     await carregar()
   }
 
-  async function handleApagarAtividade(uuid: string) {
-    await deletarAtividade(uuid)
-    await carregar()
+  function handleApagarAtividade(atividade: Atividade) {
+    setConfirmacao({
+      title: 'Apagar atividade?',
+      description: `A atividade "${atividade.titulo}" será removida da lista desta matéria.`,
+      confirmLabel: 'Apagar',
+      action: async () => {
+        await deletarAtividade(atividade.uuid)
+        await carregar()
+      },
+    })
   }
 
   async function handleRegistrarQuestao(e: React.FormEvent) {
@@ -383,7 +432,7 @@ export default function MateriaDetalhePage() {
                             type="button"
                             variant="ghost"
                             size="icon-sm"
-                            onClick={() => handleVincularOutraMateria(c.uuid)}
+                            onClick={() => handleAbrirVinculo(c)}
                             aria-label="Vincular a outra matéria"
                             title="Vincular a outra matéria"
                           >
@@ -393,7 +442,7 @@ export default function MateriaDetalhePage() {
                             type="button"
                             variant="ghost"
                             size="icon-sm"
-                            onClick={() => handleApagarConteudo(c.uuid)}
+                            onClick={() => handleApagarConteudo(c)}
                             aria-label="Apagar conteúdo"
                           >
                             <Trash2 className="size-3.5" />
@@ -468,7 +517,7 @@ export default function MateriaDetalhePage() {
                             type="button"
                             variant="ghost"
                             size="icon-sm"
-                            onClick={() => handleApagarProva(p.uuid)}
+                            onClick={() => handleApagarProva(p)}
                             aria-label="Apagar prova"
                           >
                             <Trash2 className="size-3.5" />
@@ -523,7 +572,7 @@ export default function MateriaDetalhePage() {
                             variant="ghost"
                             size="icon-sm"
                             className="ml-auto"
-                            onClick={() => handleApagarAtividade(a.uuid)}
+                            onClick={() => handleApagarAtividade(a)}
                             aria-label="Apagar atividade"
                           >
                             <Trash2 className="size-3.5" />
@@ -683,7 +732,128 @@ export default function MateriaDetalhePage() {
           </Section>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmacao !== null}
+        title={confirmacao?.title ?? ''}
+        description={confirmacao?.description ?? ''}
+        confirmLabel={confirmacao?.confirmLabel ?? 'Confirmar'}
+        onOpenChange={(open) => {
+          if (!open) setConfirmacao(null)
+        }}
+        onConfirm={async () => {
+          await confirmacao?.action()
+        }}
+      />
+
+      <VincularConteudoDialog
+        vinculo={vinculoPendente}
+        materias={materiasVinculaveis}
+        onChangeMateria={(materiaUuid) =>
+          setVinculoPendente((prev) => prev ? { ...prev, materiaUuid } : prev)
+        }
+        onClose={() => setVinculoPendente(null)}
+        onConfirm={handleConfirmarVinculo}
+      />
     </PageShell>
+  )
+}
+
+function VincularConteudoDialog({
+  vinculo,
+  materias,
+  onChangeMateria,
+  onClose,
+  onConfirm,
+}: {
+  vinculo: VinculoPendente | null
+  materias: Materia[]
+  onChangeMateria: (materiaUuid: string) => void
+  onClose: () => void
+  onConfirm: () => Promise<void>
+}) {
+  const [salvando, setSalvando] = useState(false)
+
+  if (!vinculo) return null
+
+  async function handleConfirm() {
+    if (!vinculo?.materiaUuid) return
+    setSalvando(true)
+    try {
+      await onConfirm()
+    } finally {
+      setSalvando(false)
+    }
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+      role="presentation"
+      onMouseDown={onClose}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="vincular-conteudo-title"
+        className="w-full max-w-md rounded-xl border border-border bg-card p-5 text-card-foreground shadow-lg"
+        onMouseDown={(event) => event.stopPropagation()}
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 id="vincular-conteudo-title" className="text-base font-semibold">
+              Vincular conteúdo
+            </h2>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              Escolha outra matéria para também usar "{vinculo.conteudoNome}".
+            </p>
+          </div>
+          <button
+            type="button"
+            aria-label="Fechar"
+            onClick={onClose}
+            className="rounded-lg px-2 py-1 text-sm text-muted-foreground outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/30"
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="mt-5">
+          <Field label="Matéria">
+            <Select
+              value={vinculo.materiaUuid}
+              onChange={(event) => onChangeMateria(event.target.value)}
+              disabled={materias.length === 0}
+            >
+              <option value="">Selecione uma matéria</option>
+              {materias.map((materia) => (
+                <option key={materia.uuid} value={materia.uuid}>
+                  {materia.nome}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          {materias.length === 0 && (
+            <p className="mt-2 text-sm text-muted-foreground">
+              Não há outra matéria disponível para vínculo.
+            </p>
+          )}
+        </div>
+
+        <div className="mt-5 flex justify-end gap-2">
+          <Button type="button" variant="outline" onClick={onClose} disabled={salvando}>
+            Cancelar
+          </Button>
+          <Button
+            type="button"
+            onClick={handleConfirm}
+            disabled={salvando || !vinculo.materiaUuid}
+          >
+            {salvando ? 'Vinculando...' : 'Vincular'}
+          </Button>
+        </div>
+      </div>
+    </div>
   )
 }
 
