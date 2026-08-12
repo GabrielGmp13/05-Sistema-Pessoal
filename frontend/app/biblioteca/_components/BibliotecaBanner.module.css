@@ -103,8 +103,8 @@
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  background: var(--accent-wash-forte);
-  color: var(--accent);
+  background: var(--primary);
+  color: var(--primary-foreground);
   border: none;
   border-radius: 8px;
   padding: 0.5rem 1rem;

@@ -133,12 +133,13 @@ navegação por categoria.
    contagem só aparece no item ativo**, não em todos simultaneamente
 4. **Rodapé** — ação secundária opcional e botão primário (ex: "+ Adicionar obra")
 
-Nas rotas da Biblioteca, o perfil fica no início da navegação global (DEC-049):
-avatar maior, nome ao lado e `user_metadata.background_url` degradando até a
-barra. A sidebar não duplica perfil.
+Em todas as rotas autenticadas, o perfil fica no início da navegação global
+(DEC-049): avatar maior, nome ao lado e `user_metadata.background_url`
+degradando logo depois do nome até a barra. “Início” é o acesso à Home; a área
+de perfil não duplica esse link. A sidebar da Biblioteca não duplica perfil.
 
-Item ativo: `border-left: 2px solid var(--accent)`, fundo `--accent-wash`,
-texto `--accent`.
+Item ativo: `border-left: 2px solid var(--accent-foreground)`, fundo
+`--accent-wash`, texto `--accent-foreground`.
 
 ---
 

@@ -26,6 +26,7 @@ function isActive(pathname: string, href: string) {
 export function GlobalNav() {
   const pathname = usePathname()
   const router = useRouter()
+  const ocultarNavegacao = pathname === '/login'
   const [saindo, setSaindo] = useState(false)
   const [perfil, setPerfil] = useState<{
     nome: string
@@ -33,10 +34,8 @@ export function GlobalNav() {
     backgroundUrl: string | null
   } | null>(null)
 
-  const biblioteca = pathname.startsWith('/biblioteca')
-
   useEffect(() => {
-    if (!biblioteca) return
+    if (ocultarNavegacao) return
 
     let ativo = true
     async function carregarPerfil() {
@@ -53,9 +52,9 @@ export function GlobalNav() {
     return () => {
       ativo = false
     }
-  }, [biblioteca])
+  }, [ocultarNavegacao])
 
-  if (pathname === '/login') return null
+  if (ocultarNavegacao) return null
 
   async function handleLogout() {
     setSaindo(true)
@@ -72,38 +71,21 @@ export function GlobalNav() {
   return (
     <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--surface)]/95 text-[var(--text)] backdrop-blur supports-[backdrop-filter]:bg-[var(--surface)]/85">
       <div className="mx-auto flex min-h-14 w-full max-w-6xl flex-wrap items-center gap-x-3 gap-y-2 px-4 py-2 sm:px-6 lg:flex-nowrap lg:py-0">
-        <Link
-          href="/"
-          className={cn(
-            'relative flex min-w-0 items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-semibold text-[var(--text)] outline-none transition-colors hover:bg-[var(--surface-2)] focus-visible:ring-[3px] focus-visible:ring-[var(--accent)]/30',
-            biblioteca && styles.perfilLink,
-          )}
-        >
-          {biblioteca ? (
-            <>
-              <span
-                aria-hidden="true"
-                className={styles.perfilFundo}
-                style={perfil?.backgroundUrl ? { backgroundImage: `url(${perfil.backgroundUrl})` } : undefined}
-              />
-              <span className={styles.avatar}>
-                {perfil?.avatarUrl ? (
-                  <img src={perfil.avatarUrl} alt="" className={styles.avatarImagem} />
-                ) : (
-                  <span aria-hidden="true">{inicial}</span>
-                )}
-              </span>
-              <span className={styles.perfilNome}>{perfil?.nome || 'Carregando perfil'}</span>
-            </>
-          ) : (
-            <>
-              <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-[var(--accent-wash)] text-[var(--accent)]">
-                <Home className="size-4" />
-              </span>
-              <span className="hidden sm:inline">Sistema Pessoal</span>
-            </>
-          )}
-        </Link>
+        <div className={styles.perfil} aria-label={`Perfil de ${perfil?.nome || 'usuário'}`}>
+          <span
+            aria-hidden="true"
+            className={styles.perfilFundo}
+            style={perfil?.backgroundUrl ? { backgroundImage: `url(${perfil.backgroundUrl})` } : undefined}
+          />
+          <span className={styles.avatar}>
+            {perfil?.avatarUrl ? (
+              <img src={perfil.avatarUrl} alt="" className={styles.avatarImagem} />
+            ) : (
+              <span aria-hidden="true">{inicial}</span>
+            )}
+          </span>
+          <span className={styles.perfilNome}>{perfil?.nome || 'Perfil'}</span>
+        </div>
 
         <nav
           aria-label="Navegação principal"

@@ -24,6 +24,8 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 - [ ] Dashboard analytics avançado
 - [ ] Modo múltiplos usuários (RLS já suporta — bastaria criar contas; não é objetivo do projeto por princípio, ver PROJECT_PRINCIPLES.md)
 - [x] Navegação global entre módulos e botão de logout visível — implementado em 2026-08-09 com hub `/`, navegação para Treino/Biblioteca/Estudos e logout via Supabase Auth.
+- [ ] Corrigir o corte residual da letra “g” em “Agenda” na navegação em uma combinação específica de largura/zoom; o usuário decidiu não bloquear o teste atual por isso (2026-08-12).
+- [ ] Evoluir a área global de perfil para um painel pessoal/social. Nesta etapa ela exibe somente avatar, nome e background vindos de `user_metadata`, sem rota própria.
 
 ## Estudos
 
@@ -103,7 +105,7 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 - [x] Menu de ações dos cards fecha por clique externo, Escape ou escolha de ação, com foco devolvido ao botão quando fechado pelo teclado e botão visível em dispositivos sem hover (2026-08-12).
 - [ ] Velocidade de leitura (páginas/hora) em Livros (B5) — `paginas_total`/`pagina_atual` permitem progresso, mas não velocidade; exigiria registro de sessões de leitura com data, não desenhado ainda (ver DEC-029)
 - [ ] Imagens estáticas de banner por categoria (`public/biblioteca/banners/{filmes,series,animes,mangas,livros,podcasts,videos,artigos}.jpg`) — suporte já existe no `BibliotecaBanner` (DEC-034), mas depende do usuário fornecer as imagens; sem elas, cada categoria usa mosaico de capas ou fallback visual. Confirmado que ao menos `animes.jpg` já está versionado.
-- [x] Perfil da Biblioteca movido da sidebar para a navegação global, com avatar, nome, background opcional e fallback (2026-08-12).
+- [x] Perfil removido da sidebar e promovido à navegação global de todo o site, com avatar, nome, background opcional e fallback (2026-08-12, DEC-049).
 - [ ] Tela de Configurações para editar `user_metadata.avatar_url`/`background_url`; até existir, esses metadados continuam sem UI própria.
 
 ## Treino v2

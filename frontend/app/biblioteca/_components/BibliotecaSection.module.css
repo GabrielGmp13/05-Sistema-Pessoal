@@ -116,7 +116,7 @@
 .badge {
   display: inline-block;
   font-size: 0.7rem;
-  color: var(--accent);
+  color: var(--accent-foreground);
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 0.15rem 0.5rem;
@@ -156,7 +156,7 @@
 }
 
 .btnGhost:hover {
-  border-color: var(--accent);
+  border-color: var(--accent-foreground);
 }
 
 .btnIcon {
@@ -232,7 +232,7 @@
 .modalBody select:focus,
 .modalBody textarea:focus {
   outline: none;
-  border-color: var(--accent);
+  border-color: var(--accent-foreground);
 }
 
 .modalFooter {

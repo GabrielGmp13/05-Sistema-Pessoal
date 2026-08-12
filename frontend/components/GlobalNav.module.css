@@ -7,28 +7,38 @@
   gap: 0.25rem;
 }
 
-.perfilLink {
+.perfil {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
   isolation: isolate;
   max-width: calc(100% - 5.5rem);
   min-height: 2.75rem;
-  padding-right: 1.25rem;
+  min-width: 0;
+  padding: 0.125rem 1.75rem 0.125rem 0.25rem;
 }
 
 .perfilFundo {
   position: absolute;
   z-index: -1;
-  inset: -0.4rem -4rem -0.4rem -0.5rem;
+  inset: -0.5rem -2.5rem -0.5rem -0.75rem;
   background-color: var(--accent-wash);
   background-position: center;
   background-size: cover;
-  opacity: 0.75;
-  mask-image: linear-gradient(to right, #000 0%, #000 58%, transparent 100%);
+  opacity: 0.82;
+  mask-image: linear-gradient(
+    to right,
+    #000 0%,
+    #000 calc(100% - 2.75rem),
+    transparent 100%
+  );
 }
 
 .avatar {
   display: flex;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2.75rem;
+  height: 2.75rem;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
@@ -37,7 +47,7 @@
   border-radius: 50%;
   background: var(--surface-2);
   color: var(--text);
-  box-shadow: 0 0 0 1px var(--accent);
+  box-shadow: 0 0 0 1px var(--accent-foreground);
   font-family: 'Syne', sans-serif;
   font-weight: 700;
 }
@@ -69,7 +79,7 @@
     display: none;
   }
 
-  .perfilLink {
+  .perfil {
     max-width: 15rem;
   }
 }
@@ -79,5 +89,9 @@
     order: initial;
     width: auto;
     flex: 1;
+  }
+
+  .perfil {
+    max-width: 12rem;
   }
 }

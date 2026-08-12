@@ -9,7 +9,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 **Bloqueio:** nenhum bloqueio de banco conhecido para publicar o lote final de polimento da v2.
 **Banco:** produção está alinhada até `20260812000100_revisao_arquivados.sql`; a migration de arquivamento da Revisão foi aplicada em 2026-08-12 após dry-run limpo, com pós-check remoto sem pendências.
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** publicar o lote final de polimento e retomar o teste manual autenticado em desktop e mobile.
+**Próxima ação:** continuar o teste manual autenticado em produção, em desktop e mobile, após cada correção curta de polimento.
 
 ---
 
@@ -58,7 +58,10 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] `20260812000100_revisao_arquivados.sql` passou em reset local e na suíte SQL completa
 - [x] Importação Anki auditada e mantida fora desta leva por exigir parser de pacote SQLite/ZIP e decisões de mapeamento
 - [x] Dry-run remoto limpo, migration aplicada em produção com autorização explícita e pós-check sem pendências (2026-08-12)
-- [ ] Publicar e repetir o teste manual de login, Hub, Biblioteca e Revisão em desktop/mobile
+- [x] Primeiro lote publicado; login validado pelo usuário em produção (2026-08-12)
+- [x] Perfil promovido ao topo global em todas as rotas, sem duplicar o link “Início”
+- [x] Sidebar da Biblioteca compactada e contraste do item ativo corrigido
+- [ ] Confirmar o novo deploy e continuar o teste manual de Hub, Biblioteca e Revisão em desktop/mobile
 
 ## Integrações externas futuras
 

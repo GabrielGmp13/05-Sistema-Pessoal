@@ -20,6 +20,15 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 (Next.js) — em andamento
 
+- **2026-08-12 (correções após o primeiro deploy do polimento final)** — O
+  perfil deixou de ser uma exceção da Biblioteca e substituiu “Sistema
+  Pessoal” no topo de todas as rotas autenticadas, mantendo “Início” como
+  acesso único à Home. O background do perfil passou a degradar logo depois
+  do nome. A sidebar da Biblioteca foi compactada para exibir categorias e
+  ações sem a pequena rolagem observada no teste, e o item ativo passou a usar
+  `--accent-foreground`, corrigindo o rótulo invisível sobre o fundo de
+  destaque. Nenhuma mudança de banco ou dependência foi necessária.
+
 - **2026-08-12 (ajustes do teste manual final)** — Corrigidos o contraste do
   login e o corte de “Agenda” na navegação responsiva. O Hub ganhou um bloco
   compacto de provas futuras baseado em `provas`. A Biblioteca deixou o tema

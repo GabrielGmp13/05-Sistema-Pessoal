@@ -80,7 +80,7 @@
   align-items: center;
   gap: 0.2rem;
   font-size: 0.72rem;
-  color: var(--accent);
+  color: var(--accent-foreground);
 }
 
 .estrelaIcon {

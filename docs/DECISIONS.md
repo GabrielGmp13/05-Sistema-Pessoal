@@ -800,10 +800,10 @@ publicação.
 
 ---
 
-## DEC-049 — Biblioteca adota o tema global e move o perfil para o topo
+## DEC-049 — Biblioteca adota o tema global e o perfil passa ao topo global
 
 **Data:** 2026-08-12
-**Status:** ✅ Aprovada pelo usuário e implementada localmente
+**Status:** ✅ Aprovada pelo usuário e implementada
 
 ### Contexto
 
@@ -815,14 +815,20 @@ rolagens internas. Esta é informação visual nova e supera somente as exceçõ
 temporárias registradas nas DEC-037/039; a stack CSS Modules da DEC-038 e o
 fluxo de página única da DEC-032 permanecem.
 
+Após o primeiro deploy, o usuário esclareceu que o perfil não é uma identidade
+visual exclusiva da Biblioteca: ele deve substituir a marca textual “Sistema
+Pessoal” em toda a navegação global. O link “Início” já é o único caminho
+visual necessário para a Home.
+
 ### Decisão
 
 - Biblioteca passa a consumir os mesmos tokens claro/escuro globais dos
   demais módulos; o override `.bibliotecaTheme` é removido e o toggle aparece
   também nas rotas `/biblioteca`.
-- Avatar, nome e background opcional de `user_metadata` passam para o início
-  da navegação global nas rotas da Biblioteca, substituindo a marca textual
-  “Sistema Pessoal” somente nesse contexto.
+- Avatar, nome e background opcional de `user_metadata` ficam no início da
+  navegação global em todas as rotas autenticadas, substituindo a marca textual
+  “Sistema Pessoal”. A área é informativa por enquanto; não duplica o link para
+  a Home e poderá abrir um painel de perfil em evolução futura.
 - A sidebar fica dedicada a busca, categorias, gêneros e ação de adicionar.
 - Mosaico de capas, banner e CRUD permanecem; não há mudança de schema nem de
   responsabilidade da Biblioteca.
@@ -832,3 +838,5 @@ fluxo de página única da DEC-032 permanecem.
 O layout deixa de criar rolagem própria no conteúdo e calcula a sidebar abaixo
 da navegação responsiva. Cores de texto e controles antes fixadas para fundo
 escuro passam a usar tokens semânticos, preservando contraste nos dois temas.
+O perfil é carregado uma vez pelo `GlobalNav`, independentemente do módulo
+ativo; a sidebar da Biblioteca permanece sem duplicação.
