@@ -163,34 +163,68 @@ export async function getMapaGenerosDosItens(
   return mapa
 }
 
-// Substitui a lista completa de gêneros de um item (apaga os antigos, insere os novos).
-// Mais simples que fazer diff — volume de dados por item é pequeno.
+// Sincroniza por diferenca. Novas associacoes entram antes da remocao das
+// antigas para que uma falha parcial nunca deixe o item sem generos validos.
 export async function salvarGenerosDoItem(
   sb: SB, userId: string, tipo: TipoMidia, itemUuid: string, generoUuids: string[]
 ): Promise<{ error: string | null }> {
   const { tabela, coluna } = JUNCAO[tipo]
+  const desejados = [...new Set(generoUuids)]
 
-  const { error: erroDelete } = await sb
+  const { data: dataAtuais, error: erroBusca } = await sb
     .from(tabela)
-    .update({ deleted: true, updated_at: new Date().toISOString() })
+    .select('uuid, genero_uuid')
     .eq('user_id', userId)
     .eq(coluna, itemUuid)
+    .eq('deleted', false)
 
-  if (erroDelete) {
-    console.error('[salvarGenerosDoItem] delete', erroDelete)
-    return { error: erroDelete.message }
+  if (erroBusca) {
+    console.error('[salvarGenerosDoItem] busca', erroBusca)
+    return { error: erroBusca.message }
   }
 
-  if (generoUuids.length === 0) return { error: null }
+  const atuais = (dataAtuais ?? []) as Array<{ uuid: string; genero_uuid: string }>
+  const desejadosSet = new Set(desejados)
+  const mantidos = new Set<string>()
+  const uuidsParaRemover: string[] = []
 
-  const linhas = generoUuids.map((generoUuid) => ({
-    uuid: crypto.randomUUID(),
-    user_id: userId,
-    [coluna]: itemUuid,
-    genero_uuid: generoUuid,
-  }))
+  for (const atual of atuais) {
+    if (!desejadosSet.has(atual.genero_uuid) || mantidos.has(atual.genero_uuid)) {
+      uuidsParaRemover.push(atual.uuid)
+    } else {
+      mantidos.add(atual.genero_uuid)
+    }
+  }
 
-  const { error: erroInsert } = await sb.from(tabela).insert(linhas)
-  if (erroInsert) console.error('[salvarGenerosDoItem] insert', erroInsert)
-  return { error: erroInsert?.message ?? null }
+  const faltantes = desejados.filter((generoUuid) => !mantidos.has(generoUuid))
+
+  if (faltantes.length > 0) {
+    const linhas = faltantes.map((generoUuid) => ({
+      uuid: crypto.randomUUID(),
+      user_id: userId,
+      [coluna]: itemUuid,
+      genero_uuid: generoUuid,
+    }))
+
+    const { error: erroInsert } = await sb.from(tabela).insert(linhas)
+    if (erroInsert) {
+      console.error('[salvarGenerosDoItem] insert', erroInsert)
+      return { error: erroInsert.message }
+    }
+  }
+
+  if (uuidsParaRemover.length > 0) {
+    const { error: erroDelete } = await sb
+      .from(tabela)
+      .update({ deleted: true, updated_at: new Date().toISOString() })
+      .eq('user_id', userId)
+      .in('uuid', uuidsParaRemover)
+
+    if (erroDelete) {
+      console.error('[salvarGenerosDoItem] delete', erroDelete)
+      return { error: erroDelete.message }
+    }
+  }
+
+  return { error: null }
 }
