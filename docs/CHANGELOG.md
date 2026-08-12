@@ -20,6 +20,15 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 (Next.js) — em andamento
 
+- **2026-08-12 (alinhamento estrutural da navegação global)** — O topo deixou
+  de combinar `flex-wrap`, reordenação e larguras independentes: `GlobalNav`
+  passou a usar uma única grade responsiva com áreas de perfil, navegação e
+  logout. No desktop, as três áreas compartilham a mesma linha de `3.5rem`; em
+  larguras menores, apenas a navegação quebra de forma controlada. O efeito de
+  perfil ficou contido na célula esquerda, com fallback neutro baseado em
+  `surface-2`, e a borda inferior passou a pertencer exclusivamente ao
+  `header`. Os offsets e o acabamento da Biblioteca foram preservados.
+
 - **2026-08-12 (acabamento do perfil global)** — O background do perfil no
   `GlobalNav` deixou de depender de uma cor sólida mascarada. O fallback agora
   é um gradiente transparente próprio, e `background_url` ocupa uma segunda

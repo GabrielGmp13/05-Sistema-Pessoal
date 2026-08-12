@@ -839,4 +839,7 @@ O layout deixa de criar rolagem própria no conteúdo e calcula a sidebar abaixo
 da navegação responsiva. Cores de texto e controles antes fixadas para fundo
 escuro passam a usar tokens semânticos, preservando contraste nos dois temas.
 O perfil é carregado uma vez pelo `GlobalNav`, independentemente do módulo
-ativo; a sidebar da Biblioteca permanece sem duplicação.
+ativo; a sidebar da Biblioteca permanece sem duplicação. Após validação visual
+em produção, o topo foi consolidado em uma única grade responsiva com áreas
+explícitas para perfil, navegação e logout. A borda inferior pertence somente
+ao `header`, e as camadas visuais do perfil ficam contidas na célula esquerda.

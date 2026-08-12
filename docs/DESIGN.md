@@ -136,7 +136,10 @@ navegação por categoria.
 Em todas as rotas autenticadas, o perfil fica no início da navegação global
 (DEC-049): avatar maior, nome ao lado e `user_metadata.background_url`
 degradando logo depois do nome até a barra. “Início” é o acesso à Home; a área
-de perfil não duplica esse link. A sidebar da Biblioteca não duplica perfil.
+de perfil não duplica esse link. Perfil, links e logout ocupam uma única grade
+e compartilham altura, alinhamento central e a borda inferior do `header`; o
+efeito de fundo fica contido na célula do perfil. A sidebar da Biblioteca não
+duplica perfil.
 
 Item ativo: `border-left: 2px solid var(--accent-foreground)`, fundo
 `--accent-wash`, texto `--accent-foreground`.

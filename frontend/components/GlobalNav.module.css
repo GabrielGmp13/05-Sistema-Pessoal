@@ -1,68 +1,78 @@
-.navegacao {
-  order: 3;
+.header {
+  position: sticky;
+  z-index: 40;
+  top: 0;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in oklch, var(--surface) 94%, transparent);
+  color: var(--text);
+  backdrop-filter: blur(12px);
+}
+
+.barra {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-areas:
+    'perfil sair'
+    'navegacao navegacao';
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 0.75rem;
+  row-gap: 0.25rem;
   width: 100%;
-  min-width: 0;
-  gap: 0.25rem;
+  min-height: 5.75rem;
+  max-width: 90rem;
+  margin: 0 auto;
+  padding: 0.5rem 1rem;
 }
 
 .perfil {
+  grid-area: perfil;
   position: relative;
   display: flex;
   align-items: center;
   gap: 0.65rem;
   isolation: isolate;
-  max-width: calc(100% - 5.5rem);
-  min-height: 2.75rem;
+  align-self: stretch;
+  width: min(100%, 13rem);
   min-width: 0;
-  padding: 0.125rem 1.75rem 0.125rem 0.25rem;
+  min-height: 2.75rem;
+  overflow: hidden;
+  padding: 0 1.5rem 0 0.25rem;
 }
 
-.perfilFundo {
-  position: absolute;
-  z-index: -1;
-  top: -0.5rem;
-  bottom: -0.5rem;
-  left: -1.75rem;
-  width: calc(100% + 5rem);
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    color-mix(in oklch, var(--accent) 92%, transparent) 16%,
-    color-mix(in oklch, var(--accent) 78%, transparent) 48%,
-    color-mix(in oklch, var(--accent) 34%, transparent) 72%,
-    transparent 100%
-  );
-  pointer-events: none;
-}
-
+.perfilFundo,
 .perfilImagem {
   position: absolute;
   z-index: -1;
-  top: -0.5rem;
-  bottom: -0.5rem;
-  left: -1.75rem;
-  width: calc(100% + 5rem);
-  background-color: transparent;
+  inset: 0;
+  pointer-events: none;
+}
+
+.perfilFundo {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in oklch, var(--surface-2) 82%, transparent) 10%,
+    color-mix(in oklch, var(--surface-2) 68%, transparent) 58%,
+    transparent 100%
+  );
+}
+
+.perfilImagem {
   background-position: center;
   background-size: cover;
-  opacity: 0.68;
-  pointer-events: none;
+  opacity: 0.5;
   -webkit-mask-image: linear-gradient(
     90deg,
     transparent 0%,
-    #000 16%,
-    #000 48%,
-    rgb(0 0 0 / 72%) 64%,
+    #000 10%,
+    #000 52%,
     transparent 100%
   );
   mask-image: linear-gradient(
     90deg,
     transparent 0%,
-    #000 16%,
-    #000 48%,
-    rgb(0 0 0 / 72%) 64%,
+    #000 10%,
+    #000 52%,
     transparent 100%
   );
 }
@@ -101,37 +111,102 @@
   white-space: nowrap;
 }
 
+.navegacao {
+  grid-area: navegacao;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: center;
+  min-width: 0;
+  gap: 0.25rem;
+}
+
+.link {
+  display: inline-flex;
+  min-width: 0;
+  height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 8px;
+  padding: 0 0.5rem;
+  color: var(--texto-secundario);
+  font-size: 0.875rem;
+  font-weight: 500;
+  outline: none;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+  white-space: nowrap;
+}
+
+.link:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.link:focus-visible,
+.sair:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--accent) 30%, transparent);
+}
+
+.linkAtivo {
+  background: var(--accent-wash);
+  color: var(--text);
+}
+
+.sair {
+  grid-area: sair;
+  display: inline-flex;
+  height: 2.25rem;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0 0.65rem;
+  background: transparent;
+  color: var(--texto-secundario);
+  font-size: 0.875rem;
+  font-weight: 500;
+  outline: none;
+  transition: border-color 0.15s, color 0.15s, opacity 0.15s;
+}
+
+.sair:hover {
+  border-color: var(--accent-foreground);
+  color: var(--text);
+}
+
+.sair:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 @media (min-width: 640px) {
   .navegacao {
-    display: flex;
-    align-items: center;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-
-  .navegacao::-webkit-scrollbar {
-    display: none;
-  }
-
-  .perfil {
-    max-width: 15rem;
-  }
-
-  .perfilFundo,
-  .perfilImagem {
-    left: -2.5rem;
-    width: calc(100% + 6.5rem);
+    grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 }
 
 @media (min-width: 1024px) {
-  .navegacao {
-    order: initial;
-    width: auto;
-    flex: 1;
+  .barra {
+    grid-template-areas: 'perfil navegacao sair';
+    grid-template-columns: minmax(10rem, 12rem) minmax(0, 1fr) auto;
+    min-height: 3.5rem;
+    padding: 0 1.5rem;
   }
 
   .perfil {
-    max-width: 12rem;
+    width: 100%;
+    min-height: 3.5rem;
+  }
+
+  .navegacao {
+    display: flex;
+    justify-content: center;
+    gap: 0.125rem;
+  }
+
+  .link {
+    flex: 0 1 auto;
+    padding: 0 0.65rem;
   }
 }

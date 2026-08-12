@@ -69,8 +69,8 @@ export function GlobalNav() {
   const inicial = perfil?.nome.charAt(0).toUpperCase() || 'U'
 
   return (
-    <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--surface)]/95 text-[var(--text)] backdrop-blur supports-[backdrop-filter]:bg-[var(--surface)]/85">
-      <div className="mx-auto flex min-h-14 w-full max-w-6xl flex-wrap items-center gap-x-3 gap-y-2 px-4 py-2 sm:px-6 lg:flex-nowrap lg:py-0">
+    <header className={styles.header}>
+      <div className={styles.barra}>
         <div className={styles.perfil} aria-label={`Perfil de ${perfil?.nome || 'usuário'}`}>
           <span aria-hidden="true" className={styles.perfilFundo} />
           {perfil?.backgroundUrl ? (
@@ -104,8 +104,8 @@ export function GlobalNav() {
                 href={link.href}
                 aria-current={active ? 'page' : undefined}
                 className={cn(
-                  'inline-flex h-9 min-w-0 items-center justify-center gap-2 rounded-lg px-2 text-sm font-medium text-[var(--texto-secundario)] outline-none transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--text)] focus-visible:ring-[3px] focus-visible:ring-[var(--accent)]/30 sm:shrink-0 sm:px-2.5',
-                  active && 'bg-[var(--accent-wash)] text-[var(--text)]',
+                  styles.link,
+                  active && styles.linkAtivo,
                 )}
               >
                 <Icon className="size-4" />
@@ -119,7 +119,7 @@ export function GlobalNav() {
           type="button"
           onClick={handleLogout}
           disabled={saindo}
-          className="ml-auto inline-flex h-9 shrink-0 items-center gap-2 rounded-lg border border-[var(--border)] px-2.5 text-sm font-medium text-[var(--texto-secundario)] outline-none transition-colors hover:border-[var(--accent)] hover:text-[var(--text)] focus-visible:ring-[3px] focus-visible:ring-[var(--accent)]/30 disabled:cursor-not-allowed disabled:opacity-60"
+          className={styles.sair}
         >
           <LogOut className="size-4" />
           <span>{saindo ? 'Saindo...' : 'Sair'}</span>
