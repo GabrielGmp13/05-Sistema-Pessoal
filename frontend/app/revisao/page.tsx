@@ -24,6 +24,7 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
+import { dataLocalIso } from '@/lib/date'
 import {
   avaliarCard,
   CardRevisao,
@@ -39,12 +40,6 @@ const RESULTADOS: { label: string; qualidade: Qualidade }[] = [
   { label: 'Bom', qualidade: 4 },
   { label: 'Fácil', qualidade: 5 },
 ]
-
-function hojeLocal() {
-  const hoje = new Date()
-  hoje.setMinutes(hoje.getMinutes() - hoje.getTimezoneOffset())
-  return hoje.toISOString().slice(0, 10)
-}
 
 function formatarData(data: string) {
   return new Date(`${data}T00:00:00`).toLocaleDateString('pt-BR', {
@@ -81,7 +76,7 @@ export default function RevisaoPage() {
     return () => window.clearTimeout(timeoutId)
   }, [carregar])
 
-  const hoje = hojeLocal()
+  const hoje = dataLocalIso()
   const { pendentes, futuras, atrasadas, paraHoje } = useMemo(() => {
     const atrasados = cards.filter((card) => card.proxima_revisao < hoje)
     const hojeCards = cards.filter((card) => card.proxima_revisao === hoje)

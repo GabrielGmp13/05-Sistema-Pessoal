@@ -5,7 +5,7 @@
 // entra num módulo, volta pro hub, escolhe outro.
 // Versão restilizada com design system do v0 (DEC-038).
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import {
   BarChart3,
@@ -21,8 +21,9 @@ import {
 import { listarProximasProvas, Prova } from '../../lib/provas'
 import { listarAtividadesPendentes, Atividade } from '../../lib/atividades'
 import { listarUltimosSimulados, Simulado } from '../../lib/simulados'
-import { seedMateriasEnemEscolaSeNecessario } from '../../lib/materias'
+import { listarMaterias, Materia, seedMateriasEnemEscolaSeNecessario } from '../../lib/materias'
 import { listarRevisoesPendentes, CardRevisao } from '../../lib/revisao'
+import { dataLocalIso } from '@/lib/date'
 import { PageHeader, PageShell } from '@/components/study/page-shell'
 import { MonoLabel } from '@/components/study/mono-label'
 import { EmptyState } from '@/components/study/empty-state'
@@ -48,28 +49,52 @@ export default function EstudosHubPage() {
   const [atividades, setAtividades] = useState<Atividade[]>([])
   const [simulados, setSimulados] = useState<Simulado[]>([])
   const [revisoes, setRevisoes] = useState<CardRevisao[]>([])
+  const [materias, setMaterias] = useState<Materia[]>([])
   const [carregando, setCarregando] = useState(true)
+  const [erro, setErro] = useState('')
 
   useEffect(() => {
     async function carregar() {
-      // Seed das matérias fixas de Escola/ENEM — roda uma vez, seguro
-      // rodar de novo (checa existência antes de criar). Ver lib/materias.ts.
-      await seedMateriasEnemEscolaSeNecessario()
+      try {
+        // Seed das matérias fixas de Escola/ENEM — roda uma vez, seguro
+        // rodar de novo (checa existência antes de criar). Ver lib/materias.ts.
+        await seedMateriasEnemEscolaSeNecessario()
 
-      const [p, a, s, r] = await Promise.all([
-        listarProximasProvas(),
-        listarAtividadesPendentes(),
-        listarUltimosSimulados(5),
-        listarRevisoesPendentes(7),
-      ])
-      setProvas(p ?? [])
-      setAtividades(a ?? [])
-      setSimulados(s ?? [])
-      setRevisoes(r ?? [])
-      setCarregando(false)
+        const resultados = await Promise.allSettled([
+          listarProximasProvas(),
+          listarAtividadesPendentes(),
+          listarUltimosSimulados(5),
+          listarRevisoesPendentes(7),
+          listarMaterias(),
+        ])
+        const p = resultados[0].status === 'fulfilled' ? resultados[0].value : null
+        const a = resultados[1].status === 'fulfilled' ? resultados[1].value : null
+        const s = resultados[2].status === 'fulfilled' ? resultados[2].value : null
+        const r = resultados[3].status === 'fulfilled' ? resultados[3].value : null
+        const m = resultados[4].status === 'fulfilled' ? resultados[4].value : null
+
+        setProvas(p ?? [])
+        setAtividades(a ?? [])
+        setSimulados(s ?? [])
+        setRevisoes(r ?? [])
+        setMaterias(m ?? [])
+        setErro([p, a, s, r, m].some((valor) => valor === null)
+          ? 'Parte dos dados de Estudos não pôde ser carregada.'
+          : '')
+      } catch {
+        setErro('Não foi possível carregar o resumo de Estudos.')
+      } finally {
+        setCarregando(false)
+      }
     }
     carregar()
   }, [])
+
+  const materiasPorUuid = useMemo(
+    () => new Map(materias.map((materia) => [materia.uuid, materia.nome])),
+    [materias],
+  )
+  const hoje = dataLocalIso()
 
   return (
     <PageShell>
@@ -78,6 +103,12 @@ export default function EstudosHubPage() {
         title="Estudos"
         description="Seu ponto central de estudos. Escolha um mundo e veja rapidamente o que está pendente."
       />
+
+      {erro ? (
+        <p role="alert" className="mt-6 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          {erro}
+        </p>
+      ) : null}
 
       <nav aria-label="Mundos de estudo" className="mt-8">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -120,7 +151,6 @@ export default function EstudosHubPage() {
           }
         >
           {revisoes.map((r) => {
-            const hoje = new Date().toISOString().slice(0, 10)
             const atrasada = r.proxima_revisao < hoje
             return (
               <li
@@ -157,7 +187,7 @@ export default function EstudosHubPage() {
                 <MonoLabel>{formatDateShort(p.data)}</MonoLabel>
               </div>
               {p.materia_uuid ? (
-                <Badge variant="default">{p.materia_uuid.slice(0, 8)}</Badge>
+                <Badge variant="default">{materiasPorUuid.get(p.materia_uuid) ?? 'Matéria'}</Badge>
               ) : null}
             </li>
           ))}

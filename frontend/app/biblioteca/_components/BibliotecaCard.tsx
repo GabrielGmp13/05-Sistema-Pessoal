@@ -118,6 +118,7 @@ export default function BibliotecaCard({
               role="menuitem"
               onClick={(event) => {
                 event.stopPropagation();
+                onAlternarMenu();
                 onEditar();
               }}
             >
@@ -130,6 +131,7 @@ export default function BibliotecaCard({
               className={styles.menuItemPerigo}
               onClick={(event) => {
                 event.stopPropagation();
+                onAlternarMenu();
                 onApagar();
               }}
             >

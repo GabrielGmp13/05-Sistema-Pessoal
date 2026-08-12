@@ -51,6 +51,11 @@ export default function BibliotecaPage() {
     setContagens((prev) => (prev[id] === total ? prev : { ...prev, [id]: total }));
   }
 
+  function selecionarCategoria(id: CategoriaId) {
+    setGatilhoAdicionar(0);
+    setCategoriaAtiva(id);
+  }
+
   function renderSection() {
     const props = {
       gatilhoAdicionar,
@@ -135,7 +140,7 @@ export default function BibliotecaPage() {
             count: contagens[c.id],
           }))}
           ativoId={categoriaAtiva}
-          onSelecionar={(id) => setCategoriaAtiva(id as CategoriaId)}
+          onSelecionar={(id) => selecionarCategoria(id as CategoriaId)}
           onAdicionar={handleAdicionar}
           rotuloAdicionar="Adicionar obra"
           busca={busca}

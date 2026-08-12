@@ -1,4 +1,5 @@
 import { sb, getUserId, now, sbErr, softDelete } from './supabase'
+import { dataLocalSomandoDias } from './date'
 
 // ---------------------------------------------------------------------------
 // Tipos
@@ -68,9 +69,7 @@ export function calcularSM2(
     }
   }
 
-  const proxima = new Date()
-  proxima.setDate(proxima.getDate() + novoIntervalo)
-  const proximaRevisao = proxima.toISOString().slice(0, 10)
+  const proximaRevisao = dataLocalSomandoDias(novoIntervalo)
 
   return {
     ef: Number(novoEf.toFixed(2)),
@@ -306,16 +305,13 @@ export async function listarRevisoesPendentes(diasNoFuturo = 7): Promise<CardRev
   const userId = await getUserId()
   if (!userId) return null
 
-  const limite = new Date()
-  limite.setDate(limite.getDate() + diasNoFuturo)
-
   const { data, error } = await sb
     .from('revisao_espacada')
     .select('*')
     .eq('user_id', userId)
     .eq('deleted', false)
     .eq('modulo', 'estudos')
-    .lte('proxima_revisao', limite.toISOString().slice(0, 10))
+    .lte('proxima_revisao', dataLocalSomandoDias(diasNoFuturo))
     .order('proxima_revisao')
 
   if (error) return sbErr(error, 'listarRevisoesPendentes')

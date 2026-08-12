@@ -62,6 +62,7 @@ export default function GabaritoProvaPage() {
   const [carregando, setCarregando] = useState(true)
   const [salvandoLancamento, setSalvandoLancamento] = useState(false)
   const [salvandoCorrecao, setSalvandoCorrecao] = useState(false)
+  const [erro, setErro] = useState('')
 
   // Fase LANÇAR — grade visual, uma letra selecionada por número (ou nenhuma = branco)
   const [letrasSelecionadas, setLetrasSelecionadas] = useState<Record<number, Letra>>({})
@@ -159,8 +160,13 @@ export default function GabaritoProvaPage() {
     if (respostas.length === 0) return
 
     setSalvandoLancamento(true)
-    await lancarRespostasGabarito(provaUuid, prova.data, respostas)
+    const salvo = await lancarRespostasGabarito(provaUuid, prova.data, respostas)
     setSalvandoLancamento(false)
+    if (!salvo) {
+      setErro('Não foi possível salvar o lançamento do gabarito.')
+      return
+    }
+    setErro('')
     setLetrasSelecionadas({})
     await carregar()
   }
@@ -187,8 +193,18 @@ export default function GabaritoProvaPage() {
 
   async function handleSalvarCorrecao() {
     if (!prova) return
-    const payload = Object.entries(correcoes)
-      .filter(([, v]) => v.letra_correta && v.materia_uuid) // matéria + letra certa são obrigatórias
+    const linhasPreenchidas = Object.entries(correcoes)
+    const linhasIncompletas = linhasPreenchidas.filter(([, v]) => (
+      !v.letra_correta || !v.materia_uuid || !v.conteudo_uuid ||
+      !v.dificuldade || !v.motivo_erro.trim()
+    ))
+
+    if (linhasIncompletas.length > 0) {
+      setErro('Complete letra certa, matéria, conteúdo, dificuldade e motivo em cada questão iniciada.')
+      return
+    }
+
+    const payload = linhasPreenchidas
       .map(([uuid, v]) => {
         const questao = gabarito.find((q) => q.uuid === uuid)!
         return {
@@ -197,9 +213,9 @@ export default function GabaritoProvaPage() {
           correcao: {
             letra_correta: v.letra_correta as Letra,
             materia_uuid: v.materia_uuid,
-            conteudo_uuid: v.conteudo_uuid || undefined,
-            motivo_erro: v.motivo_erro || undefined,
-            dificuldade: (v.dificuldade || undefined) as Dificuldade | undefined,
+            conteudo_uuid: v.conteudo_uuid,
+            motivo_erro: v.motivo_erro.trim(),
+            dificuldade: v.dificuldade as Dificuldade,
           },
         }
       })
@@ -207,8 +223,20 @@ export default function GabaritoProvaPage() {
     if (payload.length === 0) return
 
     setSalvandoCorrecao(true)
-    await corrigirGabaritoEmLote(payload)
+    const salvo = await corrigirGabaritoEmLote(payload)
     setSalvandoCorrecao(false)
+    if (!salvo) {
+      setErro('Parte da correção não pôde ser salva. Recarregue antes de tentar novamente.')
+      return
+    }
+    let aviso = ''
+    if (!faltaLancar && payload.length === pendentesCorrecao.length) {
+      const provaAtualizada = await atualizarProva(provaUuid, { feita: true })
+      if (!provaAtualizada) {
+        aviso = 'A correção foi salva, mas a prova não pôde ser marcada como concluída.'
+      }
+    }
+    setErro(aviso)
     setCorrecoes({})
     await carregar()
   }
@@ -273,6 +301,12 @@ export default function GabaritoProvaPage() {
         title="Gabarito digital"
         description="Marque a letra de cada questão, igual ao cartão-resposta oficial. Quem ficar sem clique é contado como em branco quando você salvar."
       />
+
+      {erro ? (
+        <p role="alert" className="mt-6 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          {erro}
+        </p>
+      ) : null}
 
       {/* Resumo */}
       <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:max-w-2xl">
@@ -447,7 +481,7 @@ export default function GabaritoProvaPage() {
                         ))}
                       </Select>
                     </Field>
-                    <Field label="Conteúdo/assunto" optional>
+                    <Field label="Conteúdo/assunto">
                       <Select
                         value={linha?.conteudo_uuid ?? ''}
                         onChange={(e) => atualizarLinhaCorrecao(q.uuid, 'conteudo_uuid', e.target.value)}
@@ -460,7 +494,7 @@ export default function GabaritoProvaPage() {
                         ))}
                       </Select>
                     </Field>
-                    <Field label="Dificuldade" optional>
+                    <Field label="Dificuldade">
                       <Select
                         value={linha?.dificuldade ?? ''}
                         onChange={(e) => atualizarLinhaCorrecao(q.uuid, 'dificuldade', e.target.value)}
@@ -472,7 +506,7 @@ export default function GabaritoProvaPage() {
                         ))}
                       </Select>
                     </Field>
-                    <Field label="Motivo do erro" optional>
+                    <Field label="Motivo do erro">
                       <Input
                         value={linha?.motivo_erro ?? ''}
                         onChange={(e) => atualizarLinhaCorrecao(q.uuid, 'motivo_erro', e.target.value)}

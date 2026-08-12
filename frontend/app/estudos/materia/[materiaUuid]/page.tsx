@@ -29,6 +29,7 @@ import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { dataLocalIso } from '@/lib/date'
 
 import { buscarMateria, listarMaterias, Materia } from '../../../../lib/materias'
 import {
@@ -42,6 +43,7 @@ import {
 import {
   listarProvasPorMateria,
   criarProva,
+  atualizarProva,
   deletarProva,
   Prova,
 } from '../../../../lib/provas'
@@ -251,6 +253,11 @@ export default function MateriaDetalhePage() {
     })
   }
 
+  async function handleToggleProva(prova: Prova) {
+    await atualizarProva(prova.uuid, { feita: !prova.feita })
+    await carregar()
+  }
+
   async function handleCriarAtividade(e: React.FormEvent) {
     e.preventDefault()
     if (!novaAtividade.titulo.trim()) return
@@ -289,7 +296,7 @@ export default function MateriaDetalhePage() {
       materia_uuid: materiaUuid,
       conteudo_uuid: novaQuestao.conteudo_uuid || null,
       acertou: novaQuestao.acertou,
-      data: new Date().toISOString().slice(0, 10),
+      data: dataLocalIso(),
       prova_uuid: null,
       numero: null,
       motivo_erro: null,
@@ -304,10 +311,13 @@ export default function MateriaDetalhePage() {
     e.preventDefault()
     const total = Number(novoSimulado.total_questoes)
     const acertos = Number(novoSimulado.total_acertos)
-    if (!total) return
+    if (
+      !Number.isInteger(total) || total <= 0 ||
+      !Number.isInteger(acertos) || acertos < 0 || acertos > total
+    ) return
     await registrarSimulado({
       materia_uuid: materiaUuid,
-      data: new Date().toISOString().slice(0, 10),
+      data: dataLocalIso(),
       total_questoes: total,
       total_acertos: acertos,
       tempo_minutos: null,
@@ -504,16 +514,25 @@ export default function MateriaDetalhePage() {
                 ) : (
                   <ul className="flex flex-col divide-y divide-border rounded-lg border border-border">
                     {provas.map((p) => (
-                      <li key={p.uuid} className="flex items-center gap-3 px-4 py-3">
+                      <li key={p.uuid} className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center">
                         <div className="flex min-w-0 flex-col">
                           <span className="truncate text-sm font-medium">{p.titulo}</span>
                           <MonoLabel>{formatDate(p.data)}</MonoLabel>
                         </div>
-                        <div className="ml-auto flex shrink-0 items-center gap-2">
+                        <div className="flex w-full shrink-0 items-center justify-end gap-2 sm:ml-auto sm:w-auto">
                           <Badge variant={p.feita ? 'success' : 'outline'}>
                             {p.feita ? 'feita' : 'pendente'}
                             {p.nota != null ? ` · ${p.nota}` : ''}
                           </Badge>
+                          <Button
+                            type="button"
+                            variant={p.feita ? 'secondary' : 'outline'}
+                            size="sm"
+                            onClick={() => handleToggleProva(p)}
+                          >
+                            {p.feita ? <CheckCircle2 className="size-3.5" /> : null}
+                            {p.feita ? 'Reabrir' : 'Concluir'}
+                          </Button>
                           <Button
                             type="button"
                             variant="ghost"
@@ -691,6 +710,10 @@ export default function MateriaDetalhePage() {
                 <form onSubmit={handleRegistrarSimulado} className="flex flex-col gap-2">
                   <div className="flex items-center gap-2">
                     <Input
+                      type="number"
+                      min="1"
+                      step="1"
+                      required
                       value={novoSimulado.total_questoes}
                       onChange={(e) =>
                         setNovoSimulado((s) => ({ ...s, total_questoes: e.target.value }))
@@ -700,6 +723,11 @@ export default function MateriaDetalhePage() {
                       className="h-8 text-sm"
                     />
                     <Input
+                      type="number"
+                      min="0"
+                      max={novoSimulado.total_questoes || undefined}
+                      step="1"
+                      required
                       value={novoSimulado.total_acertos}
                       onChange={(e) =>
                         setNovoSimulado((s) => ({ ...s, total_acertos: e.target.value }))
@@ -808,7 +836,7 @@ function VincularConteudoDialog({
               Vincular conteúdo
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              Escolha outra matéria para também usar "{vinculo.conteudoNome}".
+              Escolha outra matéria para também usar o conteúdo {vinculo.conteudoNome}.
             </p>
           </div>
           <button

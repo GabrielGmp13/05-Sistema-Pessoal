@@ -135,6 +135,12 @@
   color: var(--text);
 }
 
+.btnIcon:focus-visible {
+  opacity: 1;
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 .menuDropdown {
   position: absolute;
   top: calc(100% + 0.3rem);
@@ -174,4 +180,10 @@
 
 .menuItemPerigo {
   color: #ff6b6b !important;
+}
+
+@media (hover: none) {
+  .btnIcon {
+    opacity: 1;
+  }
 }

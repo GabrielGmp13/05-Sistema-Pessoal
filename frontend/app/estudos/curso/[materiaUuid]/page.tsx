@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { CheckCircle2, Circle, Clock, ExternalLink, PlayCircle, Plus, Trash2, Trophy, Video } from 'lucide-react'
+import { CheckCircle2, Circle, Clock, ExternalLink, PlayCircle, Plus, Trash2, Video } from 'lucide-react'
 
 import { BackLink, PageHeader, PageShell } from '@/components/study/page-shell'
 import { Section } from '@/components/study/section'
@@ -11,13 +11,13 @@ import { EmptyState } from '@/components/study/empty-state'
 import { Field } from '@/components/study/field'
 import { StudyRecords } from '@/components/study/study-records'
 import { Card } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Progress } from '@/components/ui/progress'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { cn } from '@/lib/utils'
+import { dataLocalIso } from '@/lib/date'
 
 import { listarMaterias, atualizarMateria, Materia } from '../../../../lib/materias'
 import {
@@ -132,7 +132,7 @@ export default function CursoDetalhePage() {
     await atualizarMateria(curso.uuid, {
       concluido: !curso.concluido,
       data_conclusao: !curso.concluido
-        ? new Date().toISOString().slice(0, 10)
+        ? dataLocalIso()
         : null,
     })
     await carregar()
@@ -170,8 +170,6 @@ export default function CursoDetalhePage() {
     )
   }
 
-  const isDone = curso.concluido || (total > 0 && done === total)
-
   return (
     <PageShell>
       <div className="mb-5">
@@ -186,21 +184,14 @@ export default function CursoDetalhePage() {
             : `${total} aulas`
         }
         actions={
-          isDone ? (
-            <Badge variant="success">
-              <Trophy className="size-3" />
-              Concluído
-            </Badge>
-          ) : (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleMarcarCursoConcluido}
-            >
-              <CheckCircle2 className="size-3.5" />
-              Marcar como concluído
-            </Button>
-          )
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleMarcarCursoConcluido}
+          >
+            {curso.concluido ? <Circle className="size-3.5" /> : <CheckCircle2 className="size-3.5" />}
+            {curso.concluido ? 'Reabrir curso' : 'Marcar como concluído'}
+          </Button>
         }
       />
 

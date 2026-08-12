@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { createBrowserClient } from '@supabase/ssr'
+import { dataLocalIso } from '@/lib/date'
 import styles from './page.module.css'
 
 interface RegistroShape {
@@ -67,7 +68,7 @@ export default function ShapePage() {
     setEnviando(true)
 
     const uuid = crypto.randomUUID()
-    const hoje = new Date().toISOString().slice(0, 10)
+    const hoje = dataLocalIso()
     let fotoPath: string | null = null
 
     if (arquivo) {

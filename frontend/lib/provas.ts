@@ -1,4 +1,5 @@
 import { sb, getUserId, sbErr, softDelete } from './supabase';
+import { dataLocalIso } from './date';
 import type { AreaEnem } from './materias';
 
 export type TipoProva = 'escola' | 'enem_dia1' | 'enem_dia2' | 'curso' | 'outro';
@@ -51,7 +52,7 @@ export async function listarProximasProvas(tipo?: TipoProva): Promise<Prova[] | 
     .eq('user_id', userId)
     .eq('deleted', false)
     .eq('feita', false)
-    .gte('data', new Date().toISOString().slice(0, 10))
+    .gte('data', dataLocalIso())
     .order('data');
 
   if (tipo) query = query.eq('tipo', tipo);

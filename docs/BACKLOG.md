@@ -100,7 +100,7 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 - [ ] Reordenação manual (drag-and-drop) do campo `ordem` em elenco/trilha sonora/openings-endings/volumes — hoje `ordem` só reflete sequência de criação
 - [x] `animes_generos` consumida por `lib/generos.ts` e pela UI de Animes.
 - [x] `confirm()` nativo do navegador ao apagar item — as 10 ocorrências em Biblioteca e Treino foram substituídas pelo `ConfirmDialog` reutilizável em 2026-08-11; busca no frontend ficou zerada.
-- [x] Menu de ações dos cards fecha por clique externo e Escape, com foco devolvido ao botão quando fechado pelo teclado (2026-08-12).
+- [x] Menu de ações dos cards fecha por clique externo, Escape ou escolha de ação, com foco devolvido ao botão quando fechado pelo teclado e botão visível em dispositivos sem hover (2026-08-12).
 - [ ] Velocidade de leitura (páginas/hora) em Livros (B5) — `paginas_total`/`pagina_atual` permitem progresso, mas não velocidade; exigiria registro de sessões de leitura com data, não desenhado ainda (ver DEC-029)
 - [ ] Imagens estáticas de banner por categoria (`public/biblioteca/banners/{filmes,series,animes,mangas,livros,podcasts,videos,artigos}.jpg`) — suporte já existe no `BibliotecaBanner` (DEC-034), mas depende do usuário fornecer as imagens; sem elas, cada categoria usa mosaico de capas ou fallback visual. Confirmado que ao menos `animes.jpg` já está versionado.
 - [ ] Perfil da sidebar (avatar + imagem de fundo) depende de `user_metadata.avatar_url`/`background_url` no Supabase Auth, hoje vazios — sem UI de "editar perfil" no sistema; população precisa ser manual via SQL/dashboard do Supabase até existir uma tela de Configurações (ver `VISION.md`)
@@ -114,11 +114,10 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 
 ## Dívida técnica de código (achados da auditoria de 2026-08)
 
-- [ ] Lint: 44 achados na execução reproduzível de 2026-08-12: 23 erros
-      `react-hooks/set-state-in-effect`, 2 `no-explicit-any`, 2
-      `react/no-unescaped-entities`, 13 warnings `exhaustive-deps` e 4
-      `no-img-element`. Seis erros de efeito nas categorias originais da
-      Biblioteca foram removidos neste lote após revisão do comportamento.
+- [ ] Lint: 40 achados na execução reproduzível de 2026-08-12: 23 erros
+      `react-hooks/set-state-in-effect`, 13 warnings `exhaustive-deps` e 4
+      `no-img-element`. Os 2 `no-explicit-any` e os 2
+      `react/no-unescaped-entities` foram corrigidos na auditoria final local.
       Investigar o restante caso a caso; lint continua informativo na CI.
 - [ ] npm 12 bloqueia por padrão os scripts de instalação transitivos de `sharp@0.34.5` e `unrs-resolver@1.12.2`. Instalação, typecheck e build passaram nesse estado; não aprovar scripts cegamente. Reavaliar somente se uma plataforma limpa demonstrar falha funcional (especialmente otimização de imagens ou resolução nativa).
 - [ ] `@types/node` permanece na linha 20, herdada do setup do Next, enquanto o runtime é Node 24. Typecheck e build passam e o código não depende de APIs exclusivas da major 24; alinhar os tipos apenas numa atualização deliberada, sem misturar com feature.

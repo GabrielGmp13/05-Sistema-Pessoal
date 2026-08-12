@@ -72,7 +72,10 @@ export async function listarConteudosPorMateria(materiaUuid: string): Promise<Co
     .eq('deleted', false);
 
   if (error) return sbErr(error, 'listarConteudosPorMateria');
-  return (data ?? []).map((row: any) => row.conteudos).filter((c: any) => c && !c.deleted);
+  const linhas = (data ?? []) as unknown as Array<{ conteudos: Conteudo | null }>;
+  return linhas
+    .map((row) => row.conteudos)
+    .filter((conteudo): conteudo is Conteudo => conteudo !== null && !conteudo.deleted);
 }
 
 /** Lista conteúdos de um módulo de curso específico. */

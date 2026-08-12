@@ -20,6 +20,18 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 (Next.js) — em andamento
 
+- **2026-08-12 (auditoria final local)** — Revisão completa dos fluxos centrais
+  antes do teste manual definitivo. Corrigido o uso de data UTC em operações
+  de Hub, Estudos, Revisão e Shape; o Hub passou a preservar dados disponíveis
+  quando uma fonte falha. O Hub de Estudos deixou de mostrar UUID de matéria.
+  Cursos e provas ganharam controles coerentes de conclusão, e o gabarito ENEM
+  completo marca a prova como feita. Simulados, competências de redação e
+  correção do gabarito passaram a validar os limites/requisitos já definidos.
+  Na Biblioteca, o gatilho de adicionar não vaza entre categorias e os menus
+  fecham ao escolher uma ação, com acesso visível por toque. Nenhuma migration,
+  dependência ou operação remota foi necessária; typecheck aprovado e lint
+  informativo reduzido de 44 para 40 achados conhecidos.
+
 - **2026-08-12 (cont.)** — Hub inicial transformado em painel operacional
   com tempo estudado hoje/semana/mês, compromissos e provas do dia e revisões
   pendentes, todos derivados das tabelas existentes e com estados de loading,

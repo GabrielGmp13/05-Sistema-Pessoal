@@ -9,7 +9,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 **Bloqueio:** nenhum bloqueio de banco conhecido para publicar o lote Biblioteca Vídeos/Artigos + Vídeo → Curso.
 **Banco:** produção está alinhada até `20260811000300_conteudos_video.sql`; aplicação e pós-check remoto concluídos em 2026-08-12.
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** realizar os testes manuais detalhados e o polimento visual fino na etapa final.
+**Próxima ação:** executar o teste manual autenticado definitivo, com dados reais, em desktop e mobile; a auditoria local final e as correções automáticas foram concluídas em 2026-08-12.
 
 ---
 
@@ -33,7 +33,20 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] Compromissos e provas pendentes do dia exibidos sem duplicar dados da Agenda/Estudos
 - [x] Revisões vencidas e para hoje exibidas com acesso direto a `/revisao`
 - [x] Loading, falha parcial, estado vazio e atualização manual implementados
+- [x] Falhas excepcionais de uma fonte não interrompem mais o restante do resumo (`Promise.allSettled`)
 - [ ] Validar visualmente o Hub com dados reais em desktop e mobile na etapa final
+
+## Auditoria final local da v2 — 2026-08-12
+
+- [x] Datas de negócio passaram a usar o dia local em Hub, Estudos, Revisão e Shape, evitando avanço de um dia após 21h no fuso de Pernambuco
+- [x] Hub de Estudos deixou de exibir trecho de UUID e agora resolve o nome real da matéria
+- [x] Curso pode ser concluído e reaberto sem divergência entre detalhe e listagem
+- [x] Provas escolares podem ser concluídas/reabertas; gabarito ENEM completo marca a prova como concluída
+- [x] Gabarito exige a classificação já definida na DEC-041 antes de salvar uma linha iniciada
+- [x] Simulados e competências de redação bloqueiam valores inválidos antes de persistir
+- [x] Biblioteca não reaproveita o gatilho de adicionar ao trocar de categoria; menus fecham após escolher uma ação e ficam acessíveis em telas sem hover
+- [x] Typecheck aprovado; lint informativo reduzido para 40 achados conhecidos
+- [ ] Teste manual autenticado definitivo com dados reais, incluindo responsividade e operações CRUD
 
 ## Integrações externas futuras
 
@@ -77,6 +90,9 @@ no projeto — esta será a primeira.
 - [x] `materiais_estudo`, `anotacoes_estudo`, `sessoes_estudo` ganharam camada `lib/` e UI funcional nos detalhes de Matéria e Curso, sem mudança de schema (2026-08-11)
 - [x] Vínculo de conteúdo compartilhado deixou de usar `window.prompt` e passou a usar seleção visível de matéria (2026-08-09)
 - [x] Ações destrutivas de Estudos agora passam por modal de confirmação (conteúdo, prova, atividade, módulo de curso e foto de redação)
+- [x] Datas de registros acadêmicos e reagendamento SM-2 respeitam o fuso local do dispositivo
+- [x] Provas escolares têm controle de conclusão e o gabarito ENEM completo atualiza `provas.feita`
+- [x] Gabarito valida letra, matéria, conteúdo, dificuldade e motivo por questão iniciada
 - [x] As 10 ocorrências restantes de `confirm()` nativo em Treino/Biblioteca foram substituídas pelo `ConfirmDialog` reutilizável (2026-08-11)
 - [ ] Validar manualmente os novos modais de Treino/Biblioteca: confirmar, cancelar, fechar por Escape e clicar no backdrop
 - [ ] Validar manualmente em Estudos: criar/listar/apagar material, anotação e sessão em Matéria e Curso
@@ -93,7 +109,7 @@ no projeto — esta será a primeira.
 
 ## Pendências de polimento
 
-Ver `BACKLOG.md` — upload de capa/banner, edição de itens em listas aninhadas e integrações externas continuam futuras. O menu de ações da Biblioteca agora fecha por clique externo e Escape.
+Ver `BACKLOG.md` — upload de capa/banner, edição de itens em listas aninhadas e integrações externas continuam futuras. O menu de ações da Biblioteca fecha por clique externo, Escape ou escolha de uma ação e permanece visível em dispositivos sem hover.
 
 ## 🟡 Biblioteca v2 — Vídeos, Artigos e vínculo com Cursos
 
@@ -111,4 +127,5 @@ Ver `BACKLOG.md` — upload de capa/banner, edição de itens em listas aninhada
 - [x] Gêneros carregados em lote e persistidos ao criar/editar filmes, séries, animes, mangás, livros e podcasts
 - [x] Gêneros padrão inicializados quando necessário e gerenciamento acessível pela sidebar
 - [x] Menu de ações dos cards fecha por clique externo e Escape
+- [x] Trocar de categoria não reaproveita um gatilho antigo de “Adicionar”; menu fecha ao editar/apagar e é acessível por toque
 - [ ] Validar manualmente os dois fluxos na etapa final

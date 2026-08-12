@@ -1,4 +1,5 @@
 import { sb, getUserId, sbErr } from './supabase';
+import { dataLocalIso } from './date';
 
 export type Letra = 'A' | 'B' | 'C' | 'D' | 'E';
 export type Dificuldade = 'facil' | 'medio' | 'dificil';
@@ -101,9 +102,9 @@ export async function lancarRespostasGabarito(
 export interface CorrecaoQuestao {
   letra_correta: Letra;
   materia_uuid: string;
-  conteudo_uuid?: string;
-  motivo_erro?: string;
-  dificuldade?: Dificuldade;
+  conteudo_uuid: string;
+  motivo_erro: string;
+  dificuldade: Dificuldade;
 }
 
 function calcularAcertou(letraMarcada: Letra | null, letraCorreta: Letra): boolean | null {
@@ -215,7 +216,7 @@ export async function taxaDeAcertoRecente(dias = 30, materiaUuid?: string): Prom
     .eq('user_id', userId)
     .eq('deleted', false)
     .not('acertou', 'is', null)
-    .gte('data', desde.toISOString().slice(0, 10));
+    .gte('data', dataLocalIso(desde));
 
   if (materiaUuid) query = query.eq('materia_uuid', materiaUuid);
 

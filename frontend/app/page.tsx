@@ -18,6 +18,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { EventoAgenda, listarEventosAgenda } from '@/lib/agenda'
+import { dataLocalIso } from '@/lib/date'
 import { listarProvasNoPeriodo, Prova } from '@/lib/provas'
 import { CardRevisao, listarCardsRevisao } from '@/lib/revisao'
 import { buscarResumoTempoEstudo, ResumoTempoEstudo } from '@/lib/sessoes-estudo'
@@ -74,12 +75,6 @@ const DADOS_INICIAIS: DadosHub = {
   revisoes: null,
 }
 
-function hojeLocal() {
-  const hoje = new Date()
-  hoje.setMinutes(hoje.getMinutes() - hoje.getTimezoneOffset())
-  return hoje.toISOString().slice(0, 10)
-}
-
 function formatarDuracao(minutos: number) {
   if (minutos < 60) return `${minutos} min`
   const horas = Math.floor(minutos / 60)
@@ -93,14 +88,19 @@ export default function HomePage() {
 
   const carregar = useCallback(async () => {
     setCarregando(true)
-    const dataHoje = hojeLocal()
-    const [tempo, eventos, provas, revisoes] = await Promise.all([
+    const dataHoje = dataLocalIso()
+    const resultados = await Promise.allSettled([
       buscarResumoTempoEstudo(),
       listarEventosAgenda(dataHoje, dataHoje),
       listarProvasNoPeriodo(dataHoje, dataHoje),
       listarCardsRevisao(),
     ])
-    setDados({ tempo, eventos, provas, revisoes })
+    setDados({
+      tempo: resultados[0].status === 'fulfilled' ? resultados[0].value : null,
+      eventos: resultados[1].status === 'fulfilled' ? resultados[1].value : null,
+      provas: resultados[2].status === 'fulfilled' ? resultados[2].value : null,
+      revisoes: resultados[3].status === 'fulfilled' ? resultados[3].value : null,
+    })
     setCarregando(false)
   }, [])
 
@@ -109,7 +109,7 @@ export default function HomePage() {
     return () => window.clearTimeout(timeoutId)
   }, [carregar])
 
-  const dataHoje = hojeLocal()
+  const dataHoje = dataLocalIso()
   const revisoesPendentes = useMemo(
     () => dados.revisoes?.filter((card) => card.proxima_revisao <= dataHoje) ?? [],
     [dados.revisoes, dataHoje],

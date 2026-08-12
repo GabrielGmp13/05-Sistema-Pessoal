@@ -48,6 +48,7 @@ export default function RedacoesPage() {
   const [redacoes, setRedacoes] = useState<Redacao[]>([])
   const [carregando, setCarregando] = useState(true)
   const [editandoUuid, setEditandoUuid] = useState<string | null>(null)
+  const [erro, setErro] = useState('')
 
   const [form, setForm] = useState({
     tema: '',
@@ -62,6 +63,8 @@ export default function RedacoesPage() {
 
   async function carregar() {
     const r = await listarRedacoes()
+    if (r === null) setErro('Não foi possível carregar as redações.')
+    else setErro('')
     setRedacoes(r ?? [])
     setCarregando(false)
   }
@@ -88,6 +91,14 @@ export default function RedacoesPage() {
     // registrar a redação na hora da prova e completar depois com foto/texto).
     if (!form.tema.trim() || !form.data) return
 
+    const valoresCompetencias = [form.c1, form.c2, form.c3, form.c4, form.c5]
+      .filter(Boolean)
+      .map(Number)
+    if (valoresCompetencias.some((valor) => !Number.isFinite(valor) || valor < 0 || valor > 200)) {
+      setErro('Cada competência deve ficar entre 0 e 200 pontos.')
+      return
+    }
+
     const competencias = {
       competencia_1: form.c1 ? Number(form.c1) : null,
       competencia_2: form.c2 ? Number(form.c2) : null,
@@ -98,7 +109,7 @@ export default function RedacoesPage() {
 
     const notaCalculada = somaCompetencias(competencias)
 
-    await criarRedacao({
+    const criada = await criarRedacao({
       tema: form.tema,
       texto: form.texto || null,
       data: form.data,
@@ -108,6 +119,12 @@ export default function RedacoesPage() {
       ...competencias,
     })
 
+    if (!criada) {
+      setErro('Não foi possível salvar a redação.')
+      return
+    }
+
+    setErro('')
     setForm({ tema: '', texto: '', data: '', c1: '', c2: '', c3: '', c4: '', c5: '' })
     await carregar()
   }
@@ -126,6 +143,12 @@ export default function RedacoesPage() {
         title="Redações"
         description="Registre suas redações com a nota de cada uma das cinco competências e acompanhe sua evolução."
       />
+
+      {erro ? (
+        <p role="alert" className="mt-6 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          {erro}
+        </p>
+      ) : null}
 
       <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard label="Redações" value={String(redacoes.length)} icon={PenLine} />
@@ -179,6 +202,10 @@ export default function RedacoesPage() {
                   {(['c1', 'c2', 'c3', 'c4', 'c5'] as const).map((campo, i) => (
                     <Field key={campo} label={`C${i + 1}`}>
                       <Input
+                        type="number"
+                        min="0"
+                        max="200"
+                        step="1"
                         value={form[campo]}
                         onChange={(e) => updateField(campo, e.target.value)}
                         placeholder="0"
@@ -254,6 +281,7 @@ function RedacaoCard({
   const [enviandoImagem, setEnviandoImagem] = useState(false)
   const [salvando, setSalvando] = useState(false)
   const [confirmarRemocaoImagem, setConfirmarRemocaoImagem] = useState(false)
+  const [erro, setErro] = useState('')
 
   const [textoEdit, setTextoEdit] = useState(r.texto ?? '')
   const [comentarioEdit, setComentarioEdit] = useState(r.comentario ?? '')
@@ -277,19 +305,35 @@ function RedacaoCard({
     const file = e.target.files?.[0]
     if (!file) return
     setEnviandoImagem(true)
-    await uploadImagemRedacao(r.uuid, file)
+    const caminho = await uploadImagemRedacao(r.uuid, file)
     setEnviandoImagem(false)
+    if (!caminho) {
+      setErro('Não foi possível enviar a foto.')
+      return
+    }
+    setErro('')
     await onAtualizado()
   }
 
   async function handleRemoverImagemConfirmada() {
     if (!r.imagem_path) return
-    await removerImagemRedacao(r.uuid, r.imagem_path)
+    const removida = await removerImagemRedacao(r.uuid, r.imagem_path)
+    if (!removida) {
+      setErro('Não foi possível remover a foto.')
+      return
+    }
+    setErro('')
     setConfirmarRemocaoImagem(false)
     await onAtualizado()
   }
 
   async function handleSalvarEdicao() {
+    const valoresCompetencias = Object.values(compsEdit).filter(Boolean).map(Number)
+    if (valoresCompetencias.some((valor) => !Number.isFinite(valor) || valor < 0 || valor > 200)) {
+      setErro('Cada competência deve ficar entre 0 e 200 pontos.')
+      return
+    }
+
     setSalvando(true)
     const competencias = {
       competencia_1: compsEdit.c1 ? Number(compsEdit.c1) : null,
@@ -298,19 +342,29 @@ function RedacaoCard({
       competencia_4: compsEdit.c4 ? Number(compsEdit.c4) : null,
       competencia_5: compsEdit.c5 ? Number(compsEdit.c5) : null,
     }
-    await atualizarRedacao(r.uuid, {
+    const atualizada = await atualizarRedacao(r.uuid, {
       texto: textoEdit || null,
       comentario: comentarioEdit || null,
       nota: somaCompetencias(competencias),
       ...competencias,
     })
     setSalvando(false)
+    if (!atualizada) {
+      setErro('Não foi possível salvar as alterações.')
+      return
+    }
+    setErro('')
     onFecharEdicao()
     await onAtualizado()
   }
 
   return (
     <Card className="flex flex-col gap-4 p-5">
+      {erro ? (
+        <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          {erro}
+        </p>
+      ) : null}
       <div className="flex flex-wrap items-start gap-3">
         <div className="flex min-w-0 flex-col">
           <span className="text-pretty font-medium">{r.tema}</span>
@@ -420,6 +474,10 @@ function RedacaoCard({
               {(['c1', 'c2', 'c3', 'c4', 'c5'] as const).map((campo, i) => (
                 <Field key={campo} label={`C${i + 1}`}>
                   <Input
+                    type="number"
+                    min="0"
+                    max="200"
+                    step="1"
                     value={compsEdit[campo]}
                     onChange={(e) => setCompsEdit((s) => ({ ...s, [campo]: e.target.value }))}
                     placeholder="0"
