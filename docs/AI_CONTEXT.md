@@ -52,8 +52,8 @@ operacional.
 **Fase:** Fase 7 — v2 é o único frontend ativo (v1 removida do projeto em 2026-07-19, DEC-031)
 **Decisão-chave:** DEC-018 (reabre DEC-006) — frontend migrou de HTML puro para Next.js/React
 **Deploy:** ✅ em produção no Vercel desde 2026-07-13 (não "pendente" — ver `ARCHITECTURE.md`)
-**Schema:** confirmado via dump real do Supabase em 2026-08 — 44 tabelas em `public`, RLS e GRANT corretos em todas (ver `DATABASE.md`)
-**Histórico CLI:** adotado em produção em 2026-08-08 — as três baselines timestamped e a migration incremental da Agenda estão registradas como `applied`; pós-check sem pendências em 2026-08-11
+**Schema:** baseline confirmada via dump real em 2026-08 com 44 tabelas; a migration de Vídeos/Artigos, aplicada em produção em 2026-08-11, elevou o total para 46 (ver `DATABASE.md`)
+**Histórico CLI:** adotado em produção em 2026-08-08 — as três baselines e as migrations incrementais de Agenda, Vídeos/Artigos e vínculo Vídeo → Curso estão registradas como `applied`; pós-check remoto sem pendências em 2026-08-12
 **Reprodutibilidade:** Node.js `24.15.0`, npm `12.0.1`, `npm ci`, typecheck e build validados; CI mínima ativa. Lint mantém 43 achados conhecidos e informativos.
 **Próxima tarefa imediata:** ver `TASKS_NOW.md`
 
@@ -63,7 +63,7 @@ operacional.
 
 | Camada | Tecnologia |
 |---|---|
-| Banco de dados | PostgreSQL via Supabase (44 tabelas em `public`, confirmado via dump real 2026-08) |
+| Banco de dados | PostgreSQL via Supabase (46 tabelas em `public`: baseline de 44 confirmada por dump + 2 tabelas da migration de Vídeos/Artigos) |
 | Auth | Supabase Auth (email+senha) |
 | Storage | Supabase Storage — 5 buckets privados e 14 policies confirmados por captura remota versionada em `backend/supabase/snapshots/` |
 | Frontend | Next.js 16 (React 19) + TypeScript — pasta `frontend/`, único frontend do projeto |

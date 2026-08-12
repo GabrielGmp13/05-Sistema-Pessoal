@@ -8,9 +8,11 @@ import AnimesSection from './_components/AnimesSection';
 import MangasSection from './_components/MangasSection';
 import LivrosSection from './_components/LivrosSection';
 import PodcastsSection from './_components/PodcastsSection';
+import VideosSection from './_components/VideosSection';
+import ArtigosSection from './_components/ArtigosSection';
 import layoutStyles from './layout.module.css';
 
-type CategoriaId = 'filmes' | 'series' | 'animes' | 'mangas' | 'livros' | 'podcasts';
+type CategoriaId = 'filmes' | 'series' | 'animes' | 'mangas' | 'livros' | 'podcasts' | 'videos' | 'artigos';
 
 const CATEGORIAS: { id: CategoriaId; label: string; icon: string }[] = [
   { id: 'filmes',   label: 'Filmes',   icon: '🎬' },
@@ -19,6 +21,8 @@ const CATEGORIAS: { id: CategoriaId; label: string; icon: string }[] = [
   { id: 'mangas',   label: 'Mangás',   icon: '📖' },
   { id: 'livros',   label: 'Livros',   icon: '📚' },
   { id: 'podcasts', label: 'Podcasts', icon: '🎙️' },
+  { id: 'videos',   label: 'Vídeos',   icon: '▶' },
+  { id: 'artigos',  label: 'Artigos',  icon: 'Aa' },
 ];
 
 export default function BibliotecaPage() {
@@ -35,6 +39,8 @@ export default function BibliotecaPage() {
     mangas: 0,
     livros: 0,
     podcasts: 0,
+    videos: 0,
+    artigos: 0,
   });
 
   function handleAdicionar() {
@@ -97,6 +103,22 @@ export default function BibliotecaPage() {
             key="podcasts"
             {...props}
             onTotalCarregado={(t: number) => atualizarContagem('podcasts', t)}
+          />
+        );
+      case 'videos':
+        return (
+          <VideosSection
+            key="videos"
+            {...props}
+            onTotalCarregado={(t: number) => atualizarContagem('videos', t)}
+          />
+        );
+      case 'artigos':
+        return (
+          <ArtigosSection
+            key="artigos"
+            {...props}
+            onTotalCarregado={(t: number) => atualizarContagem('artigos', t)}
           />
         );
     }

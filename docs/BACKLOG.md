@@ -81,6 +81,17 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 
 ### Biblioteca v2 (B2–B6) — polimento
 
+- [ ] Integrações futuras de Vídeos/Artigos: YouTube API, extensão de
+      navegador, importação automática e scraping. O cadastro inicial é
+      manual e não possui API Route.
+- [x] Fluxo manual Vídeo → Curso em Estudos — implementado localmente com
+      `conteudos.video_uuid`, escolha explícita de curso/módulo e bloqueio de
+      duplicação no mesmo curso (DEC-048). Migration aplicada em produção em
+      2026-08-12; fluxo liberado para publicação.
+- [ ] Sincronizar opcionalmente progresso entre vídeo da Biblioteca e aula do
+      Curso. O fluxo inicial mantém `assistido`, `teoria_vista` e domínio
+      independentes por decisão; só reavaliar após uso real.
+
 - [ ] Integrar o seletor de gênero (B1, `SeletorGenero`/`lib/generos.ts`) nas 6 telas novas (filmes, séries, animes, mangás, livros, podcasts) — deixado de fora deliberadamente ao gerar cada tela
 - [ ] Upload de capa/banner — o bucket privado `capas` e suas policies estão versionados em `001_schema_inicial.sql`, mas não existe UI de upload; `banner_path` não tem bucket definido. Hoje a interface usa apenas `capa_url`/`banner_url` (link externo)
 - [ ] Integração de busca por API externa (TMDB, Google Books, Jikan, iTunes) nas telas novas da Biblioteca v2 — a v1 tinha essa integração, as 6 telas v2 geradas até agora são só cadastro manual. TMDB é a única que exige API Route (segredo) — nenhuma `app/api/**` existe ainda no projeto (confirmado por inspeção, 2026-08), então essa é a motivação real mais próxima pra criar a primeira.
@@ -90,7 +101,7 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 - [x] `confirm()` nativo do navegador ao apagar item — as 10 ocorrências em Biblioteca e Treino foram substituídas pelo `ConfirmDialog` reutilizável em 2026-08-11; busca no frontend ficou zerada.
 - [ ] Menu de ações "⋯" (Editar/Apagar) nos cards não fecha sozinho ao clicar fora — só fecha ao escolher uma opção ou clicar de novo no próprio botão
 - [ ] Velocidade de leitura (páginas/hora) em Livros (B5) — `paginas_total`/`pagina_atual` permitem progresso, mas não velocidade; exigiria registro de sessões de leitura com data, não desenhado ainda (ver DEC-029)
-- [ ] Imagens estáticas de banner por categoria (`public/biblioteca/banners/{filmes,series,animes,mangas,livros,podcasts}.jpg`) — suporte já existe no `BibliotecaBanner` (DEC-034), mas depende do usuário fornecer as imagens; sem elas, cada categoria usa o mosaico automático das próprias capas cadastradas (funcional, mas não é o visual final pretendido). Confirmado que ao menos `animes.jpg` já está versionado — as outras 5 ainda faltam.
+- [ ] Imagens estáticas de banner por categoria (`public/biblioteca/banners/{filmes,series,animes,mangas,livros,podcasts,videos,artigos}.jpg`) — suporte já existe no `BibliotecaBanner` (DEC-034), mas depende do usuário fornecer as imagens; sem elas, cada categoria usa mosaico de capas ou fallback visual. Confirmado que ao menos `animes.jpg` já está versionado.
 - [ ] Perfil da sidebar (avatar + imagem de fundo) depende de `user_metadata.avatar_url`/`background_url` no Supabase Auth, hoje vazios — sem UI de "editar perfil" no sistema; população precisa ser manual via SQL/dashboard do Supabase até existir uma tela de Configurações (ver `VISION.md`)
 
 ## Treino v2

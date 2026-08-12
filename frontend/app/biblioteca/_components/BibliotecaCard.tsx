@@ -14,6 +14,7 @@ interface BibliotecaCardProps {
   onApagar: () => void;
   menuAberto: boolean;
   onAlternarMenu: () => void;
+  placeholder?: string;
 }
 
 export default function BibliotecaCard({
@@ -28,6 +29,7 @@ export default function BibliotecaCard({
   onApagar,
   menuAberto,
   onAlternarMenu,
+  placeholder = '🎬',
 }: BibliotecaCardProps) {
   // Referência mostra só 1 gênero por card, não a lista inteira
   const generoPrincipal = generos[0]?.nome;
@@ -39,7 +41,7 @@ export default function BibliotecaCard({
           <img className={styles.capa} src={capaUrl} alt={titulo} loading="lazy" />
         ) : (
           <div className={styles.capaPlaceholder}>
-            <span>🎬</span>
+            <span>{placeholder}</span>
           </div>
         )}
 

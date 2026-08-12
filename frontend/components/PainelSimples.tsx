@@ -11,6 +11,8 @@ interface PainelSimplesProps {
   bannerUrl?: string | null;
   capaUrl?: string | null;
   infoGeral: CampoInfo[];
+  linkUrl?: string;
+  linkLabel?: string;
   children?: React.ReactNode; // seções extras específicas do tipo (ex: volumes, anotações)
 }
 
@@ -24,6 +26,8 @@ export default function PainelSimples({
   bannerUrl,
   capaUrl,
   infoGeral,
+  linkUrl,
+  linkLabel = 'Abrir link',
   children,
 }: PainelSimplesProps) {
   useEffect(() => {
@@ -63,6 +67,17 @@ export default function PainelSimples({
                 ))}
               </div>
             </section>
+          )}
+
+          {linkUrl && (
+            <a
+              className={styles.linkExterno}
+              href={linkUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {linkLabel}
+            </a>
           )}
 
           {children}

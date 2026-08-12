@@ -34,7 +34,7 @@ Chaves estrangeiras seguem `<tabela_singular>_uuid` (ex: `treino_uuid`, `materia
 
 **GRANT é obrigatório em toda migration, não opcional.** Projetos Supabase criados a partir de 2026-05-30 não recebem GRANT automático em nenhuma tabela nova, mesmo com RLS e policy corretos — sem o GRANT explícito para `authenticated`, a tabela fica inacessível via Data API (badge "API DISABLED" no dashboard) e o `supabase-js` recebe erro 42501 mesmo com policies válidas. RLS e GRANT são camadas independentes: GRANT decide se o papel alcança a tabela; RLS decide quais linhas ele vê dentro dela.
 
-**Confirmado no dump real (2026-08):** são 44 tabelas em `public`; todas têm `ROW LEVEL SECURITY` habilitada, policy `user_own_data` (`auth.uid() = user_id`) e `GRANT ALL` para `authenticated`. Nenhuma tabela sem proteção. `anon` só recebe `REFERENCES, TRIGGER, TRUNCATE, MAINTAIN` (grants estruturais padrão do Supabase, sem `SELECT`/`INSERT`) — não representa acesso de dado. O número 46 que apareceu em versões anteriores deste documento era erro de contagem manual, não indicação de tabelas ausentes.
+**Confirmado no dump real (2026-08):** a baseline tinha 44 tabelas em `public`, todas com RLS, policy `user_own_data` e GRANT para `authenticated`. A migration `20260811000200`, aplicada depois dessa captura, adicionou `videos` e `artigos`; produção possui agora 46 tabelas. `anon` continua sem `SELECT`/`INSERT` sobre dados da aplicação.
 
 Índices parciais `WHERE NOT deleted` existem nas tabelas principais para acelerar as queries que sempre filtram registros ativos — confirmados no dump para praticamente todas as tabelas de alto volume (ver lista completa na seção Índices, ao final).
 
@@ -59,6 +59,8 @@ dessas duas pastas deve ser executado como migration.
 | `20260807000200` | `20260807000200_baseline_rls_guard.sql` | ✅ `rls_auto_enable()` + `ensure_rls`, replay local aprovado e registrada como `applied` |
 | `20260807000300` | `20260807000300_baseline_storage.sql` | ✅ Cinco buckets + 14 policies, replay local aprovado e registrada como `applied` |
 | `20260811000100` | `20260811000100_agenda_v2.sql` | ✅ Reset/testes locais aprovados e aplicada em produção em 2026-08-11; pós-check sem pendências |
+| `20260811000200` | `20260811000200_biblioteca_videos_artigos.sql` | ✅ Reset/testes aprovados e aplicada em produção em 2026-08-11 |
+| `20260811000300` | `20260811000300_conteudos_video.sql` | ✅ Reset/testes locais aprovados e aplicada em produção em 2026-08-12; pós-check sem pendências |
 
 As três versões foram adotadas no histórico remoto em 2026-08-08 por
 `migration repair --status applied`, depois de recaptura somente leitura de
@@ -228,6 +230,45 @@ descricao  TEXT,
 updated_at TIMESTAMPTZ DEFAULT NOW(),
 deleted    BOOLEAN DEFAULT FALSE
 ```
+
+### `videos` (migration `20260811000200`, aplicada em produção)
+```sql
+uuid              TEXT PRIMARY KEY,
+user_id           UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+titulo            TEXT NOT NULL,
+url               TEXT NOT NULL,
+youtube_id        TEXT,
+canal             TEXT,
+duracao_segundos  INTEGER,
+capa_url          TEXT,
+assistido         BOOLEAN NOT NULL DEFAULT FALSE,
+favorito          BOOLEAN NOT NULL DEFAULT FALSE,
+nota              NUMERIC(3,1),
+comentario        TEXT,
+updated_at        TIMESTAMPTZ DEFAULT NOW(),
+deleted           BOOLEAN DEFAULT FALSE
+```
+> Checks garantem título/URL não vazios, duração positiva e nota entre 0 e
+> 10. A UI extrai `youtube_id` e thumbnail apenas de URLs reconhecidas, sem API.
+
+### `artigos` (migration `20260811000200`, aplicada em produção)
+```sql
+uuid                   TEXT PRIMARY KEY,
+user_id                UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+titulo                 TEXT NOT NULL,
+url                    TEXT NOT NULL,
+autor                  TEXT,
+site_origem            TEXT,
+data_leitura           DATE,
+tempo_leitura_minutos  INTEGER,
+favorito               BOOLEAN NOT NULL DEFAULT FALSE,
+comentario             TEXT,
+updated_at             TIMESTAMPTZ DEFAULT NOW(),
+deleted                BOOLEAN DEFAULT FALSE
+```
+> `data_leitura = NULL` representa artigo ainda não lido; o tempo, quando
+> informado, deve ser positivo. As duas tabelas têm RLS, policy
+> `user_own_data`, GRANT CRUD para `authenticated` e índice parcial por usuário.
 
 ### `filmes` (schema atual completo, confirmado no dump)
 ```sql
@@ -705,6 +746,7 @@ user_id           UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
 nome              TEXT NOT NULL,
 revisao_uuid      TEXT,   -- FK polimórfica pra revisao_espacada.uuid, sem REFERENCES físico
 modulo_curso_uuid TEXT REFERENCES modulos_curso(uuid),
+video_uuid        TEXT REFERENCES videos(uuid),
 updated_at        TIMESTAMPTZ DEFAULT NOW(),
 deleted           BOOLEAN DEFAULT FALSE,
 teoria_vista      BOOLEAN NOT NULL DEFAULT FALSE,
@@ -713,6 +755,12 @@ dominado_manual   BOOLEAN NOT NULL DEFAULT FALSE
 > Sem `materia_uuid` (vínculo é N:N via `conteudos_materias`, DEC-036) e sem
 > `progresso` (removido em `019`, DEC-042). "Dominado" é calculado, não
 > gravado: `dominado_manual = true OR revisao_espacada.repeticoes >= 5`.
+>
+> A migration `20260811000300_conteudos_video.sql`, aplicada em produção em
+> 2026-08-12, adicionou `video_uuid` nullable para identificar aulas originadas
+> da Biblioteca. Também criou o índice parcial
+> `idx_conteudos_video_ativos`. O progresso permanece independente entre o
+> vídeo da Biblioteca e o conteúdo do Curso.
 
 ### `conteudos_materias`
 ```sql

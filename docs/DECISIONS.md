@@ -721,7 +721,7 @@ permanentemente vermelha nem pode ser silenciado sem resolver a dívida.
 ## DEC-046 — Agenda é dona do planejamento temporal
 
 **Data:** 2026-08-11
-**Status:** ✅ Aprovada e implementada localmente
+**Status:** ✅ Aprovada, migration aplicada em produção e frontend implementado
 
 ### Decisão
 
@@ -740,3 +740,60 @@ O frontend e a migration foram preparados e validados localmente por reset,
 teste consolidado e teste específico. A migration foi aplicada em produção
 pela cadeia ativa em 2026-08-11, com pós-check remoto sem pendências; `/agenda`
 está liberada para publicação.
+
+---
+
+## DEC-047 — Vídeos e Artigos são categorias próprias da Biblioteca
+
+**Data:** 2026-08-11
+**Status:** ✅ Aprovada, migration aplicada em produção e frontend implementado
+
+### Decisão
+
+- Vídeos e Artigos entram na página única e sidebar da Biblioteca (DEC-032).
+- Cada entidade possui tabela própria, seguindo a separação por tipo de mídia
+  da DEC-014 e evitando uma tabela genérica com muitos campos nulos.
+- O primeiro fluxo é cadastro manual. YouTube API, extensão, scraping,
+  importação automática e API Routes ficam fora desta etapa.
+- `videos.youtube_id` é metadado opcional extraído localmente de URLs
+  reconhecidas; não representa integração externa.
+- A conversão de Vídeo em Curso de Estudos será desenhada em etapa própria;
+  nenhuma FK prematura foi criada.
+
+### Estado operacional
+
+A migration `20260811000200_biblioteca_videos_artigos.sql` foi aplicada em
+produção em 2026-08-11. O frontend das duas categorias está validado e pode
+ser publicado quando não houver outra migration dependente pendente no lote.
+
+---
+
+## DEC-048 — Vídeo da Biblioteca pode originar conteúdo de Curso por FK opcional
+
+**Data:** 2026-08-11
+**Status:** ✅ Aprovada, migration aplicada em produção e frontend implementado
+
+### Decisão
+
+- `conteudos.video_uuid` referencia opcionalmente `videos.uuid`; o vídeo
+  permanece na Biblioteca e o conteúdo continua pertencendo ao Curso.
+- O usuário escolhe explicitamente um curso e um módulo existente ou novo.
+- O mesmo vídeo não é adicionado duas vezes ao mesmo curso pela interface.
+- `videos.assistido` e `conteudos.teoria_vista`/`dominado_manual` permanecem
+  independentes; não há sincronização implícita de progresso.
+- A tela de Curso lê os metadados do vídeo pela FK e oferece apenas um link
+  simples, sem player, API externa ou scraping.
+
+### Justificativa
+
+Copiar apenas título e URL perderia a origem e dificultaria evoluções futuras.
+A FK nullable preserva rastreabilidade com uma alteração pequena, sem obrigar
+conteúdos comuns a terem vídeo e sem misturar as responsabilidades dos dois
+módulos.
+
+### Estado operacional
+
+A migration `20260811000300_conteudos_video.sql` foi validada por reset local,
+teste consolidado e teste específico, aplicada em produção em 2026-08-12 e
+confirmada por pós-check remoto sem pendências. O fluxo está liberado para
+publicação.

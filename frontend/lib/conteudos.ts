@@ -12,11 +12,21 @@ export interface Conteudo {
   dominado_manual: boolean;
   revisao_uuid: string | null;
   modulo_curso_uuid: string | null; // só usado quando o conteúdo é aula de curso
+  video_uuid: string | null;
+  video?: {
+    uuid: string;
+    titulo: string;
+    url: string;
+    youtube_id: string | null;
+    capa_url: string | null;
+  } | null;
   updated_at: string;
   deleted: boolean;
 }
 
-export type ConteudoInput = Omit<Conteudo, 'uuid' | 'user_id' | 'updated_at' | 'deleted'>;
+export type ConteudoInput = Omit<Conteudo, 'uuid' | 'user_id' | 'updated_at' | 'deleted' | 'video' | 'video_uuid'> & {
+  video_uuid?: string | null;
+};
 export type ConteudoUpdate = Partial<ConteudoInput>;
 
 /** Cria um conteúdo já vinculado a 1+ matérias (via conteudos_materias). */
@@ -72,7 +82,7 @@ export async function listarConteudosPorModuloCurso(moduloCursoUuid: string): Pr
 
   const { data, error } = await sb
     .from('conteudos')
-    .select('*')
+    .select('*, video:videos(uuid, titulo, url, youtube_id, capa_url)')
     .eq('user_id', userId)
     .eq('modulo_curso_uuid', moduloCursoUuid)
     .eq('deleted', false)
@@ -80,6 +90,16 @@ export async function listarConteudosPorModuloCurso(moduloCursoUuid: string): Pr
 
   if (error) return sbErr(error, 'listarConteudosPorModuloCurso');
   return data;
+}
+
+/** Evita criar duas aulas para o mesmo vídeo dentro do mesmo curso. */
+export async function buscarConteudoDeVideoNoCurso(
+  videoUuid: string,
+  materiaUuid: string
+): Promise<Conteudo | null | undefined> {
+  const conteudos = await listarConteudosPorMateria(materiaUuid);
+  if (conteudos === null) return undefined;
+  return conteudos.find((conteudo) => conteudo.video_uuid === videoUuid) ?? null;
 }
 
 export async function atualizarConteudo(uuid: string, update: ConteudoUpdate): Promise<Conteudo | null> {

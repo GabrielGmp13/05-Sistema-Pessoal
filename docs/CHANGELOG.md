@@ -20,6 +20,24 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 (Next.js) — em andamento
 
+- **2026-08-11 (cont.)** — Migration de Vídeos/Artigos aplicada em produção.
+  Implementado localmente o fluxo manual Vídeo → Curso: escolha explícita de
+  curso e módulo existente ou novo, criação de conteúdo com FK opcional para
+  `videos`, prevenção de duplicação no mesmo curso e manutenção de progresso
+  independente. A tela de Curso identifica aulas vindas da Biblioteca, abre o
+  vídeo e permite controlar teoria vista e domínio separadamente. A migration
+  `20260811000300_conteudos_video.sql` passou por reset e testes locais, foi
+  aplicada em produção em 2026-08-12 e teve pós-check remoto sem pendências,
+  liberando o lote para publicação.
+
+- **2026-08-11 (cont.)** — Biblioteca v2 expandida localmente com as
+  categorias Vídeos e Artigos na página única da DEC-032. Foram adicionados
+  CRUD manual, busca, painel de detalhe, links externos e soft delete com
+  `ConfirmDialog`; URLs reconhecidas do YouTube fornecem ID e thumbnail sem
+  API. A migration `20260811000200_biblioteca_videos_artigos.sql` cria as duas
+  tabelas com RLS, GRANT, checks e índices parciais. Reset e três testes SQL
+  passaram localmente; a migration foi aplicada em produção em 2026-08-11.
+
 - **2026-08-11 (cont.)** — Agenda v2 implementada localmente em `/agenda`,
   com visão semanal, CRUD de compromissos, soft delete, eventos gerais, de
   estudo e de treino, além da exibição de provas diretamente da fonte de

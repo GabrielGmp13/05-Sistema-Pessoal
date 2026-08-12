@@ -6,10 +6,10 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 
 ## Status geral
 **Fase atual:** Fase 7 (v2) — v1 aposentada (DEC-031), `frontend/` é o único frontend ativo. Hub inicial v2, navegação global e logout visível implementados; Biblioteca e Treino v2 funcionalmente prontos; Estudos v2 com 9 rotas de página implementadas e restilizadas, correções de modelagem de 2026-08 aplicadas.
-**Bloqueio:** nenhum bloqueio técnico para publicar a leva de Estudos, Revisão Espaçada e Agenda v2.
-**Banco:** três baselines e a migration incremental `20260811000100_agenda_v2.sql` estão registradas como `applied` em produção; reset/testes locais e pós-check remoto concluídos.
+**Bloqueio:** nenhum bloqueio de banco conhecido para publicar o lote Biblioteca Vídeos/Artigos + Vídeo → Curso.
+**Banco:** produção está alinhada até `20260811000300_conteudos_video.sql`; aplicação e pós-check remoto concluídos em 2026-08-12.
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** publicar a leva acumulada e executar, na etapa final, os testes manuais detalhados de Estudos, Revisão e Agenda.
+**Próxima ação:** publicar o lote validado e realizar os testes manuais detalhados na etapa final.
 
 ---
 
@@ -86,3 +86,18 @@ no projeto — esta será a primeira.
 ## Pendências de polimento
 
 Ver `BACKLOG.md` — menu "⋯" não fecha ao clicar fora, upload de capa/banner manual e edição de itens em listas aninhadas.
+
+## 🟡 Biblioteca v2 — Vídeos, Artigos e vínculo com Cursos
+
+- [x] Migration incremental com `videos` e `artigos`, RLS, GRANT, checks e índices parciais
+- [x] Reset local, teste consolidado, teste da Agenda e teste específico aprovados
+- [x] Categorias integradas à página única e à sidebar da Biblioteca
+- [x] CRUD manual, detalhe, busca e soft delete com `ConfirmDialog`
+- [x] Extração local de `youtube_id` e thumbnail para URLs reconhecidas
+- [x] Migration de Vídeos/Artigos aplicada em produção via cadeia ativa (2026-08-11)
+- [x] Fluxo manual “Usar em Curso” com escolha de curso e módulo existente ou novo
+- [x] Aula mantém FK para o vídeo, sem sincronizar progresso entre módulos
+- [x] Tela de Curso identifica aulas da Biblioteca, abre o vídeo e controla teoria/domínio separadamente
+- [x] Duplicação do mesmo vídeo no mesmo curso bloqueada pela camada de dados/UI
+- [x] `20260811000300_conteudos_video.sql` aplicada em produção e pós-check remoto concluído (2026-08-12)
+- [ ] Validar manualmente os dois fluxos na etapa final

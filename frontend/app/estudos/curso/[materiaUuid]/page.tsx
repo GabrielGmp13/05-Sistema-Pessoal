@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { CheckCircle2, Circle, Clock, PlayCircle, Plus, Trash2, Trophy } from 'lucide-react'
+import { CheckCircle2, Circle, Clock, ExternalLink, PlayCircle, Plus, Trash2, Trophy, Video } from 'lucide-react'
 
 import { BackLink, PageHeader, PageShell } from '@/components/study/page-shell'
 import { Section } from '@/components/study/section'
@@ -118,8 +118,12 @@ export default function CursoDetalhePage() {
     await carregar()
   }
 
-  async function handleToggleAula(conteudoUuid: string, concluida: boolean) {
-    await atualizarConteudo(conteudoUuid, { dominado_manual: !concluida })
+  async function handleToggleAula(
+    conteudoUuid: string,
+    campo: 'teoria_vista' | 'dominado_manual',
+    valorAtual: boolean,
+  ) {
+    await atualizarConteudo(conteudoUuid, { [campo]: !valorAtual })
     await carregar()
   }
 
@@ -268,31 +272,51 @@ export default function CursoDetalhePage() {
                         {aulas.map((aula) => {
                           const complete = aula.dominado_manual
                           return (
-                            <li key={aula.uuid}>
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  handleToggleAula(aula.uuid, complete)
-                                }
-                                className="flex w-full items-center gap-3 px-5 py-3 text-left transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/30"
-                                aria-pressed={complete}
-                              >
-                                {complete ? (
+                            <li key={aula.uuid} className="flex flex-col gap-3 px-5 py-3 sm:flex-row sm:items-center">
+                              <div className="flex min-w-0 flex-1 items-center gap-3">
+                                {aula.video ? (
+                                  <Video className="size-4 shrink-0 text-primary" />
+                                ) : complete ? (
                                   <CheckCircle2 className="size-4 shrink-0 text-success-foreground" />
                                 ) : (
                                   <Circle className="size-4 shrink-0 text-muted-foreground" />
                                 )}
-                                <span
-                                  className={cn(
-                                    'text-sm',
-                                    complete
-                                      ? 'text-muted-foreground line-through'
-                                      : 'font-medium',
-                                  )}
+                                <div className="flex min-w-0 flex-col gap-0.5">
+                                  <span
+                                    className={cn(
+                                      'truncate text-sm',
+                                      complete ? 'text-muted-foreground line-through' : 'font-medium',
+                                    )}
+                                  >
+                                    {aula.nome}
+                                  </span>
+                                  {aula.video && <MonoLabel>Vídeo da Biblioteca</MonoLabel>}
+                                </div>
+                              </div>
+                              <div className="flex flex-wrap items-center gap-1.5">
+                                {aula.video && (
+                                  <Button variant="outline" size="sm" render={<a href={aula.video.url} target="_blank" rel="noreferrer" />}>
+                                    <ExternalLink className="size-3.5" />
+                                    Abrir vídeo
+                                  </Button>
+                                )}
+                                <Button
+                                  type="button"
+                                  variant={aula.teoria_vista ? 'secondary' : 'ghost'}
+                                  size="sm"
+                                  onClick={() => handleToggleAula(aula.uuid, 'teoria_vista', aula.teoria_vista)}
                                 >
-                                  {aula.nome}
-                                </span>
-                              </button>
+                                  {aula.teoria_vista ? 'Teoria vista' : 'Marcar teoria'}
+                                </Button>
+                                <Button
+                                  type="button"
+                                  variant={complete ? 'secondary' : 'ghost'}
+                                  size="sm"
+                                  onClick={() => handleToggleAula(aula.uuid, 'dominado_manual', complete)}
+                                >
+                                  {complete ? 'Dominado' : 'Marcar domínio'}
+                                </Button>
+                              </div>
                             </li>
                           )
                         })}

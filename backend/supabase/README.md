@@ -14,7 +14,9 @@ O ponto inicial oficial da cadeia CLI é:
 1. `20260807000100_baseline_public.sql`;
 2. `20260807000200_baseline_rls_guard.sql`;
 3. `20260807000300_baseline_storage.sql`;
-4. `20260811000100_agenda_v2.sql`.
+4. `20260811000100_agenda_v2.sql`;
+5. `20260811000200_biblioteca_videos_artigos.sql`;
+6. `20260811000300_conteudos_video.sql`.
 
 As três baselines foram validadas por dois replays locais completos e por
 comparação com produção. Em 2026-08-08, `migration repair --status applied`
@@ -31,6 +33,14 @@ Em 2026-08-11, `20260811000100_agenda_v2.sql` foi a primeira migration
 incremental da cadeia ativa aplicada por `db push --db-url`. Reset e testes
 SQL locais passaram antes da operação; o pós-check remoto não encontrou
 migrations pendentes. Nenhuma baseline foi alterada.
+
+`20260811000200_biblioteca_videos_artigos.sql` foi validada localmente e
+aplicada em produção em 2026-08-11. O push listou somente essa migration.
+
+`20260811000300_conteudos_video.sql` adiciona a FK opcional entre conteúdos
+de Curso e vídeos da Biblioteca. Reset e testes SQL locais passaram em
+2026-08-11; a migration foi aplicada em produção em 2026-08-12 e o pós-check
+remoto não encontrou pendências.
 
 ## Workflow para toda mudança futura
 
