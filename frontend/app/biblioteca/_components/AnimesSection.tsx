@@ -16,6 +16,7 @@ import OpeningsEndingsEditor from '@/components/OpeningsEndingsEditor';
 import TemporadasAnimeEditor from '@/components/TemporadasAnimesEditor';
 import ComplementosEditor from '@/components/ComplementosEditor';
 import OrdemConsumoEditor from '@/components/OrdemConsumoEditor';
+import BuscaMetadados from './BuscaMetadados';
 import SeletorGenero from '@/components/SeletorGenero';
 import BibliotecaBanner from './BibliotecaBanner';
 import BibliotecaCard from './BibliotecaCard';
@@ -274,6 +275,21 @@ export default function AnimesSection({ gatilhoAdicionar, busca = '', onTotalCar
               </button>
             </div>
             <form onSubmit={salvar} className={styles.modalBody}>
+              <BuscaMetadados
+                fonte="jikan_anime"
+                termoInicial={form.nome_original}
+                onSelect={(resultado) => setForm((atual) => ({
+                  ...atual,
+                  nome_original: resultado.titulo,
+                  nome_traduzido: resultado.subtitulo ?? atual.nome_traduzido,
+                  mal_id: resultado.identificadorExterno ?? atual.mal_id,
+                  capa_url: resultado.capaUrl ?? atual.capa_url,
+                  ano_lancamento: resultado.ano ?? atual.ano_lancamento,
+                  sinopse: resultado.descricao ?? atual.sinopse,
+                  estudio: resultado.autor ?? atual.estudio,
+                  link_mal: resultado.linkOficial ?? atual.link_mal,
+                }))}
+              />
               <label>
                 Nome original *
                 <input

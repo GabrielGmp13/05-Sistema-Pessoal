@@ -9,7 +9,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 **Bloqueio:** nenhum bloqueio de banco conhecido para publicar o lote de Perfil, uploads, Projetos e Receitas.
 **Banco:** produção está alinhada até `20260812000200_projetos_receitas.sql`; a migration foi aplicada em 2026-08-12 após dry-run limpo e o pós-check remoto não mostrou pendências.
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** publicar e testar Perfil, upload de materiais, Projetos e Receitas em produção, em desktop e mobile.
+**Próxima ação:** publicar e testar o carrossel de insights do Hub e as importações de metadados da Biblioteca; configurar as chaves opcionais de YouTube/TMDB no ambiente de produção para habilitar essas duas fontes.
 
 ---
 
@@ -34,6 +34,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] Revisões vencidas e para hoje exibidas com acesso direto a `/revisao`
 - [x] Loading, falha parcial, estado vazio e atualização manual implementados
 - [x] Falhas excepcionais de uma fonte não interrompem mais o restante do resumo (`Promise.allSettled`)
+- [x] Bloco compacto de insights pessoais implementado com rotação automática a cada 5 segundos e navegação manual, usando Biblioteca, Estudos, Revisão, Projetos e Receitas
 - [ ] Validar visualmente o Hub com dados reais em desktop e mobile na etapa final
 
 ## Lote Perfil, uploads, Projetos e Receitas — 2026-08-12
@@ -79,14 +80,13 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] Sidebar da Biblioteca compactada e contraste do item ativo corrigido
 - [ ] Confirmar o novo deploy e continuar o teste manual de Hub, Biblioteca e Revisão em desktop/mobile
 
-## Integrações externas futuras
+## Integrações externas da Biblioteca — primeiro lote
 
-Precisa de `MODULE_TEMPLATE.md` completo antes de começar. Confirmado por
-inspeção do código (2026-08): **nenhuma `app/api/**/route.ts` existe ainda**
-no projeto — esta será a primeira.
-- TMDB (filmes/séries) — única que precisa de API Route por causa da chave secreta (ver DEC-018)
-- Google Books (livros), Jikan/MyAnimeList (mangás), iTunes Search (podcasts) — sem key, podem ser chamadas direto do client
-- Animes: sem API própria definida ainda (Jikan cobre mangá, não anime — verificar se cobre também)
+- [x] Primeira API Route criada em `app/api/biblioteca/metadados/route.ts`, protegida pela sessão global e sem expor segredos no client
+- [x] YouTube preparado para título, canal, duração e thumbnail; requer `YOUTUBE_API_KEY` server-only e preserva o preenchimento manual sem ela
+- [x] TMDB preparado para busca básica de filmes/séries; requer `TMDB_API_KEY` server-only e preserva o preenchimento manual sem ela
+- [x] Google Books, Jikan (animes e mangás) e iTunes Search integrados sem chave
+- [ ] Validar manualmente resultados, seleção e fallback das sete fontes em produção; APIs públicas podem aplicar limites ou indisponibilidade temporária
 
 ## Ordem dos próximos módulos (v2)
 

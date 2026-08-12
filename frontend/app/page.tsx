@@ -13,6 +13,7 @@ import {
   Dumbbell,
   FolderKanban,
   GraduationCap,
+  Lightbulb,
   RefreshCw,
   Star,
   Utensils,
@@ -26,8 +27,9 @@ import { dataLocalIso } from '@/lib/date'
 import { listarProvasNoPeriodo, listarProximasProvas, Prova } from '@/lib/provas'
 import { CardRevisao, listarCardsRevisao } from '@/lib/revisao'
 import { buscarResumoTempoEstudo, ResumoTempoEstudo } from '@/lib/sessoes-estudo'
-import { listarProjetos, Projeto } from '@/lib/projetos'
+import { listarProjetos, listarTodasTarefasProjetos, Projeto, TarefaProjeto } from '@/lib/projetos'
 import { listarReceitas, Receita } from '@/lib/receitas'
+import { buscarDadosInsights, DadosInsights } from '@/lib/insights'
 
 const modules = [
   {
@@ -89,6 +91,8 @@ interface DadosHub {
   revisoes: CardRevisao[] | null
   projetos: Projeto[] | null
   receitas: Receita[] | null
+  insights: DadosInsights | null
+  tarefasProjetos: TarefaProjeto[] | null
 }
 
 const DADOS_INICIAIS: DadosHub = {
@@ -99,6 +103,8 @@ const DADOS_INICIAIS: DadosHub = {
   revisoes: null,
   projetos: null,
   receitas: null,
+  insights: null,
+  tarefasProjetos: null,
 }
 
 function formatarDuracao(minutos: number) {
@@ -123,6 +129,8 @@ export default function HomePage() {
       listarCardsRevisao(),
       listarProjetos(),
       listarReceitas(),
+      buscarDadosInsights(),
+      listarTodasTarefasProjetos(),
     ])
     setDados({
       tempo: resultados[0].status === 'fulfilled' ? resultados[0].value : null,
@@ -132,6 +140,8 @@ export default function HomePage() {
       revisoes: resultados[4].status === 'fulfilled' ? resultados[4].value : null,
       projetos: resultados[5].status === 'fulfilled' ? resultados[5].value : null,
       receitas: resultados[6].status === 'fulfilled' ? resultados[6].value : null,
+      insights: resultados[7].status === 'fulfilled' ? resultados[7].value : null,
+      tarefasProjetos: resultados[8].status === 'fulfilled' ? resultados[8].value : null,
     })
     setCarregando(false)
   }, [])
@@ -154,6 +164,7 @@ export default function HomePage() {
   const receitasDestaque = dados.receitas
     ? [...dados.receitas].sort((a, b) => Number(b.favorito) - Number(a.favorito)).slice(0, 3)
     : []
+  const insights = useMemo(() => montarInsights(dados, dataHoje), [dados, dataHoje])
 
   return (
     <main className="min-h-[calc(100vh-3.5rem)] bg-background text-foreground">
@@ -190,6 +201,8 @@ export default function HomePage() {
             Parte do resumo não pôde ser atualizada. Os dados indisponíveis aparecem com um traço.
           </p>
         ) : null}
+
+        <InsightsRotativos insights={insights} loading={carregando} />
 
         <section aria-labelledby="tempo-title" className="mt-8">
           <div className="flex items-center justify-between gap-4">
@@ -404,6 +417,117 @@ export default function HomePage() {
         </section>
       </div>
     </main>
+  )
+}
+
+interface InsightPessoal {
+  id: string
+  texto: string
+  detalhe: string
+  href: string
+}
+
+function montarInsights(dados: DadosHub, hoje: string): InsightPessoal[] {
+  const itens: InsightPessoal[] = []
+  const biblioteca = dados.insights
+
+  function adicionarConsumo(
+    id: string,
+    prefixo: string,
+    item: { titulo: string } | undefined,
+  ) {
+    if (item) itens.push({ id, texto: `${prefixo} ${item.titulo}`, detalhe: 'Biblioteca', href: '/biblioteca' })
+  }
+
+  adicionarConsumo('livro', 'Lendo', biblioteca?.livros.find((item) => item.status === 'lendo'))
+  adicionarConsumo('manga', 'Lendo', biblioteca?.mangas.find((item) => item.status === 'lendo'))
+  adicionarConsumo('serie', 'Assistindo', biblioteca?.series.find((item) => item.status === 'assistindo'))
+  adicionarConsumo('anime', 'Assistindo', biblioteca?.animes.find((item) => item.status === 'assistindo'))
+  adicionarConsumo('podcast', 'Ouvindo', biblioteca?.podcasts.find((item) => item.status === 'ouvindo'))
+
+  const videoPendente = biblioteca?.videos.find((item) => !item.assistido)
+  if (videoPendente) itens.push({ id: 'video', texto: `Vídeo ainda não assistido: ${videoPendente.titulo}`, detalhe: 'Biblioteca', href: '/biblioteca' })
+
+  if (biblioteca) {
+    const favoritos = [
+      ...biblioteca.livros,
+      ...biblioteca.mangas,
+      ...biblioteca.series,
+      ...biblioteca.animes,
+      ...biblioteca.podcasts,
+      ...biblioteca.videos,
+    ].filter((item) => item.favorito).length
+    if (favoritos > 0) itens.push({ id: 'favoritos', texto: `${favoritos} ${favoritos === 1 ? 'item favorito' : 'itens favoritos'} na Biblioteca`, detalhe: 'Acervo pessoal', href: '/biblioteca' })
+
+    const curso = biblioteca.cursos.find((item) => !item.concluido)
+    if (curso) itens.push({ id: 'curso', texto: `Curso em andamento: ${curso.nome}`, detalhe: 'Estudos', href: '/estudos/curso' })
+  }
+
+  const proximaProva = dados.proximasProvas?.find((prova) => prova.data > hoje)
+  if (proximaProva) {
+    const dias = diferencaDias(hoje, proximaProva.data)
+    itens.push({ id: 'prova', texto: `Faltam ${dias} ${dias === 1 ? 'dia' : 'dias'} para ${proximaProva.titulo || 'a próxima prova'}`, detalhe: 'Estudos', href: '/estudos' })
+  }
+
+  if (dados.tempo && dados.tempo.semanaMinutos > 0) itens.push({ id: 'tempo', texto: `Você estudou ${formatarDuracao(dados.tempo.semanaMinutos)} nesta semana`, detalhe: 'Tempo registrado', href: '/estudos' })
+
+  const vencidas = dados.revisoes?.filter((card) => card.proxima_revisao < hoje).length ?? 0
+  if (vencidas > 0) itens.push({ id: 'revisoes', texto: `${vencidas} ${vencidas === 1 ? 'revisão vencida' : 'revisões vencidas'}`, detalhe: 'Revisão Espaçada', href: '/revisao' })
+
+  if (dados.projetos && dados.tarefasProjetos) {
+    const projeto = dados.projetos.find((item) => item.status !== 'concluido')
+    if (projeto) {
+      const pendentes = dados.tarefasProjetos.filter((tarefa) => tarefa.projeto_uuid === projeto.uuid && tarefa.status !== 'feito').length
+      itens.push({ id: 'projeto', texto: `Projeto ${projeto.nome} tem ${pendentes} ${pendentes === 1 ? 'tarefa pendente' : 'tarefas pendentes'}`, detalhe: 'Projetos', href: '/projetos' })
+    }
+  }
+
+  const receitaFavorita = dados.receitas?.find((receita) => receita.favorito)
+  if (receitaFavorita) itens.push({ id: 'receita-favorita', texto: `Receita favorita: ${receitaFavorita.titulo}`, detalhe: 'Receitas', href: '/receitas' })
+  const receitasFeitas = dados.receitas?.filter((receita) => receita.fez).length ?? 0
+  if (receitasFeitas > 0) itens.push({ id: 'receitas-feitas', texto: `${receitasFeitas} ${receitasFeitas === 1 ? 'receita marcada' : 'receitas marcadas'} como feita${receitasFeitas === 1 ? '' : 's'}`, detalhe: 'Receitas', href: '/receitas' })
+
+  return itens
+}
+
+function InsightsRotativos({ insights, loading }: { insights: InsightPessoal[]; loading: boolean }) {
+  const [indice, setIndice] = useState(0)
+
+  useEffect(() => {
+    if (insights.length < 2) return
+    const intervalId = window.setInterval(() => {
+      setIndice((atual) => (atual + 1) % insights.length)
+    }, 5000)
+    return () => window.clearInterval(intervalId)
+  }, [insights.length])
+
+  useEffect(() => {
+    if (indice >= insights.length) setIndice(0)
+  }, [indice, insights.length])
+
+  const atual = insights[indice]
+
+  function mover(direcao: -1 | 1) {
+    setIndice((valor) => (valor + direcao + insights.length) % insights.length)
+  }
+
+  return (
+    <section aria-label="Insights pessoais" className="mt-6 flex min-h-20 w-full max-w-2xl items-center gap-3 rounded-lg border border-border bg-card px-3 py-3 text-card-foreground sm:px-4">
+      <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-secondary"><Lightbulb className="size-4" /></span>
+      <div className="min-w-0 flex-1" aria-live="polite">
+        <p className="font-mono text-[0.68rem] font-medium uppercase text-muted-foreground">Insight pessoal</p>
+        {loading ? <Skeleton className="mt-2 h-4 w-3/4" /> : atual ? (
+          <Link href={atual.href} className="mt-1 block min-w-0 outline-none focus-visible:ring-[3px] focus-visible:ring-ring/30">
+            <strong className="block truncate text-sm font-medium sm:text-base">{atual.texto}</strong>
+            <span className="mt-0.5 block text-xs text-muted-foreground">{atual.detalhe} · {indice + 1}/{insights.length}</span>
+          </Link>
+        ) : <p className="mt-1 text-sm text-muted-foreground">Os insights aparecem conforme seus registros ganham contexto.</p>}
+      </div>
+      {insights.length > 1 ? <div className="flex shrink-0 gap-1">
+        <Button type="button" variant="ghost" size="icon-xs" onClick={() => mover(-1)} aria-label="Insight anterior"><ChevronLeft /></Button>
+        <Button type="button" variant="ghost" size="icon-xs" onClick={() => mover(1)} aria-label="Próximo insight"><ChevronRight /></Button>
+      </div> : null}
+    </section>
   )
 }
 

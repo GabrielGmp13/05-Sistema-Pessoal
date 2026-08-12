@@ -85,8 +85,9 @@ A página havia sido gerada assumindo colunas (`frente`, `verso`, `intervalo`, `
 | Integração | Finalidade | Via |
 |---|---|---|
 | Google Calendar OAuth | Importar agenda de treinos | Supabase Edge Function (ver DEC-009 — decisão de não fazer isso no MVP) |
-| TMDB API | Metadados filmes/séries | API Route (`app/api/tmdb/search/route.ts`) — nenhuma API Route existe no projeto ainda |
-| Google Books, Jikan, iTunes Search | Metadados livros/mangás/podcasts | Fetch direto no client (sem key) |
+| YouTube Data API | Metadados de vídeos | ✅ API Route unificada; requer `YOUTUBE_API_KEY` server-only |
+| TMDB API | Metadados filmes/séries | ✅ API Route unificada; requer `TMDB_API_KEY` server-only |
+| Google Books, Jikan, iTunes Search | Metadados livros/animes/mangás/podcasts | ✅ API Route unificada, sem key |
 | Notificações push | Lembretes de treino e revisão | Service Worker Push API |
 
 ## Infraestrutura do banco — cadeia CLI ✅ CONSOLIDADA
@@ -125,11 +126,11 @@ frontend ativo. Revisão Espaçada e Agenda ganharam páginas dedicadas em
 |---|---|---|
 | 7.0 | Setup do projeto Next.js — estrutura de pastas, `lib/supabase.ts`, `proxy.ts` (renomeado de `middleware.ts`, DEC-031), layout base, CSS global | ✅ Completo |
 | 7.1 | Treino v2 | ✅ Completo — pendências de polimento em `BACKLOG.md` (gráfico de peso, upload de imagem de exercício) |
-| 7.2 | Biblioteca v2 | ✅ Vídeos e Artigos integrados à página única; migrations aplicadas em produção; gêneros das seis categorias originais persistidos pela UI e menu compartilhado corrigido, restando testes manuais finais |
+| 7.2 | Biblioteca v2 | ✅ Vídeos e Artigos integrados; gêneros persistidos; busca de metadados em sete fontes implementada, restando configuração opcional de YouTube/TMDB e testes manuais finais |
 | 7.3 | Estudos v2 (Fase 1 + Fase 1B) | ✅ 9 rotas de página implementadas e restilizadas (Tailwind/shadcn), incluindo `/estudos/enem/[area]`; schema estendido por `017`/`018`/`019` (gabarito ENEM em 2 fases, matéria única Escola/ENEM, domínio de conteúdo) — todas as migrations confirmadas executadas via dump real do banco (2026-08). Acesso principal passou no smoke de produção; teste profundo das 9 rotas internas permanece opcional — ver `TASKS_NOW.md` |
 | 7.4 | Revisão Espaçada v2 (página dedicada) | ✅ `/revisao` implementada com listas pendente/futura, avaliação SM-2, card manual e soft delete; validação manual fica para a etapa final |
 | 7.5 | Agenda v2 | ✅ Implementada e liberada para publicação: visão semanal, CRUD, cronograma de estudo, provas sem duplicação e vínculo com treino; migration incremental aplicada em produção |
-| 7.6 | Dashboard/hub operacional | ✅ Resumo real de tempo estudado, Agenda do dia e revisões pendentes sobre as entidades existentes, sem migration |
+| 7.6 | Dashboard/hub operacional | ✅ Resumos reais e carrossel compacto de insights pessoais sobre as entidades existentes, sem migration |
 | 7.7 | Perfil, Projetos e Receitas | ✅ Frontend implementado e `20260812000200` aplicada em produção; resta teste manual |
 
 ### Módulo: Projetos

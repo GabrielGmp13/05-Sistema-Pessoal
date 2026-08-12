@@ -16,6 +16,7 @@ import VolumesEditor from '@/components/VolumesEditor';
 import SeletorGenero from '@/components/SeletorGenero';
 import BibliotecaBanner from './BibliotecaBanner';
 import BibliotecaCard from './BibliotecaCard';
+import BuscaMetadados from './BuscaMetadados';
 import { sb, getUserId } from '@/lib/supabase';
 import { getGeneros, getMapaGenerosDosItens, salvarGenerosDoItem, seedGenerosSeNecessario } from '@/lib/generos';
 import type { Genero } from '@/lib/generos';
@@ -260,6 +261,20 @@ export default function MangasSection({ gatilhoAdicionar, busca = '', onTotalCar
               </button>
             </div>
             <form onSubmit={salvar} className={styles.modalBody}>
+              <BuscaMetadados
+                fonte="jikan_manga"
+                termoInicial={form.titulo}
+                onSelect={(resultado) => setForm((atual) => ({
+                  ...atual,
+                  titulo: resultado.titulo,
+                  titulo_traduzido: resultado.subtitulo ?? atual.titulo_traduzido,
+                  autor: resultado.autor ?? atual.autor,
+                  mal_id: resultado.identificadorExterno ?? atual.mal_id,
+                  capa_url: resultado.capaUrl ?? atual.capa_url,
+                  ano_inicio_publicacao: resultado.ano ?? atual.ano_inicio_publicacao,
+                  link_mal: resultado.linkOficial ?? atual.link_mal,
+                }))}
+              />
               <label>
                 Título *
                 <input

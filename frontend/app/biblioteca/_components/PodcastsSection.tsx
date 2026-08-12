@@ -16,6 +16,7 @@ import SeletorGenero from '@/components/SeletorGenero';
 import BibliotecaBanner from './BibliotecaBanner';
 import BibliotecaCard from './BibliotecaCard';
 import { sb, getUserId } from '@/lib/supabase';
+import BuscaMetadados from './BuscaMetadados';
 import { getGeneros, getMapaGenerosDosItens, salvarGenerosDoItem, seedGenerosSeNecessario } from '@/lib/generos';
 import type { Genero } from '@/lib/generos';
 import styles from './BibliotecaSection.module.css';
@@ -231,6 +232,18 @@ export default function PodcastsSection({ gatilhoAdicionar, busca = '', onTotalC
               </button>
             </div>
             <form onSubmit={salvar} className={styles.modalBody}>
+              <BuscaMetadados
+                fonte="itunes_podcast"
+                termoInicial={form.titulo}
+                onSelect={(resultado) => setForm((atual) => ({
+                  ...atual,
+                  titulo: resultado.titulo,
+                  itunes_id: resultado.identificadorExterno ?? atual.itunes_id,
+                  capa_url: resultado.capaUrl ?? atual.capa_url,
+                  produtora: resultado.autor ?? atual.produtora,
+                  link_oficial: resultado.linkOficial ?? atual.link_oficial,
+                }))}
+              />
               <label>
                 Título *
                 <input

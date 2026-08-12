@@ -94,6 +94,21 @@ export async function listarTarefasProjeto(projetoUuid: string): Promise<TarefaP
   return data as TarefaProjeto[]
 }
 
+export async function listarTodasTarefasProjetos(): Promise<TarefaProjeto[] | null> {
+  const userId = await getUserId()
+  if (!userId) return null
+
+  const { data, error } = await sb
+    .from('projetos_tarefas')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('deleted', false)
+    .order('updated_at', { ascending: false })
+
+  if (error) return sbErr(error, 'listarTodasTarefasProjetos')
+  return data as TarefaProjeto[]
+}
+
 export async function criarTarefaProjeto(
   projetoUuid: string,
   titulo: string,

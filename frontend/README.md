@@ -22,7 +22,14 @@ Variáveis necessárias:
 - `NEXT_PUBLIC_SUPABASE_URL`;
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
 
-Não versione `.env.local` nem use credenciais privilegiadas no frontend.
+Variáveis opcionais, usadas somente no servidor para preencher metadados da
+Biblioteca:
+
+- `YOUTUBE_API_KEY` — vídeos;
+- `TMDB_API_KEY` — filmes e séries.
+
+Não versione `.env.local`, não use prefixo `NEXT_PUBLIC_` nessas chaves
+privadas e não use credenciais privilegiadas no frontend.
 
 ## Verificações
 

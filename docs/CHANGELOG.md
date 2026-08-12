@@ -20,6 +20,15 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 (Next.js) — em andamento
 
+- **2026-08-12 (insights e metadados da Biblioteca)** — O Hub ganhou um
+  carrossel compacto de insights pessoais com rotação automática e controles
+  manuais, composto apenas a partir de Biblioteca, Estudos, Revisão, Projetos
+  e Receitas existentes. A Biblioteca ganhou a primeira API Route do projeto,
+  com busca e preenchimento revisável por YouTube, TMDB, Google Books, Jikan e
+  iTunes Search. YouTube/TMDB usam chaves opcionais somente no servidor; as
+  demais fontes não exigem segredo e todos os formulários mantêm o fluxo
+  manual diante de chave ausente, limite ou indisponibilidade externa.
+
 - **2026-08-12 (perfil, uploads e novos módulos)** — `/configuracoes` passou a
   editar os metadados visuais do perfil no Supabase Auth e atualizar o topo
   global. Materiais de Estudos ganharam upload privado no bucket `documentos`

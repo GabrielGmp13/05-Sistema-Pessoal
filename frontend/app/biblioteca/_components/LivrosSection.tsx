@@ -16,6 +16,7 @@ import AnotacoesLivroEditor from '@/components/AnotacoesLivroEditor';
 import SeletorGenero from '@/components/SeletorGenero';
 import BibliotecaBanner from './BibliotecaBanner';
 import BibliotecaCard from './BibliotecaCard';
+import BuscaMetadados from './BuscaMetadados';
 import { sb, getUserId } from '@/lib/supabase';
 import { getGeneros, getMapaGenerosDosItens, salvarGenerosDoItem, seedGenerosSeNecessario } from '@/lib/generos';
 import type { Genero } from '@/lib/generos';
@@ -256,6 +257,23 @@ export default function LivrosSection({ gatilhoAdicionar, busca = '', onTotalCar
               </button>
             </div>
             <form onSubmit={salvar} className={styles.modalBody}>
+              <BuscaMetadados
+                fonte="google_livros"
+                termoInicial={form.titulo}
+                onSelect={(resultado) => setForm((atual) => ({
+                  ...atual,
+                  titulo: resultado.titulo,
+                  autor: resultado.autor ?? atual.autor,
+                  isbn: resultado.isbn ?? atual.isbn,
+                  google_books_id: resultado.identificadorExterno ?? atual.google_books_id,
+                  capa_url: resultado.capaUrl ?? atual.capa_url,
+                  paginas_total: resultado.paginas ?? atual.paginas_total,
+                  editora: resultado.editora ?? atual.editora,
+                  idioma: resultado.idioma ?? atual.idioma,
+                  ano_publicacao: resultado.ano ?? atual.ano_publicacao,
+                  link_oficial: resultado.linkOficial ?? atual.link_oficial,
+                }))}
+              />
               <label>
                 Título *
                 <input

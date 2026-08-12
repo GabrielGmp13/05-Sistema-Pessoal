@@ -82,9 +82,10 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 
 ### Biblioteca v2 (B2–B6) — polimento
 
-- [ ] Integrações futuras de Vídeos/Artigos: YouTube API, extensão de
-      navegador, importação automática e scraping. O cadastro inicial é
-      manual e não possui API Route.
+- [x] YouTube API preparada para importar título, canal, duração e thumbnail
+      por uma API Route server-side; requer `YOUTUBE_API_KEY` no ambiente.
+- [ ] Extensão de navegador, importação em lote e scraping para Vídeos/Artigos
+      continuam fora do produto atual. O cadastro manual permanece disponível.
 - [x] Fluxo manual Vídeo → Curso em Estudos — implementado localmente com
       `conteudos.video_uuid`, escolha explícita de curso/módulo e bloqueio de
       duplicação no mesmo curso (DEC-048). Migration aplicada em produção em
@@ -97,7 +98,10 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
       leitura em lote, seleção no formulário, persistência ao criar/editar,
       seed seguro e acesso ao gerenciamento pela sidebar (2026-08-12).
 - [ ] Upload de capa/banner — o bucket privado `capas` e suas policies estão versionados em `001_schema_inicial.sql`, mas não existe UI de upload; `banner_path` não tem bucket definido. Hoje a interface usa apenas `capa_url`/`banner_url` (link externo)
-- [ ] Integração de busca por API externa (TMDB, Google Books, Jikan, iTunes) nas telas novas da Biblioteca v2 — a v1 tinha essa integração, as 6 telas v2 geradas até agora são só cadastro manual. TMDB é a única que exige API Route (segredo) — nenhuma `app/api/**` existe ainda no projeto (confirmado por inspeção, 2026-08), então essa é a motivação real mais próxima pra criar a primeira.
+- [x] Busca externa integrada aos formulários de Filmes, Séries, Animes,
+      Mangás, Livros e Podcasts via TMDB, Jikan, Google Books e iTunes Search.
+      TMDB usa `TMDB_API_KEY` server-only; as fontes públicas mantêm fallback
+      manual quando há limite ou indisponibilidade temporária (2026-08-12).
 - [ ] Edição de itens já criados em listas aninhadas (elenco, trilha sonora, temporadas, openings/endings, volumes) — hoje só dá pra criar ou apagar; os únicos campos editáveis depois de criado são os toggles (`lido`, `filler`, `assistido`)
 - [ ] Reordenação manual (drag-and-drop) do campo `ordem` em elenco/trilha sonora/openings-endings/volumes — hoje `ordem` só reflete sequência de criação
 - [x] `animes_generos` consumida por `lib/generos.ts` e pela UI de Animes.

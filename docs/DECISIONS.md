@@ -754,7 +754,8 @@ está liberada para publicação.
 - Cada entidade possui tabela própria, seguindo a separação por tipo de mídia
   da DEC-014 e evitando uma tabela genérica com muitos campos nulos.
 - O primeiro fluxo é cadastro manual. YouTube API, extensão, scraping,
-  importação automática e API Routes ficam fora desta etapa.
+  importação automática e API Routes ficam fora desta etapa inicial. A
+  evolução posterior está registrada na DEC-051.
 - `videos.youtube_id` é metadado opcional extraído localmente de URLs
   reconhecidas; não representa integração externa.
 - A conversão de Vídeo em Curso de Estudos será desenhada em etapa própria;
@@ -869,3 +870,24 @@ ao `header`, e as camadas visuais do perfil ficam contidas na célula esquerda.
 O escopo entrega utilidade real com contratos pequenos e independentes. As
 evoluções de colaboração, anexos, automações e integrações podem ser avaliadas
 sem inflar o primeiro schema nem misturar responsabilidades de outros módulos.
+
+---
+
+## DEC-051 — Metadados externos da Biblioteca usam API Route unificada
+
+**Data:** 2026-08-12
+**Status:** ✅ Aprovada e implementada
+
+### Decisão
+
+- Uma API Route do Next.js centraliza as consultas de metadados e segue a
+  responsabilidade serverless já aprovada na DEC-018.
+- `YOUTUBE_API_KEY` e `TMDB_API_KEY` são variáveis exclusivas do servidor,
+  nunca expostas com prefixo `NEXT_PUBLIC_`.
+- Google Books, Jikan e iTunes Search também passam pela rota unificada para
+  padronizar erros e contratos, embora não exijam segredo.
+- Falha, limite externo ou chave ausente nunca bloqueia o CRUD: todos os
+  formulários preservam o preenchimento manual.
+- Não há scraping, dependência nova, mudança de schema ou fonte de verdade;
+  os resultados apenas preenchem colunas já existentes antes da confirmação
+  do usuário.

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import PainelSimples from '@/components/PainelSimples';
 import type { CampoInfo } from '@/components/PainelDetalheObra';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import BuscaMetadados from './BuscaMetadados';
 import {
   apagarVideo,
   atualizarVideo,
@@ -285,6 +286,19 @@ export default function VideosSection({ gatilhoAdicionar, busca = '', onTotalCar
               <button type="button" className={styles.btnIcon} onClick={fecharModal}>×</button>
             </div>
             <form onSubmit={salvar} className={styles.modalBody}>
+              <BuscaMetadados
+                fonte="youtube"
+                termoInicial={form.url}
+                onSelect={(resultado) => setForm((atual) => ({
+                  ...atual,
+                  titulo: resultado.titulo,
+                  url: resultado.linkOficial ?? atual.url,
+                  youtube_id: resultado.identificadorExterno ?? atual.youtube_id,
+                  canal: resultado.autor ?? atual.canal,
+                  duracao_segundos: resultado.duracaoSegundos ?? atual.duracao_segundos,
+                  capa_url: resultado.capaUrl ?? atual.capa_url,
+                }))}
+              />
               <label>Título *<input required value={form.titulo} onChange={(event) => setForm({ ...form, titulo: event.target.value })} /></label>
               <label>URL *<input required type="url" value={form.url} onChange={(event) => setForm({ ...form, url: event.target.value })} /></label>
               <label>Canal<input value={form.canal ?? ''} onChange={(event) => setForm({ ...form, canal: event.target.value })} /></label>

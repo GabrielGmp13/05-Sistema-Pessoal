@@ -16,6 +16,7 @@ import TrilhaSonoraEditor from '@/components/TrilhaSonoraEditor';
 import TemporadasEditor from '@/components/TemporadasEditor';
 import SeletorGenero from '@/components/SeletorGenero';
 import BibliotecaBanner from './BibliotecaBanner';
+import BuscaMetadados from './BuscaMetadados';
 import BibliotecaCard from './BibliotecaCard';
 import { sb, getUserId } from '@/lib/supabase';
 import { getGeneros, getMapaGenerosDosItens, salvarGenerosDoItem, seedGenerosSeNecessario } from '@/lib/generos';
@@ -258,6 +259,18 @@ export default function SeriesSection({ gatilhoAdicionar, busca = '', onTotalCar
               </button>
             </div>
             <form onSubmit={salvar} className={styles.modalBody}>
+              <BuscaMetadados
+                fonte="tmdb_serie"
+                termoInicial={form.titulo}
+                onSelect={(resultado) => setForm((atual) => ({
+                  ...atual,
+                  titulo: resultado.titulo,
+                  tmdb_id: resultado.identificadorExterno ?? atual.tmdb_id,
+                  capa_url: resultado.capaUrl ?? atual.capa_url,
+                  banner_url: resultado.bannerUrl ?? atual.banner_url,
+                  ano_lancamento: resultado.ano ?? atual.ano_lancamento,
+                }))}
+              />
               <label>
                 Título *
                 <input
