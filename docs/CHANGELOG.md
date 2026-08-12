@@ -20,6 +20,16 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 (Next.js) — em andamento
 
+- **2026-08-12 (perfil, uploads e novos módulos)** — `/configuracoes` passou a
+  editar os metadados visuais do perfil no Supabase Auth e atualizar o topo
+  global. Materiais de Estudos ganharam upload privado no bucket `documentos`
+  com signed URLs; o fluxo de imagem de Redações ganhou validação e limpeza de
+  arquivos em substituições/falhas. Projetos e Receitas foram implementados
+  com CRUD, soft delete, navegação e resumos no Hub. A migration incremental
+  `20260812000200_projetos_receitas.sql` e seu teste específico passaram no
+  banco Docker local. Após novo dry-run limpo, a migration foi aplicada em
+  produção em 2026-08-12; o pós-check remoto não encontrou pendências.
+
 - **2026-08-12 (alinhamento estrutural da navegação global)** — O topo deixou
   de combinar `flex-wrap`, reordenação e larguras independentes: `GlobalNav`
   passou a usar uma única grade responsiva com áreas de perfil, navegação e

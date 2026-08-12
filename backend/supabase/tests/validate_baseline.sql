@@ -15,39 +15,39 @@ $$;
 
 -- Estrutura do schema public.
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 46
+  (SELECT count(*) = 49
    FROM pg_class c
    JOIN pg_namespace n ON n.oid = c.relnamespace
    WHERE n.nspname = 'public' AND c.relkind = 'r'),
-  'public deve conter exatamente 46 tabelas'
+  'public deve conter exatamente 49 tabelas'
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 46
+  (SELECT count(*) = 49
    FROM pg_constraint c
    JOIN pg_namespace n ON n.oid = c.connamespace
    WHERE n.nspname = 'public' AND c.contype = 'p'),
-  'public deve conter exatamente 46 PKs'
+  'public deve conter exatamente 49 PKs'
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 97
+  (SELECT count(*) = 101
    FROM pg_constraint c
    JOIN pg_namespace n ON n.oid = c.connamespace
    WHERE n.nspname = 'public' AND c.contype = 'f'),
-  'public deve conter exatamente 97 FKs'
+  'public deve conter exatamente 101 FKs'
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 28
+  (SELECT count(*) = 39
    FROM pg_constraint c
    JOIN pg_namespace n ON n.oid = c.connamespace
    WHERE n.nspname = 'public' AND c.contype = 'c'),
-  'public deve conter exatamente 28 checks'
+  'public deve conter exatamente 39 checks'
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 46
+  (SELECT count(*) = 49
    FROM pg_index i
    JOIN pg_class t ON t.oid = i.indrelid
    JOIN pg_namespace n ON n.oid = t.relnamespace
@@ -55,17 +55,17 @@ SELECT pg_temp.assert_true(
    WHERE n.nspname = 'public'
      AND t.relkind = 'r'
      AND con.oid IS NULL),
-  'public deve conter exatamente 46 indices explicitos'
+  'public deve conter exatamente 49 indices explicitos'
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 46
+  (SELECT count(*) = 49
    FROM pg_class c
    JOIN pg_namespace n ON n.oid = c.relnamespace
    WHERE n.nspname = 'public'
      AND c.relkind = 'r'
      AND c.relrowsecurity),
-  'as 46 tabelas public devem ter RLS habilitada'
+  'as 49 tabelas public devem ter RLS habilitada'
 );
 
 SELECT pg_temp.assert_true(
@@ -77,7 +77,7 @@ SELECT pg_temp.assert_true(
      AND roles = ARRAY['public']::name[]
      AND qual = '(auth.uid() = user_id)'
      AND with_check IS NULL),
-  'as 46 policies user_own_data devem ter definicao equivalente'
+  'as 46 policies historicas user_own_data devem preservar definicao equivalente'
 );
 
 -- Defaults e constraints historicamente divergentes.
@@ -129,8 +129,10 @@ SELECT pg_temp.assert_true(
    )
    FROM pg_class c
    JOIN pg_namespace n ON n.oid = c.relnamespace
-   WHERE n.nspname = 'public' AND c.relkind = 'r'),
-  'authenticated deve ter GRANT ALL nas 44 tabelas public'
+   WHERE n.nspname = 'public'
+     AND c.relkind = 'r'
+     AND c.relname NOT IN ('projetos', 'projetos_tarefas', 'receitas')),
+  'authenticated deve preservar GRANT ALL nas tabelas historicas'
 );
 
 -- Metadados do guard de RLS.

@@ -16,12 +16,13 @@ Visão macro de onde o Sistema Pessoal pretende chegar. Não é um roadmap detal
 | Estudos | 🔄 v2 em construção avançada | ENEM, Escola, Curso, Redações, Matéria e Gabarito implementados e restilizados; matéria única compartilhada entre Escola/ENEM (DEC-040); gabarito em 2 fases (DEC-041); domínio de conteúdo calculado via SM-2 (DEC-042). Fase 2 (Cursos com certificação rica, Flashcards/Anki, Redação versionada, Calendário próprio, modo "fazer prova" com cronômetro) registrada em `BACKLOG.md`, não descartada. **Gap conhecido:** o escopo original do módulo também previa Olimpíadas Científicas, Idiomas e Vestibulares específicos como áreas próprias — nenhuma decisão de escopo foi tomada pra elas ainda, ver `BACKLOG.md`. |
 | Hábitos | ⏳ Não iniciado | Sem tabela, sem decisão de escopo ainda |
 | Metas | ⏳ Não iniciado | Sem tabela, sem decisão de escopo ainda |
-| Projetos | ⏳ Não iniciado | Sem tabela, sem decisão de escopo ainda |
+| Projetos | ✅ Implementado (v2) | `/projetos` oferece CRUD e tarefas em três etapas; migration aplicada em produção, restando teste manual. |
+| Receitas | ✅ Implementado (v2) | `/receitas` mantém acervo, preparo, favorito, status de execução e nota; migration aplicada em produção, restando teste manual. |
 | Diário | ⏳ Não iniciado | Sem tabela, sem decisão de escopo ainda |
 | Arquivos | ⏳ Não iniciado | Possível sobreposição com `materiais_estudo` (Estudos v2 — substituiu `documentos_estudo` da v1) — avaliar se vale generalizar quando chegar a hora |
 | Saúde | ⏳ Parcial | Hoje coberta em pedaços por Treino (shape) — não há módulo de saúde geral (sono, hidratação, etc.) |
 | Finanças | ⏳ Não iniciado | Sem tabela, sem decisão de escopo ainda |
-| Configurações | ⏳ Não iniciado | Preferências do usuário, tema, etc. — falta também pra popular `user_metadata.avatar_url`/`background_url` usados pela Sidebar da Biblioteca (ver `BACKLOG.md`) |
+| Configurações | ✅ Perfil básico implementado | `/configuracoes` edita nome, descrição curta, avatar e background em `user_metadata`; preferências adicionais continuam futuras. |
 
 ---
 

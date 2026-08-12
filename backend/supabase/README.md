@@ -18,6 +18,8 @@ O ponto inicial oficial da cadeia CLI é:
 5. `20260811000200_biblioteca_videos_artigos.sql`;
 6. `20260811000300_conteudos_video.sql`;
 7. `20260812000100_revisao_arquivados.sql`.
+8. `20260812000200_projetos_receitas.sql` — validada no banco Docker local e
+   aplicada em produção em 2026-08-12 após dry-run limpo; pós-check sem pendências.
 
 As três baselines foram validadas por dois replays locais completos e por
 comparação com produção. Em 2026-08-08, `migration repair --status applied`
@@ -48,6 +50,11 @@ arquivamento em `revisao_espacada`, sem apagar cards ou alterar o progresso
 SM-2. Reset local, teste consolidado e teste específico passaram em
 2026-08-12. Após dry-run limpo, a migration foi aplicada em produção na mesma
 data; o pós-check remoto não encontrou pendências.
+
+`20260812000200_projetos_receitas.sql` cria `projetos`, `projetos_tarefas` e
+`receitas`, com RLS, GRANT, checks e índices parciais. Após validação local e
+dry-run limpo, foi aplicada em produção em 2026-08-12; o pós-check remoto não
+encontrou migrations pendentes.
 
 ## Workflow para toda mudança futura
 

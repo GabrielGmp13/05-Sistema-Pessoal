@@ -6,10 +6,10 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 
 ## Status geral
 **Fase atual:** Fase 7 (v2) — v1 aposentada (DEC-031), `frontend/` é o único frontend ativo. Hub inicial v2, navegação global e logout visível implementados; Biblioteca e Treino v2 funcionalmente prontos; Estudos v2 com 9 rotas de página implementadas e restilizadas, correções de modelagem de 2026-08 aplicadas.
-**Bloqueio:** nenhum bloqueio de banco conhecido para publicar o lote final de polimento da v2.
-**Banco:** produção está alinhada até `20260812000100_revisao_arquivados.sql`; a migration de arquivamento da Revisão foi aplicada em 2026-08-12 após dry-run limpo, com pós-check remoto sem pendências.
+**Bloqueio:** nenhum bloqueio de banco conhecido para publicar o lote de Perfil, uploads, Projetos e Receitas.
+**Banco:** produção está alinhada até `20260812000200_projetos_receitas.sql`; a migration foi aplicada em 2026-08-12 após dry-run limpo e o pós-check remoto não mostrou pendências.
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** continuar o teste manual autenticado em produção, em desktop e mobile, após cada correção curta de polimento.
+**Próxima ação:** publicar e testar Perfil, upload de materiais, Projetos e Receitas em produção, em desktop e mobile.
 
 ---
 
@@ -35,6 +35,20 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] Loading, falha parcial, estado vazio e atualização manual implementados
 - [x] Falhas excepcionais de uma fonte não interrompem mais o restante do resumo (`Promise.allSettled`)
 - [ ] Validar visualmente o Hub com dados reais em desktop e mobile na etapa final
+
+## Lote Perfil, uploads, Projetos e Receitas — 2026-08-12
+
+- [x] `/configuracoes` edita nome, descrição curta, avatar e background em `user_metadata`, sem tabela nova
+- [x] Perfil global abre Configurações e reflete alterações após salvar
+- [x] Materiais de Estudos aceitam arquivo privado no bucket `documentos` e abrem por signed URL
+- [x] Fluxo de imagem de Redações valida tipo/tamanho e limpa substituições/rollback de upload
+- [x] `/projetos` implementado com CRUD, quadro de tarefas por status e soft delete
+- [x] `/receitas` implementado com CRUD, favorito, feita/não feita, nota e foto por URL
+- [x] Hub e navegação global integrados aos dois módulos
+- [x] Migration/teste específico validados no banco Docker local; teste consolidado aprovado
+- [x] Dry-run remoto de `20260812000200_projetos_receitas.sql` concluído sem migrations adicionais
+- [x] Migration aplicada em produção e pós-check remoto concluído sem pendências (2026-08-12)
+- [ ] Testar manualmente os novos fluxos em desktop/mobile
 
 ## Auditoria final local da v2 — 2026-08-12
 
@@ -112,7 +126,7 @@ no projeto — esta será a primeira.
 - [x] Gabarito valida letra, matéria, conteúdo, dificuldade e motivo por questão iniciada
 - [x] As 10 ocorrências restantes de `confirm()` nativo em Treino/Biblioteca foram substituídas pelo `ConfirmDialog` reutilizável (2026-08-11)
 - [ ] Validar manualmente os novos modais de Treino/Biblioteca: confirmar, cancelar, fechar por Escape e clicar no backdrop
-- [ ] Validar manualmente em Estudos: criar/listar/apagar material, anotação e sessão em Matéria e Curso
+- [ ] Validar manualmente em Estudos: criar/listar/apagar material por URL/arquivo, anotação e sessão em Matéria e Curso
 
 ## 🟢 Revisão Espaçada v2 — página dedicada implementada
 

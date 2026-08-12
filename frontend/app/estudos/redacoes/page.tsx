@@ -304,9 +304,20 @@ function RedacaoCard({
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
+    if (!file.type.startsWith('image/')) {
+      setErro('Selecione um arquivo de imagem.')
+      e.target.value = ''
+      return
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setErro('A imagem deve ter no máximo 10 MB.')
+      e.target.value = ''
+      return
+    }
     setEnviandoImagem(true)
-    const caminho = await uploadImagemRedacao(r.uuid, file)
+    const caminho = await uploadImagemRedacao(r.uuid, file, r.imagem_path)
     setEnviandoImagem(false)
+    e.target.value = ''
     if (!caminho) {
       setErro('Não foi possível enviar a foto.')
       return

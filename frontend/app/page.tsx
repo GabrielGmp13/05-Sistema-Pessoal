@@ -11,8 +11,11 @@ import {
   ChevronRight,
   Clock3,
   Dumbbell,
+  FolderKanban,
   GraduationCap,
   RefreshCw,
+  Star,
+  Utensils,
 } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
@@ -23,6 +26,8 @@ import { dataLocalIso } from '@/lib/date'
 import { listarProvasNoPeriodo, listarProximasProvas, Prova } from '@/lib/provas'
 import { CardRevisao, listarCardsRevisao } from '@/lib/revisao'
 import { buscarResumoTempoEstudo, ResumoTempoEstudo } from '@/lib/sessoes-estudo'
+import { listarProjetos, Projeto } from '@/lib/projetos'
+import { listarReceitas, Receita } from '@/lib/receitas'
 
 const modules = [
   {
@@ -60,6 +65,20 @@ const modules = [
     icon: CalendarDays,
     status: 'Planejamento',
   },
+  {
+    href: '/projetos',
+    title: 'Projetos',
+    description: 'Iniciativas e tarefas organizadas por etapa de execução.',
+    icon: FolderKanban,
+    status: 'Em andamento',
+  },
+  {
+    href: '/receitas',
+    title: 'Receitas',
+    description: 'Preparos, favoritos e histórico da sua cozinha.',
+    icon: Utensils,
+    status: 'Acervo culinário',
+  },
 ]
 
 interface DadosHub {
@@ -68,6 +87,8 @@ interface DadosHub {
   provas: Prova[] | null
   proximasProvas: Prova[] | null
   revisoes: CardRevisao[] | null
+  projetos: Projeto[] | null
+  receitas: Receita[] | null
 }
 
 const DADOS_INICIAIS: DadosHub = {
@@ -76,6 +97,8 @@ const DADOS_INICIAIS: DadosHub = {
   provas: null,
   proximasProvas: null,
   revisoes: null,
+  projetos: null,
+  receitas: null,
 }
 
 function formatarDuracao(minutos: number) {
@@ -98,6 +121,8 @@ export default function HomePage() {
       listarProvasNoPeriodo(dataHoje, dataHoje),
       listarProximasProvas(),
       listarCardsRevisao(),
+      listarProjetos(),
+      listarReceitas(),
     ])
     setDados({
       tempo: resultados[0].status === 'fulfilled' ? resultados[0].value : null,
@@ -105,6 +130,8 @@ export default function HomePage() {
       provas: resultados[2].status === 'fulfilled' ? resultados[2].value : null,
       proximasProvas: resultados[3].status === 'fulfilled' ? resultados[3].value : null,
       revisoes: resultados[4].status === 'fulfilled' ? resultados[4].value : null,
+      projetos: resultados[5].status === 'fulfilled' ? resultados[5].value : null,
+      receitas: resultados[6].status === 'fulfilled' ? resultados[6].value : null,
     })
     setCarregando(false)
   }, [])
@@ -123,6 +150,10 @@ export default function HomePage() {
   const provasPendentes = dados.provas?.filter((prova) => !prova.feita) ?? []
   const provasFuturas = dados.proximasProvas?.filter((prova) => prova.data > dataHoje) ?? []
   const houveFalha = Object.values(dados).some((valor) => valor === null)
+  const projetosAtivos = dados.projetos?.filter((projeto) => projeto.status !== 'concluido') ?? []
+  const receitasDestaque = dados.receitas
+    ? [...dados.receitas].sort((a, b) => Number(b.favorito) - Number(a.favorito)).slice(0, 3)
+    : []
 
   return (
     <main className="min-h-[calc(100vh-3.5rem)] bg-background text-foreground">
@@ -304,6 +335,37 @@ export default function HomePage() {
           </section>
         </div>
 
+        <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <ResumoNovoModulo
+            eyebrow="Execução"
+            title="Projetos ativos"
+            href="/projetos"
+            indisponivel={dados.projetos === null}
+            loading={carregando}
+            vazio="Nenhum projeto ativo."
+            items={projetosAtivos.slice(0, 3).map((projeto) => ({
+              id: projeto.uuid,
+              label: projeto.nome,
+              detail: projeto.data_prazo ? `Prazo ${new Date(`${projeto.data_prazo}T00:00:00`).toLocaleDateString('pt-BR')}` : projeto.status,
+              icon: FolderKanban,
+            }))}
+          />
+          <ResumoNovoModulo
+            eyebrow="Cozinha"
+            title="Receitas em destaque"
+            href="/receitas"
+            indisponivel={dados.receitas === null}
+            loading={carregando}
+            vazio="Nenhuma receita cadastrada."
+            items={receitasDestaque.map((receita) => ({
+              id: receita.uuid,
+              label: receita.titulo,
+              detail: receita.favorito ? 'Favorita' : receita.categoria || 'Receita',
+              icon: receita.favorito ? Star : Utensils,
+            }))}
+          />
+        </div>
+
         <section aria-labelledby="modulos-title" className="mt-12 border-t border-border pt-6">
           <div>
             <p className="font-mono text-xs font-medium uppercase text-muted-foreground">Atalhos</p>
@@ -455,5 +517,42 @@ function EstadoVazio({ icon: Icon, texto }: { icon: typeof CheckCircle2; texto: 
       <Icon className="size-4 shrink-0" />
       <p>{texto}</p>
     </div>
+  )
+}
+
+function ResumoNovoModulo({
+  eyebrow,
+  title,
+  href,
+  indisponivel,
+  loading,
+  vazio,
+  items,
+}: {
+  eyebrow: string
+  title: string
+  href: string
+  indisponivel: boolean
+  loading: boolean
+  vazio: string
+  items: Array<{ id: string; label: string; detail: string; icon: typeof FolderKanban }>
+}) {
+  return (
+    <section className="border-t border-border pt-5">
+      <div className="flex items-start justify-between gap-4">
+        <div><p className="font-mono text-xs font-medium uppercase text-muted-foreground">{eyebrow}</p><h2 className="mt-1 text-xl font-semibold">{title}</h2></div>
+        <Link href={href} className="text-sm font-medium text-muted-foreground hover:text-foreground">Abrir</Link>
+      </div>
+      <div className="mt-3">
+        {loading ? <ListaSkeleton /> : indisponivel ? <EstadoIndisponivel /> : items.length === 0 ? <p className="py-4 text-sm text-muted-foreground">{vazio}</p> : (
+          <ul className="divide-y divide-border border-y border-border">
+            {items.map((item) => {
+              const Icon = item.icon
+              return <li key={item.id}><Link href={href} className="flex items-center gap-3 py-3"><Icon className="size-4 shrink-0 text-muted-foreground" /><span className="min-w-0 flex-1 truncate text-sm font-medium">{item.label}</span><span className="text-xs capitalize text-muted-foreground">{item.detail}</span></Link></li>
+            })}
+          </ul>
+        )}
+      </div>
+    </section>
   )
 }

@@ -31,7 +31,7 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 
 - [x] ~~Questões individuais estruturadas~~ — resolvido no schema da Fase 1 do Estudos v2 (`questoes_individuais`, DEC-035)
 - [ ] Importação de dados do sistema ENEM standalone antigo, se houver conteúdo relevante a resgatar
-- [ ] Upload de materiais de estudo no bucket privado `documentos`, usando `arquivo_path` e signed URLs. A UI atual aceita URL; upload é evolução própria de Storage e não faz parte do fechamento da v2.
+- [x] Upload de materiais de estudo no bucket privado `documentos`, usando `arquivo_path` e signed URLs, implementado em 2026-08-12 sem mudança de Storage.
 - [x] Cursos (estrutura própria — módulos/aulas/certificado) — implementado na Fase 1B de Estudos v2 (DEC-036)
 - [ ] Importação Anki como etapa própria. Auditoria de 2026-08 confirmou que `.apkg` combina arquivo ZIP, banco SQLite do Anki e mídia; suportá-lo corretamente exige parser/dependência, escolha de baralho/modelo, tratamento de HTML/cloze/mídia e regra de duplicação. Uma alternativa futura mais leve é importar exportação tabulada de notas, mas ainda precisa de decisão explícita sobre mapeamento de campos e deduplicação. Não misturar com o CRUD atual de Revisão.
 - [ ] Redação versionada (múltiplas versões, competências detalhadas), Fase 1 entrega só versão leve (DEC-035)
@@ -106,7 +106,7 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 - [ ] Velocidade de leitura (páginas/hora) em Livros (B5) — `paginas_total`/`pagina_atual` permitem progresso, mas não velocidade; exigiria registro de sessões de leitura com data, não desenhado ainda (ver DEC-029)
 - [ ] Imagens estáticas de banner por categoria (`public/biblioteca/banners/{filmes,series,animes,mangas,livros,podcasts,videos,artigos}.jpg`) — suporte já existe no `BibliotecaBanner` (DEC-034), mas depende do usuário fornecer as imagens; sem elas, cada categoria usa mosaico de capas ou fallback visual. Confirmado que ao menos `animes.jpg` já está versionado.
 - [x] Perfil removido da sidebar e promovido à navegação global de todo o site, com avatar, nome, background opcional e fallback (2026-08-12, DEC-049).
-- [ ] Tela de Configurações para editar `user_metadata.avatar_url`/`background_url`; até existir, esses metadados continuam sem UI própria.
+- [x] Tela `/configuracoes` para editar nome, descrição curta, `user_metadata.avatar_url` e `background_url`, implementada em 2026-08-12.
 
 ## Treino v2
 

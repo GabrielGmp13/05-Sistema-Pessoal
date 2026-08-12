@@ -130,3 +130,16 @@ frontend ativo. Revisão Espaçada e Agenda ganharam páginas dedicadas em
 | 7.4 | Revisão Espaçada v2 (página dedicada) | ✅ `/revisao` implementada com listas pendente/futura, avaliação SM-2, card manual e soft delete; validação manual fica para a etapa final |
 | 7.5 | Agenda v2 | ✅ Implementada e liberada para publicação: visão semanal, CRUD, cronograma de estudo, provas sem duplicação e vínculo com treino; migration incremental aplicada em produção |
 | 7.6 | Dashboard/hub operacional | ✅ Resumo real de tempo estudado, Agenda do dia e revisões pendentes sobre as entidades existentes, sem migration |
+| 7.7 | Perfil, Projetos e Receitas | ✅ Frontend implementado e `20260812000200` aplicada em produção; resta teste manual |
+
+### Módulo: Projetos
+
+**Objetivo:** organizar iniciativas pessoais e suas tarefas em etapas visíveis.
+**Escopo:** CRUD de projetos, prazo/status e tarefas em A fazer/Fazendo/Feito; sem drag-and-drop, colaboração ou API externa.
+**Rota:** `/projetos`. **API Route:** não. **Banco:** `projetos` e `projetos_tarefas`. **Dependências:** Supabase Auth/RLS, sem pacote novo.
+
+### Módulo: Receitas
+
+**Objetivo:** manter um acervo culinário pessoal simples e reutilizável.
+**Escopo:** CRUD, ingredientes, preparo, tempo, porções, categoria, nota, favorito, feita e foto por URL; sem upload, scraping ou API externa.
+**Rota:** `/receitas`. **API Route:** não. **Banco:** `receitas`. **Dependências:** Supabase Auth/RLS, sem pacote novo.

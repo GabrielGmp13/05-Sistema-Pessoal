@@ -1,4 +1,4 @@
-import { getUserId, sb, sbErr, softDelete } from './supabase';
+import { deleteFile, getSignedUrl, getUserId, sb, sbErr, softDelete, uploadFile } from './supabase';
 
 export type TipoMaterialEstudo = 'link' | 'pdf' | 'video' | 'livro' | 'outro';
 
@@ -53,6 +53,49 @@ export async function criarMaterialEstudo(
 
   if (error) return sbErr(error, 'criarMaterialEstudo');
   return data;
+}
+
+const BUCKET_DOCUMENTOS = 'documentos';
+
+function nomeArquivoSeguro(nome: string) {
+  return nome
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9._-]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'documento';
+}
+
+export async function criarMaterialComArquivo(input: {
+  conteudo_uuid: string;
+  tipo: TipoMaterialEstudo;
+  titulo: string;
+  file: File;
+}): Promise<MaterialEstudo | null> {
+  const userId = await getUserId();
+  if (!userId) return null;
+
+  const path = `${userId}/materiais/${crypto.randomUUID()}-${nomeArquivoSeguro(input.file.name)}`;
+  const arquivoPath = await uploadFile(BUCKET_DOCUMENTOS, path, input.file);
+  if (!arquivoPath) return null;
+
+  const material = await criarMaterialEstudo({
+    conteudo_uuid: input.conteudo_uuid,
+    tipo: input.tipo,
+    titulo: input.titulo,
+    url: null,
+    arquivo_path: arquivoPath,
+  });
+
+  if (!material) {
+    await deleteFile(BUCKET_DOCUMENTOS, arquivoPath);
+    return null;
+  }
+
+  return material;
+}
+
+export async function getUrlArquivoMaterial(path: string): Promise<string | null> {
+  return getSignedUrl(BUCKET_DOCUMENTOS, path);
 }
 
 export async function deletarMaterialEstudo(uuid: string): Promise<boolean> {

@@ -34,7 +34,7 @@ Chaves estrangeiras seguem `<tabela_singular>_uuid` (ex: `treino_uuid`, `materia
 
 **GRANT é obrigatório em toda migration, não opcional.** Projetos Supabase criados a partir de 2026-05-30 não recebem GRANT automático em nenhuma tabela nova, mesmo com RLS e policy corretos — sem o GRANT explícito para `authenticated`, a tabela fica inacessível via Data API (badge "API DISABLED" no dashboard) e o `supabase-js` recebe erro 42501 mesmo com policies válidas. RLS e GRANT são camadas independentes: GRANT decide se o papel alcança a tabela; RLS decide quais linhas ele vê dentro dela.
 
-**Confirmado no dump real (2026-08):** a baseline tinha 44 tabelas em `public`, todas com RLS, policy `user_own_data` e GRANT para `authenticated`. A migration `20260811000200`, aplicada depois dessa captura, adicionou `videos` e `artigos`; produção possui agora 46 tabelas. `anon` continua sem `SELECT`/`INSERT` sobre dados da aplicação.
+**Confirmado no dump real (2026-08):** a baseline tinha 44 tabelas em `public`, todas com RLS, policy `user_own_data` e GRANT para `authenticated`. As migrations incrementais adicionaram `videos`, `artigos`, `projetos`, `projetos_tarefas` e `receitas`; produção possui agora 49 tabelas. `anon` continua sem `SELECT`/`INSERT` sobre dados da aplicação.
 
 Índices parciais `WHERE NOT deleted` existem nas tabelas principais para acelerar as queries que sempre filtram registros ativos — confirmados no dump para praticamente todas as tabelas de alto volume (ver lista completa na seção Índices, ao final).
 
@@ -62,6 +62,7 @@ dessas duas pastas deve ser executado como migration.
 | `20260811000200` | `20260811000200_biblioteca_videos_artigos.sql` | ✅ Reset/testes aprovados e aplicada em produção em 2026-08-11 |
 | `20260811000300` | `20260811000300_conteudos_video.sql` | ✅ Reset/testes locais aprovados e aplicada em produção em 2026-08-12; pós-check sem pendências |
 | `20260812000100` | `20260812000100_revisao_arquivados.sql` | ✅ Reset/suíte SQL local aprovados e aplicada em produção em 2026-08-12 após dry-run limpo; pós-check sem pendências |
+| `20260812000200` | `20260812000200_projetos_receitas.sql` | ✅ Testes locais aprovados e aplicada em produção em 2026-08-12 após dry-run limpo; pós-check sem pendências |
 
 As três versões foram adotadas no histórico remoto em 2026-08-08 por
 `migration repair --status applied`, depois de recaptura somente leitura de
@@ -874,9 +875,10 @@ updated_at    TIMESTAMPTZ DEFAULT NOW(),
 deleted       BOOLEAN DEFAULT FALSE
 ```
 > Schema existe e confere com o banco real. A UI de Matéria e Curso permite
-> cadastrar referências por conteúdo usando título, tipo e URL
-> (`lib/materiais-estudo.ts`). Upload em `arquivo_path` continua fora desta
-> etapa; nenhuma configuração de Storage foi alterada.
+> cadastrar referências por conteúdo usando título, tipo e URL ou enviar
+> arquivos de até 50 MB ao bucket privado `documentos`. A UI persiste
+> `arquivo_path` e gera signed URL para abertura (`lib/materiais-estudo.ts`),
+> sem alterar buckets ou policies existentes.
 
 ### `anotacoes_estudo`
 ```sql
@@ -932,6 +934,51 @@ imagem_path   TEXT,          -- bucket 'redacoes', foto da folha manuscrita
 CONSTRAINT redacoes_competencia_1_check CHECK (competencia_1 IS NULL OR competencia_1 BETWEEN 0 AND 200)
 -- (mesma CHECK para competencia_2..5)
 ```
+
+### `projetos`
+```sql
+uuid        TEXT PRIMARY KEY,
+user_id     UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+nome        TEXT NOT NULL,
+descricao   TEXT,
+status      TEXT NOT NULL DEFAULT 'ativo', -- 'ativo' | 'pausado' | 'concluido'
+data_prazo  DATE,
+updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+deleted     BOOLEAN NOT NULL DEFAULT FALSE
+```
+
+### `projetos_tarefas`
+```sql
+uuid         TEXT PRIMARY KEY,
+user_id      UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+projeto_uuid TEXT NOT NULL REFERENCES projetos(uuid),
+titulo       TEXT NOT NULL,
+status       TEXT NOT NULL DEFAULT 'a_fazer', -- 'a_fazer' | 'fazendo' | 'feito'
+ordem        INTEGER NOT NULL DEFAULT 0,
+updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+deleted      BOOLEAN NOT NULL DEFAULT FALSE
+```
+> Projetos e tarefas usam soft delete independente. A interface move tarefas
+> por botões entre as três etapas; não existe drag-and-drop nem automação.
+
+### `receitas`
+```sql
+uuid                    TEXT PRIMARY KEY,
+user_id                 UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+titulo                  TEXT NOT NULL,
+ingredientes            TEXT NOT NULL,
+modo_preparo            TEXT NOT NULL,
+tempo_preparo_minutos   INTEGER,
+porcoes                 INTEGER,
+categoria               TEXT,
+nota                    NUMERIC(3,1), -- 0 a 10
+favorito                 BOOLEAN NOT NULL DEFAULT FALSE,
+fez                      BOOLEAN NOT NULL DEFAULT FALSE,
+foto_url                 TEXT,
+updated_at               TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+deleted                  BOOLEAN NOT NULL DEFAULT FALSE
+```
+> A foto permanece uma URL externa. O módulo não cria bucket nem integra API.
 
 ### Tabelas descontinuadas de Estudos v1
 `assuntos`, `anotacoes`, `documentos_estudo`, `sessoes_questoes` — confirmadas ausentes no dump. Ver DEC-035.

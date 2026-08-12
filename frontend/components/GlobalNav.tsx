@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { BookOpen, Brain, CalendarDays, Dumbbell, GraduationCap, Home, LogOut } from 'lucide-react'
+import { BookOpen, Brain, CalendarDays, Dumbbell, FolderKanban, GraduationCap, Home, LogOut, Settings, Utensils } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 import { getSession, sb } from '@/lib/supabase'
@@ -16,6 +16,8 @@ const links = [
   { href: '/estudos', label: 'Estudos', icon: GraduationCap },
   { href: '/revisao', label: 'Revisão', icon: Brain },
   { href: '/agenda', label: 'Agenda', icon: CalendarDays },
+  { href: '/projetos', label: 'Projetos', icon: FolderKanban },
+  { href: '/receitas', label: 'Receitas', icon: Utensils },
 ]
 
 function isActive(pathname: string, href: string) {
@@ -49,8 +51,12 @@ export function GlobalNav() {
       })
     }
     void carregarPerfil()
+
+    window.addEventListener('perfil-atualizado', carregarPerfil)
+
     return () => {
       ativo = false
+      window.removeEventListener('perfil-atualizado', carregarPerfil)
     }
   }, [ocultarNavegacao])
 
@@ -71,7 +77,12 @@ export function GlobalNav() {
   return (
     <header className={styles.header}>
       <div className={styles.barra}>
-        <div className={styles.perfil} aria-label={`Perfil de ${perfil?.nome || 'usuário'}`}>
+        <Link
+          href="/configuracoes"
+          className={styles.perfil}
+          aria-label={`Abrir configurações do perfil de ${perfil?.nome || 'usuário'}`}
+          title="Configurações do perfil"
+        >
           <span aria-hidden="true" className={styles.perfilFundo} />
           {perfil?.backgroundUrl ? (
             <span
@@ -88,7 +99,8 @@ export function GlobalNav() {
             )}
           </span>
           <span className={styles.perfilNome}>{perfil?.nome || 'Perfil'}</span>
-        </div>
+          <Settings aria-hidden="true" className={styles.perfilIcone} />
+        </Link>
 
         <nav
           aria-label="Navegação principal"

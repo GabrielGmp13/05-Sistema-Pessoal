@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Clock3, ExternalLink, FileText, Library, Plus, Trash2 } from 'lucide-react'
+import { Clock3, ExternalLink, FileText, FileUp, Library, Loader2, Plus, Trash2 } from 'lucide-react'
 
 import { Conteudo } from '@/lib/conteudos'
 import {
@@ -12,7 +12,9 @@ import {
 } from '@/lib/anotacoes-estudo'
 import {
   criarMaterialEstudo,
+  criarMaterialComArquivo,
   deletarMaterialEstudo,
+  getUrlArquivoMaterial,
   listarMateriaisPorConteudos,
   MaterialEstudo,
   TipoMaterialEstudo,
@@ -95,12 +97,16 @@ export function StudyRecords({
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState('')
   const [confirmacao, setConfirmacao] = useState<Confirmacao | null>(null)
+  const [urlsArquivos, setUrlsArquivos] = useState<Record<string, string>>({})
+  const [arquivoMaterial, setArquivoMaterial] = useState<File | null>(null)
+  const [enviandoMaterial, setEnviandoMaterial] = useState(false)
 
   const [novoMaterial, setNovoMaterial] = useState({
     conteudo_uuid: '',
     tipo: 'link' as TipoMaterialEstudo,
     titulo: '',
     url: '',
+    origem: 'url' as 'url' | 'arquivo',
   })
   const [novaAnotacao, setNovaAnotacao] = useState({
     conteudo_uuid: '',
@@ -135,6 +141,15 @@ export function StudyRecords({
     setMateriais(materiaisAtuais ?? [])
     setAnotacoes(anotacoesAtuais ?? [])
     setSessoes(sessoesAtuais ?? [])
+
+    const materiaisComArquivo = (materiaisAtuais ?? []).filter((material) => material.arquivo_path)
+    const urls = await Promise.all(
+      materiaisComArquivo.map(async (material) => [
+        material.uuid,
+        await getUrlArquivoMaterial(material.arquivo_path!),
+      ] as const),
+    )
+    setUrlsArquivos(Object.fromEntries(urls.filter((item): item is readonly [string, string] => Boolean(item[1]))))
     setCarregando(false)
   }, [conteudoUuids, materiaUuid])
 
@@ -148,6 +163,35 @@ export function StudyRecords({
   async function handleCriarMaterial(event: React.FormEvent) {
     event.preventDefault()
     if (!novoMaterial.conteudo_uuid || !novoMaterial.titulo.trim()) return
+
+    if (novoMaterial.origem === 'arquivo') {
+      if (!arquivoMaterial) {
+        setErro('Selecione um arquivo para enviar.')
+        return
+      }
+      if (arquivoMaterial.size > 50 * 1024 * 1024) {
+        setErro('O arquivo deve ter no máximo 50 MB.')
+        return
+      }
+
+      setEnviandoMaterial(true)
+      const criado = await criarMaterialComArquivo({
+        conteudo_uuid: novoMaterial.conteudo_uuid,
+        tipo: novoMaterial.tipo,
+        titulo: novoMaterial.titulo.trim(),
+        file: arquivoMaterial,
+      })
+      setEnviandoMaterial(false)
+      if (!criado) {
+        setErro('Não foi possível enviar o arquivo.')
+        return
+      }
+
+      setArquivoMaterial(null)
+      setNovoMaterial({ conteudo_uuid: '', tipo: 'link', titulo: '', url: '', origem: 'url' })
+      await carregar()
+      return
+    }
 
     const exigeUrl = ['link', 'pdf', 'video'].includes(novoMaterial.tipo)
     const url = normalizarUrl(novoMaterial.url)
@@ -168,7 +212,7 @@ export function StudyRecords({
       return
     }
 
-    setNovoMaterial({ conteudo_uuid: '', tipo: 'link', titulo: '', url: '' })
+    setNovoMaterial({ conteudo_uuid: '', tipo: 'link', titulo: '', url: '', origem: 'url' })
     await carregar()
   }
 
@@ -271,7 +315,7 @@ export function StudyRecords({
           ) : (
             <ul className="flex flex-col divide-y divide-border rounded-lg border border-border">
               {materiais.map((material) => {
-                const materialUrl = normalizarUrl(material.url)
+                const materialUrl = normalizarUrl(material.url) ?? urlsArquivos[material.uuid]
                 return (
                   <li key={material.uuid} className="flex items-center gap-3 px-4 py-3">
                     <div className="flex min-w-0 flex-1 flex-col gap-1">
@@ -325,15 +369,34 @@ export function StudyRecords({
                   {Object.entries(MATERIAL_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
                 </Select>
               </Field>
+              <Field label="Origem">
+                <Select
+                  value={novoMaterial.origem}
+                  onChange={(event) => setNovoMaterial((atual) => ({ ...atual, origem: event.target.value as 'url' | 'arquivo' }))}
+                >
+                  <option value="url">URL</option>
+                  <option value="arquivo">Arquivo privado</option>
+                </Select>
+              </Field>
               <Field label="Título">
                 <Input value={novoMaterial.titulo} onChange={(event) => setNovoMaterial((atual) => ({ ...atual, titulo: event.target.value }))} />
               </Field>
-              <Field label="URL" optional={!['link', 'pdf', 'video'].includes(novoMaterial.tipo)}>
-                <Input type="url" value={novoMaterial.url} onChange={(event) => setNovoMaterial((atual) => ({ ...atual, url: event.target.value }))} placeholder="https://" />
-              </Field>
-              <Button type="submit" size="sm" className="sm:col-span-2 sm:justify-self-start" disabled={conteudos.length === 0}>
-                <Plus className="size-3.5" />
-                Adicionar material
+              {novoMaterial.origem === 'url' ? (
+                <Field label="URL" optional={!['link', 'pdf', 'video'].includes(novoMaterial.tipo)}>
+                  <Input type="url" value={novoMaterial.url} onChange={(event) => setNovoMaterial((atual) => ({ ...atual, url: event.target.value }))} placeholder="https://" />
+                </Field>
+              ) : (
+                <Field label="Arquivo">
+                  <Input
+                    type="file"
+                    accept=".pdf,.epub,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.json"
+                    onChange={(event) => setArquivoMaterial(event.target.files?.[0] ?? null)}
+                  />
+                </Field>
+              )}
+              <Button type="submit" size="sm" className="sm:col-span-2 sm:justify-self-start" disabled={conteudos.length === 0 || enviandoMaterial}>
+                {enviandoMaterial ? <Loader2 className="size-3.5 animate-spin" /> : novoMaterial.origem === 'arquivo' ? <FileUp className="size-3.5" /> : <Plus className="size-3.5" />}
+                {enviandoMaterial ? 'Enviando...' : 'Adicionar material'}
               </Button>
             </form>
           </Card>

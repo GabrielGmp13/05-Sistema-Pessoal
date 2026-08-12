@@ -82,18 +82,29 @@ export async function deletarRedacao(uuid: string): Promise<boolean> {
 // ============================================================================
 
 /** Faz upload da foto da redação e já salva o path na linha (atualiza imagem_path). */
-export async function uploadImagemRedacao(uuid: string, file: File): Promise<string | null> {
+export async function uploadImagemRedacao(
+  uuid: string,
+  file: File,
+  imagemPathAtual: string | null,
+): Promise<string | null> {
   const userId = await getUserId();
   if (!userId) return null;
 
-  const extensao = file.name.split('.').pop() ?? 'jpg';
-  const path = `${userId}/${uuid}.${extensao}`;
+  const extensao = file.name.split('.').pop()?.replace(/[^a-zA-Z0-9]/g, '') || 'jpg';
+  const path = `${userId}/${uuid}-${crypto.randomUUID()}.${extensao}`;
 
   const caminhoSalvo = await uploadFile(BUCKET_REDACOES, path, file);
   if (!caminhoSalvo) return null;
 
   const atualizado = await atualizarRedacao(uuid, { imagem_path: caminhoSalvo });
-  if (!atualizado) return null;
+  if (!atualizado) {
+    await deleteFile(BUCKET_REDACOES, caminhoSalvo);
+    return null;
+  }
+
+  if (imagemPathAtual && imagemPathAtual !== caminhoSalvo) {
+    await deleteFile(BUCKET_REDACOES, imagemPathAtual);
+  }
 
   return caminhoSalvo;
 }

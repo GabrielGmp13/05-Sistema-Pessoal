@@ -827,8 +827,9 @@ visual necessário para a Home.
   também nas rotas `/biblioteca`.
 - Avatar, nome e background opcional de `user_metadata` ficam no início da
   navegação global em todas as rotas autenticadas, substituindo a marca textual
-  “Sistema Pessoal”. A área é informativa por enquanto; não duplica o link para
-  a Home e poderá abrir um painel de perfil em evolução futura.
+  “Sistema Pessoal”. A área não duplica o link para a Home. Desde 2026-08-12,
+  ela abre `/configuracoes`, onde nome, descrição curta, avatar e background
+  são persistidos em `user_metadata`, sem tabela própria.
 - A sidebar fica dedicada a busca, categorias, gêneros e ação de adicionar.
 - Mosaico de capas, banner e CRUD permanecem; não há mudança de schema nem de
   responsabilidade da Biblioteca.
@@ -843,3 +844,28 @@ ativo; a sidebar da Biblioteca permanece sem duplicação. Após validação vis
 em produção, o topo foi consolidado em uma única grade responsiva com áreas
 explícitas para perfil, navegação e logout. A borda inferior pertence somente
 ao `header`, e as camadas visuais do perfil ficam contidas na célula esquerda.
+
+---
+
+## DEC-050 — Projetos e Receitas começam como módulos locais simples
+
+**Data:** 2026-08-12
+**Status:** ✅ Implementada; migration aplicada em produção
+
+### Decisão
+
+- Projetos usa `projetos` e `projetos_tarefas`, com tarefas nos estados
+  `a_fazer`, `fazendo` e `feito`. A movimentação inicial usa botões; não há
+  drag-and-drop, colaboração ou automação.
+- Receitas usa uma tabela `receitas`, com ingredientes e preparo em texto,
+  favorito, estado feita/não feita e nota de 0 a 10.
+- A foto de receita é apenas `foto_url`; não foi criado bucket ou upload.
+- Ambos fazem CRUD direto pelo client Supabase sob RLS e GRANT, sem API Route,
+  serviço externo ou dependência nova.
+- Exclusões seguem o soft delete universal e passam por `ConfirmDialog`.
+
+### Justificativa
+
+O escopo entrega utilidade real com contratos pequenos e independentes. As
+evoluções de colaboração, anexos, automações e integrações podem ser avaliadas
+sem inflar o primeiro schema nem misturar responsabilidades de outros módulos.
