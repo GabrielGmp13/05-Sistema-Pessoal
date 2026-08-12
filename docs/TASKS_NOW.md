@@ -60,6 +60,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] Dry-run remoto limpo, migration aplicada em produção com autorização explícita e pós-check sem pendências (2026-08-12)
 - [x] Primeiro lote publicado; login validado pelo usuário em produção (2026-08-12)
 - [x] Perfil promovido ao topo global em todas as rotas, sem duplicar o link “Início”
+- [x] Background do perfil recomposto em camadas de fallback e imagem com transição suave, sem faixa retangular
 - [x] Sidebar da Biblioteca compactada e contraste do item ativo corrigido
 - [ ] Confirmar o novo deploy e continuar o teste manual de Hub, Biblioteca e Revisão em desktop/mobile
 

@@ -72,11 +72,14 @@ export function GlobalNav() {
     <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--surface)]/95 text-[var(--text)] backdrop-blur supports-[backdrop-filter]:bg-[var(--surface)]/85">
       <div className="mx-auto flex min-h-14 w-full max-w-6xl flex-wrap items-center gap-x-3 gap-y-2 px-4 py-2 sm:px-6 lg:flex-nowrap lg:py-0">
         <div className={styles.perfil} aria-label={`Perfil de ${perfil?.nome || 'usuário'}`}>
-          <span
-            aria-hidden="true"
-            className={styles.perfilFundo}
-            style={perfil?.backgroundUrl ? { backgroundImage: `url(${perfil.backgroundUrl})` } : undefined}
-          />
+          <span aria-hidden="true" className={styles.perfilFundo} />
+          {perfil?.backgroundUrl ? (
+            <span
+              aria-hidden="true"
+              className={styles.perfilImagem}
+              style={{ backgroundImage: `url(${perfil.backgroundUrl})` }}
+            />
+          ) : null}
           <span className={styles.avatar}>
             {perfil?.avatarUrl ? (
               <img src={perfil.avatarUrl} alt="" className={styles.avatarImagem} />

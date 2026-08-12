@@ -20,6 +20,14 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 (Next.js) — em andamento
 
+- **2026-08-12 (acabamento do perfil global)** — O background do perfil no
+  `GlobalNav` deixou de depender de uma cor sólida mascarada. O fallback agora
+  é um gradiente transparente próprio, e `background_url` ocupa uma segunda
+  camada com máscaras CSS padrão e WebKit. As duas camadas se dissolvem no
+  fundo da navegação sem formar uma faixa retangular; avatar, nome, link
+  “Início” e comportamento mobile foram preservados. Nenhuma mudança de banco,
+  dependência ou integração foi necessária.
+
 - **2026-08-12 (correções após o primeiro deploy do polimento final)** — O
   perfil deixou de ser uma exceção da Biblioteca e substituiu “Sistema
   Pessoal” no topo de todas as rotas autenticadas, mantendo “Início” como
