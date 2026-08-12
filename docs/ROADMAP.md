@@ -125,7 +125,8 @@ frontend ativo. Revisão Espaçada e Agenda ganharam páginas dedicadas em
 |---|---|---|
 | 7.0 | Setup do projeto Next.js — estrutura de pastas, `lib/supabase.ts`, `proxy.ts` (renomeado de `middleware.ts`, DEC-031), layout base, CSS global | ✅ Completo |
 | 7.1 | Treino v2 | ✅ Completo — pendências de polimento em `BACKLOG.md` (gráfico de peso, upload de imagem de exercício) |
-| 7.2 | Biblioteca v2 | ✅ Vídeos e Artigos integrados à página única; migrations das novas tabelas e do vínculo Vídeo → Curso aplicadas em produção; lote liberado para publicação, restando testes manuais finais |
+| 7.2 | Biblioteca v2 | ✅ Vídeos e Artigos integrados à página única; migrations aplicadas em produção; gêneros das seis categorias originais persistidos pela UI e menu compartilhado corrigido, restando testes manuais finais |
 | 7.3 | Estudos v2 (Fase 1 + Fase 1B) | ✅ 9 rotas de página implementadas e restilizadas (Tailwind/shadcn), incluindo `/estudos/enem/[area]`; schema estendido por `017`/`018`/`019` (gabarito ENEM em 2 fases, matéria única Escola/ENEM, domínio de conteúdo) — todas as migrations confirmadas executadas via dump real do banco (2026-08). Acesso principal passou no smoke de produção; teste profundo das 9 rotas internas permanece opcional — ver `TASKS_NOW.md` |
 | 7.4 | Revisão Espaçada v2 (página dedicada) | ✅ `/revisao` implementada com listas pendente/futura, avaliação SM-2, card manual e soft delete; validação manual fica para a etapa final |
 | 7.5 | Agenda v2 | ✅ Implementada e liberada para publicação: visão semanal, CRUD, cronograma de estudo, provas sem duplicação e vínculo com treino; migration incremental aplicada em produção |
+| 7.6 | Dashboard/hub operacional | ✅ Resumo real de tempo estudado, Agenda do dia e revisões pendentes sobre as entidades existentes, sem migration |

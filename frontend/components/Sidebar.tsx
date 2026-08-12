@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+import { Tags } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import styles from './Sidebar.module.css';
 import { getSession } from '@/lib/supabase';
@@ -19,6 +21,7 @@ interface SidebarProps {
   rotuloAdicionar?: string;
   busca?: string;
   onBuscaChange?: (valor: string) => void;
+  acaoSecundaria?: { href: string; label: string };
 }
 
 interface PerfilUsuario {
@@ -35,6 +38,7 @@ export default function Sidebar({
   rotuloAdicionar = 'Adicionar',
   busca = '',
   onBuscaChange,
+  acaoSecundaria,
 }: SidebarProps) {
   const [perfil, setPerfil] = useState<PerfilUsuario | null>(null);
 
@@ -107,6 +111,7 @@ export default function Sidebar({
               return (
                 <li key={item.id}>
                   <button
+                    type="button"
                     className={`${styles.item} ${ativo ? styles.itemAtivo : ''}`}
                     onClick={() => onSelecionar(item.id)}
                   >
@@ -124,7 +129,13 @@ export default function Sidebar({
       </div>
 
       <div className={styles.rodape}>
-        <button className={styles.btnAdicionar} onClick={onAdicionar}>
+        {acaoSecundaria ? (
+          <Link href={acaoSecundaria.href} className={styles.btnSecundario}>
+            <Tags aria-hidden="true" />
+            {acaoSecundaria.label}
+          </Link>
+        ) : null}
+        <button type="button" className={styles.btnAdicionar} onClick={onAdicionar}>
           + {rotuloAdicionar}
         </button>
       </div>

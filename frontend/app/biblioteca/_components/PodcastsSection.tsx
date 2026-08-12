@@ -16,7 +16,7 @@ import SeletorGenero from '@/components/SeletorGenero';
 import BibliotecaBanner from './BibliotecaBanner';
 import BibliotecaCard from './BibliotecaCard';
 import { sb, getUserId } from '@/lib/supabase';
-import { getGeneros, getGenerosDoItem } from '@/lib/generos';
+import { getGeneros, getMapaGenerosDosItens, salvarGenerosDoItem, seedGenerosSeNecessario } from '@/lib/generos';
 import type { Genero } from '@/lib/generos';
 import styles from './BibliotecaSection.module.css';
 
@@ -59,21 +59,20 @@ export default function PodcastsSection({ gatilhoAdicionar, busca = '', onTotalC
   const [generosSelecionados, setGenerosSelecionados] = useState<string[]>([]);
   const [generosPorItem, setGenerosPorItem] = useState<Record<string, Genero[]>>({});
 
-  async function carregarGeneros() {
-    const userId = await getUserId();
-    if (!userId) return;
-    const lista = await getGeneros(sb, userId);
-    setGeneros(lista);
-  }
-
   async function carregarGenerosDosItens(lista: Podcast[]) {
     const userId = await getUserId();
     if (!userId) return;
+    await seedGenerosSeNecessario(sb, userId);
+    const [generosAtuais, uuidsPorItem] = await Promise.all([
+      getGeneros(sb, userId),
+      getMapaGenerosDosItens(sb, userId, 'podcasts', lista.map((item) => item.uuid)),
+    ]);
+    setGeneros(generosAtuais);
+    const generosPorUuid = new Map(generosAtuais.map((genero) => [genero.uuid, genero]));
     const mapa: Record<string, Genero[]> = {};
     for (const item of lista) {
-      const uuids = await getGenerosDoItem(sb, userId, 'podcasts', item.uuid);
-      mapa[item.uuid] = uuids
-        .map((uid) => generos.find((g) => g.uuid === uid))
+      mapa[item.uuid] = (uuidsPorItem[item.uuid] ?? [])
+        .map((uid) => generosPorUuid.get(uid))
         .filter((g): g is Genero => g != null);
     }
     setGenerosPorItem(mapa);
@@ -94,8 +93,8 @@ export default function PodcastsSection({ gatilhoAdicionar, busca = '', onTotalC
   }
 
   useEffect(() => {
-    carregar();
-    carregarGeneros();
+    const timeoutId = window.setTimeout(() => void carregar(), 0);
+    return () => window.clearTimeout(timeoutId);
   }, []);
 
   useEffect(() => {
@@ -140,8 +139,13 @@ export default function PodcastsSection({ gatilhoAdicionar, busca = '', onTotalC
     if (resultado === null) {
       setErro('Não foi possível salvar o podcast.');
     } else {
+      const userId = await getUserId();
+      const { error: erroGeneros } = userId
+        ? await salvarGenerosDoItem(sb, userId, 'podcasts', resultado.uuid, generosSelecionados)
+        : { error: 'Sessão indisponível' };
       fecharModal();
       await carregar();
+      if (erroGeneros) setErro('Podcast salvo, mas não foi possível salvar os gêneros.');
     }
     setSalvando(false);
   }

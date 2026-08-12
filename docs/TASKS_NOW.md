@@ -9,7 +9,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 **Bloqueio:** nenhum bloqueio de banco conhecido para publicar o lote Biblioteca Vídeos/Artigos + Vídeo → Curso.
 **Banco:** produção está alinhada até `20260811000300_conteudos_video.sql`; aplicação e pós-check remoto concluídos em 2026-08-12.
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** publicar o lote validado e realizar os testes manuais detalhados na etapa final.
+**Próxima ação:** realizar os testes manuais detalhados e o polimento visual fino na etapa final.
 
 ---
 
@@ -26,6 +26,14 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] Navegação funcionando em produção para `/treino`, `/biblioteca` e `/estudos` (2026-08-09)
 - [x] Logout validado em produção pelo usuário (2026-08-09)
 - [x] Problemas observados no smoke test online: nenhum relatado pelo usuário
+
+## Hub operacional v2
+
+- [x] Resumo de tempo estudado hoje, na semana atual e no mês atual usando `sessoes_estudo`
+- [x] Compromissos e provas pendentes do dia exibidos sem duplicar dados da Agenda/Estudos
+- [x] Revisões vencidas e para hoje exibidas com acesso direto a `/revisao`
+- [x] Loading, falha parcial, estado vazio e atualização manual implementados
+- [ ] Validar visualmente o Hub com dados reais em desktop e mobile na etapa final
 
 ## Integrações externas futuras
 
@@ -85,7 +93,7 @@ no projeto — esta será a primeira.
 
 ## Pendências de polimento
 
-Ver `BACKLOG.md` — menu "⋯" não fecha ao clicar fora, upload de capa/banner manual e edição de itens em listas aninhadas.
+Ver `BACKLOG.md` — upload de capa/banner, edição de itens em listas aninhadas e integrações externas continuam futuras. O menu de ações da Biblioteca agora fecha por clique externo e Escape.
 
 ## 🟡 Biblioteca v2 — Vídeos, Artigos e vínculo com Cursos
 
@@ -100,4 +108,7 @@ Ver `BACKLOG.md` — menu "⋯" não fecha ao clicar fora, upload de capa/banner
 - [x] Tela de Curso identifica aulas da Biblioteca, abre o vídeo e controla teoria/domínio separadamente
 - [x] Duplicação do mesmo vídeo no mesmo curso bloqueada pela camada de dados/UI
 - [x] `20260811000300_conteudos_video.sql` aplicada em produção e pós-check remoto concluído (2026-08-12)
+- [x] Gêneros carregados em lote e persistidos ao criar/editar filmes, séries, animes, mangás, livros e podcasts
+- [x] Gêneros padrão inicializados quando necessário e gerenciamento acessível pela sidebar
+- [x] Menu de ações dos cards fecha por clique externo e Escape
 - [ ] Validar manualmente os dois fluxos na etapa final

@@ -203,6 +203,36 @@
   padding: 0.65rem 0.75rem;
   border-top: 1px solid var(--border);
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.btnSecundario {
+  width: 100%;
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  color: var(--texto-secundario);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: border-color 0.12s, color 0.12s;
+}
+
+.btnSecundario svg {
+  width: 14px;
+  height: 14px;
+}
+
+.btnSecundario:hover {
+  color: var(--text);
+  border-color: var(--accent);
 }
 
 .btnAdicionar {

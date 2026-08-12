@@ -17,7 +17,7 @@ import SeletorGenero from '@/components/SeletorGenero';
 import BibliotecaBanner from './BibliotecaBanner';
 import BibliotecaCard from './BibliotecaCard';
 import { sb, getUserId } from '@/lib/supabase';
-import { getGeneros, getGenerosDoItem } from '@/lib/generos';
+import { getGeneros, getMapaGenerosDosItens, salvarGenerosDoItem, seedGenerosSeNecessario } from '@/lib/generos';
 import type { Genero } from '@/lib/generos';
 import styles from './BibliotecaSection.module.css';
 
@@ -62,21 +62,20 @@ export default function FilmesSection({ gatilhoAdicionar, busca = '', onTotalCar
   const [generosSelecionados, setGenerosSelecionados] = useState<string[]>([]);
   const [generosPorFilme, setGenerosPorFilme] = useState<Record<string, Genero[]>>({});
 
-  async function carregarGeneros() {
-    const userId = await getUserId();
-    if (!userId) return;
-    const lista = await getGeneros(sb, userId);
-    setGeneros(lista);
-  }
-
   async function carregarGenerosDosFilmes(filmesLista: Filme[]) {
     const userId = await getUserId();
     if (!userId) return;
+    await seedGenerosSeNecessario(sb, userId);
+    const [lista, uuidsPorFilme] = await Promise.all([
+      getGeneros(sb, userId),
+      getMapaGenerosDosItens(sb, userId, 'filmes', filmesLista.map((filme) => filme.uuid)),
+    ]);
+    setGeneros(lista);
+    const generosPorUuid = new Map(lista.map((genero) => [genero.uuid, genero]));
     const mapa: Record<string, Genero[]> = {};
     for (const f of filmesLista) {
-      const uuids = await getGenerosDoItem(sb, userId, 'filmes', f.uuid);
-      mapa[f.uuid] = uuids
-        .map((uid) => generos.find((g) => g.uuid === uid))
+      mapa[f.uuid] = (uuidsPorFilme[f.uuid] ?? [])
+        .map((uid) => generosPorUuid.get(uid))
         .filter((g): g is Genero => g != null);
     }
     setGenerosPorFilme(mapa);
@@ -97,8 +96,8 @@ export default function FilmesSection({ gatilhoAdicionar, busca = '', onTotalCar
   }
 
   useEffect(() => {
-    carregar();
-    carregarGeneros();
+    const timeoutId = window.setTimeout(() => void carregar(), 0);
+    return () => window.clearTimeout(timeoutId);
   }, []);
 
   useEffect(() => {
@@ -149,8 +148,13 @@ export default function FilmesSection({ gatilhoAdicionar, busca = '', onTotalCar
     if (resultado === null) {
       setErro('Não foi possível salvar o filme.');
     } else {
+      const userId = await getUserId();
+      const { error: erroGeneros } = userId
+        ? await salvarGenerosDoItem(sb, userId, 'filmes', resultado.uuid, generosSelecionados)
+        : { error: 'Sessão indisponível' };
       fecharModal();
       await carregar();
+      if (erroGeneros) setErro('Filme salvo, mas não foi possível salvar os gêneros.');
     }
     setSalvando(false);
   }

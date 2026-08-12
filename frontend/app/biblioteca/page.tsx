@@ -140,6 +140,7 @@ export default function BibliotecaPage() {
           rotuloAdicionar="Adicionar obra"
           busca={busca}
           onBuscaChange={setBusca}
+          acaoSecundaria={{ href: '/biblioteca/generos', label: 'Gerenciar gêneros' }}
         />
       </div>
       <div className={layoutStyles.contentWrapper}>

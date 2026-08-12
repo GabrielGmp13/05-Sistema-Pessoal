@@ -109,11 +109,20 @@
   border: none;
   color: #ccc;
   border-radius: 6px;
-  padding: 0.1rem 0.42rem;
+  width: 30px;
+  height: 30px;
+  padding: 0;
   cursor: pointer;
-  font-size: 0.88rem;
   opacity: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition: opacity 0.15s, background 0.15s;
+}
+
+.btnIcon svg {
+  width: 16px;
+  height: 16px;
 }
 
 .card:hover .btnIcon,
@@ -149,6 +158,14 @@
   text-align: left;
   cursor: pointer;
   font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.menuDropdown button svg {
+  width: 14px;
+  height: 14px;
 }
 
 .menuDropdown button:hover {

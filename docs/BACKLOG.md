@@ -61,9 +61,8 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 - [x] Cronograma/planejamento temporal de estudo pertence à Agenda; Estudos
       permanece fonte de verdade de matérias, conteúdos e provas. Metas e
       prioridades avançadas continuam fora do escopo atual.
-- [ ] Widgets de tempo estudado no Hub (hoje / semana / mês) — sessões já
-      podem ser registradas nas telas de Matéria e Curso; falta apenas definir
-      e implementar a agregação no Hub quando houver dados reais suficientes.
+- [x] Widgets de tempo estudado no Hub (hoje / semana / mês) — implementados
+      em 2026-08-12 com agregação real de `sessoes_estudo` no fuso local.
 - [ ] Campo "questões anuladas" em `simulados` — presente no rascunho
       original do módulo, sem equivalente no schema atual.
 
@@ -71,10 +70,10 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 
 - [ ] Revisar `NAMING_CONVENTIONS.md` de classes CSS — hoje há mistura de prefixo por página (`.rev-`, `.cal-`, `.ex-`) com nomes genéricos (`.btn-sm`, `.toast`); avaliar se vale padronizar
 - [ ] Auditoria completa do CSS contra `DESIGN.md` para confirmar que todas as classes documentadas realmente existem
-- [ ] `frontend/README.md` ainda é o boilerplate padrão do Create Next App (menciona Geist/`next/font`, mas o projeto usa Syne e JetBrains Mono self-hosted) — reescrever com setup real do projeto
+- [x] `frontend/README.md` reconciliado com o setup real, toolchain, variáveis e validações do projeto.
 - [x] `estrutura.txt` substituído em 2026-08-08 por um mapa conciso da estrutura atual; não incluir novamente dumps de `.next`/`node_modules`.
-- [ ] SVGs padrão do Create Next App (`file.svg`, `globe.svg`, `next.svg`, `vercel.svg`, `window.svg`) sem nenhuma referência no código — limpar
-- [ ] `frontend/app/page.module.css` não é importado pela página atual — órfão, confirmar e remover
+- [x] SVGs padrão do Create Next App confirmados ausentes de `frontend/public/`.
+- [x] `frontend/app/page.module.css` confirmado ausente; o Hub atual usa Tailwind.
 - [ ] Recapturar snapshots de produção periodicamente e comparar com a cadeia ativa em `backend/supabase/migrations/` — nunca usar o acervo `history/legacy-migrations/` como referência operacional.
 
 ## Biblioteca
@@ -92,14 +91,16 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
       Curso. O fluxo inicial mantém `assistido`, `teoria_vista` e domínio
       independentes por decisão; só reavaliar após uso real.
 
-- [ ] Integrar o seletor de gênero (B1, `SeletorGenero`/`lib/generos.ts`) nas 6 telas novas (filmes, séries, animes, mangás, livros, podcasts) — deixado de fora deliberadamente ao gerar cada tela
+- [x] Seletor de gênero integrado de ponta a ponta nas 6 categorias originais:
+      leitura em lote, seleção no formulário, persistência ao criar/editar,
+      seed seguro e acesso ao gerenciamento pela sidebar (2026-08-12).
 - [ ] Upload de capa/banner — o bucket privado `capas` e suas policies estão versionados em `001_schema_inicial.sql`, mas não existe UI de upload; `banner_path` não tem bucket definido. Hoje a interface usa apenas `capa_url`/`banner_url` (link externo)
 - [ ] Integração de busca por API externa (TMDB, Google Books, Jikan, iTunes) nas telas novas da Biblioteca v2 — a v1 tinha essa integração, as 6 telas v2 geradas até agora são só cadastro manual. TMDB é a única que exige API Route (segredo) — nenhuma `app/api/**` existe ainda no projeto (confirmado por inspeção, 2026-08), então essa é a motivação real mais próxima pra criar a primeira.
 - [ ] Edição de itens já criados em listas aninhadas (elenco, trilha sonora, temporadas, openings/endings, volumes) — hoje só dá pra criar ou apagar; os únicos campos editáveis depois de criado são os toggles (`lido`, `filler`, `assistido`)
 - [ ] Reordenação manual (drag-and-drop) do campo `ordem` em elenco/trilha sonora/openings-endings/volumes — hoje `ordem` só reflete sequência de criação
-- [ ] `animes_generos` (schema já existe desde `009_biblioteca_v2_b3.sql`) sem `lib/` nem UI — nenhuma tela permite associar gênero a um anime ainda
+- [x] `animes_generos` consumida por `lib/generos.ts` e pela UI de Animes.
 - [x] `confirm()` nativo do navegador ao apagar item — as 10 ocorrências em Biblioteca e Treino foram substituídas pelo `ConfirmDialog` reutilizável em 2026-08-11; busca no frontend ficou zerada.
-- [ ] Menu de ações "⋯" (Editar/Apagar) nos cards não fecha sozinho ao clicar fora — só fecha ao escolher uma opção ou clicar de novo no próprio botão
+- [x] Menu de ações dos cards fecha por clique externo e Escape, com foco devolvido ao botão quando fechado pelo teclado (2026-08-12).
 - [ ] Velocidade de leitura (páginas/hora) em Livros (B5) — `paginas_total`/`pagina_atual` permitem progresso, mas não velocidade; exigiria registro de sessões de leitura com data, não desenhado ainda (ver DEC-029)
 - [ ] Imagens estáticas de banner por categoria (`public/biblioteca/banners/{filmes,series,animes,mangas,livros,podcasts,videos,artigos}.jpg`) — suporte já existe no `BibliotecaBanner` (DEC-034), mas depende do usuário fornecer as imagens; sem elas, cada categoria usa mosaico de capas ou fallback visual. Confirmado que ao menos `animes.jpg` já está versionado.
 - [ ] Perfil da sidebar (avatar + imagem de fundo) depende de `user_metadata.avatar_url`/`background_url` no Supabase Auth, hoje vazios — sem UI de "editar perfil" no sistema; população precisa ser manual via SQL/dashboard do Supabase até existir uma tela de Configurações (ver `VISION.md`)
@@ -113,7 +114,12 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 
 ## Dívida técnica de código (achados da auditoria de 2026-08)
 
-- [ ] Lint: 43 achados em 33 arquivos (auditoria reproduzível de 2026-08-08): 26 erros `react-hooks/set-state-in-effect`, 2 erros `no-explicit-any`, 11 warnings `exhaustive-deps` e 4 warnings `no-img-element`. Cinco warnings triviais de imports/tipo não usados foram removidos nesta auditoria. Investigar o restante caso a caso; não suprimir nem corrigir em lote sem revisar comportamento. Até isso ser resolvido, lint é informativo na CI.
+- [ ] Lint: 44 achados na execução reproduzível de 2026-08-12: 23 erros
+      `react-hooks/set-state-in-effect`, 2 `no-explicit-any`, 2
+      `react/no-unescaped-entities`, 13 warnings `exhaustive-deps` e 4
+      `no-img-element`. Seis erros de efeito nas categorias originais da
+      Biblioteca foram removidos neste lote após revisão do comportamento.
+      Investigar o restante caso a caso; lint continua informativo na CI.
 - [ ] npm 12 bloqueia por padrão os scripts de instalação transitivos de `sharp@0.34.5` e `unrs-resolver@1.12.2`. Instalação, typecheck e build passaram nesse estado; não aprovar scripts cegamente. Reavaliar somente se uma plataforma limpa demonstrar falha funcional (especialmente otimização de imagens ou resolução nativa).
 - [ ] `@types/node` permanece na linha 20, herdada do setup do Next, enquanto o runtime é Node 24. Typecheck e build passam e o código não depende de APIs exclusivas da major 24; alinhar os tipos apenas numa atualização deliberada, sem misturar com feature.
 - [ ] Hardening do banco, sempre em migrations incrementais separadas: revisar o `GRANT ALL` atual de `authenticated`; policies/`WITH CHECK` de `redacoes` e `exercicios`; `materias.user_id` sem cascade; ausência de `materias_tipo_check`; e a configuração `SECURITY DEFINER`/`search_path` de `public.rls_auto_enable()`. A baseline apenas preserva esses estados e nunca deve ser editada para corrigi-los.

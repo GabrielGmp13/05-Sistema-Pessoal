@@ -120,7 +120,7 @@ export async function softDeleteGenero(sb: SB, uuid: string): Promise<{ error: s
 // ---------- Junções por tipo (usado pela B2 em diante) ----------
 // Nome da tabela de junção e da coluna FK do item variam por tipo — ver DATABASE.md.
 
-type TipoMidia = 'livros' | 'filmes' | 'series' | 'animes' | 'mangas' | 'podcasts'
+export type TipoMidia = 'livros' | 'filmes' | 'series' | 'animes' | 'mangas' | 'podcasts'
 
 const JUNCAO: Record<TipoMidia, { tabela: string; coluna: string }> = {
   livros:   { tabela: 'livros_generos',   coluna: 'livro_uuid' },
@@ -131,22 +131,36 @@ const JUNCAO: Record<TipoMidia, { tabela: string; coluna: string }> = {
   podcasts: { tabela: 'podcasts_generos', coluna: 'podcast_uuid' },
 }
 
-export async function getGenerosDoItem(
-  sb: SB, userId: string, tipo: TipoMidia, itemUuid: string
-): Promise<string[]> {
+/** Busca as juncoes de varios itens em uma unica consulta. */
+export async function getMapaGenerosDosItens(
+  sb: SB,
+  userId: string,
+  tipo: TipoMidia,
+  itemUuids: string[],
+): Promise<Record<string, string[]>> {
+  if (itemUuids.length === 0) return {}
+
   const { tabela, coluna } = JUNCAO[tipo]
   const { data, error } = await sb
     .from(tabela)
-    .select('genero_uuid')
+    .select(`${coluna}, genero_uuid`)
     .eq('user_id', userId)
-    .eq(coluna, itemUuid)
     .eq('deleted', false)
+    .in(coluna, itemUuids)
 
   if (error) {
-    console.error('[getGenerosDoItem]', error)
-    return []
+    console.error('[getMapaGenerosDosItens]', error)
+    return {}
   }
-  return (data ?? []).map((l: { genero_uuid: string }) => l.genero_uuid)
+
+  const mapa: Record<string, string[]> = {}
+  const linhas = (data ?? []) as unknown as Array<Record<string, string>>
+  for (const linha of linhas) {
+    const itemUuid = linha[coluna]
+    if (!itemUuid) continue
+    mapa[itemUuid] = [...(mapa[itemUuid] ?? []), linha.genero_uuid]
+  }
+  return mapa
 }
 
 // Substitui a lista completa de gêneros de um item (apaga os antigos, insere os novos).

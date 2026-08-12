@@ -17,7 +17,7 @@ import SeletorGenero from '@/components/SeletorGenero';
 import BibliotecaBanner from './BibliotecaBanner';
 import BibliotecaCard from './BibliotecaCard';
 import { sb, getUserId } from '@/lib/supabase';
-import { getGeneros, getGenerosDoItem } from '@/lib/generos';
+import { getGeneros, getMapaGenerosDosItens, salvarGenerosDoItem, seedGenerosSeNecessario } from '@/lib/generos';
 import type { Genero } from '@/lib/generos';
 import styles from './BibliotecaSection.module.css';
 
@@ -69,21 +69,20 @@ export default function LivrosSection({ gatilhoAdicionar, busca = '', onTotalCar
   const [generosSelecionados, setGenerosSelecionados] = useState<string[]>([]);
   const [generosPorItem, setGenerosPorItem] = useState<Record<string, Genero[]>>({});
 
-  async function carregarGeneros() {
-    const userId = await getUserId();
-    if (!userId) return;
-    const lista = await getGeneros(sb, userId);
-    setGeneros(lista);
-  }
-
   async function carregarGenerosDosItens(lista: Livro[]) {
     const userId = await getUserId();
     if (!userId) return;
+    await seedGenerosSeNecessario(sb, userId);
+    const [generosAtuais, uuidsPorItem] = await Promise.all([
+      getGeneros(sb, userId),
+      getMapaGenerosDosItens(sb, userId, 'livros', lista.map((item) => item.uuid)),
+    ]);
+    setGeneros(generosAtuais);
+    const generosPorUuid = new Map(generosAtuais.map((genero) => [genero.uuid, genero]));
     const mapa: Record<string, Genero[]> = {};
     for (const item of lista) {
-      const uuids = await getGenerosDoItem(sb, userId, 'livros', item.uuid);
-      mapa[item.uuid] = uuids
-        .map((uid) => generos.find((g) => g.uuid === uid))
+      mapa[item.uuid] = (uuidsPorItem[item.uuid] ?? [])
+        .map((uid) => generosPorUuid.get(uid))
         .filter((g): g is Genero => g != null);
     }
     setGenerosPorItem(mapa);
@@ -104,8 +103,8 @@ export default function LivrosSection({ gatilhoAdicionar, busca = '', onTotalCar
   }
 
   useEffect(() => {
-    carregar();
-    carregarGeneros();
+    const timeoutId = window.setTimeout(() => void carregar(), 0);
+    return () => window.clearTimeout(timeoutId);
   }, []);
 
   useEffect(() => {
@@ -155,8 +154,13 @@ export default function LivrosSection({ gatilhoAdicionar, busca = '', onTotalCar
     if (resultado === null) {
       setErro('Não foi possível salvar o livro.');
     } else {
+      const userId = await getUserId();
+      const { error: erroGeneros } = userId
+        ? await salvarGenerosDoItem(sb, userId, 'livros', resultado.uuid, generosSelecionados)
+        : { error: 'Sessão indisponível' };
       fecharModal();
       await carregar();
+      if (erroGeneros) setErro('Livro salvo, mas não foi possível salvar os gêneros.');
     }
     setSalvando(false);
   }
@@ -207,8 +211,6 @@ export default function LivrosSection({ gatilhoAdicionar, busca = '', onTotalCar
 
       <div className={styles.container}>
         {erro && <p className={styles.erro}>{erro}</p>}
-
-      {erro && <p className={styles.erro}>{erro}</p>}
 
       {carregando ? (
         <p className={styles.vazio}>Carregando...</p>

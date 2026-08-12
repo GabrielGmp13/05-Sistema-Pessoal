@@ -54,7 +54,7 @@ operacional.
 **Deploy:** ✅ em produção no Vercel desde 2026-07-13 (não "pendente" — ver `ARCHITECTURE.md`)
 **Schema:** baseline confirmada via dump real em 2026-08 com 44 tabelas; a migration de Vídeos/Artigos, aplicada em produção em 2026-08-11, elevou o total para 46 (ver `DATABASE.md`)
 **Histórico CLI:** adotado em produção em 2026-08-08 — as três baselines e as migrations incrementais de Agenda, Vídeos/Artigos e vínculo Vídeo → Curso estão registradas como `applied`; pós-check remoto sem pendências em 2026-08-12
-**Reprodutibilidade:** Node.js `24.15.0`, npm `12.0.1`, `npm ci`, typecheck e build validados; CI mínima ativa. Lint mantém 43 achados conhecidos e informativos.
+**Reprodutibilidade:** Node.js `24.15.0`, npm `12.0.1`, `npm ci`, typecheck e build validados; CI mínima ativa. Lint mantém 44 achados conhecidos e informativos na medição de 2026-08-12.
 **Próxima tarefa imediata:** ver `TASKS_NOW.md`
 
 ---

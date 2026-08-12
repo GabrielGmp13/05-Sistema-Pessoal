@@ -20,6 +20,16 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 (Next.js) — em andamento
 
+- **2026-08-12 (cont.)** — Hub inicial transformado em painel operacional
+  com tempo estudado hoje/semana/mês, compromissos e provas do dia e revisões
+  pendentes, todos derivados das tabelas existentes e com estados de loading,
+  vazio e falha parcial. Na Biblioteca, o fluxo de gêneros das seis categorias
+  originais foi completado: seed quando necessário, leitura em lote,
+  persistência na criação/edição e acesso ao gerenciamento pela sidebar. O
+  menu compartilhado dos cards agora fecha por clique externo e Escape. Seis
+  erros de lint em efeitos das telas tocadas foram removidos; nenhuma migration,
+  dependência ou operação remota foi necessária.
+
 - **2026-08-11 (cont.)** — Migration de Vídeos/Artigos aplicada em produção.
   Implementado localmente o fluxo manual Vídeo → Curso: escolha explícita de
   curso e módulo existente ou novo, criação de conteúdo com FK opcional para
