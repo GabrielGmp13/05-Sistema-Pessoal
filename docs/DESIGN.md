@@ -6,15 +6,12 @@ Referência visual para qualquer IA ou dev gerar páginas novas sem quebrar a co
 
 ## Paleta de cores
 
-**Atualizada em 2026-07-25 (DEC-037)** — nova paleta padrão do sistema,
-gerada a partir do design aprovado no v0.dev para Estudos v2. Aplicada a
-Dashboard, Treino e Estudos via `globals.css`. **Exceção: Biblioteca**
-mantém a paleta dourada/âmbar da DEC-034 (ver bloco "Exceção — Biblioteca"
-abaixo) — decisão explícita do usuário, não migrada junto.
+**Atualizada em 2026-08-12 (DEC-049)** — a paleta aprovada na DEC-037 é o
+padrão de todos os módulos, incluindo Biblioteca. A antiga exceção dourada
+da Biblioteca foi removida após o teste manual final.
 
 Diferente da DEC-034 (só modo escuro), esta paleta tem **modo claro e
-escuro reais**, com toggle funcional no sistema inteiro exceto Biblioteca
-(DEC-039).
+escuro reais**, com toggle funcional no sistema inteiro (DEC-039/049).
 
 ```css
 /* Claro (:root) e escuro (.dark) — valores completos em oklch() no
@@ -36,24 +33,6 @@ escuro reais**, com toggle funcional no sistema inteiro exceto Biblioteca
 é monocromática (cinza/branco) — cor só aparece em estados semânticos
 específicos (badge de sucesso, item ativo). No modo claro, o verde aparece
 com mais presença. Isso é intencional do design aprovado, não bug.
-
-### Exceção — Biblioteca (DEC-034, mantida)
-
-```css
---bg:      #0c0c14
---surface: #13131f
---surface-2: #1a1a28
---border:  rgba(255, 255, 255, 0.07)
---accent:  #c9a96e
---accent-wash: rgba(201, 169, 110, 0.12)
---accent-wash-forte: rgba(201, 169, 110, 0.2)
---text:    #ede9e1
---texto-secundario: #8a8799
-```
-
-Aplicada via classe `.bibliotecaTheme` em `app/biblioteca/layout.tsx` —
-fixa, sem modo claro, sem toggle (DEC-039). Nenhum componente da Biblioteca
-precisou mudar.
 
 Cores secundárias usadas em contexto (não são variáveis CSS formais, mas aparecem consistentemente):
 
@@ -141,22 +120,22 @@ Duas variantes: `.ok` (borda `--accent`) e `.erro` (borda `#ff6b6b`).
 
 ---
 
-## Padrão: Sidebar de módulo com perfil (novo, 2026-07-20)
+## Padrão: Sidebar de módulo
 
 Introduzido na Biblioteca v2 (DEC-032 + DEC-034), pensado como componente
 genérico reutilizável (`components/Sidebar.tsx`) para futuros módulos com
 navegação por categoria.
 
 **Estrutura, de cima pra baixo:**
-1. **Faixa de perfil** (78px de altura): imagem de fundo opcional
-   (`user_metadata.background_url`) com overlay escuro em gradiente, avatar
-   circular com anel `--accent` sobreposto, nome + subtítulo neutro (nunca
-   rótulo de plano pago — ver DEC-034)
-2. **Campo de busca** (opcional, controlado pelo componente pai)
-3. **Rótulo de seção** (ex: "Biblioteca") — uppercase, pequeno, `--texto-secundario`
-4. **Lista de itens** — ícone + label + badge de contagem. **O badge de
+1. **Campo de busca** (opcional, controlado pelo componente pai)
+2. **Rótulo de seção** (ex: "Biblioteca") — uppercase, pequeno, `--texto-secundario`
+3. **Lista de itens** — ícone + label + badge de contagem. **O badge de
    contagem só aparece no item ativo**, não em todos simultaneamente
-5. **Rodapé fixo** — botão primário de ação (ex: "+ Adicionar obra")
+4. **Rodapé** — ação secundária opcional e botão primário (ex: "+ Adicionar obra")
+
+Nas rotas da Biblioteca, o perfil fica no início da navegação global (DEC-049):
+avatar maior, nome ao lado e `user_metadata.background_url` degradando até a
+barra. A sidebar não duplica perfil.
 
 Item ativo: `border-left: 2px solid var(--accent)`, fundo `--accent-wash`,
 texto `--accent`.

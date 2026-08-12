@@ -6,10 +6,10 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 
 ## Status geral
 **Fase atual:** Fase 7 (v2) — v1 aposentada (DEC-031), `frontend/` é o único frontend ativo. Hub inicial v2, navegação global e logout visível implementados; Biblioteca e Treino v2 funcionalmente prontos; Estudos v2 com 9 rotas de página implementadas e restilizadas, correções de modelagem de 2026-08 aplicadas.
-**Bloqueio:** nenhum bloqueio de banco conhecido para publicar o lote Biblioteca Vídeos/Artigos + Vídeo → Curso.
-**Banco:** produção está alinhada até `20260811000300_conteudos_video.sql`; aplicação e pós-check remoto concluídos em 2026-08-12.
+**Bloqueio:** nenhum bloqueio de banco conhecido para publicar o lote final de polimento da v2.
+**Banco:** produção está alinhada até `20260812000100_revisao_arquivados.sql`; a migration de arquivamento da Revisão foi aplicada em 2026-08-12 após dry-run limpo, com pós-check remoto sem pendências.
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** executar o teste manual autenticado definitivo, com dados reais, em desktop e mobile; a auditoria local final e as correções automáticas foram concluídas em 2026-08-12.
+**Próxima ação:** publicar o lote final de polimento e retomar o teste manual autenticado em desktop e mobile.
 
 ---
 
@@ -47,6 +47,18 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] Biblioteca não reaproveita o gatilho de adicionar ao trocar de categoria; menus fecham após escolher uma ação e ficam acessíveis em telas sem hover
 - [x] Typecheck aprovado; lint informativo reduzido para 40 achados conhecidos
 - [ ] Teste manual autenticado definitivo com dados reais, incluindo responsividade e operações CRUD
+
+## Ajustes do teste manual final — lote local de 2026-08-12
+
+- [x] Contraste e estados do botão de login corrigidos nos temas claro e escuro
+- [x] Navegação global reorganizada responsivamente para não cortar “Agenda”
+- [x] Hub ganhou bloco compacto e navegável de provas futuras, lendo `provas`
+- [x] Biblioteca passou a seguir o tema global; perfil foi movido da sidebar para o topo e as rolagens internas concorrentes foram removidas
+- [x] Revisão ganhou filtro de Arquivados, restauração e separação entre arquivar e apagar
+- [x] `20260812000100_revisao_arquivados.sql` passou em reset local e na suíte SQL completa
+- [x] Importação Anki auditada e mantida fora desta leva por exigir parser de pacote SQLite/ZIP e decisões de mapeamento
+- [x] Dry-run remoto limpo, migration aplicada em produção com autorização explícita e pós-check sem pendências (2026-08-12)
+- [ ] Publicar e repetir o teste manual de login, Hub, Biblioteca e Revisão em desktop/mobile
 
 ## Integrações externas futuras
 

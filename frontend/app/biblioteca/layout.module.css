@@ -1,23 +1,33 @@
 .layout {
   display: flex;
-  min-height: 100vh; /* full viewport height */
+  min-height: calc(100dvh - 5.75rem);
 }
 
 .sidebarWrapper {
   width: 22.222%; /* 2/9 */
   flex-shrink: 0;
   position: sticky;
-  top: 0;
-  height: 100vh;
+  top: 5.75rem;
+  height: calc(100dvh - 5.75rem);
   overflow-y: auto;
-  border-right: 1px solid var(--border);
 }
 
 .contentWrapper {
   width: 77.778%; /* 7/9 */
   flex: 1;
   min-width: 0;
-  overflow-y: auto;
+  background: var(--bg);
+}
+
+@media (min-width: 1024px) {
+  .layout {
+    min-height: calc(100dvh - 3.5rem);
+  }
+
+  .sidebarWrapper {
+    top: 3.5rem;
+    height: calc(100dvh - 3.5rem);
+  }
 }
 
 @media (max-width: 720px) {
@@ -30,6 +40,7 @@
     width: 100%;
     height: auto;
     position: static;
+    overflow: visible;
     border-right: none;
     border-bottom: 1px solid var(--border);
   }

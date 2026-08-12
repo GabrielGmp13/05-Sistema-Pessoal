@@ -16,6 +16,7 @@ export interface CardRevisao {
   repeticoes: number
   intervalo_dias: number
   proxima_revisao: string // DATE (YYYY-MM-DD)
+  arquivado: boolean
   updated_at: string
   deleted: boolean
 }
@@ -162,11 +163,47 @@ export async function listarCardsRevisao(): Promise<CardRevisao[] | null> {
     .select('*')
     .eq('user_id', userId)
     .eq('deleted', false)
+    .eq('arquivado', false)
     .order('proxima_revisao')
     .order('updated_at', { ascending: false })
 
   if (error) return sbErr(error, 'listarCardsRevisao')
   return data
+}
+
+/** Lista cards suspensos, preservando progresso e vínculos existentes. */
+export async function listarCardsArquivados(): Promise<CardRevisao[] | null> {
+  const userId = await getUserId()
+  if (!userId) return null
+
+  const { data, error } = await sb
+    .from('revisao_espacada')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('deleted', false)
+    .eq('arquivado', true)
+    .order('updated_at', { ascending: false })
+
+  if (error) return sbErr(error, 'listarCardsArquivados')
+  return data
+}
+
+export async function definirCardArquivado(uuid: string, arquivado: boolean): Promise<boolean> {
+  const userId = await getUserId()
+  if (!userId) return false
+
+  const { error } = await sb
+    .from('revisao_espacada')
+    .update({ arquivado, updated_at: now() })
+    .eq('uuid', uuid)
+    .eq('user_id', userId)
+    .eq('deleted', false)
+
+  if (error) {
+    sbErr(error, 'definirCardArquivado')
+    return false
+  }
+  return true
 }
 
 /** Cria um card simples, independente dos lembretes gerados por Estudos. */
@@ -185,6 +222,7 @@ export async function criarCardManual(
       resposta: input.resposta,
       modulo: 'manual',
       referencia_uuid: null,
+      arquivado: false,
       updated_at: now(),
     })
     .select()
@@ -310,6 +348,7 @@ export async function listarRevisoesPendentes(diasNoFuturo = 7): Promise<CardRev
     .select('*')
     .eq('user_id', userId)
     .eq('deleted', false)
+    .eq('arquivado', false)
     .eq('modulo', 'estudos')
     .lte('proxima_revisao', dataLocalSomandoDias(diasNoFuturo))
     .order('proxima_revisao')

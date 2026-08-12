@@ -1,12 +1,13 @@
 'use client'
 
 import Link from 'next/link'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   BookOpen,
   Brain,
   CalendarDays,
   CheckCircle2,
+  ChevronLeft,
   ChevronRight,
   Clock3,
   Dumbbell,
@@ -19,7 +20,7 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { EventoAgenda, listarEventosAgenda } from '@/lib/agenda'
 import { dataLocalIso } from '@/lib/date'
-import { listarProvasNoPeriodo, Prova } from '@/lib/provas'
+import { listarProvasNoPeriodo, listarProximasProvas, Prova } from '@/lib/provas'
 import { CardRevisao, listarCardsRevisao } from '@/lib/revisao'
 import { buscarResumoTempoEstudo, ResumoTempoEstudo } from '@/lib/sessoes-estudo'
 
@@ -65,6 +66,7 @@ interface DadosHub {
   tempo: ResumoTempoEstudo | null
   eventos: EventoAgenda[] | null
   provas: Prova[] | null
+  proximasProvas: Prova[] | null
   revisoes: CardRevisao[] | null
 }
 
@@ -72,6 +74,7 @@ const DADOS_INICIAIS: DadosHub = {
   tempo: null,
   eventos: null,
   provas: null,
+  proximasProvas: null,
   revisoes: null,
 }
 
@@ -93,13 +96,15 @@ export default function HomePage() {
       buscarResumoTempoEstudo(),
       listarEventosAgenda(dataHoje, dataHoje),
       listarProvasNoPeriodo(dataHoje, dataHoje),
+      listarProximasProvas(),
       listarCardsRevisao(),
     ])
     setDados({
       tempo: resultados[0].status === 'fulfilled' ? resultados[0].value : null,
       eventos: resultados[1].status === 'fulfilled' ? resultados[1].value : null,
       provas: resultados[2].status === 'fulfilled' ? resultados[2].value : null,
-      revisoes: resultados[3].status === 'fulfilled' ? resultados[3].value : null,
+      proximasProvas: resultados[3].status === 'fulfilled' ? resultados[3].value : null,
+      revisoes: resultados[4].status === 'fulfilled' ? resultados[4].value : null,
     })
     setCarregando(false)
   }, [])
@@ -116,6 +121,7 @@ export default function HomePage() {
   )
   const compromissosPendentes = dados.eventos?.filter((evento) => !evento.concluido) ?? []
   const provasPendentes = dados.provas?.filter((prova) => !prova.feita) ?? []
+  const provasFuturas = dados.proximasProvas?.filter((prova) => prova.data > dataHoje) ?? []
   const houveFalha = Object.values(dados).some((valor) => valor === null)
 
   return (
@@ -164,20 +170,27 @@ export default function HomePage() {
               Abrir Estudos
             </Link>
           </div>
-          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <MetricCard
-              label="Hoje"
-              value={dados.tempo ? formatarDuracao(dados.tempo.hojeMinutos) : null}
-              loading={carregando}
-            />
-            <MetricCard
-              label="Semana atual"
-              value={dados.tempo ? formatarDuracao(dados.tempo.semanaMinutos) : null}
-              loading={carregando}
-            />
-            <MetricCard
-              label="Mês atual"
-              value={dados.tempo ? formatarDuracao(dados.tempo.mesMinutos) : null}
+          <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,3fr)_minmax(14rem,1fr)]">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <MetricCard
+                label="Hoje"
+                value={dados.tempo ? formatarDuracao(dados.tempo.hojeMinutos) : null}
+                loading={carregando}
+              />
+              <MetricCard
+                label="Semana atual"
+                value={dados.tempo ? formatarDuracao(dados.tempo.semanaMinutos) : null}
+                loading={carregando}
+              />
+              <MetricCard
+                label="Mês atual"
+                value={dados.tempo ? formatarDuracao(dados.tempo.mesMinutos) : null}
+                loading={carregando}
+              />
+            </div>
+            <ProximasProvasCard
+              provas={dados.proximasProvas === null ? null : provasFuturas}
+              hoje={dataHoje}
               loading={carregando}
             />
           </div>
@@ -348,6 +361,80 @@ function MetricCard({ label, value, loading }: { label: string; value: string | 
       </div>
     </div>
   )
+}
+
+function ProximasProvasCard({
+  provas,
+  hoje,
+  loading,
+}: {
+  provas: Prova[] | null
+  hoje: string
+  loading: boolean
+}) {
+  const trilhoRef = useRef<HTMLDivElement>(null)
+
+  function rolar(direcao: -1 | 1) {
+    trilhoRef.current?.scrollBy({
+      left: direcao * trilhoRef.current.clientWidth,
+      behavior: 'smooth',
+    })
+  }
+
+  return (
+    <div className="flex min-h-24 min-w-0 flex-col rounded-lg border border-border bg-card p-3 text-card-foreground">
+      <div className="flex items-center justify-between gap-2">
+        <span className="font-mono text-[0.68rem] font-medium uppercase text-muted-foreground">
+          Próximas provas
+        </span>
+        {provas && provas.length > 1 ? (
+          <div className="flex gap-1">
+            <Button type="button" variant="ghost" size="icon-xs" onClick={() => rolar(-1)} aria-label="Prova anterior">
+              <ChevronLeft className="size-3" />
+            </Button>
+            <Button type="button" variant="ghost" size="icon-xs" onClick={() => rolar(1)} aria-label="Próxima prova">
+              <ChevronRight className="size-3" />
+            </Button>
+          </div>
+        ) : null}
+      </div>
+      {loading ? (
+        <Skeleton className="mt-3 h-10 w-full" />
+      ) : provas === null ? (
+        <span className="mt-3 text-xs text-muted-foreground">Indisponível</span>
+      ) : provas.length === 0 ? (
+        <span className="mt-3 text-xs leading-relaxed text-muted-foreground">Nenhuma prova futura.</span>
+      ) : (
+        <div ref={trilhoRef} className="mt-2 flex snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {provas.map((prova) => {
+            const dias = diferencaDias(hoje, prova.data)
+            return (
+              <Link
+                key={prova.uuid}
+                href={prova.materia_uuid ? `/estudos/materia/${prova.materia_uuid}` : '/estudos'}
+                className="min-w-full snap-start rounded-md py-1 outline-none focus-visible:ring-[3px] focus-visible:ring-ring/30"
+              >
+                <strong className="block text-sm leading-snug">
+                  Faltam {dias} {dias === 1 ? 'dia' : 'dias'}
+                </strong>
+                <span className="mt-1 block truncate text-xs text-muted-foreground">
+                  para {prova.titulo || 'a prova'}
+                </span>
+              </Link>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function diferencaDias(inicio: string, fim: string) {
+  function paraUtc(data: string) {
+    const [ano, mes, dia] = data.split('-').map(Number)
+    return Date.UTC(ano, mes - 1, dia)
+  }
+  return Math.max(0, Math.round((paraUtc(fim) - paraUtc(inicio)) / 86_400_000))
 }
 
 function ListaSkeleton() {

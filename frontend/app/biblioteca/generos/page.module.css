@@ -1,17 +1,17 @@
 .container { max-width: 680px; margin: 0 auto; padding: 2rem 1rem; }
-.voltar { color: #888; text-decoration: none; font-size: .82rem; }
+.voltar { color: var(--texto-secundario); text-decoration: none; font-size: .82rem; }
 .titulo { font-family: 'Syne', sans-serif; font-size: 1.4rem; margin: .5rem 0 1.25rem; }
 
 .form { display: flex; flex-direction: column; gap: .6rem; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; }
 .input { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: .6rem; color: var(--text); }
-.btnSalvar { background: var(--accent); color: var(--bg); border: none; border-radius: 8px; padding: .6rem; font-weight: 700; cursor: pointer; }
-.btnGhost { border: 1px solid var(--border); color: #888; border-radius: 6px; padding: .4rem .7rem; background: none; cursor: pointer; font-size: .8rem; }
-.btnDanger { border: 1px solid #ff6b6b; color: #ff6b6b; border-radius: 6px; padding: .4rem .7rem; background: none; cursor: pointer; font-size: .8rem; }
+.btnSalvar { background: var(--primary); color: var(--primary-foreground); border: none; border-radius: 8px; padding: .6rem; font-weight: 700; cursor: pointer; }
+.btnGhost { border: 1px solid var(--border); color: var(--texto-secundario); border-radius: 6px; padding: .4rem .7rem; background: none; cursor: pointer; font-size: .8rem; }
+.btnDanger { border: 1px solid var(--erro); color: var(--erro); border-radius: 6px; padding: .4rem .7rem; background: none; cursor: pointer; font-size: .8rem; }
 
 .lista { display: flex; flex-direction: column; gap: .6rem; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: .8rem 1rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
 .nome { font-weight: 700; font-size: .9rem; }
-.desc { font-size: .75rem; color: #888; margin-top: .2rem; }
+.desc { font-size: .75rem; color: var(--texto-secundario); margin-top: .2rem; }
 .acoes { display: flex; gap: .5rem; }
 .edicao { display: flex; flex-direction: column; gap: .5rem; width: 100%; }
-.carregando { text-align: center; padding: 3rem 1rem; color: #888; }
+.carregando { text-align: center; padding: 3rem 1rem; color: var(--texto-secundario); }

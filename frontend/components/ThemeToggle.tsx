@@ -1,15 +1,10 @@
 'use client'
 
 import { Moon, Sun } from 'lucide-react'
-import { usePathname } from 'next/navigation'
 import { useTema } from './ThemeProvider'
 
 export function ThemeToggle() {
-  const pathname = usePathname()
   const { tema, alternarTema } = useTema()
-
-  // Biblioteca fica de fora do toggle — tema fixo (DEC-039)
-  if (pathname?.startsWith('/biblioteca')) return null
 
   return (
     <button

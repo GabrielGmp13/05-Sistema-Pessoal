@@ -31,7 +31,7 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 - [ ] Importação de dados do sistema ENEM standalone antigo, se houver conteúdo relevante a resgatar
 - [ ] Upload de materiais de estudo no bucket privado `documentos`, usando `arquivo_path` e signed URLs. A UI atual aceita URL; upload é evolução própria de Storage e não faz parte do fechamento da v2.
 - [x] Cursos (estrutura própria — módulos/aulas/certificado) — implementado na Fase 1B de Estudos v2 (DEC-036)
-- [ ] Flashcards / integração com Anki, adiado da Fase 1 de Estudos v2 (DEC-035) — escopo de produto próprio, avaliar necessidade real antes de construir
+- [ ] Importação Anki como etapa própria. Auditoria de 2026-08 confirmou que `.apkg` combina arquivo ZIP, banco SQLite do Anki e mídia; suportá-lo corretamente exige parser/dependência, escolha de baralho/modelo, tratamento de HTML/cloze/mídia e regra de duplicação. Uma alternativa futura mais leve é importar exportação tabulada de notas, mas ainda precisa de decisão explícita sobre mapeamento de campos e deduplicação. Não misturar com o CRUD atual de Revisão.
 - [ ] Redação versionada (múltiplas versões, competências detalhadas), Fase 1 entrega só versão leve (DEC-035)
 - [x] Calendário acadêmico/cronograma absorvido pela Agenda v2; provas continuam em Estudos e são apenas exibidas na Agenda, sem duplicação
 - [ ] Metas diárias/semanais/mensais e sequência de dias estudando (streak) — avaliar sobreposição com o módulo Hábitos (ainda não iniciado) antes de construir algo específico de Estudos
@@ -103,7 +103,8 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 - [x] Menu de ações dos cards fecha por clique externo, Escape ou escolha de ação, com foco devolvido ao botão quando fechado pelo teclado e botão visível em dispositivos sem hover (2026-08-12).
 - [ ] Velocidade de leitura (páginas/hora) em Livros (B5) — `paginas_total`/`pagina_atual` permitem progresso, mas não velocidade; exigiria registro de sessões de leitura com data, não desenhado ainda (ver DEC-029)
 - [ ] Imagens estáticas de banner por categoria (`public/biblioteca/banners/{filmes,series,animes,mangas,livros,podcasts,videos,artigos}.jpg`) — suporte já existe no `BibliotecaBanner` (DEC-034), mas depende do usuário fornecer as imagens; sem elas, cada categoria usa mosaico de capas ou fallback visual. Confirmado que ao menos `animes.jpg` já está versionado.
-- [ ] Perfil da sidebar (avatar + imagem de fundo) depende de `user_metadata.avatar_url`/`background_url` no Supabase Auth, hoje vazios — sem UI de "editar perfil" no sistema; população precisa ser manual via SQL/dashboard do Supabase até existir uma tela de Configurações (ver `VISION.md`)
+- [x] Perfil da Biblioteca movido da sidebar para a navegação global, com avatar, nome, background opcional e fallback (2026-08-12).
+- [ ] Tela de Configurações para editar `user_metadata.avatar_url`/`background_url`; até existir, esses metadados continuam sem UI própria.
 
 ## Treino v2
 

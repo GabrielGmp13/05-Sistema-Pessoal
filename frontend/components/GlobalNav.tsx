@@ -3,10 +3,11 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { BookOpen, Brain, CalendarDays, Dumbbell, GraduationCap, Home, LogOut } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
-import { sb } from '@/lib/supabase'
+import { getSession, sb } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
+import styles from './GlobalNav.module.css'
 
 const links = [
   { href: '/', label: 'Início', icon: Home },
@@ -26,6 +27,33 @@ export function GlobalNav() {
   const pathname = usePathname()
   const router = useRouter()
   const [saindo, setSaindo] = useState(false)
+  const [perfil, setPerfil] = useState<{
+    nome: string
+    avatarUrl: string | null
+    backgroundUrl: string | null
+  } | null>(null)
+
+  const biblioteca = pathname.startsWith('/biblioteca')
+
+  useEffect(() => {
+    if (!biblioteca) return
+
+    let ativo = true
+    async function carregarPerfil() {
+      const session = await getSession()
+      if (!ativo) return
+      const meta = session?.user.user_metadata
+      setPerfil({
+        nome: meta?.full_name || meta?.name || session?.user.email?.split('@')[0] || 'Usuário',
+        avatarUrl: meta?.avatar_url || null,
+        backgroundUrl: meta?.background_url || null,
+      })
+    }
+    void carregarPerfil()
+    return () => {
+      ativo = false
+    }
+  }, [biblioteca])
 
   if (pathname === '/login') return null
 
@@ -39,29 +67,47 @@ export function GlobalNav() {
     router.refresh()
   }
 
-  const biblioteca = pathname.startsWith('/biblioteca')
+  const inicial = perfil?.nome.charAt(0).toUpperCase() || 'U'
 
   return (
-    <header
-      className={cn(
-        'sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--surface)]/95 text-[var(--text)] backdrop-blur supports-[backdrop-filter]:bg-[var(--surface)]/85',
-        biblioteca && 'bibliotecaTheme',
-      )}
-    >
-      <div className="mx-auto flex min-h-14 w-full max-w-6xl items-center gap-3 px-4 sm:px-6">
+    <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--surface)]/95 text-[var(--text)] backdrop-blur supports-[backdrop-filter]:bg-[var(--surface)]/85">
+      <div className="mx-auto flex min-h-14 w-full max-w-6xl flex-wrap items-center gap-x-3 gap-y-2 px-4 py-2 sm:px-6 lg:flex-nowrap lg:py-0">
         <Link
           href="/"
-          className="flex min-w-0 items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-semibold text-[var(--text)] outline-none transition-colors hover:bg-[var(--surface-2)] focus-visible:ring-[3px] focus-visible:ring-[var(--accent)]/30"
+          className={cn(
+            'relative flex min-w-0 items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-semibold text-[var(--text)] outline-none transition-colors hover:bg-[var(--surface-2)] focus-visible:ring-[3px] focus-visible:ring-[var(--accent)]/30',
+            biblioteca && styles.perfilLink,
+          )}
         >
-          <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-[var(--accent-wash)] text-[var(--accent)]">
-            <Home className="size-4" />
-          </span>
-          <span className="hidden sm:inline">Sistema Pessoal</span>
+          {biblioteca ? (
+            <>
+              <span
+                aria-hidden="true"
+                className={styles.perfilFundo}
+                style={perfil?.backgroundUrl ? { backgroundImage: `url(${perfil.backgroundUrl})` } : undefined}
+              />
+              <span className={styles.avatar}>
+                {perfil?.avatarUrl ? (
+                  <img src={perfil.avatarUrl} alt="" className={styles.avatarImagem} />
+                ) : (
+                  <span aria-hidden="true">{inicial}</span>
+                )}
+              </span>
+              <span className={styles.perfilNome}>{perfil?.nome || 'Carregando perfil'}</span>
+            </>
+          ) : (
+            <>
+              <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-[var(--accent-wash)] text-[var(--accent)]">
+                <Home className="size-4" />
+              </span>
+              <span className="hidden sm:inline">Sistema Pessoal</span>
+            </>
+          )}
         </Link>
 
         <nav
           aria-label="Navegação principal"
-          className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto"
+          className={styles.navegacao}
         >
           {links.map((link) => {
             const Icon = link.icon
@@ -73,7 +119,7 @@ export function GlobalNav() {
                 href={link.href}
                 aria-current={active ? 'page' : undefined}
                 className={cn(
-                  'inline-flex h-9 shrink-0 items-center gap-2 rounded-lg px-2.5 text-sm font-medium text-[var(--texto-secundario)] outline-none transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--text)] focus-visible:ring-[3px] focus-visible:ring-[var(--accent)]/30',
+                  'inline-flex h-9 min-w-0 items-center justify-center gap-2 rounded-lg px-2 text-sm font-medium text-[var(--texto-secundario)] outline-none transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--text)] focus-visible:ring-[3px] focus-visible:ring-[var(--accent)]/30 sm:shrink-0 sm:px-2.5',
                   active && 'bg-[var(--accent-wash)] text-[var(--text)]',
                 )}
               >
@@ -88,7 +134,7 @@ export function GlobalNav() {
           type="button"
           onClick={handleLogout}
           disabled={saindo}
-          className="inline-flex h-9 shrink-0 items-center gap-2 rounded-lg border border-[var(--border)] px-2.5 text-sm font-medium text-[var(--texto-secundario)] outline-none transition-colors hover:border-[var(--accent)] hover:text-[var(--text)] focus-visible:ring-[3px] focus-visible:ring-[var(--accent)]/30 disabled:cursor-not-allowed disabled:opacity-60"
+          className="ml-auto inline-flex h-9 shrink-0 items-center gap-2 rounded-lg border border-[var(--border)] px-2.5 text-sm font-medium text-[var(--texto-secundario)] outline-none transition-colors hover:border-[var(--accent)] hover:text-[var(--text)] focus-visible:ring-[3px] focus-visible:ring-[var(--accent)]/30 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <LogOut className="size-4" />
           <span>{saindo ? 'Saindo...' : 'Sair'}</span>

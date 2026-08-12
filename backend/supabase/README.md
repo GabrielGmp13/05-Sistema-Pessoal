@@ -16,7 +16,8 @@ O ponto inicial oficial da cadeia CLI é:
 3. `20260807000300_baseline_storage.sql`;
 4. `20260811000100_agenda_v2.sql`;
 5. `20260811000200_biblioteca_videos_artigos.sql`;
-6. `20260811000300_conteudos_video.sql`.
+6. `20260811000300_conteudos_video.sql`;
+7. `20260812000100_revisao_arquivados.sql`.
 
 As três baselines foram validadas por dois replays locais completos e por
 comparação com produção. Em 2026-08-08, `migration repair --status applied`
@@ -41,6 +42,12 @@ aplicada em produção em 2026-08-11. O push listou somente essa migration.
 de Curso e vídeos da Biblioteca. Reset e testes SQL locais passaram em
 2026-08-11; a migration foi aplicada em produção em 2026-08-12 e o pós-check
 remoto não encontrou pendências.
+
+`20260812000100_revisao_arquivados.sql` acrescenta o estado reversível de
+arquivamento em `revisao_espacada`, sem apagar cards ou alterar o progresso
+SM-2. Reset local, teste consolidado e teste específico passaram em
+2026-08-12. Após dry-run limpo, a migration foi aplicada em produção na mesma
+data; o pós-check remoto não encontrou pendências.
 
 ## Workflow para toda mudança futura
 

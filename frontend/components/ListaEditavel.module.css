@@ -12,7 +12,7 @@
 }
 
 .vazio {
-  color: #555;
+  color: var(--texto-secundario);
   font-size: 0.8rem;
 }
 
@@ -40,13 +40,13 @@
 .lista li button {
   background: none;
   border: none;
-  color: #888;
+  color: var(--texto-secundario);
   cursor: pointer;
   padding: 0 0.3rem;
 }
 
 .lista li button:hover {
-  color: #ff6b6b;
+  color: var(--erro);
 }
 
 .linhaAdicionar {
@@ -74,8 +74,8 @@
 }
 
 .linhaAdicionar button {
-  background: var(--accent);
-  color: var(--bg);
+  background: var(--primary);
+  color: var(--primary-foreground);
   border: none;
   border-radius: 6px;
   padding: 0.45rem 0.75rem;

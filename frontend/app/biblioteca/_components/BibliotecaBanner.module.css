@@ -32,7 +32,7 @@
 .mosaicoFallback {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, var(--surface) 0%, var(--bg) 100%);
+  background: linear-gradient(135deg, var(--surface-2) 0%, var(--surface) 55%, var(--bg) 100%);
 }
 
 .topoOverlay {
@@ -49,7 +49,7 @@
   font-size: 0.68rem;
   text-transform: uppercase;
   letter-spacing: 0.14em;
-  color: rgba(237, 233, 225, 0.55);
+  color: rgba(255, 255, 255, 0.72);
   margin: 0;
 }
 
@@ -79,8 +79,8 @@
   font-style: italic;
   font-weight: 300;
   font-size: clamp(2.4rem, 5vw, 4rem);
-  color: var(--text);
-  letter-spacing: -0.02em;
+  color: #fff;
+  letter-spacing: 0;
   text-shadow: 0 2px 32px rgba(12, 12, 20, 0.9);
 }
 

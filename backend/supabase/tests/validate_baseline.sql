@@ -47,7 +47,7 @@ SELECT pg_temp.assert_true(
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 45
+  (SELECT count(*) = 46
    FROM pg_index i
    JOIN pg_class t ON t.oid = i.indrelid
    JOIN pg_namespace n ON n.oid = t.relnamespace
@@ -55,7 +55,7 @@ SELECT pg_temp.assert_true(
    WHERE n.nspname = 'public'
      AND t.relkind = 'r'
      AND con.oid IS NULL),
-  'public deve conter exatamente 45 indices explicitos'
+  'public deve conter exatamente 46 indices explicitos'
 );
 
 SELECT pg_temp.assert_true(

@@ -5,9 +5,5 @@ export default function BibliotecaLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <div className={`${styles.layout} bibliotecaTheme`}>
-      {children}
-    </div>
-  );
+  return <div className={styles.layout}>{children}</div>;
 }

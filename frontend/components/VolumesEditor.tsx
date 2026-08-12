@@ -85,7 +85,7 @@ export default function VolumesEditor({ mangaUuid }: Props) {
                 {vol.arco ? ` — ${vol.arco}` : ''}
               </span>
               <span style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                <label style={{ fontSize: '0.72rem', color: '#888' }}>
+                <label style={{ fontSize: '0.72rem', color: 'var(--texto-secundario)' }}>
                   <input type="checkbox" checked={vol.lido} onChange={() => alternarLido(vol)} />{' '}
                   lido
                 </label>

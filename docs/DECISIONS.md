@@ -393,10 +393,10 @@ migration ser efetivamente rodada e testada. Precedente conhecido: mesma
 exceção ocorreu uma vez na v1 (`estudos.html`, ver `CHANGELOG.md`,
 2026-07-09/10), corrigida depois sem maiores problemas.
 
-## DEC-037 — Nova paleta (verde-oliva/off-white, via v0.dev) vira padrão do sistema, exceto Biblioteca
+## DEC-037 — Nova paleta (verde-oliva/off-white, via v0.dev) vira padrão do sistema
 
 **Data:** 2026-07-25
-**Status:** ✅ Aprovada e implementada
+**Status:** ✅ Aprovada e implementada · exceção original da Biblioteca superada pela DEC-049
 
 ### Contexto
 Durante o design de Estudos v2 no v0.dev, o usuário aprovou o resultado visual
@@ -467,10 +467,10 @@ aprovado, não preferência técnica não fundamentada — mesmo padrão de
 - `ARCHITECTURE.md` → seção Frontend ganha nota sobre stack mista
   (CSS Modules em Treino/Biblioteca, Tailwind+shadcn em Estudos)
 
-## DEC-039 — Toggle claro/escuro no sistema, exceto Biblioteca
+## DEC-039 — Toggle claro/escuro no sistema
 
 **Data:** 2026-07-25
-**Status:** ✅ Aprovada e implementada
+**Status:** ✅ Aprovada e implementada · exceção original da Biblioteca superada pela DEC-049
 
 ### Contexto
 O site hoje não tem modo claro — `:root` único, sempre escuro, sem mecanismo
@@ -797,3 +797,38 @@ A migration `20260811000300_conteudos_video.sql` foi validada por reset local,
 teste consolidado e teste específico, aplicada em produção em 2026-08-12 e
 confirmada por pós-check remoto sem pendências. O fluxo está liberado para
 publicação.
+
+---
+
+## DEC-049 — Biblioteca adota o tema global e move o perfil para o topo
+
+**Data:** 2026-08-12
+**Status:** ✅ Aprovada pelo usuário e implementada localmente
+
+### Contexto
+
+No teste manual final, a exceção dourada e escura da Biblioteca deixou de
+ajudar: criava contraste diferente do restante do sistema, escondia o toggle
+e contribuía para uma composição recortada entre navegação, perfil e sidebar.
+O perfil dentro da sidebar também ficava cortado pela combinação de alturas e
+rolagens internas. Esta é informação visual nova e supera somente as exceções
+temporárias registradas nas DEC-037/039; a stack CSS Modules da DEC-038 e o
+fluxo de página única da DEC-032 permanecem.
+
+### Decisão
+
+- Biblioteca passa a consumir os mesmos tokens claro/escuro globais dos
+  demais módulos; o override `.bibliotecaTheme` é removido e o toggle aparece
+  também nas rotas `/biblioteca`.
+- Avatar, nome e background opcional de `user_metadata` passam para o início
+  da navegação global nas rotas da Biblioteca, substituindo a marca textual
+  “Sistema Pessoal” somente nesse contexto.
+- A sidebar fica dedicada a busca, categorias, gêneros e ação de adicionar.
+- Mosaico de capas, banner e CRUD permanecem; não há mudança de schema nem de
+  responsabilidade da Biblioteca.
+
+### Impacto
+
+O layout deixa de criar rolagem própria no conteúdo e calcula a sidebar abaixo
+da navegação responsiva. Cores de texto e controles antes fixadas para fundo
+escuro passam a usar tokens semânticos, preservando contraste nos dois temas.

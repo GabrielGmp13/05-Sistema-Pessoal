@@ -85,7 +85,7 @@ export default function EpisodiosEditor({ temporadaUuid }: Props) {
                 {ep.arco ? ` (${ep.arco})` : ''}
               </span>
               <span style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                <label style={{ fontSize: '0.72rem', color: '#888' }}>
+                <label style={{ fontSize: '0.72rem', color: 'var(--texto-secundario)' }}>
                   <input
                     type="checkbox"
                     checked={ep.filler}
@@ -93,7 +93,7 @@ export default function EpisodiosEditor({ temporadaUuid }: Props) {
                   />{' '}
                   filler
                 </label>
-                <label style={{ fontSize: '0.72rem', color: '#888' }}>
+                <label style={{ fontSize: '0.72rem', color: 'var(--texto-secundario)' }}>
                   <input
                     type="checkbox"
                     checked={ep.assistido}

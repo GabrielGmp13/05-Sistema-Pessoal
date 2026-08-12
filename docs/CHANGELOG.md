@@ -20,6 +20,19 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 (Next.js) — em andamento
 
+- **2026-08-12 (ajustes do teste manual final)** — Corrigidos o contraste do
+  login e o corte de “Agenda” na navegação responsiva. O Hub ganhou um bloco
+  compacto de provas futuras baseado em `provas`. A Biblioteca deixou o tema
+  dourado fixo, passou a acompanhar o tema global, moveu o perfil para o topo
+  e eliminou a disputa de rolagem entre página, conteúdo e sidebar. Revisão
+  Espaçada ganhou arquivamento reversível separado do soft delete; a migration
+  `20260812000100_revisao_arquivados.sql` e seu teste passaram em reset local
+  e na suíte SQL completa. Após dry-run limpo, a migration foi aplicada em
+  produção com autorização explícita e o pós-check remoto não encontrou
+  pendências. A importação Anki foi auditada e mantida como etapa própria por
+  depender de ZIP/SQLite e de
+  decisões de mapeamento, sem nova dependência nesta leva.
+
 - **2026-08-12 (auditoria final local)** — Revisão completa dos fluxos centrais
   antes do teste manual definitivo. Corrigido o uso de data UTC em operações
   de Hub, Estudos, Revisão e Shape; o Hub passou a preservar dados disponíveis

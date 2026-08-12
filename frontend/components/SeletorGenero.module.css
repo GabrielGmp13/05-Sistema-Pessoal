@@ -11,7 +11,7 @@
 .chip, .chipAtivo {
   border: 1px solid var(--border);
   background: none;
-  color: #888;
+  color: var(--texto-secundario);
   border-radius: 999px;
   padding: 0.35rem 0.8rem;
   font-size: 0.78rem;
@@ -20,9 +20,9 @@
 }
 
 .chipAtivo {
-  background: var(--accent);
-  color: var(--bg);
-  border-color: var(--accent);
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-color: var(--primary);
   font-weight: 700;
 }
 

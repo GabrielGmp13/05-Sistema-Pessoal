@@ -2,9 +2,7 @@
 
 import Link from 'next/link';
 import { Tags } from 'lucide-react';
-import { useEffect, useState } from 'react';
 import styles from './Sidebar.module.css';
-import { getSession } from '@/lib/supabase';
 
 export interface SidebarItem {
   id: string;
@@ -24,12 +22,6 @@ interface SidebarProps {
   acaoSecundaria?: { href: string; label: string };
 }
 
-interface PerfilUsuario {
-  nome: string;
-  avatarUrl: string | null;
-  backgroundUrl: string | null;
-}
-
 export default function Sidebar({
   itens,
   ativoId,
@@ -40,54 +32,8 @@ export default function Sidebar({
   onBuscaChange,
   acaoSecundaria,
 }: SidebarProps) {
-  const [perfil, setPerfil] = useState<PerfilUsuario | null>(null);
-
-  useEffect(() => {
-    async function carregarPerfil() {
-      const session = await getSession();
-      const meta = session?.user?.user_metadata;
-      setPerfil({
-        nome: meta?.full_name || meta?.name || session?.user?.email?.split('@')[0] || 'Usuário',
-        avatarUrl: meta?.avatar_url || null,
-        // campo opcional — se você quiser um banner de perfil no futuro, salve
-        // em user_metadata.background_url; até lá cai no fallback só-cor
-        backgroundUrl: meta?.background_url || null,
-      });
-    }
-    carregarPerfil();
-  }, []);
-
-  const inicial = perfil?.nome?.charAt(0).toUpperCase() || 'U';
-
   return (
     <aside className={styles.sidebar}>
-      {/* Faixa de perfil */}
-      <div
-        className={styles.perfilFaixa}
-        style={
-          perfil?.backgroundUrl
-            ? { backgroundImage: `url(${perfil.backgroundUrl})` }
-            : undefined
-        }
-      >
-        <div className={styles.perfilOverlay} />
-        {perfil && (
-          <div className={styles.perfil}>
-            <div className={styles.avatar}>
-              {perfil.avatarUrl ? (
-                <img className={styles.avatarImg} src={perfil.avatarUrl} alt={perfil.nome} />
-              ) : (
-                <span className={styles.avatarFallback}>{inicial}</span>
-              )}
-            </div>
-            <div className={styles.perfilInfo}>
-              <span className={styles.perfilNome}>{perfil.nome}</span>
-              <span className={styles.perfilSub}>Sistema Pessoal</span>
-            </div>
-          </div>
-        )}
-      </div>
-
       <div className={styles.corpo}>
         {/* Busca */}
         {onBuscaChange && (

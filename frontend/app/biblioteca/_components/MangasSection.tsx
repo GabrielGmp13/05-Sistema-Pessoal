@@ -381,7 +381,7 @@ export default function MangasSection({ gatilhoAdicionar, busca = '', onTotalCar
                 />
               </label>
               <div>
-                <div style={{ fontSize: '0.82rem', color: '#aaa', marginBottom: '0.4rem' }}>
+                <div style={{ fontSize: '0.82rem', color: 'var(--texto-secundario)', marginBottom: '0.4rem' }}>
                   Gêneros
                 </div>
                 <SeletorGenero

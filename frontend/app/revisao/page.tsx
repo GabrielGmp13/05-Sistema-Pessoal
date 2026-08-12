@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
+  Archive,
+  ArchiveRestore,
   Brain,
   CalendarClock,
   CheckCircle2,
@@ -29,7 +31,9 @@ import {
   avaliarCard,
   CardRevisao,
   criarCardManual,
+  definirCardArquivado,
   deletarCardRevisao,
+  listarCardsArquivados,
   listarCardsRevisao,
   Qualidade,
 } from '@/lib/revisao'
@@ -51,6 +55,8 @@ function formatarData(data: string) {
 
 export default function RevisaoPage() {
   const [cards, setCards] = useState<CardRevisao[]>([])
+  const [arquivados, setArquivados] = useState<CardRevisao[]>([])
+  const [aba, setAba] = useState<'ativos' | 'arquivados'>('ativos')
   const [carregando, setCarregando] = useState(true)
   const [processandoUuid, setProcessandoUuid] = useState<string | null>(null)
   const [respostasVisiveis, setRespostasVisiveis] = useState<Set<string>>(new Set())
@@ -59,11 +65,15 @@ export default function RevisaoPage() {
   const [novoCard, setNovoCard] = useState({ pergunta: '', resposta: '' })
 
   const carregar = useCallback(async () => {
-    const atuais = await listarCardsRevisao()
-    if (atuais === null) {
+    const [atuais, suspensos] = await Promise.all([
+      listarCardsRevisao(),
+      listarCardsArquivados(),
+    ])
+    if (atuais === null || suspensos === null) {
       setErro('Não foi possível carregar as revisões.')
     } else {
       setCards(atuais)
+      setArquivados(suspensos)
       setErro('')
     }
     setCarregando(false)
@@ -131,6 +141,17 @@ export default function RevisaoPage() {
     await carregar()
   }
 
+  async function handleArquivar(card: CardRevisao, arquivado: boolean) {
+    setProcessandoUuid(card.uuid)
+    const atualizado = await definirCardArquivado(card.uuid, arquivado)
+    if (!atualizado) {
+      setErro(`Não foi possível ${arquivado ? 'arquivar' : 'restaurar'} o card.`)
+    } else {
+      await carregar()
+    }
+    setProcessandoUuid(null)
+  }
+
   function alternarResposta(uuid: string) {
     setRespostasVisiveis((atuais) => {
       const proximas = new Set(atuais)
@@ -151,7 +172,31 @@ export default function RevisaoPage() {
         description="Revise o que está pendente e registre o resultado para calcular o próximo intervalo."
       />
 
-      <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <div role="tablist" aria-label="Filtros de revisão" className="mt-7 flex gap-2 border-b border-border pb-3">
+        <Button
+          type="button"
+          role="tab"
+          aria-selected={aba === 'ativos'}
+          variant={aba === 'ativos' ? 'default' : 'ghost'}
+          onClick={() => setAba('ativos')}
+        >
+          Ativos
+          <Badge variant="outline">{cards.length}</Badge>
+        </Button>
+        <Button
+          type="button"
+          role="tab"
+          aria-selected={aba === 'arquivados'}
+          variant={aba === 'arquivados' ? 'default' : 'ghost'}
+          onClick={() => setAba('arquivados')}
+        >
+          <Archive className="size-3.5" />
+          Arquivados
+          <Badge variant="outline">{arquivados.length}</Badge>
+        </Button>
+      </div>
+
+      <div className={`${aba === 'ativos' ? '' : 'hidden'} mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3`}>
         <ResumoCard icon={Clock3} label="Atrasadas" value={atrasadas} />
         <ResumoCard icon={CheckCircle2} label="Para hoje" value={paraHoje} />
         <ResumoCard icon={CalendarClock} label="Futuras" value={futuras.length} />
@@ -163,7 +208,7 @@ export default function RevisaoPage() {
         </p>
       ) : null}
 
-      <div className="mt-10 flex flex-col gap-10">
+      <div className={`${aba === 'ativos' ? '' : 'hidden'} mt-10 flex flex-col gap-10`}>
         <Section label="Prioridade" title="Vencidas e para hoje" count={pendentes.length}>
           {carregando ? (
             <ListaSkeleton />
@@ -180,6 +225,7 @@ export default function RevisaoPage() {
                   processando={processandoUuid === card.uuid}
                   onAlternarResposta={() => alternarResposta(card.uuid)}
                   onAvaliar={(qualidade) => handleAvaliar(card.uuid, qualidade)}
+                  onArquivar={() => void handleArquivar(card, true)}
                   onApagar={() => setCardParaApagar(card)}
                 />
               ))}
@@ -203,6 +249,7 @@ export default function RevisaoPage() {
                   processando={processandoUuid === card.uuid}
                   onAlternarResposta={() => alternarResposta(card.uuid)}
                   onAvaliar={(qualidade) => handleAvaliar(card.uuid, qualidade)}
+                  onArquivar={() => void handleArquivar(card, true)}
                   onApagar={() => setCardParaApagar(card)}
                 />
               ))}
@@ -237,6 +284,34 @@ export default function RevisaoPage() {
         </Section>
       </div>
 
+      {aba === 'arquivados' ? (
+        <div className="mt-10">
+          <Section label="Guardados" title="Cards arquivados" count={arquivados.length}>
+            {carregando ? (
+              <ListaSkeleton />
+            ) : arquivados.length === 0 ? (
+              <EmptyState icon={Archive} title="Nenhum card arquivado" compact />
+            ) : (
+              <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+                {arquivados.map((card) => (
+                  <RevisaoCard
+                    key={card.uuid}
+                    card={card}
+                    hoje={hoje}
+                    arquivado
+                    respostaVisivel={respostasVisiveis.has(card.uuid)}
+                    processando={processandoUuid === card.uuid}
+                    onAlternarResposta={() => alternarResposta(card.uuid)}
+                    onRestaurar={() => void handleArquivar(card, false)}
+                    onApagar={() => setCardParaApagar(card)}
+                  />
+                ))}
+              </div>
+            )}
+          </Section>
+        </div>
+      ) : null}
+
       <ConfirmDialog
         open={cardParaApagar !== null}
         title="Apagar card?"
@@ -258,16 +333,22 @@ function RevisaoCard({
   hoje,
   respostaVisivel,
   processando,
+  arquivado = false,
   onAlternarResposta,
   onAvaliar,
+  onArquivar,
+  onRestaurar,
   onApagar,
 }: {
   card: CardRevisao
   hoje: string
   respostaVisivel: boolean
   processando: boolean
+  arquivado?: boolean
   onAlternarResposta: () => void
-  onAvaliar: (qualidade: Qualidade) => void
+  onAvaliar?: (qualidade: Qualidade) => void
+  onArquivar?: () => void
+  onRestaurar?: () => void
   onApagar: () => void
 }) {
   const origemEstudos = card.modulo === 'estudos'
@@ -291,9 +372,20 @@ function RevisaoCard({
           </div>
           <h2 className="mt-2 break-words text-base font-semibold">{card.pergunta}</h2>
         </div>
-        <Button type="button" variant="ghost" size="icon-sm" onClick={onApagar} aria-label="Apagar card">
-          <Trash2 className="size-3.5" />
-        </Button>
+        <div className="flex shrink-0 gap-1">
+          {arquivado ? (
+            <Button type="button" variant="ghost" size="icon-sm" disabled={processando} onClick={onRestaurar} aria-label="Restaurar card">
+              <ArchiveRestore className="size-3.5" />
+            </Button>
+          ) : (
+            <Button type="button" variant="ghost" size="icon-sm" disabled={processando} onClick={onArquivar} aria-label="Arquivar card">
+              <Archive className="size-3.5" />
+            </Button>
+          )}
+          <Button type="button" variant="ghost" size="icon-sm" onClick={onApagar} aria-label="Apagar card">
+            <Trash2 className="size-3.5" />
+          </Button>
+        </div>
       </div>
 
       {temResposta ? (
@@ -310,7 +402,7 @@ function RevisaoCard({
         </div>
       ) : null}
 
-      <div className="mt-auto border-t border-border pt-3">
+      {!arquivado ? <div className="mt-auto border-t border-border pt-3">
         <div className="mb-2 flex items-center justify-between gap-3">
           <MonoLabel>Como foi?</MonoLabel>
           <MonoLabel>{card.repeticoes} repetições · intervalo {card.intervalo_dias}d</MonoLabel>
@@ -323,13 +415,17 @@ function RevisaoCard({
               variant="outline"
               size="sm"
               disabled={processando}
-              onClick={() => onAvaliar(resultado.qualidade)}
+              onClick={() => onAvaliar?.(resultado.qualidade)}
             >
               {resultado.label}
             </Button>
           ))}
         </div>
-      </div>
+      </div> : (
+        <p className="mt-auto border-t border-border pt-3 text-xs text-muted-foreground">
+          Arquivado sem perder o histórico do SM-2. Restaure para voltar à fila.
+        </p>
+      )}
     </Card>
   )
 }

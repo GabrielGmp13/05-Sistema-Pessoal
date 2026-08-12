@@ -61,6 +61,7 @@ dessas duas pastas deve ser executado como migration.
 | `20260811000100` | `20260811000100_agenda_v2.sql` | ✅ Reset/testes locais aprovados e aplicada em produção em 2026-08-11; pós-check sem pendências |
 | `20260811000200` | `20260811000200_biblioteca_videos_artigos.sql` | ✅ Reset/testes aprovados e aplicada em produção em 2026-08-11 |
 | `20260811000300` | `20260811000300_conteudos_video.sql` | ✅ Reset/testes locais aprovados e aplicada em produção em 2026-08-12; pós-check sem pendências |
+| `20260812000100` | `20260812000100_revisao_arquivados.sql` | ✅ Reset/suíte SQL local aprovados e aplicada em produção em 2026-08-12 após dry-run limpo; pós-check sem pendências |
 
 As três versões foram adotadas no histórico remoto em 2026-08-08 por
 `migration repair --status applied`, depois de recaptura somente leitura de
@@ -191,10 +192,11 @@ ef              NUMERIC(4,2) DEFAULT 2.5,
 repeticoes      INTEGER DEFAULT 0,
 intervalo_dias  INTEGER DEFAULT 1,
 proxima_revisao DATE DEFAULT CURRENT_DATE,
+arquivado       BOOLEAN NOT NULL DEFAULT FALSE,
 updated_at      TIMESTAMPTZ DEFAULT NOW(),
 deleted         BOOLEAN DEFAULT FALSE
 ```
-> Reaproveitada por Estudos v2 (SM-2, ver DEC-035) — cada conteúdo pode ter um card com `modulo = 'estudos'`, `referencia_uuid = conteudos.uuid`. A página dedicada `/revisao` também aceita cards independentes com `modulo = 'manual'` e `referencia_uuid = NULL`; nenhuma mudança de schema foi necessária.
+> Reaproveitada por Estudos v2 (SM-2, ver DEC-035) — cada conteúdo pode ter um card com `modulo = 'estudos'`, `referencia_uuid = conteudos.uuid`. A página dedicada `/revisao` também aceita cards independentes com `modulo = 'manual'` e `referencia_uuid = NULL`. A migration incremental `20260812000100_revisao_arquivados.sql`, aplicada em produção em 2026-08-12, acrescentou `arquivado`: o card sai das filas ativas sem perder progresso, vínculo ou histórico; `deleted` continua reservado à exclusão lógica.
 
 ### Tabelas descontinuadas de `001`
 `cardio`, `exercicios`, `series_executadas` — removidas em `005_treino_v2.sql`. Confirmado ausentes no dump real. Ver DEC-020.
@@ -957,7 +959,7 @@ signed URLs/path `{user_id}/arquivo.ext` (DEC-010).
 
 ## Índices parciais confirmados no dump (`WHERE NOT deleted`)
 
-Confirmados em: `agenda`, `animes`, `animes_episodios`, `animes_temporadas`, `anotacoes_estudo` (×2, conteúdo e matéria), `atividades`, `conteudos_materias` (×2), `elenco`, `exercicios_cardio`, `exercicios_forca`, `filmes` (×2, incluindo `anime_uuid`), `generos`, `livros`, `livros_anotacoes`, `mangas`, `mangas_volumes`, `materiais_estudo`, `materias`, `modulos_curso`, `modulos_treino`, `animes_ordem_consumo`, `podcasts`, `provas` (por `data`), `questoes_individuais` (×3: conteúdo, matéria, prova), `redacoes` (por `data`), `revisao_espacada` (por `proxima_revisao`), `series`, `series_temporadas`, `sessoes_treino` (×2), `sessoes_estudo` (×2), `shape`, `simulados` (×2), `treinos` (por `modulo_uuid`), `trilha_sonora`.
+Confirmados em: `agenda`, `animes`, `animes_episodios`, `animes_temporadas`, `anotacoes_estudo` (×2, conteúdo e matéria), `atividades`, `conteudos_materias` (×2), `elenco`, `exercicios_cardio`, `exercicios_forca`, `filmes` (×2, incluindo `anime_uuid`), `generos`, `livros`, `livros_anotacoes`, `mangas`, `mangas_volumes`, `materiais_estudo`, `materias`, `modulos_curso`, `modulos_treino`, `animes_ordem_consumo`, `podcasts`, `provas` (por `data`), `questoes_individuais` (×3: conteúdo, matéria, prova), `redacoes` (por `data`), `revisao_espacada` (por `proxima_revisao` e, desde `20260812000100`, por `user_id`, `arquivado` e `proxima_revisao`), `series`, `series_temporadas`, `sessoes_treino` (×2), `sessoes_estudo` (×2), `shape`, `simulados` (×2), `treinos` (por `modulo_uuid`), `trilha_sonora`.
 
 ---
 
