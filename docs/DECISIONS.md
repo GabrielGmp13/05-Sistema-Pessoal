@@ -888,6 +888,9 @@ sem inflar o primeiro schema nem misturar responsabilidades de outros módulos.
   padronizar erros e contratos, embora não exijam segredo.
 - Falha, limite externo ou chave ausente nunca bloqueia o CRUD: todos os
   formulários preservam o preenchimento manual.
+- A consulta nasce do próprio campo de título após debounce, sem campo ou
+  botão de busca paralelo. Em Vídeos, a URL do YouTube tem prioridade quando
+  preenchida; sem URL, o título pode localizar vídeos quando a chave existe.
 - Não há scraping, dependência nova, mudança de schema ou fonte de verdade;
   os resultados apenas preenchem colunas já existentes antes da confirmação
   do usuário.

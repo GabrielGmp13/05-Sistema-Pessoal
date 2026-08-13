@@ -139,7 +139,10 @@ degradando logo depois do nome até a barra. “Início” é o acesso à Home; 
 de perfil não duplica esse link. Perfil, links e logout ocupam uma única grade
 e compartilham altura, alinhamento central e a borda inferior do `header`; o
 efeito de fundo fica contido na célula do perfil. A sidebar da Biblioteca não
-duplica perfil.
+duplica perfil. O próprio perfil é o acesso a `/configuracoes`, com hover e
+foco visíveis; não existe engrenagem ou atalho separado. Fragmentos pequenos e
+de baixa opacidade podem repetir a imagem/cor do background ao longo da barra,
+sem formar uma faixa sólida nem prejudicar a leitura da navegação.
 
 Item ativo: `border-left: 2px solid var(--accent-foreground)`, fundo
 `--accent-wash`, texto `--accent-foreground`.

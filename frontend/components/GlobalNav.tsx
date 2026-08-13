@@ -2,8 +2,8 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { BookOpen, Brain, CalendarDays, Dumbbell, FolderKanban, GraduationCap, Home, LogOut, Settings, Utensils } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { BookOpen, Brain, CalendarDays, Dumbbell, FolderKanban, GraduationCap, Home, LogOut, Utensils } from 'lucide-react'
+import { type CSSProperties, useEffect, useState } from 'react'
 
 import { getSession, sb } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
@@ -73,10 +73,16 @@ export function GlobalNav() {
   }
 
   const inicial = perfil?.nome.charAt(0).toUpperCase() || 'U'
+  const estiloFragmentos = perfil?.backgroundUrl
+    ? ({ '--perfil-fragment-image': `url("${perfil.backgroundUrl}")` } as CSSProperties)
+    : undefined
 
   return (
     <header className={styles.header}>
       <div className={styles.barra}>
+        <span aria-hidden="true" className={styles.fragmentos} style={estiloFragmentos}>
+          {Array.from({ length: 7 }, (_, indice) => <i key={indice} />)}
+        </span>
         <Link
           href="/configuracoes"
           className={styles.perfil}
@@ -99,7 +105,6 @@ export function GlobalNav() {
             )}
           </span>
           <span className={styles.perfilNome}>{perfil?.nome || 'Perfil'}</span>
-          <Settings aria-hidden="true" className={styles.perfilIcone} />
         </Link>
 
         <nav

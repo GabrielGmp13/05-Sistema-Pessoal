@@ -31,6 +31,11 @@ Biblioteca:
 Não versione `.env.local`, não use prefixo `NEXT_PUBLIC_` nessas chaves
 privadas e não use credenciais privilegiadas no frontend.
 
+No desenvolvimento local, adicione as duas chaves a `frontend/.env.local`.
+Na produção, use **Vercel → Project → Settings → Environment Variables**,
+marque **Production** e faça um redeploy. Google Books, Jikan e iTunes Search
+funcionam sem chave.
+
 ## Verificações
 
 ```powershell

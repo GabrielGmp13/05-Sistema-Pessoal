@@ -68,7 +68,7 @@ operacional.
 | Storage | Supabase Storage — 5 buckets privados e 14 policies confirmados por captura remota versionada em `backend/supabase/snapshots/` |
 | Frontend | Next.js 16 (React 19) + TypeScript — pasta `frontend/`, único frontend do projeto |
 | Estilização | CSS Modules (Treino/Biblioteca/Dashboard) + Tailwind v4/shadcn (Estudos) — stack mista intencional, DEC-038 |
-| Backend leve | API Routes (Next.js, serverless no Vercel) — **planejado, nenhuma rota `app/api/**` existe ainda** |
+| Backend leve | API Routes (Next.js, serverless no Vercel) — primeira rota em `app/api/biblioteca/metadados`, para proteger chaves e padronizar importações |
 | Offline | Service Worker — fora de escopo por ora (Fase M2, ver `ROADMAP.md`) |
 | Hosting | Vercel — **em produção desde 2026-07-13** |
 | Toolchain | Node.js 24.15.0 + npm 12.0.1; versões fixadas no repositório |

@@ -25,7 +25,19 @@ function duracaoIso8601(valor?: string): number | undefined {
 }
 
 async function jsonExterno(url: string): Promise<unknown> {
-  const response = await fetch(url, { cache: 'no-store' });
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      cache: 'no-store',
+      headers: {
+        Accept: 'application/json',
+        'User-Agent': 'Sistema-Pessoal/2.0',
+      },
+    });
+  } catch {
+    console.error('[biblioteca/metadados] Falha ao acessar serviço externo:', new URL(url).hostname);
+    throw new Error('Serviço externo temporariamente indisponível.');
+  }
   if (!response.ok) throw new Error(`Serviço externo respondeu com status ${response.status}`);
   return response.json();
 }
@@ -33,10 +45,25 @@ async function jsonExterno(url: string): Promise<unknown> {
 async function buscarYoutube(q: string): Promise<ResultadoMetadados[] | null> {
   const chave = process.env.YOUTUBE_API_KEY;
   if (!chave) return null;
-  const id = extrairYoutubeId(q);
-  if (!id) throw new Error('Informe uma URL válida do YouTube.');
+  const idDaUrl = extrairYoutubeId(q);
+  let ids = idDaUrl ? [idDaUrl] : [];
 
-  const params = new URLSearchParams({ part: 'snippet,contentDetails', id, key: chave });
+  if (ids.length === 0) {
+    const buscaParams = new URLSearchParams({
+      part: 'snippet',
+      q,
+      key: chave,
+      type: 'video',
+      maxResults: '6',
+    });
+    const busca = (await jsonExterno(`https://www.googleapis.com/youtube/v3/search?${buscaParams}`)) as {
+      items?: Array<{ id?: { videoId?: string } }>;
+    };
+    ids = (busca.items ?? []).map((item) => item.id?.videoId).filter((id): id is string => Boolean(id));
+  }
+
+  if (ids.length === 0) return [];
+  const params = new URLSearchParams({ part: 'snippet,contentDetails', id: ids.join(','), key: chave });
   const data = (await jsonExterno(`https://www.googleapis.com/youtube/v3/videos?${params}`)) as {
     items?: Array<{
       id: string;

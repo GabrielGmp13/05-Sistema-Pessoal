@@ -286,9 +286,11 @@ export default function VideosSection({ gatilhoAdicionar, busca = '', onTotalCar
               <button type="button" className={styles.btnIcon} onClick={fecharModal}>×</button>
             </div>
             <form onSubmit={salvar} className={styles.modalBody}>
+              <label>Título *<input required value={form.titulo} onChange={(event) => setForm({ ...form, titulo: event.target.value })} /></label>
+              <label>URL *<input required type="url" value={form.url} onChange={(event) => setForm({ ...form, url: event.target.value })} /></label>
               <BuscaMetadados
                 fonte="youtube"
-                termoInicial={form.url}
+                termo={form.url.trim() || form.titulo}
                 onSelect={(resultado) => setForm((atual) => ({
                   ...atual,
                   titulo: resultado.titulo,
@@ -299,8 +301,6 @@ export default function VideosSection({ gatilhoAdicionar, busca = '', onTotalCar
                   capa_url: resultado.capaUrl ?? atual.capa_url,
                 }))}
               />
-              <label>Título *<input required value={form.titulo} onChange={(event) => setForm({ ...form, titulo: event.target.value })} /></label>
-              <label>URL *<input required type="url" value={form.url} onChange={(event) => setForm({ ...form, url: event.target.value })} /></label>
               <label>Canal<input value={form.canal ?? ''} onChange={(event) => setForm({ ...form, canal: event.target.value })} /></label>
               <label>Duração em segundos<input type="number" min={1} inputMode="numeric" value={form.duracao_segundos ?? ''} onChange={(event) => setForm({ ...form, duracao_segundos: event.target.value === '' ? null : Number(event.target.value) })} /></label>
               <label>URL da capa<input type="url" value={form.capa_url ?? ''} onChange={(event) => setForm({ ...form, capa_url: event.target.value })} /></label>

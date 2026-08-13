@@ -237,31 +237,8 @@
 
 .buscaMetadados {
   display: grid;
-  gap: 0.5rem;
-  padding: 0.75rem;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: color-mix(in srgb, var(--card) 86%, var(--background));
-}
-
-.buscaMetadadosTitulo {
-  color: var(--muted-foreground);
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.buscaMetadadosLinha {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.5rem;
-}
-
-.buscaMetadadosLinha .btnGhost {
-  display: inline-flex;
-  align-items: center;
   gap: 0.35rem;
-  white-space: nowrap;
+  margin-top: -0.45rem;
 }
 
 .buscaMetadadosMensagem {
@@ -274,7 +251,10 @@
   display: grid;
   max-height: 13rem;
   overflow-y: auto;
-  border-top: 1px solid var(--border);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--card);
+  box-shadow: 0 8px 20px color-mix(in oklch, var(--foreground) 10%, transparent);
 }
 
 .resultadoMetadados {
@@ -283,7 +263,7 @@
   gap: 0.65rem;
   align-items: center;
   width: 100%;
-  padding: 0.5rem 0;
+  padding: 0.5rem;
   border: 0;
   border-bottom: 1px solid var(--border);
   background: transparent;
@@ -322,11 +302,6 @@
   color: var(--muted-foreground);
 }
 
-@media (max-width: 560px) {
-  .buscaMetadadosLinha {
-    grid-template-columns: 1fr;
-  }
-}
 
 .modalFooter {
   display: flex;

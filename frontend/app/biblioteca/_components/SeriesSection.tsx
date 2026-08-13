@@ -259,9 +259,17 @@ export default function SeriesSection({ gatilhoAdicionar, busca = '', onTotalCar
               </button>
             </div>
             <form onSubmit={salvar} className={styles.modalBody}>
+              <label>
+                Título *
+                <input
+                  required
+                  value={form.titulo}
+                  onChange={(e) => setForm({ ...form, titulo: e.target.value })}
+                />
+              </label>
               <BuscaMetadados
                 fonte="tmdb_serie"
-                termoInicial={form.titulo}
+                termo={form.titulo}
                 onSelect={(resultado) => setForm((atual) => ({
                   ...atual,
                   titulo: resultado.titulo,
@@ -271,14 +279,6 @@ export default function SeriesSection({ gatilhoAdicionar, busca = '', onTotalCar
                   ano_lancamento: resultado.ano ?? atual.ano_lancamento,
                 }))}
               />
-              <label>
-                Título *
-                <input
-                  required
-                  value={form.titulo}
-                  onChange={(e) => setForm({ ...form, titulo: e.target.value })}
-                />
-              </label>
               <label>
                 Criação
                 <input

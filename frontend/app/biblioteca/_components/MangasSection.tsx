@@ -261,9 +261,17 @@ export default function MangasSection({ gatilhoAdicionar, busca = '', onTotalCar
               </button>
             </div>
             <form onSubmit={salvar} className={styles.modalBody}>
+              <label>
+                Título *
+                <input
+                  required
+                  value={form.titulo}
+                  onChange={(e) => setForm({ ...form, titulo: e.target.value })}
+                />
+              </label>
               <BuscaMetadados
                 fonte="jikan_manga"
-                termoInicial={form.titulo}
+                termo={form.titulo}
                 onSelect={(resultado) => setForm((atual) => ({
                   ...atual,
                   titulo: resultado.titulo,
@@ -275,14 +283,6 @@ export default function MangasSection({ gatilhoAdicionar, busca = '', onTotalCar
                   link_mal: resultado.linkOficial ?? atual.link_mal,
                 }))}
               />
-              <label>
-                Título *
-                <input
-                  required
-                  value={form.titulo}
-                  onChange={(e) => setForm({ ...form, titulo: e.target.value })}
-                />
-              </label>
               <label>
                 Título traduzido
                 <input

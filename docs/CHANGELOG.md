@@ -20,6 +20,16 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 (Next.js) — em andamento
 
+- **2026-08-12 (UX das importações e do topo)** — O campo e o botão paralelos
+  de busca foram removidos dos formulários da Biblioteca. O próprio título
+  agora consulta metadados após debounce e mostra sugestões logo abaixo;
+  Vídeos também usam a URL quando disponível. Falhas e chaves ausentes não
+  bloqueiam o preenchimento manual. O topo global passou a compactar a linha
+  desktop a partir de 960px e, abaixo disso, usa uma faixa horizontal em vez
+  da grade de quatro colunas. O perfil continua sendo o único acesso às
+  Configurações, sem engrenagem, e fragmentos discretos do background se
+  espalham pela navegação com fallback compatível com os dois temas.
+
 - **2026-08-12 (insights e metadados da Biblioteca)** — O Hub ganhou um
   carrossel compacto de insights pessoais com rotação automática e controles
   manuais, composto apenas a partir de Biblioteca, Estudos, Revisão, Projetos

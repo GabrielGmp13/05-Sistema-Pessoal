@@ -257,9 +257,17 @@ export default function LivrosSection({ gatilhoAdicionar, busca = '', onTotalCar
               </button>
             </div>
             <form onSubmit={salvar} className={styles.modalBody}>
+              <label>
+                Título *
+                <input
+                  required
+                  value={form.titulo}
+                  onChange={(e) => setForm({ ...form, titulo: e.target.value })}
+                />
+              </label>
               <BuscaMetadados
                 fonte="google_livros"
-                termoInicial={form.titulo}
+                termo={form.titulo}
                 onSelect={(resultado) => setForm((atual) => ({
                   ...atual,
                   titulo: resultado.titulo,
@@ -274,14 +282,6 @@ export default function LivrosSection({ gatilhoAdicionar, busca = '', onTotalCar
                   link_oficial: resultado.linkOficial ?? atual.link_oficial,
                 }))}
               />
-              <label>
-                Título *
-                <input
-                  required
-                  value={form.titulo}
-                  onChange={(e) => setForm({ ...form, titulo: e.target.value })}
-                />
-              </label>
               <label>
                 Autor
                 <input

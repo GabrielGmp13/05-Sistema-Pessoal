@@ -78,6 +78,8 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] Background do perfil recomposto em camadas de fallback e imagem com transição suave, sem faixa retangular
 - [x] Topo consolidado em uma grade única de perfil, navegação e logout, com altura e borda compartilhadas
 - [x] Sidebar da Biblioteca compactada e contraste do item ativo corrigido
+- [x] Topo deixa de quebrar prematuramente em grade: desktop compacto começa em 960px e larguras menores usam navegação horizontal controlada
+- [x] Perfil permanece como único acesso às Configurações e o topo recebe fragmentos sutis do background, com fallback temático
 - [ ] Confirmar o novo deploy e continuar o teste manual de Hub, Biblioteca e Revisão em desktop/mobile
 
 ## Integrações externas da Biblioteca — primeiro lote
@@ -86,6 +88,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] YouTube preparado para título, canal, duração e thumbnail; requer `YOUTUBE_API_KEY` server-only e preserva o preenchimento manual sem ela
 - [x] TMDB preparado para busca básica de filmes/séries; requer `TMDB_API_KEY` server-only e preserva o preenchimento manual sem ela
 - [x] Google Books, Jikan (animes e mangás) e iTunes Search integrados sem chave
+- [x] Busca passou a usar o próprio título com debounce e sugestões abaixo do campo; Vídeos também aceitam URL, sem campo/botão de busca separado
 - [ ] Validar manualmente resultados, seleção e fallback das sete fontes em produção; APIs públicas podem aplicar limites ou indisponibilidade temporária
 
 ## Ordem dos próximos módulos (v2)

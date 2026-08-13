@@ -33,10 +33,11 @@ interface RespostaMetadados {
 
 export async function buscarMetadados(
   fonte: FonteMetadados,
-  termo: string
+  termo: string,
+  signal?: AbortSignal
 ): Promise<RespostaMetadados> {
   const params = new URLSearchParams({ fonte, q: termo.trim() });
-  const response = await fetch(`/api/biblioteca/metadados?${params.toString()}`);
+  const response = await fetch(`/api/biblioteca/metadados?${params.toString()}`, { signal });
   const data = (await response.json()) as RespostaMetadados & { erro?: string };
 
   if (!response.ok) {

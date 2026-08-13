@@ -275,9 +275,17 @@ export default function AnimesSection({ gatilhoAdicionar, busca = '', onTotalCar
               </button>
             </div>
             <form onSubmit={salvar} className={styles.modalBody}>
+              <label>
+                Nome original *
+                <input
+                  required
+                  value={form.nome_original}
+                  onChange={(e) => setForm({ ...form, nome_original: e.target.value })}
+                />
+              </label>
               <BuscaMetadados
                 fonte="jikan_anime"
-                termoInicial={form.nome_original}
+                termo={form.nome_original}
                 onSelect={(resultado) => setForm((atual) => ({
                   ...atual,
                   nome_original: resultado.titulo,
@@ -290,14 +298,6 @@ export default function AnimesSection({ gatilhoAdicionar, busca = '', onTotalCar
                   link_mal: resultado.linkOficial ?? atual.link_mal,
                 }))}
               />
-              <label>
-                Nome original *
-                <input
-                  required
-                  value={form.nome_original}
-                  onChange={(e) => setForm({ ...form, nome_original: e.target.value })}
-                />
-              </label>
               <label>
                 Nome traduzido
                 <input
