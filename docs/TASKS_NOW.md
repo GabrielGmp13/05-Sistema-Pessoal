@@ -6,10 +6,10 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 
 ## Status geral
 **Fase atual:** Fase 7 (v2) — v1 aposentada (DEC-031), `frontend/` é o único frontend ativo. Hub inicial v2, navegação global e logout visível implementados; Biblioteca e Treino v2 funcionalmente prontos; Estudos v2 com 9 rotas de página implementadas e restilizadas, correções de modelagem de 2026-08 aplicadas.
-**Bloqueio:** nenhum bloqueio de banco conhecido para publicar o lote de Perfil, uploads, Projetos e Receitas.
-**Banco:** produção está alinhada até `20260812000200_projetos_receitas.sql`; a migration foi aplicada em 2026-08-12 após dry-run limpo e o pós-check remoto não mostrou pendências.
+**Bloqueio:** nenhum bloqueio de banco conhecido para publicar Saúde, Finanças e Lugares.
+**Banco:** produção está alinhada até `20260813000100_saude_financas_lugares.sql`, aplicada em 2026-08-13 após dry-run limpo; o pós-check remoto não mostrou pendências.
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** publicar e testar o carrossel de insights do Hub e as importações de metadados da Biblioteca; configurar as chaves opcionais de YouTube/TMDB no ambiente de produção para habilitar essas duas fontes.
+**Próxima ação:** publicar e testar manualmente Saúde, Finanças, Lugares, o Hub ampliado e as importações de metadados da Biblioteca.
 
 ---
 
@@ -35,7 +35,20 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] Loading, falha parcial, estado vazio e atualização manual implementados
 - [x] Falhas excepcionais de uma fonte não interrompem mais o restante do resumo (`Promise.allSettled`)
 - [x] Bloco compacto de insights pessoais implementado com rotação automática a cada 5 segundos e navegação manual, usando Biblioteca, Estudos, Revisão, Projetos e Receitas
+- [x] Insights ampliados com tempo estudado hoje/semana/mês, receita recente e próximo compromisso, sem tabela nova
 - [ ] Validar visualmente o Hub com dados reais em desktop e mobile na etapa final
+
+## Lote Saúde, Finanças e Lugares — 2026-08-13
+
+- [x] `/saude` implementado com sono, hidratação, humor, medicamentos e registros diários
+- [x] Peso preservado em `shape` como fonte única; Saúde apenas consulta o último registro e aponta para `/treino/shape`
+- [x] `/financas` implementado com categorias, lançamentos, resumo mensal, orçamentos e metas
+- [x] `/lugares` implementado com CRUD, favorito, detalhe e link externo para Google Maps sem API
+- [x] Hub e navegação integrados; novos módulos ficam no menu compacto “Mais”
+- [x] Curso mostra thumbnail e link nas aulas vinculadas a vídeos da Biblioteca
+- [x] Reset local completo e sete testes SQL aprovados
+- [x] Dry-run, aplicação e pós-check de `20260813000100_saude_financas_lugares.sql` em produção (2026-08-13)
+- [ ] Testar manualmente os três módulos em desktop/mobile
 
 ## Lote Perfil, uploads, Projetos e Receitas — 2026-08-12
 

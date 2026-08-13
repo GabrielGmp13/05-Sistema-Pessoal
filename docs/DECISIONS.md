@@ -894,3 +894,30 @@ sem inflar o primeiro schema nem misturar responsabilidades de outros módulos.
 - Não há scraping, dependência nova, mudança de schema ou fonte de verdade;
   os resultados apenas preenchem colunas já existentes antes da confirmação
   do usuário.
+
+---
+
+## DEC-052 — Saúde, Finanças e Lugares começam como módulos manuais independentes
+
+**Data:** 2026-08-13
+**Status:** ✅ Implementada; migration aplicada em produção
+
+### Decisão
+
+- Saúde registra sono, hidratação, humor e medicamentos em tabelas próprias,
+  mas não cria `saude_peso`: `shape` permanece a única fonte de verdade para
+  peso e fotos corporais. `/saude` apenas consulta o último peso e aponta para
+  `/treino/shape` para manutenção desse histórico.
+- Finanças começa com categorias, lançamentos, orçamentos mensais e metas de
+  economia. Não há recorrência, importação bancária nem cotação externa.
+- Lugares começa com cadastro manual e link externo para Google Maps montado a
+  partir de coordenadas ou endereço. Não há Maps API, Places API, upload ou
+  Google Photos.
+- Os três módulos usam acesso direto pelo cliente Supabase sob Auth/RLS/GRANT,
+  UUID textual no padrão atual, `updated_at`, soft delete e `ConfirmDialog`.
+
+### Justificativa
+
+O lote entrega uso real com contratos pequenos e separa claramente os domínios.
+Reutilizar `shape` evita duas fontes concorrentes para peso; integrações externas
+e automações ficam para decisões próprias, com análise de segurança e custo.

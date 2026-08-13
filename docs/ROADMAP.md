@@ -132,6 +132,7 @@ frontend ativo. Revisão Espaçada e Agenda ganharam páginas dedicadas em
 | 7.5 | Agenda v2 | ✅ Implementada e liberada para publicação: visão semanal, CRUD, cronograma de estudo, provas sem duplicação e vínculo com treino; migration incremental aplicada em produção |
 | 7.6 | Dashboard/hub operacional | ✅ Resumos reais e carrossel compacto de insights pessoais sobre as entidades existentes, sem migration |
 | 7.7 | Perfil, Projetos e Receitas | ✅ Frontend implementado e `20260812000200` aplicada em produção; resta teste manual |
+| 7.8 | Saúde, Finanças e Lugares | ✅ Frontend implementado e `20260813000100` aplicada em produção; resta teste manual |
 
 ### Módulo: Projetos
 
@@ -144,3 +145,11 @@ frontend ativo. Revisão Espaçada e Agenda ganharam páginas dedicadas em
 **Objetivo:** manter um acervo culinário pessoal simples e reutilizável.
 **Escopo:** CRUD, ingredientes, preparo, tempo, porções, categoria, nota, favorito, feita e foto por URL; sem upload, scraping ou API externa.
 **Rota:** `/receitas`. **API Route:** não. **Banco:** `receitas`. **Dependências:** Supabase Auth/RLS, sem pacote novo.
+
+### Módulos: Saúde, Finanças e Lugares
+
+**Saúde:** registros manuais de sono, hidratação, humor e medicamentos em
+`/saude`; peso permanece em `shape` como fonte única. **Finanças:** categorias,
+lançamentos, orçamento mensal e metas em `/financas`. **Lugares:** coleção e
+detalhe manual em `/lugares`, com link externo para Maps, sem API. Os três usam
+Supabase Auth/RLS, soft delete e nenhuma dependência ou integração externa nova.

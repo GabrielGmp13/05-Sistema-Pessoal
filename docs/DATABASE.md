@@ -34,7 +34,7 @@ Chaves estrangeiras seguem `<tabela_singular>_uuid` (ex: `treino_uuid`, `materia
 
 **GRANT é obrigatório em toda migration, não opcional.** Projetos Supabase criados a partir de 2026-05-30 não recebem GRANT automático em nenhuma tabela nova, mesmo com RLS e policy corretos — sem o GRANT explícito para `authenticated`, a tabela fica inacessível via Data API (badge "API DISABLED" no dashboard) e o `supabase-js` recebe erro 42501 mesmo com policies válidas. RLS e GRANT são camadas independentes: GRANT decide se o papel alcança a tabela; RLS decide quais linhas ele vê dentro dela.
 
-**Confirmado no dump real (2026-08):** a baseline tinha 44 tabelas em `public`, todas com RLS, policy `user_own_data` e GRANT para `authenticated`. As migrations incrementais adicionaram `videos`, `artigos`, `projetos`, `projetos_tarefas` e `receitas`; produção possui agora 49 tabelas. `anon` continua sem `SELECT`/`INSERT` sobre dados da aplicação.
+**Confirmado no dump real (2026-08):** a baseline tinha 44 tabelas em `public`, todas com RLS, policy `user_own_data` e GRANT para `authenticated`. As migrations incrementais aplicadas adicionaram 15 tabelas; produção e ambiente local possuem agora 59 tabelas. `anon` continua sem `SELECT`/`INSERT` sobre dados da aplicação.
 
 Índices parciais `WHERE NOT deleted` existem nas tabelas principais para acelerar as queries que sempre filtram registros ativos — confirmados no dump para praticamente todas as tabelas de alto volume (ver lista completa na seção Índices, ao final).
 
@@ -63,6 +63,7 @@ dessas duas pastas deve ser executado como migration.
 | `20260811000300` | `20260811000300_conteudos_video.sql` | ✅ Reset/testes locais aprovados e aplicada em produção em 2026-08-12; pós-check sem pendências |
 | `20260812000100` | `20260812000100_revisao_arquivados.sql` | ✅ Reset/suíte SQL local aprovados e aplicada em produção em 2026-08-12 após dry-run limpo; pós-check sem pendências |
 | `20260812000200` | `20260812000200_projetos_receitas.sql` | ✅ Testes locais aprovados e aplicada em produção em 2026-08-12 após dry-run limpo; pós-check sem pendências |
+| `20260813000100` | `20260813000100_saude_financas_lugares.sql` | ✅ Reset/suíte SQL local aprovados e aplicada em produção em 2026-08-13 após dry-run limpo; pós-check sem pendências |
 
 As três versões foram adotadas no histórico remoto em 2026-08-08 por
 `migration repair --status applied`, depois de recaptura somente leitura de
@@ -979,6 +980,90 @@ updated_at               TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 deleted                  BOOLEAN NOT NULL DEFAULT FALSE
 ```
 > A foto permanece uma URL externa. O módulo não cria bucket nem integra API.
+
+### Saúde
+
+O peso não foi duplicado: `shape` continua sendo a fonte única. O módulo Saúde
+apenas consulta seu último registro e usa as tabelas abaixo para as áreas novas.
+
+#### `saude_sono`
+```sql
+uuid TEXT PRIMARY KEY, user_id UUID NOT NULL REFERENCES auth.users(id),
+data DATE NOT NULL, horas_dormidas NUMERIC(4,2) NOT NULL,
+horario_dormir TIME, horario_acordar TIME, qualidade SMALLINT NOT NULL,
+updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), deleted BOOLEAN NOT NULL DEFAULT FALSE
+```
+
+#### `saude_hidratacao`
+```sql
+uuid TEXT PRIMARY KEY, user_id UUID NOT NULL REFERENCES auth.users(id),
+data DATE NOT NULL, copos INTEGER NOT NULL DEFAULT 0, meta_copos INTEGER NOT NULL DEFAULT 8,
+updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), deleted BOOLEAN NOT NULL DEFAULT FALSE
+```
+
+#### `saude_humor`
+```sql
+uuid TEXT PRIMARY KEY, user_id UUID NOT NULL REFERENCES auth.users(id),
+data DATE NOT NULL, humor SMALLINT NOT NULL, energia SMALLINT NOT NULL, observacoes TEXT,
+updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), deleted BOOLEAN NOT NULL DEFAULT FALSE
+```
+
+#### `saude_medicamentos` e `saude_medicamentos_registros`
+```sql
+-- saude_medicamentos
+uuid TEXT PRIMARY KEY, user_id UUID NOT NULL REFERENCES auth.users(id),
+nome TEXT NOT NULL, dosagem TEXT, horario TIME, ativo BOOLEAN NOT NULL DEFAULT TRUE, estoque INTEGER,
+updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), deleted BOOLEAN NOT NULL DEFAULT FALSE
+
+-- saude_medicamentos_registros
+uuid TEXT PRIMARY KEY, user_id UUID NOT NULL REFERENCES auth.users(id),
+medicamento_uuid TEXT NOT NULL REFERENCES saude_medicamentos(uuid),
+data DATE NOT NULL, tomado BOOLEAN NOT NULL DEFAULT TRUE,
+updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), deleted BOOLEAN NOT NULL DEFAULT FALSE
+```
+
+### Finanças
+
+#### `financas_categorias` e `financas_lancamentos`
+```sql
+-- financas_categorias
+uuid TEXT PRIMARY KEY, user_id UUID NOT NULL REFERENCES auth.users(id),
+nome TEXT NOT NULL, tipo TEXT NOT NULL, cor TEXT,
+updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), deleted BOOLEAN NOT NULL DEFAULT FALSE
+
+-- financas_lancamentos
+uuid TEXT PRIMARY KEY, user_id UUID NOT NULL REFERENCES auth.users(id),
+categoria_uuid TEXT NOT NULL REFERENCES financas_categorias(uuid),
+tipo TEXT NOT NULL, valor NUMERIC(12,2) NOT NULL, data DATE NOT NULL, descricao TEXT,
+updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), deleted BOOLEAN NOT NULL DEFAULT FALSE
+```
+
+#### `financas_orcamentos` e `financas_metas_economia`
+```sql
+-- financas_orcamentos
+uuid TEXT PRIMARY KEY, user_id UUID NOT NULL REFERENCES auth.users(id),
+categoria_uuid TEXT NOT NULL REFERENCES financas_categorias(uuid),
+mes SMALLINT NOT NULL, ano INTEGER NOT NULL, valor_limite NUMERIC(12,2) NOT NULL,
+updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), deleted BOOLEAN NOT NULL DEFAULT FALSE
+
+-- financas_metas_economia
+uuid TEXT PRIMARY KEY, user_id UUID NOT NULL REFERENCES auth.users(id),
+titulo TEXT NOT NULL, valor_alvo NUMERIC(12,2) NOT NULL,
+valor_atual NUMERIC(12,2) NOT NULL DEFAULT 0, data_alvo DATE,
+updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), deleted BOOLEAN NOT NULL DEFAULT FALSE
+```
+
+### `lugares`
+```sql
+uuid TEXT PRIMARY KEY, user_id UUID NOT NULL REFERENCES auth.users(id),
+nome TEXT NOT NULL, tipo TEXT, cidade TEXT, pais TEXT,
+latitude NUMERIC(9,6), longitude NUMERIC(9,6),
+data_inicio DATE, data_fim DATE, custo NUMERIC(12,2), nota NUMERIC(3,1),
+favorito BOOLEAN NOT NULL DEFAULT FALSE, texto TEXT, capa_url TEXT,
+updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), deleted BOOLEAN NOT NULL DEFAULT FALSE
+```
+> O link para Google Maps é montado no cliente a partir das coordenadas ou do
+> nome/local. Não há Maps API, scraping, upload ou segredo nesse módulo.
 
 ### Tabelas descontinuadas de Estudos v1
 `assuntos`, `anotacoes`, `documentos_estudo`, `sessoes_questoes` — confirmadas ausentes no dump. Ver DEC-035.

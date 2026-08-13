@@ -6,7 +6,7 @@
   background: color-mix(in oklch, var(--surface) 94%, transparent);
   color: var(--text);
   backdrop-filter: blur(12px);
-  overflow: clip;
+  overflow: visible;
 }
 
 .barra {
@@ -179,6 +179,45 @@
   display: none;
 }
 
+.maisContainer {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.maisMenu {
+  position: fixed;
+  z-index: 60;
+  top: 3.25rem;
+  right: 4.75rem;
+  display: grid;
+  min-width: 10rem;
+  gap: 0.125rem;
+  padding: 0.3rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: 0 12px 30px color-mix(in oklch, var(--text) 12%, transparent);
+}
+
+.maisItem {
+  display: flex;
+  height: 2.25rem;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 0.65rem;
+  border-radius: 6px;
+  color: var(--texto-secundario);
+  font-size: 0.875rem;
+  outline: none;
+}
+
+.maisItem:hover,
+.maisItem:focus-visible,
+.maisItemAtivo {
+  background: var(--accent-wash);
+  color: var(--text);
+}
+
 .link {
   display: inline-flex;
   min-width: 0;
@@ -271,6 +310,13 @@
 
   .sair {
     padding: 0 0.5rem;
+  }
+}
+
+@media (max-width: 959px) {
+  .maisMenu {
+    top: 5.75rem;
+    right: 1rem;
   }
 }
 

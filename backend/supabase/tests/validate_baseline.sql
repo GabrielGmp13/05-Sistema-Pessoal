@@ -15,39 +15,39 @@ $$;
 
 -- Estrutura do schema public.
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 49
+  (SELECT count(*) = 59
    FROM pg_class c
    JOIN pg_namespace n ON n.oid = c.relnamespace
    WHERE n.nspname = 'public' AND c.relkind = 'r'),
-  'public deve conter exatamente 49 tabelas'
+  'public deve conter exatamente 59 tabelas'
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 49
+  (SELECT count(*) = 59
    FROM pg_constraint c
    JOIN pg_namespace n ON n.oid = c.connamespace
    WHERE n.nspname = 'public' AND c.contype = 'p'),
-  'public deve conter exatamente 49 PKs'
+  'public deve conter exatamente 59 PKs'
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 101
+  (SELECT count(*) = 114
    FROM pg_constraint c
    JOIN pg_namespace n ON n.oid = c.connamespace
    WHERE n.nspname = 'public' AND c.contype = 'f'),
-  'public deve conter exatamente 101 FKs'
+  'public deve conter exatamente 114 FKs'
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 39
+  (SELECT count(*) = 63
    FROM pg_constraint c
    JOIN pg_namespace n ON n.oid = c.connamespace
    WHERE n.nspname = 'public' AND c.contype = 'c'),
-  'public deve conter exatamente 39 checks'
+  'public deve conter exatamente 63 checks'
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 49
+  (SELECT count(*) = 59
    FROM pg_index i
    JOIN pg_class t ON t.oid = i.indrelid
    JOIN pg_namespace n ON n.oid = t.relnamespace
@@ -55,17 +55,17 @@ SELECT pg_temp.assert_true(
    WHERE n.nspname = 'public'
      AND t.relkind = 'r'
      AND con.oid IS NULL),
-  'public deve conter exatamente 49 indices explicitos'
+  'public deve conter exatamente 59 indices explicitos'
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 49
+  (SELECT count(*) = 59
    FROM pg_class c
    JOIN pg_namespace n ON n.oid = c.relnamespace
    WHERE n.nspname = 'public'
      AND c.relkind = 'r'
      AND c.relrowsecurity),
-  'as 49 tabelas public devem ter RLS habilitada'
+  'as 59 tabelas public devem ter RLS habilitada'
 );
 
 SELECT pg_temp.assert_true(

@@ -112,6 +112,17 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 - [x] Perfil removido da sidebar e promovido à navegação global de todo o site, com avatar, nome, background opcional e fallback (2026-08-12, DEC-049).
 - [x] Tela `/configuracoes` para editar nome, descrição curta, `user_metadata.avatar_url` e `background_url`, implementada em 2026-08-12.
 
+## Saúde, Finanças e Lugares
+
+- [x] Primeira versão manual de Saúde, Finanças e Lugares implementada em
+      2026-08-13, sem integração externa ou dependência nova.
+- [ ] Saúde: gráficos de tendência, lembretes e fotos próprias ficam para uma
+      evolução posterior; peso continua em `shape` e não deve ser duplicado.
+- [ ] Finanças: recorrência, importação bancária e cotações ficam fora da versão
+      inicial; qualquer integração financeira exigirá pesquisa de segurança.
+- [ ] Lugares: upload de fotos, Maps/Places API e Google Photos permanecem
+      futuros; a versão inicial usa capa por URL e link externo para Maps.
+
 ## Treino v2
 
 - [x] Substituir `confirm()` nativo do navegador por modal de confirmação ao apagar treino — concluído com o `ConfirmDialog` reutilizável em 2026-08-11.

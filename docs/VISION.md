@@ -8,7 +8,7 @@ Visão macro de onde o Sistema Pessoal pretende chegar. Não é um roadmap detal
 
 | Módulo | Status | Observação |
 |---|---|---|
-| Dashboard | ✅ Hub operacional | `app/page.tsx` resume tempo, Agenda e revisões e alterna insights pessoais de Biblioteca, Estudos, Projetos e Receitas usando dados reais. `GlobalNav` mantém navegação global e logout visíveis. |
+| Dashboard | ✅ Hub operacional | `app/page.tsx` resume tempo, Agenda e revisões e alterna insights pessoais de Biblioteca, Estudos, Projetos e Receitas usando dados reais, incluindo próximos compromissos e tempo hoje/semana/mês. `GlobalNav` mantém navegação global e logout visíveis. |
 | Treino | ✅ Implementado (v2) | Plano, academia, hub, shape — completo. Pendências de polimento em `BACKLOG.md`. |
 | Revisão Espaçada | ✅ Implementada (v2) | `/revisao` lista cards pendentes e futuros, registra resultados pelo SM-2, aceita card manual e preserva os lembretes de conteúdo criados por Estudos (DEC-035). |
 | Biblioteca | ✅ Implementada (v2) | Catálogo consolidado em página única com sidebar (DEC-032), incluindo Vídeos e Artigos. Os formulários importam metadados por YouTube, TMDB, Google Books, Jikan e iTunes com fallback manual; YouTube/TMDB dependem de chaves server-only. Continua sendo catálogo, nunca hospedagem de mídia (DEC-011). |
@@ -20,8 +20,9 @@ Visão macro de onde o Sistema Pessoal pretende chegar. Não é um roadmap detal
 | Receitas | ✅ Implementado (v2) | `/receitas` mantém acervo, preparo, favorito, status de execução e nota; migration aplicada em produção, restando teste manual. |
 | Diário | ⏳ Não iniciado | Sem tabela, sem decisão de escopo ainda |
 | Arquivos | ⏳ Não iniciado | Possível sobreposição com `materiais_estudo` (Estudos v2 — substituiu `documentos_estudo` da v1) — avaliar se vale generalizar quando chegar a hora |
-| Saúde | ⏳ Parcial | Hoje coberta em pedaços por Treino (shape) — não há módulo de saúde geral (sono, hidratação, etc.) |
-| Finanças | ⏳ Não iniciado | Sem tabela, sem decisão de escopo ainda |
+| Saúde | ✅ Implementada (v2) | `/saude` registra sono, hidratação, humor e medicamentos; peso continua em `shape` como fonte única. Migration aplicada, restando teste manual. |
+| Finanças | ✅ Implementada (v2) | `/financas` organiza categorias, lançamentos, orçamento mensal e metas. Migration aplicada, restando teste manual. |
+| Lugares | ✅ Implementado (v2) | `/lugares` mantém destinos e memórias com link externo para Maps, sem API. Migration aplicada, restando teste manual. |
 | Configurações | ✅ Perfil básico implementado | `/configuracoes` edita nome, descrição curta, avatar e background em `user_metadata`; preferências adicionais continuam futuras. |
 
 ---

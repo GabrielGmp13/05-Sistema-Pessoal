@@ -9,11 +9,14 @@ import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
+  CircleDollarSign,
   Clock3,
   Dumbbell,
   FolderKanban,
   GraduationCap,
+  HeartPulse,
   Lightbulb,
+  MapPinned,
   RefreshCw,
   Star,
   Utensils,
@@ -81,11 +84,33 @@ const modules = [
     icon: Utensils,
     status: 'Acervo culinário',
   },
+  {
+    href: '/saude',
+    title: 'Saúde',
+    description: 'Sono, hidratação, humor, medicamentos e histórico de peso.',
+    icon: HeartPulse,
+    status: 'Bem-estar',
+  },
+  {
+    href: '/financas',
+    title: 'Finanças',
+    description: 'Lançamentos, orçamento mensal e metas de economia.',
+    icon: CircleDollarSign,
+    status: 'Organização',
+  },
+  {
+    href: '/lugares',
+    title: 'Lugares',
+    description: 'Destinos visitados, desejados e memórias de viagem.',
+    icon: MapPinned,
+    status: 'Memórias',
+  },
 ]
 
 interface DadosHub {
   tempo: ResumoTempoEstudo | null
   eventos: EventoAgenda[] | null
+  proximosEventos: EventoAgenda[] | null
   provas: Prova[] | null
   proximasProvas: Prova[] | null
   revisoes: CardRevisao[] | null
@@ -98,6 +123,7 @@ interface DadosHub {
 const DADOS_INICIAIS: DadosHub = {
   tempo: null,
   eventos: null,
+  proximosEventos: null,
   provas: null,
   proximasProvas: null,
   revisoes: null,
@@ -121,9 +147,11 @@ export default function HomePage() {
   const carregar = useCallback(async () => {
     setCarregando(true)
     const dataHoje = dataLocalIso()
+    const daquiSeteDias = adicionarDias(dataHoje, 7)
     const resultados = await Promise.allSettled([
       buscarResumoTempoEstudo(),
       listarEventosAgenda(dataHoje, dataHoje),
+      listarEventosAgenda(dataHoje, daquiSeteDias),
       listarProvasNoPeriodo(dataHoje, dataHoje),
       listarProximasProvas(),
       listarCardsRevisao(),
@@ -135,13 +163,14 @@ export default function HomePage() {
     setDados({
       tempo: resultados[0].status === 'fulfilled' ? resultados[0].value : null,
       eventos: resultados[1].status === 'fulfilled' ? resultados[1].value : null,
-      provas: resultados[2].status === 'fulfilled' ? resultados[2].value : null,
-      proximasProvas: resultados[3].status === 'fulfilled' ? resultados[3].value : null,
-      revisoes: resultados[4].status === 'fulfilled' ? resultados[4].value : null,
-      projetos: resultados[5].status === 'fulfilled' ? resultados[5].value : null,
-      receitas: resultados[6].status === 'fulfilled' ? resultados[6].value : null,
-      insights: resultados[7].status === 'fulfilled' ? resultados[7].value : null,
-      tarefasProjetos: resultados[8].status === 'fulfilled' ? resultados[8].value : null,
+      proximosEventos: resultados[2].status === 'fulfilled' ? resultados[2].value : null,
+      provas: resultados[3].status === 'fulfilled' ? resultados[3].value : null,
+      proximasProvas: resultados[4].status === 'fulfilled' ? resultados[4].value : null,
+      revisoes: resultados[5].status === 'fulfilled' ? resultados[5].value : null,
+      projetos: resultados[6].status === 'fulfilled' ? resultados[6].value : null,
+      receitas: resultados[7].status === 'fulfilled' ? resultados[7].value : null,
+      insights: resultados[8].status === 'fulfilled' ? resultados[8].value : null,
+      tarefasProjetos: resultados[9].status === 'fulfilled' ? resultados[9].value : null,
     })
     setCarregando(false)
   }, [])
@@ -469,7 +498,9 @@ function montarInsights(dados: DadosHub, hoje: string): InsightPessoal[] {
     itens.push({ id: 'prova', texto: `Faltam ${dias} ${dias === 1 ? 'dia' : 'dias'} para ${proximaProva.titulo || 'a próxima prova'}`, detalhe: 'Estudos', href: '/estudos' })
   }
 
-  if (dados.tempo && dados.tempo.semanaMinutos > 0) itens.push({ id: 'tempo', texto: `Você estudou ${formatarDuracao(dados.tempo.semanaMinutos)} nesta semana`, detalhe: 'Tempo registrado', href: '/estudos' })
+  if (dados.tempo?.hojeMinutos) itens.push({ id: 'tempo-hoje', texto: `Você estudou ${formatarDuracao(dados.tempo.hojeMinutos)} hoje`, detalhe: 'Tempo registrado', href: '/estudos' })
+  if (dados.tempo?.semanaMinutos) itens.push({ id: 'tempo-semana', texto: `Você estudou ${formatarDuracao(dados.tempo.semanaMinutos)} nesta semana`, detalhe: 'Tempo registrado', href: '/estudos' })
+  if (dados.tempo?.mesMinutos) itens.push({ id: 'tempo-mes', texto: `Você estudou ${formatarDuracao(dados.tempo.mesMinutos)} neste mês`, detalhe: 'Tempo registrado', href: '/estudos' })
 
   const vencidas = dados.revisoes?.filter((card) => card.proxima_revisao < hoje).length ?? 0
   if (vencidas > 0) itens.push({ id: 'revisoes', texto: `${vencidas} ${vencidas === 1 ? 'revisão vencida' : 'revisões vencidas'}`, detalhe: 'Revisão Espaçada', href: '/revisao' })
@@ -486,6 +517,14 @@ function montarInsights(dados: DadosHub, hoje: string): InsightPessoal[] {
   if (receitaFavorita) itens.push({ id: 'receita-favorita', texto: `Receita favorita: ${receitaFavorita.titulo}`, detalhe: 'Receitas', href: '/receitas' })
   const receitasFeitas = dados.receitas?.filter((receita) => receita.fez).length ?? 0
   if (receitasFeitas > 0) itens.push({ id: 'receitas-feitas', texto: `${receitasFeitas} ${receitasFeitas === 1 ? 'receita marcada' : 'receitas marcadas'} como feita${receitasFeitas === 1 ? '' : 's'}`, detalhe: 'Receitas', href: '/receitas' })
+  const receitaRecente = dados.receitas ? [...dados.receitas].sort((a, b) => b.updated_at.localeCompare(a.updated_at))[0] : undefined
+  if (receitaRecente && receitaRecente.uuid !== receitaFavorita?.uuid) itens.push({ id: 'receita-recente', texto: `Receita adicionada recentemente: ${receitaRecente.titulo}`, detalhe: 'Receitas', href: '/receitas' })
+
+  const compromisso = dados.proximosEventos?.find((evento) => !evento.concluido && evento.data > hoje)
+  if (compromisso) {
+    const dias = diferencaDias(hoje, compromisso.data)
+    itens.push({ id: 'compromisso', texto: `${compromisso.titulo} ${dias === 1 ? 'é amanhã' : `acontece em ${dias} dias`}`, detalhe: 'Próximo compromisso', href: '/agenda' })
+  }
 
   return itens
 }
@@ -501,11 +540,8 @@ function InsightsRotativos({ insights, loading }: { insights: InsightPessoal[]; 
     return () => window.clearInterval(intervalId)
   }, [insights.length])
 
-  useEffect(() => {
-    if (indice >= insights.length) setIndice(0)
-  }, [indice, insights.length])
-
-  const atual = insights[indice]
+  const indiceSeguro = insights.length > 0 ? indice % insights.length : 0
+  const atual = insights[indiceSeguro]
 
   function mover(direcao: -1 | 1) {
     setIndice((valor) => (valor + direcao + insights.length) % insights.length)
@@ -519,7 +555,7 @@ function InsightsRotativos({ insights, loading }: { insights: InsightPessoal[]; 
         {loading ? <Skeleton className="mt-2 h-4 w-3/4" /> : atual ? (
           <Link href={atual.href} className="mt-1 block min-w-0 outline-none focus-visible:ring-[3px] focus-visible:ring-ring/30">
             <strong className="block truncate text-sm font-medium sm:text-base">{atual.texto}</strong>
-            <span className="mt-0.5 block text-xs text-muted-foreground">{atual.detalhe} · {indice + 1}/{insights.length}</span>
+            <span className="mt-0.5 block text-xs text-muted-foreground">{atual.detalhe} · {indiceSeguro + 1}/{insights.length}</span>
           </Link>
         ) : <p className="mt-1 text-sm text-muted-foreground">Os insights aparecem conforme seus registros ganham contexto.</p>}
       </div>
@@ -621,6 +657,12 @@ function diferencaDias(inicio: string, fim: string) {
     return Date.UTC(ano, mes - 1, dia)
   }
   return Math.max(0, Math.round((paraUtc(fim) - paraUtc(inicio)) / 86_400_000))
+}
+
+function adicionarDias(data: string, dias: number) {
+  const [ano, mes, dia] = data.split('-').map(Number)
+  const valor = new Date(Date.UTC(ano, mes - 1, dia + dias))
+  return valor.toISOString().slice(0, 10)
 }
 
 function ListaSkeleton() {

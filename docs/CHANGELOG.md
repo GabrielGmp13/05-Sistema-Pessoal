@@ -20,6 +20,16 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 (Next.js) — em andamento
 
+- **2026-08-13 (Saúde, Finanças e Lugares)** — Criados os módulos manuais
+  `/saude`, `/financas` e `/lugares`, com migration incremental única, RLS,
+  GRANT, checks, índices parciais e soft delete. Saúde preserva `shape` como
+  fonte única do peso; Finanças resume entradas, saídas e saldo mensal; Lugares
+  abre coordenadas ou endereço no Google Maps sem API. O Hub ganhou insights
+  de tempo hoje/semana/mês, receita recente e próximo compromisso, e aulas de
+  Curso vinculadas a vídeo passaram a mostrar thumbnail. Reset local completo
+  e os sete testes SQL foram aprovados. Após dry-run remoto limpo, a migration
+  foi aplicada em produção e o pós-check não encontrou pendências.
+
 - **2026-08-12 (UX das importações e do topo)** — O campo e o botão paralelos
   de busca foram removidos dos formulários da Biblioteca. O próprio título
   agora consulta metadados após debounce e mostra sugestões logo abaixo;

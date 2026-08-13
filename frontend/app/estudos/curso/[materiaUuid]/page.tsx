@@ -265,7 +265,13 @@ export default function CursoDetalhePage() {
                           return (
                             <li key={aula.uuid} className="flex flex-col gap-3 px-5 py-3 sm:flex-row sm:items-center">
                               <div className="flex min-w-0 flex-1 items-center gap-3">
-                                {aula.video ? (
+                                {aula.video?.capa_url ? (
+                                  <img
+                                    src={aula.video.capa_url}
+                                    alt=""
+                                    className="aspect-video w-16 shrink-0 rounded-md object-cover"
+                                  />
+                                ) : aula.video ? (
                                   <Video className="size-4 shrink-0 text-primary" />
                                 ) : complete ? (
                                   <CheckCircle2 className="size-4 shrink-0 text-success-foreground" />
