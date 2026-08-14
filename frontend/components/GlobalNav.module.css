@@ -11,6 +11,7 @@
 
 .barra {
   position: relative;
+  isolation: isolate;
   display: grid;
   grid-template-areas:
     'perfil acoes'
@@ -35,10 +36,17 @@
     linear-gradient(118deg, transparent 0 20%, color-mix(in oklch, var(--accent) 20%, transparent) 20.5% 23%, transparent 23.5% 100%),
     linear-gradient(62deg, transparent 0 42%, color-mix(in oklch, var(--accent-wash-forte) 28%, transparent) 42.5% 46%, transparent 46.5% 100%),
     linear-gradient(136deg, transparent 0 67%, color-mix(in oklch, var(--accent) 14%, transparent) 67.5% 70%, transparent 70.5% 100%);
-  opacity: 0.68;
+  opacity: 0.5;
   pointer-events: none;
   -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 42%, rgb(0 0 0 / 62%) 68%, transparent 100%);
   mask-image: linear-gradient(90deg, #000 0%, #000 42%, rgb(0 0 0 / 62%) 68%, transparent 100%);
+}
+
+.perfilRastroComImagem {
+  background:
+    linear-gradient(112deg, transparent 0 18%, rgb(251 113 133 / 13%) 18.5% 21%, transparent 21.5% 100%),
+    linear-gradient(64deg, transparent 0 39%, rgb(244 63 94 / 10%) 39.5% 43%, transparent 43.5% 100%),
+    linear-gradient(137deg, transparent 0 62%, rgb(253 164 175 / 10%) 62.5% 66%, transparent 66.5% 100%);
 }
 
 .perfil {
@@ -91,7 +99,7 @@
 .perfilImagem {
   background-position: center;
   background-size: cover;
-  opacity: 0.5;
+  opacity: 0.34;
   -webkit-mask-image: linear-gradient(
     90deg,
     transparent 0%,
@@ -153,54 +161,64 @@
 .fragmentos i {
   position: absolute;
   display: block;
-  width: 1.45rem;
-  height: 0.72rem;
+  left: 0;
+  top: 0;
+  width: 0.8rem;
+  height: 0.45rem;
   background: linear-gradient(
     135deg,
-    color-mix(in oklch, var(--accent-wash-forte) 78%, transparent),
-    color-mix(in oklch, var(--accent) 30%, transparent)
+    color-mix(in oklch, var(--accent-wash-forte) 88%, transparent),
+    color-mix(in oklch, var(--accent) 42%, transparent)
   );
-  box-shadow: 0 0 0.8rem color-mix(in oklch, var(--accent-wash-forte) 24%, transparent);
-  border-radius: 95% 8% 95% 8%;
-  clip-path: polygon(0 50%, 40% 0, 100% 18%, 78% 78%, 28% 100%);
-  opacity: 0.3;
-  filter: saturate(1.08) contrast(1.04);
-  transform: rotate(24deg);
+  box-shadow: 0 0 0.65rem color-mix(in oklch, var(--accent-wash-forte) 20%, transparent);
+  border-radius: 100% 8% 85% 12%;
+  clip-path: polygon(0 48%, 34% 3%, 91% 13%, 100% 49%, 68% 94%, 18% 82%);
+  filter: saturate(1.12) contrast(1.03);
+  transform: rotate(var(--petala-rotacao));
+  animation: petalaFlutua 3.8s ease-in-out var(--petala-atraso) infinite;
 }
 
 .fragmentos i:nth-child(3n) {
-  border-radius: 6px 80% 12px 80%;
-  clip-path: polygon(0 22%, 82% 0, 100% 65%, 36% 100%);
+  border-radius: 12% 92% 18% 82%;
+  clip-path: polygon(4% 20%, 62% 0, 100% 42%, 74% 100%, 18% 78%);
+}
+
+.fragmentos i:nth-child(4n) {
+  border-radius: 85% 16% 92% 10%;
+  clip-path: polygon(0 38%, 28% 0, 94% 24%, 76% 100%, 16% 82%);
 }
 
 .fragmentos i:nth-child(even) {
-  background: linear-gradient(145deg, color-mix(in oklch, var(--success) 36%, transparent), color-mix(in oklch, var(--accent-wash-forte) 72%, transparent));
+  background: linear-gradient(145deg, color-mix(in oklch, var(--success) 46%, transparent), color-mix(in oklch, var(--accent-wash-forte) 78%, transparent));
 }
 
-.fragmentos i:nth-child(1) { left: 10%; top: 8%; width: 2rem; opacity: 0.5; transform: rotate(12deg); }
-.fragmentos i:nth-child(2) { left: 13%; top: 62%; width: 1rem; opacity: 0.47; transform: rotate(-32deg); }
-.fragmentos i:nth-child(3) { left: 17%; top: 24%; width: 1.6rem; opacity: 0.48; transform: rotate(38deg); }
-.fragmentos i:nth-child(4) { left: 20%; top: 72%; width: 0.8rem; opacity: 0.44; transform: rotate(-50deg); }
-.fragmentos i:nth-child(5) { left: 23%; top: 10%; width: 1.2rem; opacity: 0.43; transform: rotate(20deg); }
-.fragmentos i:nth-child(6) { left: 26%; top: 52%; width: 1.75rem; opacity: 0.42; transform: rotate(56deg); }
-.fragmentos i:nth-child(7) { left: 30%; top: 20%; width: 0.8rem; opacity: 0.39; transform: rotate(-30deg); }
-.fragmentos i:nth-child(8) { left: 33%; top: 68%; width: 1.2rem; opacity: 0.36; transform: rotate(34deg); }
-.fragmentos i:nth-child(9) { left: 37%; top: 8%; width: 1.45rem; opacity: 0.34; transform: rotate(-18deg); }
-.fragmentos i:nth-child(10) { left: 41%; top: 58%; width: 0.7rem; opacity: 0.31; transform: rotate(48deg); }
-.fragmentos i:nth-child(11) { left: 45%; top: 24%; width: 1.1rem; opacity: 0.29; transform: rotate(-38deg); }
-.fragmentos i:nth-child(12) { left: 49%; top: 70%; width: 0.65rem; opacity: 0.27; transform: rotate(24deg); }
-.fragmentos i:nth-child(13) { left: 53%; top: 14%; width: 1rem; opacity: 0.24; transform: rotate(52deg); }
-.fragmentos i:nth-child(14) { left: 57%; top: 61%; width: 0.65rem; opacity: 0.22; transform: rotate(-30deg); }
-.fragmentos i:nth-child(15) { left: 61%; top: 30%; width: 0.9rem; opacity: 0.2; transform: rotate(18deg); }
-.fragmentos i:nth-child(16) { left: 65%; top: 74%; width: 0.55rem; opacity: 0.18; transform: rotate(-44deg); }
-.fragmentos i:nth-child(17) { left: 69%; top: 11%; width: 0.8rem; opacity: 0.16; transform: rotate(28deg); }
-.fragmentos i:nth-child(18) { left: 73%; top: 52%; width: 0.55rem; opacity: 0.15; transform: rotate(58deg); }
-.fragmentos i:nth-child(19) { left: 77%; top: 22%; width: 0.75rem; opacity: 0.13; transform: rotate(-34deg); }
-.fragmentos i:nth-child(20) { left: 81%; top: 69%; width: 0.5rem; opacity: 0.12; transform: rotate(24deg); }
-.fragmentos i:nth-child(21) { left: 85%; top: 15%; width: 0.65rem; opacity: 0.1; transform: rotate(50deg); }
-.fragmentos i:nth-child(22) { left: 89%; top: 58%; width: 0.45rem; opacity: 0.09; transform: rotate(-28deg); }
-.fragmentos i:nth-child(23) { left: 93%; top: 26%; width: 0.55rem; opacity: 0.08; transform: rotate(17deg); }
-.fragmentos i:nth-child(24) { left: 97%; top: 66%; width: 0.4rem; opacity: 0.06; transform: rotate(-42deg); }
+.fragmentosComImagem i {
+  background: linear-gradient(145deg, rgb(244 63 94 / 70%), rgb(253 164 175 / 42%));
+  box-shadow: 0 0 0.7rem rgb(244 63 94 / 16%);
+}
+
+.fragmentosComImagem i:nth-child(3n) {
+  background: linear-gradient(135deg, rgb(251 113 133 / 68%), rgb(254 205 211 / 40%));
+}
+
+.fragmentosComImagem i:nth-child(5n) {
+  background: linear-gradient(150deg, rgb(225 29 72 / 58%), color-mix(in oklch, var(--accent-wash-forte) 42%, transparent));
+}
+
+@keyframes petalaFlutua {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(var(--petala-rotacao));
+  }
+  50% {
+    transform: translate3d(var(--petala-deslocamento), -2px, 0) rotate(calc(var(--petala-rotacao) + 8deg));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fragmentos i {
+    animation: none;
+  }
+}
 
 :global(.dark) .fragmentos i {
   filter: saturate(1.08) brightness(1.32);
@@ -212,11 +230,20 @@
 
 .navegacao {
   grid-area: navegacao;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   align-items: center;
+  justify-self: center;
+  width: fit-content;
+  max-width: 100%;
   min-width: 0;
   gap: 0.125rem;
+  padding: 0.22rem;
+  border: 1px solid color-mix(in oklch, var(--border) 76%, transparent);
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--surface) 78%, transparent);
+  box-shadow: 0 5px 18px color-mix(in oklch, var(--foreground) 7%, transparent);
+  backdrop-filter: blur(14px) saturate(1.1);
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -232,7 +259,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  border-radius: 8px;
+  border-radius: 999px;
   flex: 0 0 auto;
   padding: 0 0.45rem;
   color: var(--texto-secundario);
@@ -244,7 +271,7 @@
 }
 
 .link:hover {
-  background: var(--surface-2);
+  background: color-mix(in oklch, var(--surface-2) 88%, transparent);
   color: var(--text);
 }
 
@@ -254,8 +281,9 @@
 }
 
 .linkAtivo {
-  background: var(--accent-wash);
+  background: color-mix(in oklch, var(--accent-wash) 92%, var(--surface));
   color: var(--text);
+  box-shadow: 0 2px 8px color-mix(in oklch, var(--foreground) 8%, transparent);
 }
 
 .sair {
@@ -347,7 +375,13 @@
     mask-image: linear-gradient(90deg, #000 0%, #000 38%, rgb(0 0 0 / 48%) 70%, transparent 100%);
   }
 
-  .fragmentos i:nth-child(n + 17) {
+  .navegacao {
+    justify-self: stretch;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .fragmentos i:nth-child(n + 35) {
     display: none;
   }
 }

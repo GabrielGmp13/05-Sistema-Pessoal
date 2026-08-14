@@ -20,6 +20,13 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — implementação técnica concluída; homologação manual em andamento
 
+- **2026-08-14 (acabamento visual de cards e navegação)** — Os cards da
+  Biblioteca receberam capa dominante com moldura interna, sobreposições mais
+  próximas do protótipo v0 e corpo inferior específico para os temas claro e
+  escuro. A navegação global passou a usar cápsula translúcida; o campo visual
+  foi ampliado para pétalas orgânicas rosadas quando há background de perfil e
+  fallback temático quando não há, sem repetir a imagem real pela barra.
+
 - **2026-08-14 (Biblioteca: estrelas, ordenação e acabamento v0)** — As oito
   contagens da sidebar passaram a carregar na entrada do módulo; a busca ganhou
   ordenação local por recência, título, nota, favoritos e status. As sete

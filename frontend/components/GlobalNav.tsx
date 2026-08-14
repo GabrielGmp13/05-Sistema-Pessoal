@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { BookOpen, Brain, CalendarDays, Dumbbell, FolderKanban, GraduationCap, Home, LogOut, NotebookTabs } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import type { CSSProperties } from 'react'
 
 import { getSession, sb } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
@@ -22,6 +23,22 @@ const links = [
 ]
 
 const rotasDiario = ['/diario', '/saude', '/financas', '/lugares', '/receitas']
+
+const petalas = Array.from({ length: 52 }, (_, indice) => {
+  const esquerda = 7 + ((indice * 71) % 91)
+  const proximidadeDoPerfil = 1 - esquerda / 140
+
+  return {
+    left: `${esquerda}%`,
+    top: `${5 + ((indice * 43) % 82)}%`,
+    width: `${7 + ((indice * 11) % 13)}px`,
+    height: `${4 + ((indice * 7) % 8)}px`,
+    opacity: Math.max(0.17, 0.62 * proximidadeDoPerfil),
+    '--petala-rotacao': `${-68 + ((indice * 37) % 136)}deg`,
+    '--petala-deslocamento': `${2 + (indice % 4)}px`,
+    '--petala-atraso': `${-(indice % 9) * 0.31}s`,
+  } as CSSProperties
+})
 
 function isActive(pathname: string, href: string) {
   if (href === '/') return pathname === '/'
@@ -88,9 +105,15 @@ export function GlobalNav() {
   return (
     <header className={styles.header}>
       <div className={styles.barra}>
-        <span aria-hidden="true" className={styles.perfilRastro} />
-        <span aria-hidden="true" className={styles.fragmentos}>
-          {Array.from({ length: 24 }, (_, indice) => <i key={indice} />)}
+        <span
+          aria-hidden="true"
+          className={cn(styles.perfilRastro, perfil?.backgroundUrl && styles.perfilRastroComImagem)}
+        />
+        <span
+          aria-hidden="true"
+          className={cn(styles.fragmentos, perfil?.backgroundUrl && styles.fragmentosComImagem)}
+        >
+          {petalas.map((style, indice) => <i key={indice} style={style} />)}
         </span>
         <Link
           href="/configuracoes"

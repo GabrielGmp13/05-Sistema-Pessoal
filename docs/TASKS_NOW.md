@@ -123,6 +123,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] Seletor acessível de cinco estrelas e meias estrelas substituiu os inputs numéricos nas sete categorias que possuem `nota`; Artigos permanece sem nota
 - [x] Toggle de tema movido para a área de ações ao lado de “Sair” em todas as rotas autenticadas
 - [x] Fragmentos do topo refinados como pétalas/lascas abstratas; `background_url` continua restrita ao perfil
+- [x] Acabamento final aproximou cards do protótipo v0, ampliou pétalas orgânicas e colocou os links globais em cápsula translúcida (2026-08-14)
 - [x] Reset local completo e teste específico de `20260813000200_biblioteca_nota_cinco_estrelas.sql` aprovados
 - [x] Dry-run limpo, migration aplicada em produção e pós-check sem pendências (2026-08-14)
 - [x] CRUD, importações de metadados, gêneros, Vídeo → Curso, painéis, modais e soft delete preservados

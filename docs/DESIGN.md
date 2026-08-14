@@ -141,13 +141,15 @@ e compartilham altura, alinhamento central e a borda inferior do `header`; o
 efeito principal do perfil fica contido na célula esquerda. A imagem real de
 background nunca é aplicada ao restante da barra: ela desaparece dentro do
 perfil por máscara. Fora dele, a continuidade visual usa apenas manchas e
-fragmentos abstratos em forma de pétalas/lascas derivados dos tokens do tema, com presença maior até
-“Início” e redução gradual depois. A sidebar da Biblioteca não
+fragmentos abstratos em forma de pétalas/lascas. Com um background de perfil
+configurado, eles usam uma paleta rosada suave inspirada na imagem; no fallback,
+derivam dos tokens do tema. A densidade é maior perto do perfil, mas continua
+visível atrás da navegação sem cobrir os links. A sidebar da Biblioteca não
 duplica perfil. O próprio perfil é o acesso a `/configuracoes`, com hover e
 foco visíveis; não existe engrenagem ou atalho separado. Fragmentos pequenos e
-com opacidade decrescente usam `--accent`, `--accent-wash` e
-`--accent-wash-forte`, sem repetir ou esticar `background_url`, formar uma faixa
-sólida ou prejudicar a leitura da navegação.
+orgânicos nunca repetem ou esticam `background_url`, formam faixa sólida ou
+prejudicam a leitura. Os links ficam sobre uma cápsula translúcida com blur,
+borda e item ativo próprio, separando conteúdo e decoração.
 
 O toggle de tema pertence à área direita da navegação global, imediatamente ao
 lado de “Sair”. Ele não deve voltar a flutuar sobre o conteúdo das páginas; na
@@ -184,13 +186,16 @@ Introduzido na Biblioteca v2, mas genérico o bastante para qualquer catálogo
 futuro (ex: se Hábitos ou Projetos precisarem de card com imagem).
 
 **Estrutura:**
-- Imagem em `aspect-ratio: 2/3`, `object-fit: cover`, leve zoom no hover
+- Imagem dominante em `aspect-ratio: 2/3`, `object-fit: cover`, moldura interna
+  discreta e leve zoom no hover
 - Coração no canto superior direito da imagem — **só renderiza se o item for
   favorito**, nunca ícone vazio pra não-favoritos
 - Nota de 0-5 em badge com estrela sobre a capa e status no rodapé da imagem;
   formulários usam cinco estrelas com seleção em passos de 0.5, nunca input
   numérico simples (DEC-054)
-- Título em até 2 linhas, ano/duração ou progresso quando o schema oferece
+- Corpo inferior claro e limpo no tema claro, integrado ao fundo escuro do card
+  no tema escuro; título em até 2 linhas, ano/duração ou progresso quando o
+  schema oferece
 - Até 2 gêneros em pills compactas
 - Menu de ações ("⋯") discreto na área de informações, com clique externo e
   Escape preservados; em telas de toque ele permanece acessível
