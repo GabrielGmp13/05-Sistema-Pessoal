@@ -20,6 +20,13 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — implementação técnica concluída; homologação manual em andamento
 
+- **2026-08-14 (favorito rápido na Biblioteca)** — O coração passou a ficar
+  sempre visível sobre a capa dos cards das oito categorias, vazado ou
+  preenchido conforme o estado. Um clique alterna o favorito sem abrir o painel
+  de detalhes; lista, card e painel selecionado continuam sincronizados pelos
+  callbacks existentes. A opção equivalente foi preservada no menu como acesso
+  alternativo. Sem migration, dependência ou operação remota.
+
 - **2026-08-14 (duração, favoritos e fechamento do brainstorm)** — As oito
   categorias da Biblioteca foram reconciliadas com os campos reais de tempo e
   favorito já presentes no schema. Cards, painéis e formulários agora exibem e

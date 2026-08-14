@@ -103,16 +103,40 @@
   right: 0.55rem;
   width: 1.85rem;
   height: 1.85rem;
+  padding: 0;
   border: 1px solid rgba(255, 255, 255, 0.32);
   border-radius: 50%;
   background: rgba(15, 20, 16, 0.8);
-  color: #ff7b8e;
+  color: rgba(255, 255, 255, 0.88);
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s, border-color 0.15s, transform 0.15s;
 }
 
 .favorito svg {
   width: 14px;
   height: 14px;
+  fill: transparent;
+  transition: fill 0.15s;
+}
+
+.favoritoAtivo {
+  border-color: rgba(255, 151, 166, 0.62);
+  color: #ff7b8e;
+}
+
+.favoritoAtivo svg {
   fill: currentColor;
+}
+
+.favorito:hover {
+  background: rgba(28, 34, 29, 0.94);
+  border-color: rgba(255, 255, 255, 0.58);
+  transform: scale(1.06);
+}
+
+.favorito:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
 }
 
 .status {

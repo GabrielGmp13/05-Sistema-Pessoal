@@ -101,11 +101,19 @@ export default function BibliotecaCard({
           </span>
         ) : null}
 
-        {favorito ? (
-          <span className={styles.favorito} aria-label="Favorito">
-            <Heart aria-hidden="true" />
-          </span>
-        ) : null}
+        <button
+          type="button"
+          className={`${styles.favorito} ${favorito ? styles.favoritoAtivo : ''}`}
+          aria-label={favorito ? `Remover ${titulo} dos favoritos` : `Adicionar ${titulo} aos favoritos`}
+          aria-pressed={favorito}
+          title={favorito ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+          onClick={(event) => {
+            event.stopPropagation();
+            onAlternarFavorito();
+          }}
+        >
+          <Heart aria-hidden="true" />
+        </button>
 
         {statusLabel ? (
           <span className={styles.status}>

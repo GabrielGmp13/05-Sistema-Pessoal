@@ -9,7 +9,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 **Bloqueio:** nenhum bloqueio técnico conhecido para publicar o refinamento da Biblioteca; a migration de notas já está aplicada em produção.
 **Banco:** produção e cadeia local estão alinhadas até `20260813000200_biblioteca_nota_cinco_estrelas.sql`; pós-check remoto de 2026-08-14 não mostrou migrations pendentes.
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** homologar duração/favoritos da Biblioteca, os novos insights do Hub e o resumo de duração do Treino em temas claro/escuro e desktop/mobile.
+**Próxima ação:** homologar o coração direto e a duração da Biblioteca, os novos insights do Hub e o resumo de duração do Treino em temas claro/escuro e desktop/mobile.
 
 ---
 
@@ -130,7 +130,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] Dry-run limpo, migration aplicada em produção e pós-check sem pendências (2026-08-14)
 - [x] CRUD, importações de metadados, gêneros, Vídeo → Curso, painéis, modais e soft delete preservados
 - [x] Duração/tempo auditada nas oito categorias: cards, detalhes e formulários usam os campos reais já existentes; TMDB/Jikan/YouTube preenchem quando a fonte oferece dado confiável, enquanto podcast/iTunes preserva entrada manual por não expor média confiável da obra
-- [x] Favorito auditado nas oito categorias, com checkbox no formulário e ação uniforme Favoritar/Remover favorito no menu dos cards
+- [x] Favorito auditado nas oito categorias, com checkbox no formulário, ação uniforme no menu e coração sempre visível/clicável diretamente na capa do card (2026-08-14)
 - [x] Nenhuma migration foi necessária: `duracao_minutos`, `duracao_segundos`, `tempo_leitura_minutos` e `favorito` já existem no schema de todas as categorias
 - [ ] Validar o novo visual autenticado em produção nos temas claro/escuro e em desktop/mobile
 

@@ -188,8 +188,9 @@ futuro (ex: se Hábitos ou Projetos precisarem de card com imagem).
 **Estrutura:**
 - Imagem dominante em `aspect-ratio: 2/3`, `object-fit: cover`, moldura interna
   discreta e leve zoom no hover
-- Coração no canto superior direito da imagem — **só renderiza se o item for
-  favorito**, nunca ícone vazio pra não-favoritos
+- Coração sempre visível no canto superior direito da imagem, preenchido quando
+  favorito e vazado quando não favorito; funciona como ação rápida de um clique,
+  tem foco visível e não abre o painel do card
 - Nota de 0-5 em badge com estrela sobre a capa e status no rodapé da imagem;
   formulários usam cinco estrelas com seleção em passos de 0.5, nunca input
   numérico simples (DEC-054)
@@ -197,9 +198,9 @@ futuro (ex: se Hábitos ou Projetos precisarem de card com imagem).
   no tema escuro; título em até 2 linhas, ano/duração ou progresso quando o
   schema oferece
 - Até 2 gêneros em pills compactas
-- Menu de ações ("⋯") discreto na área de informações, com ação uniforme de
-  favoritar/remover favorito, edição e exclusão; clique externo e Escape são
-  preservados e, em telas de toque, ele permanece acessível
+- Menu de ações ("⋯") discreto na área de informações, mantendo favorito como
+  alternativa à ação rápida, além de edição e exclusão; clique externo e Escape
+  são preservados e, em telas de toque, ele permanece acessível
 
 ---
 
