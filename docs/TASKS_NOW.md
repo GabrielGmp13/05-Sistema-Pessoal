@@ -44,7 +44,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] `/diario` criado como portal sem tabela própria, agregando dados reais de Saúde, Finanças, Lugares e Receitas
 - [x] Saúde, Finanças, Lugares e Receitas saíram da navegação global direta e passaram a ficar sob Diário
 - [x] O Hub principal substituiu os quatro atalhos separados por um único acesso ao Diário
-- [x] O topo ganhou transição contínua e fragmentos por toda a barra, com presença mais forte entre o perfil e “Início” e dissipação progressiva depois
+- [x] A imagem real ficou restrita ao perfil; o restante do topo usa somente manchas e fragmentos abstratos do tema, mais presentes até “Início” e progressivamente discretos depois
 - [ ] Validar Treino, Diário e o topo em tema claro/escuro, desktop e mobile
 
 ## Lote Saúde, Finanças e Lugares — 2026-08-13

@@ -138,15 +138,16 @@ Em todas as rotas autenticadas, o perfil fica no início da navegação global
 degradando logo depois do nome até a barra. “Início” é o acesso à Home; a área
 de perfil não duplica esse link. Perfil, links e logout ocupam uma única grade
 e compartilham altura, alinhamento central e a borda inferior do `header`; o
-efeito principal do perfil fica contido na célula esquerda. A transição visual
-continua por toda a barra em uma camada mascarada e em fragmentos irregulares
-da mesma imagem/cor. Ela mantém presença mais forte entre o perfil e “Início”
-e diminui gradualmente depois até o fundo normal. A sidebar da Biblioteca não
+efeito principal do perfil fica contido na célula esquerda. A imagem real de
+background nunca é aplicada ao restante da barra: ela desaparece dentro do
+perfil por máscara. Fora dele, a continuidade visual usa apenas manchas e
+fragmentos abstratos derivados dos tokens do tema, com presença maior até
+“Início” e redução gradual depois. A sidebar da Biblioteca não
 duplica perfil. O próprio perfil é o acesso a `/configuracoes`, com hover e
 foco visíveis; não existe engrenagem ou atalho separado. Fragmentos pequenos e
-com opacidade decrescente repetem a imagem/cor do background ao longo da barra, sem
-formar uma faixa sólida nem prejudicar a leitura da navegação. Com o fallback,
-os fragmentos usam os tokens `--accent`/`--accent-wash` do tema.
+com opacidade decrescente usam `--accent`, `--accent-wash` e
+`--accent-wash-forte`, sem repetir ou esticar `background_url`, formar uma faixa
+sólida ou prejudicar a leitura da navegação.
 
 Item ativo: `border-left: 2px solid var(--accent-foreground)`, fundo
 `--accent-wash`, texto `--accent-foreground`.

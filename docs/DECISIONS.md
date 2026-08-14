@@ -940,10 +940,10 @@ e automações ficam para decisões próprias, com análise de segurança e cust
 - O Hub global continua mostrando prioridades transversais. Módulos amplos
   podem ter dashboards próprios: `/treino` passa a resumir sessões, planos,
   exercícios e Shape antes de levar às rotas operacionais.
-- O background do perfil pode continuar visualmente por toda a barra através
-  de camada degradada e fragmentos da mesma imagem/cor. A presença permanece
-  mais forte até a região de “Início” e se dissipa progressivamente depois,
-  mantendo a legibilidade dos demais links.
+- A imagem real do background fica restrita ao bloco de perfil e desaparece
+  com máscara antes da navegação. O restante da barra usa apenas manchas e
+  fragmentos abstratos derivados dos tokens do tema, mais presentes até a
+  região de “Início” e progressivamente mais discretos depois.
 
 ### Impacto
 

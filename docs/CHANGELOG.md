@@ -20,6 +20,12 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — implementação técnica concluída; homologação manual em andamento
 
+- **2026-08-13 (correção dos fragmentos do topo)** — Removido o repasse de
+  `background_url` para o rastro e as partículas da navbar, que esticava a
+  imagem real pela barra. A foto agora permanece exclusivamente no bloco do
+  perfil; o restante do efeito usa gradientes e lascas abstratas dos tokens do
+  tema, com maior presença até “Início” e dissipação progressiva.
+
 - **2026-08-13 (reconciliação pós-lote)** — Documentação consolidada para
   registrar a implementação técnica da v2 expandida, mantendo os testes manuais
   finais como etapa de homologação. A política de Git agora explicita que agentes
