@@ -139,11 +139,12 @@ degradando logo depois do nome até a barra. “Início” é o acesso à Home; 
 de perfil não duplica esse link. Perfil, links e logout ocupam uma única grade
 e compartilham altura, alinhamento central e a borda inferior do `header`; o
 efeito principal do perfil fica contido na célula esquerda. A transição visual
-continua pela barra em uma camada de baixa opacidade e em fragmentos irregulares
-da mesma imagem/cor, que diminuem gradualmente até o fundo normal. A sidebar da Biblioteca não
+continua por toda a barra em uma camada mascarada e em fragmentos irregulares
+da mesma imagem/cor. Ela mantém presença mais forte entre o perfil e “Início”
+e diminui gradualmente depois até o fundo normal. A sidebar da Biblioteca não
 duplica perfil. O próprio perfil é o acesso a `/configuracoes`, com hover e
 foco visíveis; não existe engrenagem ou atalho separado. Fragmentos pequenos e
-de baixa opacidade repetem a imagem/cor do background ao longo da barra, sem
+com opacidade decrescente repetem a imagem/cor do background ao longo da barra, sem
 formar uma faixa sólida nem prejudicar a leitura da navegação. Com o fallback,
 os fragmentos usam os tokens `--accent`/`--accent-wash` do tema.
 

@@ -44,9 +44,9 @@ sessão deve seguir a mesma disciplina:
 
 1. Ler `AI_CONTEXT.md` primeiro, depois este documento, antes de propor
    qualquer mudança estrutural.
-2. Nunca commitar diretamente — geração de código é entregue como arquivo
-   completo (criação nova) ou diff old→new (alteração), para Gabriel aplicar
-   manualmente.
+2. Não commitar nem fazer push por padrão. Essas operações só são executadas
+   por agente quando Gabriel autorizar explicitamente no prompt, depois de
+   revisar validações, stage e segredos; sem autorização, a mudança fica local.
 3. Nunca reabrir uma decisão de `DECISIONS.md` sem informação nova e concreta.
 4. Nunca assumir nome de coluna/tabela/rota de memória — conferir em
    `DATABASE.md` ou no código real do repositório (público em

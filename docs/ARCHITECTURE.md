@@ -234,9 +234,9 @@ Repositório conectado como **público**
 acesso à rede pode clonar e ler arquivos reais do projeto diretamente, em
 vez de depender só de cópia manual colada pelo usuário. Reduz risco de
 assinatura de função assumida incorretamente (ver `PROJECT_PRINCIPLES.md`
-#12). Não altera o fluxo de aplicação de mudanças — geração de código
-continua sendo entregue como arquivo/diff pro usuário aplicar manualmente;
-**nenhuma alteração é commitada diretamente por um agente de IA.**
+#12). Não altera o fluxo de aplicação de mudanças: agentes deixam alterações
+locais por padrão e só fazem commit/push com autorização explícita de Gabriel
+no prompt, após revisar validações, stage e segredos.
 
 ---
 

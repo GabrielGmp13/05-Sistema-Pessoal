@@ -106,15 +106,17 @@ navegação e logout passou em produção em 2026-08-09; a dívida de confirmaç
 nativa foi zerada em 2026-08-11. As próximas prioridades dependem das decisões
 registradas em `TASKS_NOW.md`.
 
-## Fase 7 — v2: Migração para Next.js/React 🔄 EM ANDAMENTO
+## Fase 7 — v2 expandida: implementação técnica ✅ CONCLUÍDA
 
-**Objetivo:** migrar o frontend de HTML puro para Next.js/React (DEC-018), de
-forma incremental, módulo por módulo.
+**Objetivo concluído:** migrar e ampliar o frontend em Next.js/React (DEC-018),
+de forma incremental, módulo por módulo. A homologação manual final permanece
+aberta e não se confunde com features futuras do backlog.
 
 **Importante:** v1 foi removida do projeto em 2026-07-19 (DEC-031) — o
 frontend Next.js (pasta `frontend/`, renomeada de `frontend-v2/`) é o único
 frontend ativo. Revisão Espaçada e Agenda ganharam páginas dedicadas em
-2026-08-11; a migration da Agenda já foi aplicada em produção.
+2026-08-11; Diário e o dashboard de Treino completaram a composição em
+2026-08-13. As migrations incrementais desse escopo estão aplicadas em produção.
 
 **Escopo de features por módulo:** cada módulo migrado passa primeiro por
 `MODULE_TEMPLATE.md` completo — incluindo a pergunta "precisa de API Route?"
@@ -126,7 +128,7 @@ frontend ativo. Revisão Espaçada e Agenda ganharam páginas dedicadas em
 |---|---|---|
 | 7.0 | Setup do projeto Next.js — estrutura de pastas, `lib/supabase.ts`, `proxy.ts` (renomeado de `middleware.ts`, DEC-031), layout base, CSS global | ✅ Completo |
 | 7.1 | Treino v2 | ✅ Completo — pendências de polimento em `BACKLOG.md` (gráfico de peso, upload de imagem de exercício) |
-| 7.2 | Biblioteca v2 | ✅ Vídeos e Artigos integrados; gêneros persistidos; busca de metadados em sete fontes implementada, restando configuração opcional de YouTube/TMDB e testes manuais finais |
+| 7.2 | Biblioteca v2 | ✅ Oito categorias integradas; gêneros persistidos; busca de metadados para as categorias compatíveis implementada com YouTube, TMDB, Google Books, Jikan e iTunes, restando configuração opcional de YouTube/TMDB e testes manuais finais |
 | 7.3 | Estudos v2 (Fase 1 + Fase 1B) | ✅ 9 rotas de página implementadas e restilizadas (Tailwind/shadcn), incluindo `/estudos/enem/[area]`; schema estendido por `017`/`018`/`019` (gabarito ENEM em 2 fases, matéria única Escola/ENEM, domínio de conteúdo) — todas as migrations confirmadas executadas via dump real do banco (2026-08). Acesso principal passou no smoke de produção; teste profundo das 9 rotas internas permanece opcional — ver `TASKS_NOW.md` |
 | 7.4 | Revisão Espaçada v2 (página dedicada) | ✅ `/revisao` implementada com listas pendente/futura, avaliação SM-2, card manual e soft delete; validação manual fica para a etapa final |
 | 7.5 | Agenda v2 | ✅ Implementada e liberada para publicação: visão semanal, CRUD, cronograma de estudo, provas sem duplicação e vínculo com treino; migration incremental aplicada em produção |

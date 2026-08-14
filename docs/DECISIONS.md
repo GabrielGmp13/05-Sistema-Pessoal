@@ -57,7 +57,7 @@ Os 7 módulos (Cardio, Força, Resistência, Hipertrofia, Flexibilidade, Mobilid
 ### DEC-027 — Padrão de UI da Biblioteca v2: painel de detalhe + menu "⋯"
 **Status:** ✅ Aprovada e implementada.
 Dois componentes de painel **somente leitura** (edição sempre via modal, nunca inline no painel): `PainelDetalheObra` (Filme/Série/Anime — sabe buscar elenco, trilha/openings-endings, temporadas) e `PainelSimples` (Mangá/Livro/Podcast — sem lógica de elenco/trilha embutida, recebe seção extra via `children`). Cards de listagem: clique no corpo abre o painel; botão "⋯" abre menu Editar/Apagar.
-**Pendências conhecidas** (ver BACKLOG.md): menu "⋯" não fecha ao clicar fora; listas aninhadas só criam/apagam, não editam; sem reordenação manual.
+**Pendências conhecidas** (ver BACKLOG.md): listas aninhadas só criam/apagam, não editam; sem reordenação manual. O menu "⋯" passou a fechar por clique externo, Escape e escolha de ação em 2026-08.
 
 ### DEC-028/029/030 — Biblioteca v2 B4 (Mangás), B5 (Livros), B6 (Podcasts)
 **Status:** ✅ Aprovadas e executadas.
@@ -67,14 +67,14 @@ Dois componentes de painel **somente leitura** (edição sempre via modal, nunca
 
 ### DEC-031 — v1 aposentada, frontend-v2 renomeada para frontend
 **Status:** ✅ Aprovada e implementada.
-Pasta `frontend/` (v1) removida do projeto (backup local, fora do Git). `frontend-v2/` renomeada para `frontend/`, único frontend ativo. Projeto Vercel reaproveitado (mesma URL, sem reconfigurar Auth Redirect). **No momento do cutover**, Estudos, Revisão Espaçada e Agenda dedicada ficaram deliberadamente ausentes da v2 — abordagem "camada por camada": schema intacto no Supabase, inicialmente sem tela. Estudos foi implementado depois; Revisão Espaçada segue apenas como motor usado por Estudos, e Agenda continua sem tela dedicada.
+Pasta `frontend/` (v1) removida do projeto (backup local, fora do Git). `frontend-v2/` renomeada para `frontend/`, único frontend ativo. Projeto Vercel reaproveitado (mesma URL, sem reconfigurar Auth Redirect). **No momento do cutover**, Estudos, Revisão Espaçada e Agenda dedicada ficaram deliberadamente ausentes da v2 — abordagem "camada por camada": schema intacto no Supabase, inicialmente sem tela. Depois do cutover, Estudos foi implementado e Revisão Espaçada e Agenda ganharam telas dedicadas; esse estado posterior não altera a decisão incremental original.
 **Dois bugs de infra corrigidos no cutover:**
 1. `middleware.ts` dava 500 (`__dirname is not defined`) — `@supabase/ssr`→`realtime-js` usa APIs Node incompatíveis com Edge Runtime. Resolvido migrando para `proxy.ts` (Next.js 16, roda em Node runtime por padrão) — rename de arquivo/função, sem mudança de lógica.
 2. Vercel mantinha Framework Preset "Other" congelado no deployment antigo mesmo após trocar Project Settings — resolvido com um Redeploy forçado.
 
 ### DEC-032 — Biblioteca v2: página única com sidebar de categorias (reabre estrutura de rotas)
 **Status:** ✅ Aprovada e implementada (código gerado via Cline+DeepSeek em 2026-07-19 — ver CHANGELOG.md).
-As 6 rotas por tipo (`/biblioteca/filmes` etc.) são descontinuadas em favor de `app/biblioteca/page.tsx` única, com `app/biblioteca/layout.tsx` (sidebar 2/9 + conteúdo 7/9). Categoria ativa é `useState` no client, sem navegação de rota. Sidebar: Filmes, Séries, Animes, Mangás, Livros, Podcasts + botão fixo "Adicionar obra". Toda lógica de dados (`lib/*.ts`) e componentes de painel (DEC-027) são 100% reaproveitados — mudança é só de composição/layout.
+As 6 rotas por tipo (`/biblioteca/filmes` etc.) são descontinuadas em favor de `app/biblioteca/page.tsx` única, com `app/biblioteca/layout.tsx` (sidebar 2/9 + conteúdo 7/9). Categoria ativa é `useState` no client, sem navegação de rota. A sidebar original reunia Filmes, Séries, Animes, Mangás, Livros e Podcasts; Vídeos e Artigos foram acrescentados em 2026-08, totalizando oito categorias na mesma composição. Toda lógica de dados (`lib/*.ts`) e componentes de painel (DEC-027) é reaproveitada — a decisão continua sendo página única com sidebar local.
 Novo componente genérico `components/Sidebar.tsx`, pensado para reaproveite futuro em Treino/Estudos.
 **Decidido também:** sem sidebar global de nível 1 por ora (dashboard ainda sem design definido) — cada módulo com navegação por categoria ganha sua própria sidebar local.
 
@@ -940,8 +940,10 @@ e automações ficam para decisões próprias, com análise de segurança e cust
 - O Hub global continua mostrando prioridades transversais. Módulos amplos
   podem ter dashboards próprios: `/treino` passa a resumir sessões, planos,
   exercícios e Shape antes de levar às rotas operacionais.
-- O background do perfil pode continuar visualmente pela barra através de uma
-  camada degradada e fragmentos da mesma imagem/cor, mantendo a legibilidade.
+- O background do perfil pode continuar visualmente por toda a barra através
+  de camada degradada e fragmentos da mesma imagem/cor. A presença permanece
+  mais forte até a região de “Início” e se dissipa progressivamente depois,
+  mantendo a legibilidade dos demais links.
 
 ### Impacto
 

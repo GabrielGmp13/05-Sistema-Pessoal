@@ -13,8 +13,8 @@
 
 Qualquer agente de IA que trabalhar neste projeto (Claude via chat, Codex via
 `AGENTS.md`, ou outro) segue a mesma disciplina: lê a documentação nesta
-ordem antes de propor mudança estrutural, nunca commita diretamente, nunca
-assume nome de coluna/rota de memória. Ver `PROJECT_PRINCIPLES.md` → "Fluxo
+ordem antes de propor mudança estrutural, só commita/pusha com autorização
+explícita do usuário e nunca assume nome de coluna/rota de memória. Ver `PROJECT_PRINCIPLES.md` → "Fluxo
 de trabalho com IAs" para o histórico completo de ferramentas já usadas.
 
 ---
@@ -49,13 +49,13 @@ operacional.
 
 ## Estado atual (2026-08)
 
-**Fase:** Fase 7 — v2 é o único frontend ativo (v1 removida do projeto em 2026-07-19, DEC-031)
+**Fase:** Fase 7 — implementação técnica da v2 expandida concluída; homologação manual final em andamento. A v2 é o único frontend ativo (v1 removida em 2026-07-19, DEC-031).
 **Decisão-chave:** DEC-018 (reabre DEC-006) — frontend migrou de HTML puro para Next.js/React
 **Deploy:** ✅ em produção no Vercel desde 2026-07-13 (não "pendente" — ver `ARCHITECTURE.md`)
 **Schema:** baseline confirmada via dump real em 2026-08 com 44 tabelas; produção e ambiente local estão em 59 tabelas após as migrations incrementais até Saúde/Finanças/Lugares (ver `DATABASE.md`).
 **Histórico CLI:** adotado em produção em 2026-08-08 — as três baselines e as migrations incrementais até `20260813000100_saude_financas_lugares.sql` estão registradas como `applied`; pós-check remoto sem pendências em 2026-08-13.
 **Reprodutibilidade:** Node.js `24.15.0`, npm `12.0.1`, `npm ci`, typecheck e build validados; CI mínima ativa. Lint mantém 40 achados conhecidos e informativos na medição de 2026-08-12.
-**Próxima tarefa imediata:** validar os dashboards de Treino/Diário e o novo acabamento do perfil global; ver `TASKS_NOW.md`
+**Próxima tarefa imediata:** concluir a homologação manual autenticada da v2 expandida, incluindo Treino, Diário, módulos CRUD e responsividade; ver `TASKS_NOW.md`.
 
 ---
 
@@ -83,7 +83,7 @@ operacional.
 3. Não alterar stack sem justificativa forte (ver `PROJECT_PRINCIPLES.md`).
 4. Toda nova página segue o padrão descrito em `ARCHITECTURE.md` → Frontend.
 5. Todo nome de coluna/tabela deve ser conferido em `DATABASE.md` antes de escrever queries — a causa mais comum de bugs neste projeto até agora foi nome de coluna inventado sem checar o schema real. Em segundo lugar: arquivo de migration local divergindo do banco real (ver `DATABASE.md`, nota de 2026-08) — quando em dúvida, o banco de produção é a fonte da verdade, não o `.sql` local.
-6. Nenhuma alteração é commitada diretamente por um agente de IA — sempre entregue pro usuário aplicar manualmente.
+6. Agentes não commitam nem fazem push por padrão; podem fazê-lo somente quando o usuário autorizar explicitamente no prompt, após revisar validações, stage e segredos.
 7. Banco: `history/legacy-migrations/` é somente acervo; `snapshots/` é somente evidência; a cadeia ativa fica em `backend/supabase/migrations/`. Baseline aplicada nunca é editada — toda mudança futura nasce em migration timestamped incremental.
 
 ---

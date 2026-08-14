@@ -5,15 +5,15 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 ---
 
 ## Status geral
-**Fase atual:** Fase 7 (v2) — v1 aposentada (DEC-031), `frontend/` é o único frontend ativo. Hub inicial v2, navegação global e logout visível implementados; Biblioteca e Treino v2 funcionalmente prontos; Estudos v2 com 9 rotas de página implementadas e restilizadas, correções de modelagem de 2026-08 aplicadas.
-**Bloqueio:** nenhum bloqueio de banco conhecido para publicar Saúde, Finanças e Lugares.
+**Fase atual:** Fase 7 (v2 expandida) — implementação técnica concluída. Hub, Treino, Biblioteca, Estudos, Revisão, Agenda, Perfil, Projetos, Receitas, Diário, Saúde, Finanças e Lugares possuem caminhos reais de uso; a v1 está aposentada (DEC-031) e `frontend/` é o único frontend ativo.
+**Bloqueio:** nenhum bloqueio técnico ou de banco conhecido; declarar a v2 expandida concluída depende da homologação manual final dos fluxos e da responsividade.
 **Banco:** produção está alinhada até `20260813000100_saude_financas_lugares.sql`, aplicada em 2026-08-13 após dry-run limpo; o pós-check remoto não mostrou pendências.
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** validar manualmente o novo dashboard de Treino, o portal Diário e o efeito de background fragmentado da navegação global.
+**Próxima ação:** concluir o checklist manual autenticado da v2 expandida, com atenção a Treino, Diário, CRUDs, Biblioteca, Agenda/Revisão e responsividade do topo.
 
 ---
 
-## 🔴 Cutover v1 → v2 (DEC-031) — pendência antiga, ainda em aberto
+## ✅ Cutover v1 → v2 (DEC-031) — concluído
 
 - [x] Pasta renomeada `frontend-v2/` → `frontend/`
 - [x] Projeto Vercel antigo deletado, projeto novo criado com Root Directory `frontend`
@@ -44,7 +44,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] `/diario` criado como portal sem tabela própria, agregando dados reais de Saúde, Finanças, Lugares e Receitas
 - [x] Saúde, Finanças, Lugares e Receitas saíram da navegação global direta e passaram a ficar sob Diário
 - [x] O Hub principal substituiu os quatro atalhos separados por um único acesso ao Diário
-- [x] O topo ganhou uma transição contínua do background do perfil e fragmentos distribuídos pela barra
+- [x] O topo ganhou transição contínua e fragmentos por toda a barra, com presença mais forte entre o perfil e “Início” e dissipação progressiva depois
 - [ ] Validar Treino, Diário e o topo em tema claro/escuro, desktop e mobile
 
 ## Lote Saúde, Finanças e Lugares — 2026-08-13
@@ -102,7 +102,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] Sidebar da Biblioteca compactada e contraste do item ativo corrigido
 - [x] Topo deixa de quebrar prematuramente em grade: desktop compacto começa em 960px e larguras menores usam navegação horizontal controlada
 - [x] Perfil permanece como único acesso às Configurações e o topo recebe fragmentos sutis do background, com fallback temático
-- [ ] Confirmar o novo deploy e continuar o teste manual de Hub, Biblioteca e Revisão em desktop/mobile
+- [ ] Confirmar o deploy de `0fef310` e continuar o teste manual autenticado em desktop/mobile
 
 ## Integrações externas da Biblioteca — primeiro lote
 
@@ -121,7 +121,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] Validar localmente `20260811000100_agenda_v2.sql` com reset, teste consolidado e teste específico (2026-08-11)
 - [x] Migration da Agenda aplicada em produção via cadeia ativa e pós-check remoto concluído (2026-08-11)
 
-## 🟢 Agenda v2 — pronta para publicação
+## 🟢 Agenda v2 — implementada e publicada
 
 - [x] Visão semanal de compromissos por data
 - [x] CRUD de eventos manuais com soft delete e `ConfirmDialog`

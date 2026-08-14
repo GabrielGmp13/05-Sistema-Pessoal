@@ -18,7 +18,14 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ---
 
-## v2 (Next.js) — em andamento
+## v2 expandida (Next.js) — implementação técnica concluída; homologação manual em andamento
+
+- **2026-08-13 (reconciliação pós-lote)** — Documentação consolidada para
+  registrar a implementação técnica da v2 expandida, mantendo os testes manuais
+  finais como etapa de homologação. A política de Git agora explicita que agentes
+  não commitam/pusham por padrão, mas podem fazê-lo com autorização expressa do
+  usuário. O rastro do background do perfil foi reforçado por toda a barra, com
+  maior presença até “Início” e dissipação progressiva nos links seguintes.
 
 - **2026-08-13 (dashboards de Treino e Diário)** — `/treino` deixou de ser
   apenas uma grade de modalidades e passou a resumir sessões da semana,
