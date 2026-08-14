@@ -133,6 +133,7 @@ frontend ativo. Revisão Espaçada e Agenda ganharam páginas dedicadas em
 | 7.6 | Dashboard/hub operacional | ✅ Resumos reais e carrossel compacto de insights pessoais sobre as entidades existentes, sem migration |
 | 7.7 | Perfil, Projetos e Receitas | ✅ Frontend implementado e `20260812000200` aplicada em produção; resta teste manual |
 | 7.8 | Saúde, Finanças e Lugares | ✅ Frontend implementado e `20260813000100` aplicada em produção; resta teste manual |
+| 7.9 | Dashboards de domínio | ✅ `/treino` ampliado e `/diario` criado como agregador de Saúde, Finanças, Lugares e Receitas, sem migration |
 
 ### Módulo: Projetos
 

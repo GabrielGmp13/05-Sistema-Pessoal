@@ -31,6 +31,26 @@ export interface ExercicioCardio {
   ordem: number
 }
 
+export interface SessaoTreinoResumo {
+  uuid: string
+  treino_uuid: string
+  data_inicio: string
+  data_fim: string | null
+}
+
+export interface RegistroShapeResumo {
+  uuid: string
+  data: string
+  peso: number | null
+}
+
+export interface DadosDashboardTreino {
+  treinos: Treino[]
+  sessoes: SessaoTreinoResumo[]
+  registrosShape: RegistroShapeResumo[]
+  totalExercicios: number
+}
+
 // ---------- Treinos ----------
 
 export async function getTreinosPorModulo(sb: SB, userId: string, moduloUuid: string): Promise<Treino[]> {
@@ -178,4 +198,30 @@ export async function getTodosTreinos(sb: SB, userId: string): Promise<Treino[]>
     return []
   }
   return data ?? []
+}
+
+export async function getDadosDashboardTreino(
+  sb: SB,
+  userId: string,
+): Promise<DadosDashboardTreino | null> {
+  const [treinos, sessoes, shape, forca, cardio] = await Promise.all([
+    sb.from('treinos').select('uuid, nome, descricao, modulo_uuid').eq('user_id', userId).eq('deleted', false).order('nome'),
+    sb.from('sessoes_treino').select('uuid, treino_uuid, data_inicio, data_fim').eq('user_id', userId).eq('deleted', false).order('data_inicio', { ascending: false }).limit(12),
+    sb.from('shape').select('uuid, data, peso').eq('user_id', userId).eq('deleted', false).order('data', { ascending: false }).limit(6),
+    sb.from('exercicios_forca').select('uuid').eq('user_id', userId).eq('deleted', false),
+    sb.from('exercicios_cardio').select('uuid').eq('user_id', userId).eq('deleted', false),
+  ])
+
+  const erro = treinos.error ?? sessoes.error ?? shape.error ?? forca.error ?? cardio.error
+  if (erro) {
+    console.error('[getDadosDashboardTreino]', erro)
+    return null
+  }
+
+  return {
+    treinos: treinos.data ?? [],
+    sessoes: sessoes.data ?? [],
+    registrosShape: shape.data ?? [],
+    totalExercicios: (forca.data?.length ?? 0) + (cardio.data?.length ?? 0),
+  }
 }

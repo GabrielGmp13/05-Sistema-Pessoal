@@ -921,3 +921,29 @@ sem inflar o primeiro schema nem misturar responsabilidades de outros módulos.
 O lote entrega uso real com contratos pequenos e separa claramente os domínios.
 Reutilizar `shape` evita duas fontes concorrentes para peso; integrações externas
 e automações ficam para decisões próprias, com análise de segurança e custo.
+
+---
+
+## DEC-053 — Diário agrupa áreas cotidianas e módulos podem ter dashboards próprios
+
+**Data:** 2026-08-13
+**Status:** ✅ Aprovada pelo usuário e implementada
+
+### Decisão
+
+- `/diario` é um portal/dashboard de Saúde, Finanças, Lugares e Receitas; não
+  possui tabela nem cria uma segunda fonte de verdade para esses módulos.
+- As quatro rotas permanecem independentes para seus CRUDs, mas deixam de
+  ocupar a navegação global. O item Diário fica ativo também dentro delas.
+- Nesta fase, Diário não é editor de texto nem histórico cronológico livre. O
+  nome representa a visão cotidiana integrada definida pelo usuário.
+- O Hub global continua mostrando prioridades transversais. Módulos amplos
+  podem ter dashboards próprios: `/treino` passa a resumir sessões, planos,
+  exercícios e Shape antes de levar às rotas operacionais.
+- O background do perfil pode continuar visualmente pela barra através de uma
+  camada degradada e fragmentos da mesma imagem/cor, mantendo a legibilidade.
+
+### Impacto
+
+A mudança é somente de composição e leitura: usa tabelas, RLS e bibliotecas já
+existentes. Não exige migration, Storage, API externa ou dependência nova.

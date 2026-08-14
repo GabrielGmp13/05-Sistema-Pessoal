@@ -2,8 +2,8 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { BookOpen, Brain, CalendarDays, ChevronDown, CircleDollarSign, Dumbbell, FolderKanban, GraduationCap, HeartPulse, Home, LogOut, MapPinned, Utensils } from 'lucide-react'
-import { type CSSProperties, useEffect, useRef, useState } from 'react'
+import { BookOpen, Brain, CalendarDays, Dumbbell, FolderKanban, GraduationCap, Home, LogOut, NotebookTabs } from 'lucide-react'
+import { type CSSProperties, useEffect, useState } from 'react'
 
 import { getSession, sb } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
@@ -17,17 +17,16 @@ const links = [
   { href: '/revisao', label: 'Revisão', icon: Brain },
   { href: '/agenda', label: 'Agenda', icon: CalendarDays },
   { href: '/projetos', label: 'Projetos', icon: FolderKanban },
-  { href: '/receitas', label: 'Receitas', icon: Utensils },
+  { href: '/diario', label: 'Diário', icon: NotebookTabs },
 ]
 
-const linksExtras = [
-  { href: '/saude', label: 'Saúde', icon: HeartPulse },
-  { href: '/financas', label: 'Finanças', icon: CircleDollarSign },
-  { href: '/lugares', label: 'Lugares', icon: MapPinned },
-]
+const rotasDiario = ['/diario', '/saude', '/financas', '/lugares', '/receitas']
 
 function isActive(pathname: string, href: string) {
   if (href === '/') return pathname === '/'
+  if (href === '/diario') {
+    return rotasDiario.some((rota) => pathname === rota || pathname.startsWith(`${rota}/`))
+  }
   return pathname === href || pathname.startsWith(`${href}/`)
 }
 
@@ -36,8 +35,6 @@ export function GlobalNav() {
   const router = useRouter()
   const ocultarNavegacao = pathname === '/login'
   const [saindo, setSaindo] = useState(false)
-  const [maisAberto, setMaisAberto] = useState(false)
-  const maisRef = useRef<HTMLDivElement>(null)
   const [perfil, setPerfil] = useState<{
     nome: string
     avatarUrl: string | null
@@ -68,22 +65,6 @@ export function GlobalNav() {
     }
   }, [ocultarNavegacao])
 
-  useEffect(() => {
-    if (!maisAberto) return
-    function fechar(event: MouseEvent) {
-      if (!maisRef.current?.contains(event.target as Node)) setMaisAberto(false)
-    }
-    function fecharComEscape(event: KeyboardEvent) {
-      if (event.key === 'Escape') setMaisAberto(false)
-    }
-    window.addEventListener('mousedown', fechar)
-    window.addEventListener('keydown', fecharComEscape)
-    return () => {
-      window.removeEventListener('mousedown', fechar)
-      window.removeEventListener('keydown', fecharComEscape)
-    }
-  }, [maisAberto])
-
   if (ocultarNavegacao) return null
 
   async function handleLogout() {
@@ -104,8 +85,9 @@ export function GlobalNav() {
   return (
     <header className={styles.header}>
       <div className={styles.barra}>
+        <span aria-hidden="true" className={styles.perfilRastro} style={estiloFragmentos} />
         <span aria-hidden="true" className={styles.fragmentos} style={estiloFragmentos}>
-          {Array.from({ length: 7 }, (_, indice) => <i key={indice} />)}
+          {Array.from({ length: 15 }, (_, indice) => <i key={indice} />)}
         </span>
         <Link
           href="/configuracoes"
@@ -154,39 +136,6 @@ export function GlobalNav() {
               </Link>
             )
           })}
-          <div ref={maisRef} className={styles.maisContainer}>
-            <button
-              type="button"
-              className={cn(styles.link, linksExtras.some((link) => isActive(pathname, link.href)) && styles.linkAtivo)}
-              aria-haspopup="menu"
-              aria-expanded={maisAberto}
-              onClick={() => setMaisAberto((aberto) => !aberto)}
-            >
-              <span>Mais</span>
-              <ChevronDown className={cn('size-3.5 transition-transform', maisAberto && 'rotate-180')} />
-            </button>
-            {maisAberto ? (
-              <div className={styles.maisMenu} role="menu">
-                {linksExtras.map((link) => {
-                  const Icon = link.icon
-                  const active = isActive(pathname, link.href)
-                  return (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      role="menuitem"
-                      aria-current={active ? 'page' : undefined}
-                      className={cn(styles.maisItem, active && styles.maisItemAtivo)}
-                      onClick={() => setMaisAberto(false)}
-                    >
-                      <Icon className="size-4" />
-                      {link.label}
-                    </Link>
-                  )
-                })}
-              </div>
-            ) : null}
-          </div>
         </nav>
 
         <button

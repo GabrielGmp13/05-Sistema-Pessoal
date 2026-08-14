@@ -20,6 +20,15 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 (Next.js) — em andamento
 
+- **2026-08-13 (dashboards de Treino e Diário)** — `/treino` deixou de ser
+  apenas uma grade de modalidades e passou a resumir sessões da semana,
+  treinos planejados, exercícios, Shape e histórico recente. `/diario` foi
+  criado como portal sem tabela própria, agregando Saúde, Finanças, Lugares e
+  Receitas; essas quatro áreas saíram do topo e passaram a ser representadas
+  por Diário. A navegação também ganhou uma transição visível do background do
+  perfil com fragmentos irregulares distribuídos pela barra, incluindo
+  fallback nos temas claro e escuro. Sem migration ou dependência nova.
+
 - **2026-08-13 (Saúde, Finanças e Lugares)** — Criados os módulos manuais
   `/saude`, `/financas` e `/lugares`, com migration incremental única, RLS,
   GRANT, checks, índices parciais e soft delete. Saúde preserva `shape` como

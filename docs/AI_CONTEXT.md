@@ -55,7 +55,7 @@ operacional.
 **Schema:** baseline confirmada via dump real em 2026-08 com 44 tabelas; produção e ambiente local estão em 59 tabelas após as migrations incrementais até Saúde/Finanças/Lugares (ver `DATABASE.md`).
 **Histórico CLI:** adotado em produção em 2026-08-08 — as três baselines e as migrations incrementais até `20260813000100_saude_financas_lugares.sql` estão registradas como `applied`; pós-check remoto sem pendências em 2026-08-13.
 **Reprodutibilidade:** Node.js `24.15.0`, npm `12.0.1`, `npm ci`, typecheck e build validados; CI mínima ativa. Lint mantém 40 achados conhecidos e informativos na medição de 2026-08-12.
-**Próxima tarefa imediata:** ver `TASKS_NOW.md`
+**Próxima tarefa imediata:** validar os dashboards de Treino/Diário e o novo acabamento do perfil global; ver `TASKS_NOW.md`
 
 ---
 

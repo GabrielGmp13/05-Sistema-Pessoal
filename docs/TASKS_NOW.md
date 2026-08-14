@@ -9,7 +9,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 **Bloqueio:** nenhum bloqueio de banco conhecido para publicar Saúde, Finanças e Lugares.
 **Banco:** produção está alinhada até `20260813000100_saude_financas_lugares.sql`, aplicada em 2026-08-13 após dry-run limpo; o pós-check remoto não mostrou pendências.
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** publicar e testar manualmente Saúde, Finanças, Lugares, o Hub ampliado e as importações de metadados da Biblioteca.
+**Próxima ação:** validar manualmente o novo dashboard de Treino, o portal Diário e o efeito de background fragmentado da navegação global.
 
 ---
 
@@ -38,13 +38,22 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] Insights ampliados com tempo estudado hoje/semana/mês, receita recente e próximo compromisso, sem tabela nova
 - [ ] Validar visualmente o Hub com dados reais em desktop e mobile na etapa final
 
+## Dashboards de domínio e Diário — 2026-08-13
+
+- [x] `/treino` deixou de ser apenas uma grade de modalidades e passou a resumir sessões da semana, planos, exercícios, Shape e histórico recente
+- [x] `/diario` criado como portal sem tabela própria, agregando dados reais de Saúde, Finanças, Lugares e Receitas
+- [x] Saúde, Finanças, Lugares e Receitas saíram da navegação global direta e passaram a ficar sob Diário
+- [x] O Hub principal substituiu os quatro atalhos separados por um único acesso ao Diário
+- [x] O topo ganhou uma transição contínua do background do perfil e fragmentos distribuídos pela barra
+- [ ] Validar Treino, Diário e o topo em tema claro/escuro, desktop e mobile
+
 ## Lote Saúde, Finanças e Lugares — 2026-08-13
 
 - [x] `/saude` implementado com sono, hidratação, humor, medicamentos e registros diários
 - [x] Peso preservado em `shape` como fonte única; Saúde apenas consulta o último registro e aponta para `/treino/shape`
 - [x] `/financas` implementado com categorias, lançamentos, resumo mensal, orçamentos e metas
 - [x] `/lugares` implementado com CRUD, favorito, detalhe e link externo para Google Maps sem API
-- [x] Hub e navegação integrados; novos módulos ficam no menu compacto “Mais”
+- [x] Hub integrado; Saúde, Finanças e Lugares ficam agrupados no portal Diário junto de Receitas
 - [x] Curso mostra thumbnail e link nas aulas vinculadas a vídeos da Biblioteca
 - [x] Reset local completo e sete testes SQL aprovados
 - [x] Dry-run, aplicação e pós-check de `20260813000100_saude_financas_lugares.sql` em produção (2026-08-13)
