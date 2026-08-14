@@ -1,51 +1,76 @@
 .layout {
+  position: relative;
   display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
   min-height: calc(100dvh - 6rem);
+  padding: 1rem 1.25rem 1.75rem;
+  overflow: clip;
+  background:
+    repeating-linear-gradient(
+      132deg,
+      transparent 0 62px,
+      color-mix(in oklch, var(--success-muted) 24%, transparent) 63px 64px,
+      transparent 65px 124px
+    ),
+    var(--bg);
 }
 
 .sidebarWrapper {
-  width: 22.222%; /* 2/9 */
+  width: 15.25rem;
   flex-shrink: 0;
   position: sticky;
-  top: 6rem;
-  height: calc(100dvh - 6rem);
-  overflow-y: auto;
+  top: 7rem;
+  height: calc(100dvh - 8rem);
+  min-height: 32rem;
 }
 
 .contentWrapper {
-  width: 77.778%; /* 7/9 */
   flex: 1;
   min-width: 0;
-  background: var(--bg);
+  max-width: calc(1440px - 16.5rem);
 }
 
 @media (min-width: 960px) {
   .layout {
     min-height: calc(100dvh - 3.5rem);
+    max-width: 1440px;
+    margin: 0 auto;
   }
 
   .sidebarWrapper {
-    top: 3.5rem;
-    height: calc(100dvh - 3.5rem);
+    top: 4.5rem;
+    height: calc(100dvh - 5.5rem);
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 1120px) {
+  .layout {
+    gap: 1rem;
+    padding-inline: 1rem;
+  }
+
+  .sidebarWrapper {
+    width: 13.25rem;
+  }
+}
+
+@media (max-width: 780px) {
   .layout {
     flex-direction: column;
     min-height: auto;
+    padding: 0.75rem;
   }
 
   .sidebarWrapper {
     width: 100%;
     height: auto;
+    min-height: 0;
     position: static;
-    overflow: visible;
-    border-right: none;
-    border-bottom: 1px solid var(--border);
   }
 
   .contentWrapper {
     width: 100%;
+    max-width: none;
   }
 }

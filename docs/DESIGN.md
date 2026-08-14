@@ -67,9 +67,10 @@ Todas self-hosted em `.woff2` — nunca carregar de CDN externo.
 ### Layout por módulo com sidebar interna (DEC-032)
 Módulos com navegação por categoria (Biblioteca; possivelmente Treino/Estudos
 no futuro) usam `layout.tsx` próprio dentro da pasta de rota do módulo,
-envolvendo a página com uma sidebar lateral fixa — proporção **2/9 sidebar,
-7/9 conteúdo**. Troca de categoria é estado de cliente (`useState`), sem
-reload nem URL nova.
+envolvendo a página com uma sidebar lateral compacta e conteúdo fluido. Na
+Biblioteca, a sidebar usa largura estável de `13.25rem` a `15.25rem`, enquanto
+o conjunto fica centralizado em até `1440px`. Troca de categoria é estado de
+cliente (`useState`), sem reload nem URL nova.
 
 ---
 
@@ -129,8 +130,7 @@ navegação por categoria.
 **Estrutura, de cima pra baixo:**
 1. **Campo de busca** (opcional, controlado pelo componente pai)
 2. **Rótulo de seção** (ex: "Biblioteca") — uppercase, pequeno, `--texto-secundario`
-3. **Lista de itens** — ícone + label + badge de contagem. **O badge de
-   contagem só aparece no item ativo**, não em todos simultaneamente
+3. **Lista de itens** — ícone + label + badge de contagem nas categorias já carregadas
 4. **Rodapé** — ação secundária opcional e botão primário (ex: "+ Adicionar obra")
 
 Em todas as rotas autenticadas, o perfil fica no início da navegação global
@@ -149,37 +149,30 @@ com opacidade decrescente usam `--accent`, `--accent-wash` e
 `--accent-wash-forte`, sem repetir ou esticar `background_url`, formar uma faixa
 sólida ou prejudicar a leitura da navegação.
 
-Item ativo: `border-left: 2px solid var(--accent-foreground)`, fundo
-`--accent-wash`, texto `--accent-foreground`.
+Item ativo: pill com fundo derivado de `--success-muted`, contraste por
+`--success-foreground` e marcador interno sutil. A sidebar é um painel
+arredondado independente, sem duplicar perfil e sem rolagem interna em alturas
+desktop comuns.
 
 ---
 
-## Padrão: Banner de categoria / hero (novo, 2026-07-20)
+## Padrão: Banner de categoria / hero (atualizado em 2026-08-13)
 
 Introduzido na Biblioteca v2. Usado no topo do conteúdo de cada categoria de
 um módulo com sidebar.
 
 **Estrutura:**
-- Altura fixa (168px desktop / 130px mobile)
-- Fundo, em ordem de prioridade: **(1)** imagem estática do módulo em
-  `public/<modulo>/banners/<categoria>.jpg`, se existir; **(2)** mosaico
-  borrado dos dados reais do usuário daquela categoria (ex: capas de obras
-  já cadastradas); **(3)** gradiente escuro liso, se não houver nem imagem
-  nem dado
-- Selo pequeno uppercase no canto superior esquerdo (ex: "Minha Biblioteca")
-- Título grande em itálico (`Syne` itálico), centralizado, na base do hero
-- Gradiente de transição de transparente para `--bg` sólido na base — o
-  hero **não é fixo/sticky**, rola normalmente junto com o conteúdo
-- Logo abaixo do hero (fora dele, em fluxo normal): linha com contagem de
-  itens à esquerda e botão de adicionar à direita
-
-**Importante:** o hero precisa ficar **fora** de qualquer container com
-padding lateral — ele deve encostar nas bordas da área de conteúdo (full
-bleed). O padding lateral é aplicado só no sub-header e no grid abaixo dele.
+- Card de aproximadamente `230px`, borda e sombra discretas, sem full bleed
+- Selo pequeno "Categoria ativa", título grande, contagem e botão de adicionar
+- Mini-colagem lateral de até quatro capas/thumbnails reais e distintos
+- Fallback abstrato elegante; a imagem estática antiga pode aparecer apenas
+  como textura de baixa opacidade quando não houver capa real
+- Logo abaixo, cabeçalho "Sua coleção" com contador em pill
+- O hero rola normalmente e usa os tokens globais nos temas claro e escuro
 
 ---
 
-## Padrão: Card de item de coleção (novo, 2026-07-20)
+## Padrão: Card de item de coleção (atualizado em 2026-08-13)
 
 Introduzido na Biblioteca v2, mas genérico o bastante para qualquer catálogo
 futuro (ex: se Hábitos ou Projetos precisarem de card com imagem).
@@ -188,11 +181,11 @@ futuro (ex: se Hábitos ou Projetos precisarem de card com imagem).
 - Imagem em `aspect-ratio: 2/3`, `object-fit: cover`, leve zoom no hover
 - Coração no canto superior direito da imagem — **só renderiza se o item for
   favorito**, nunca ícone vazio pra não-favoritos
-- Título em 1 linha só, truncado com `text-overflow: ellipsis` (não 2 linhas)
-- Linha com ano (esquerda) e nota★ (direita, cor `--accent`)
-- 1 categoria/gênero principal abaixo, texto simples sem chip/caixinha
-- Menu de ações ("⋯") no canto superior esquerdo, **visível só no hover**
-  (ou quando já está aberto) — não fica sempre visível
+- Nota em badge sobre a capa e status no rodapé da imagem
+- Título em até 2 linhas, ano/duração ou progresso quando o schema oferece
+- Até 2 gêneros em pills compactas
+- Menu de ações ("⋯") discreto na área de informações, com clique externo e
+  Escape preservados; em telas de toque ele permanece acessível
 
 ---
 

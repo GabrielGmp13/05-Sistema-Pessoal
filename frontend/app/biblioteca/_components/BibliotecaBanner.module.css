@@ -1,138 +1,296 @@
 .banner {
   position: relative;
-  height: 168px;
-  flex-shrink: 0;
+  min-height: 230px;
   overflow: hidden;
-  background: var(--bg);
-  /* full-bleed: sem margem lateral, encosta na sidebar — o gap anterior
-     vinha do padding do .container em BibliotecaSection.module.css, que
-     também envolvia o banner. Agora o banner fica FORA desse container
-     (ver instrução de estrutura das 6 Sections). */
+  isolation: isolate;
+  border: 1px solid color-mix(in oklch, var(--border) 76%, var(--success));
+  border-radius: 14px;
+  background:
+    linear-gradient(110deg, color-mix(in oklch, var(--surface) 94%, var(--success-muted)) 0 58%, transparent 74%),
+    linear-gradient(145deg, color-mix(in oklch, var(--success-muted) 64%, var(--surface)), var(--surface));
+  box-shadow: 0 18px 42px color-mix(in oklch, var(--foreground) 8%, transparent);
 }
 
-.imagemUnica {
+.banner::before,
+.banner::after {
+  content: '';
   position: absolute;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.banner::before {
   inset: 0;
+  opacity: 0.48;
+  background:
+    linear-gradient(128deg, transparent 0 62%, color-mix(in oklch, var(--success) 18%, transparent) 62.5% 63%, transparent 63.5%),
+    linear-gradient(46deg, transparent 0 74%, color-mix(in oklch, var(--success) 14%, transparent) 74.5% 75%, transparent 75.5%);
+}
+
+.banner::after {
+  width: 19rem;
+  height: 19rem;
+  right: -8rem;
+  bottom: -13rem;
+  border: 1px solid color-mix(in oklch, var(--success) 26%, transparent);
+  border-radius: 50%;
+  box-shadow: 0 0 0 2.8rem color-mix(in oklch, var(--success-muted) 18%, transparent);
+}
+
+.texturaFallback {
+  position: absolute;
+  inset: 0 0 0 50%;
+  z-index: -1;
   background-size: cover;
   background-position: center;
+  opacity: 0.13;
+  mask-image: linear-gradient(to right, transparent, #000 35%, #000);
 }
 
-.mosaico {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-}
-
-.mosaicoItem {
-  background-size: cover;
-  background-position: center;
-}
-
-.mosaicoFallback {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, var(--surface-2) 0%, var(--surface) 55%, var(--bg) 100%);
-}
-
-.topoOverlay {
-  position: absolute;
-  inset: 0 0 auto 0;
-  display: flex;
-  align-items: center;
-  padding: 1rem 2rem;
+.conteudo {
+  position: relative;
   z-index: 2;
-  background: linear-gradient(180deg, rgba(12, 12, 20, 0.55) 0%, transparent 100%);
+  width: min(58%, 34rem);
+  min-height: 230px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 1.75rem 2rem;
 }
 
 .selo {
-  font-size: 0.68rem;
+  margin: 0 0 0.55rem;
+  padding: 0.24rem 0.52rem;
+  border: 1px solid color-mix(in oklch, var(--success) 28%, var(--border));
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--surface) 72%, transparent);
+  color: var(--success-foreground);
+  font-size: 0.64rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: rgba(255, 255, 255, 0.72);
-  margin: 0;
-}
-
-.transicao {
-  position: absolute;
-  inset: auto 0 0 0;
-  height: 110px;
-  pointer-events: none;
-  background: linear-gradient(to bottom, transparent 10%, rgba(12, 12, 20, 0.65) 55%, var(--bg) 100%);
-}
-
-.tituloWrapper {
-  position: absolute;
-  inset: auto 0 0 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-bottom: 1rem;
-  z-index: 2;
+  letter-spacing: 0.12em;
 }
 
 .titulo {
-  text-align: center;
-  line-height: 1;
   margin: 0;
   font-family: var(--font-titulos, 'Syne', inherit);
-  font-style: italic;
-  font-weight: 300;
-  font-size: clamp(2.4rem, 5vw, 4rem);
-  color: #fff;
+  font-weight: 650;
+  font-size: clamp(2.35rem, 4vw, 3.8rem);
+  line-height: 1.02;
+  color: var(--text);
   letter-spacing: 0;
-  text-shadow: 0 2px 32px rgba(12, 12, 20, 0.9);
-}
-
-.subHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
-  padding: 1.25rem 2rem 0;
 }
 
 .contagem {
-  font-size: 0.85rem;
+  margin: 0.65rem 0 1rem;
   color: var(--texto-secundario);
-  margin: 0;
+  font-size: 0.88rem;
 }
 
 .btnAdicionar {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 0.35rem;
-  background: var(--primary);
+  min-height: 2.35rem;
+  background: color-mix(in oklch, var(--success) 74%, var(--primary));
   color: var(--primary-foreground);
   border: none;
   border-radius: 8px;
-  padding: 0.5rem 1rem;
-  font-weight: 600;
-  font-size: 0.78rem;
+  padding: 0.55rem 0.9rem;
+  font-weight: 700;
+  font-size: 0.8rem;
   cursor: pointer;
-  transition: filter 0.12s;
+  transition: filter 0.15s, transform 0.15s;
   white-space: nowrap;
 }
 
 .btnAdicionar:hover {
-  filter: brightness(1.15);
+  filter: brightness(1.08);
+  transform: translateY(-1px);
 }
 
-@media (max-width: 680px) {
+.btnAdicionar svg {
+  width: 15px;
+  height: 15px;
+}
+
+.colagem {
+  position: absolute;
+  right: clamp(1.5rem, 4vw, 4rem);
+  bottom: 1rem;
+  z-index: 1;
+  width: min(38%, 25rem);
+  height: calc(100% - 2rem);
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding-right: 2rem;
+}
+
+.miniCapa {
+  width: clamp(5.5rem, 8vw, 7.5rem);
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border: 3px solid color-mix(in oklch, var(--surface) 86%, transparent);
+  border-radius: 10px;
+  box-shadow: 0 15px 30px color-mix(in oklch, var(--foreground) 24%, transparent);
+  margin-right: -2.5rem;
+  transition: transform 0.2s;
+}
+
+.miniCapa:nth-child(1) {
+  transform: translateY(0.3rem) rotate(-6deg);
+}
+
+.miniCapa:nth-child(2) {
+  transform: translateY(0.1rem) rotate(-2deg);
+}
+
+.miniCapa:nth-child(3) {
+  transform: translateY(-0.1rem) rotate(2deg);
+}
+
+.miniCapa:nth-child(4) {
+  transform: translateY(-0.3rem) rotate(6deg);
+}
+
+.banner:hover .miniCapa:nth-child(1) {
+  transform: translateY(0.15rem) rotate(-4deg);
+}
+
+.banner:hover .miniCapa:nth-child(2) {
+  transform: translateY(-0.1rem) rotate(-1deg);
+}
+
+.banner:hover .miniCapa:nth-child(3) {
+  transform: translateY(-0.25rem) rotate(1deg);
+}
+
+.banner:hover .miniCapa:nth-child(4) {
+  transform: translateY(-0.45rem) rotate(4deg);
+}
+
+.colagemFallback {
+  position: relative;
+  width: 15rem;
+  height: 10rem;
+  opacity: 0.7;
+}
+
+.colagemFallback span {
+  position: absolute;
+  bottom: 0;
+  width: 5.5rem;
+  height: 8.25rem;
+  border: 1px solid color-mix(in oklch, var(--success) 26%, var(--border));
+  border-radius: 10px;
+  background:
+    linear-gradient(145deg, color-mix(in oklch, var(--success-muted) 56%, var(--surface)), var(--surface-2));
+  box-shadow: 0 12px 24px color-mix(in oklch, var(--foreground) 10%, transparent);
+}
+
+.colagemFallback span:nth-child(1) {
+  right: 5.6rem;
+  transform: rotate(-8deg);
+}
+
+.colagemFallback span:nth-child(2) {
+  right: 2.8rem;
+  transform: translateY(-0.35rem);
+}
+
+.colagemFallback span:nth-child(3) {
+  right: 0;
+  transform: rotate(8deg);
+}
+
+.colecaoCabecalho {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 1.5rem 0 1rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid color-mix(in oklch, var(--border) 82%, transparent);
+}
+
+.colecaoCabecalho h2 {
+  margin: 0.12rem 0 0;
+  color: var(--text);
+  font-family: var(--font-titulos, inherit);
+  font-size: 1.35rem;
+}
+
+.colecaoSelo {
+  margin: 0;
+  color: var(--texto-secundario);
+  font-size: 0.63rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.totalPill {
+  min-width: 2rem;
+  padding: 0.18rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--texto-secundario);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .conteudo {
+    width: 62%;
+  }
+
+  .colagem {
+    right: 1rem;
+    width: 34%;
+  }
+
+  .miniCapa {
+    margin-right: -3.2rem;
+  }
+}
+
+@media (max-width: 620px) {
   .banner {
-    height: 130px;
+    min-height: 200px;
   }
 
-  .topoOverlay {
-    padding: 0.85rem 1.1rem;
+  .conteudo {
+    width: 72%;
+    min-height: 200px;
+    padding: 1.25rem;
   }
 
-  .mosaico {
-    grid-template-columns: repeat(4, 1fr);
+  .titulo {
+    font-size: 2.35rem;
   }
 
-  .subHeader {
-    padding: 1rem 1.1rem 0;
+  .colagem {
+    right: -1rem;
+    bottom: 0.75rem;
+    width: 34%;
+    height: 75%;
+    opacity: 0.78;
+  }
+
+  .miniCapa {
+    width: 4.7rem;
+    margin-right: -3.5rem;
+  }
+
+  .colagemFallback {
+    transform: scale(0.75) translateX(2rem);
+  }
+
+  .colecaoCabecalho {
+    margin-top: 1.2rem;
   }
 }

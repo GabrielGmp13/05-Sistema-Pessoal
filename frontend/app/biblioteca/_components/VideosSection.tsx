@@ -266,6 +266,8 @@ export default function VideosSection({ gatilhoAdicionar, busca = '', onTotalCar
                 nota={video.nota}
                 ano={null}
                 generos={video.canal ? [{ nome: video.canal }] : []}
+                status={video.assistido ? 'Assistido' : 'Não assistido'}
+                detalhe={video.duracao_segundos ? formatarDuracao(video.duracao_segundos) : null}
                 placeholder="▶"
                 onClick={() => setPainelVideo(video)}
                 onEditar={() => abrirEdicao(video)}

@@ -235,6 +235,8 @@ export default function LivrosSection({ gatilhoAdicionar, busca = '', onTotalCar
               nota={livro.nota}
               ano={livro.ano_publicacao}
               generos={generosPorItem[livro.uuid] ?? []}
+              status={livro.status}
+              detalhe={livro.paginas_total ? `${livro.paginas_total} págs.` : null}
               onClick={() => setPainelLivro(livro)}
               onEditar={() => abrirEdicao(livro)}
               onApagar={() => setLivroParaApagar(livro.uuid)}

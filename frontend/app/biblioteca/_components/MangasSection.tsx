@@ -207,7 +207,7 @@ export default function MangasSection({ gatilhoAdicionar, busca = '', onTotalCar
   return (
     <>
       <BibliotecaBanner
-        titulo="Mangas"
+        titulo="Mangás"
         total={mangas.length}
         onAdicionar={abrirNovo}
         rotuloAdicionar="Novo mangá"
@@ -239,6 +239,8 @@ export default function MangasSection({ gatilhoAdicionar, busca = '', onTotalCar
               nota={manga.nota}
               ano={manga.ano_inicio_publicacao}
               generos={generosPorItem[manga.uuid] ?? []}
+              status={manga.status}
+              detalhe={manga.capitulo_atual > 0 ? `Cap. ${manga.capitulo_atual}` : null}
               onClick={() => setPainelManga(manga)}
               onEditar={() => abrirEdicao(manga)}
               onApagar={() => setMangaParaApagar(manga.uuid)}

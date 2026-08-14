@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Tags } from 'lucide-react';
+import { Plus, Search, Tags } from 'lucide-react';
 import styles from './Sidebar.module.css';
 
 export interface SidebarItem {
@@ -38,10 +38,12 @@ export default function Sidebar({
         {/* Busca */}
         {onBuscaChange && (
           <div className={styles.buscaWrapper}>
+            <Search className={styles.buscaIcone} aria-hidden="true" />
             <input
               className={styles.buscaInput}
               type="text"
-              placeholder="Buscar..."
+              placeholder="Buscar na biblioteca"
+              aria-label="Buscar na biblioteca"
               value={busca}
               onChange={(e) => onBuscaChange(e.target.value)}
             />
@@ -63,7 +65,7 @@ export default function Sidebar({
                   >
                     {item.icon && <span className={styles.icone}>{item.icon}</span>}
                     <span className={styles.label}>{item.label}</span>
-                    {ativo && item.count != null && (
+                    {item.count != null && (
                       <span className={styles.count}>{item.count}</span>
                     )}
                   </button>
@@ -82,7 +84,8 @@ export default function Sidebar({
           </Link>
         ) : null}
         <button type="button" className={styles.btnAdicionar} onClick={onAdicionar}>
-          + {rotuloAdicionar}
+          <Plus aria-hidden="true" />
+          {rotuloAdicionar}
         </button>
       </div>
     </aside>

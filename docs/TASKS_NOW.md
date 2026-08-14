@@ -113,6 +113,15 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] Busca passou a usar o próprio título com debounce e sugestões abaixo do campo; Vídeos também aceitam URL, sem campo/botão de busca separado
 - [ ] Validar manualmente resultados, seleção e fallback das sete fontes em produção; APIs públicas podem aplicar limites ou indisponibilidade temporária
 
+## Redesign visual da Biblioteca — 2026-08-13
+
+- [x] Direção visual do protótipo v0 adaptada aos componentes reais, sem dados mockados ou troca de lógica
+- [x] Sidebar compacta em painel, busca refinada, contadores nas oito categorias e ações inferiores preservadas
+- [x] Hero de categoria em card com label, título, total, ação de cadastro e colagem das capas reais
+- [x] Cards verticais com capa dominante, nota, favorito, status, metadados, gêneros e menu existente
+- [x] CRUD, importações de metadados, gêneros, Vídeo → Curso, painéis, modais e soft delete preservados
+- [ ] Validar o novo visual autenticado em produção nos temas claro/escuro e em desktop/mobile
+
 ## Ordem dos próximos módulos (v2)
 
 - [x] Revisão Espaçada dedicada vem antes de Agenda; página `/revisao` implementada sobre o SM-2 existente, sem migration (2026-08-11)

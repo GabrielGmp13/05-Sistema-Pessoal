@@ -146,6 +146,8 @@ export default function ArtigosSection({ gatilhoAdicionar, busca = '', onTotalCa
                 nota={null}
                 ano={artigo.data_leitura ? Number(artigo.data_leitura.slice(0, 4)) : null}
                 generos={artigo.site_origem ? [{ nome: artigo.site_origem }] : []}
+                status={artigo.data_leitura ? 'Lido' : 'Para ler'}
+                detalhe={artigo.tempo_leitura_minutos ? `${artigo.tempo_leitura_minutos} min` : null}
                 placeholder="Aa"
                 onClick={() => setPainelArtigo(artigo)}
                 onEditar={() => abrirEdicao(artigo)}

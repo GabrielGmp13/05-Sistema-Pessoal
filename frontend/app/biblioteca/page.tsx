@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { BookOpen, FileText, Film, Library, Mic2, Play, Sparkles, Tv } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
 import FilmesSection from './_components/FilmesSection';
 import SeriesSection from './_components/SeriesSection';
@@ -14,15 +15,15 @@ import layoutStyles from './layout.module.css';
 
 type CategoriaId = 'filmes' | 'series' | 'animes' | 'mangas' | 'livros' | 'podcasts' | 'videos' | 'artigos';
 
-const CATEGORIAS: { id: CategoriaId; label: string; icon: string }[] = [
-  { id: 'filmes',   label: 'Filmes',   icon: '🎬' },
-  { id: 'series',   label: 'Séries',   icon: '📺' },
-  { id: 'animes',   label: 'Animes',   icon: '🇯🇵' },
-  { id: 'mangas',   label: 'Mangás',   icon: '📖' },
-  { id: 'livros',   label: 'Livros',   icon: '📚' },
-  { id: 'podcasts', label: 'Podcasts', icon: '🎙️' },
-  { id: 'videos',   label: 'Vídeos',   icon: '▶' },
-  { id: 'artigos',  label: 'Artigos',  icon: 'Aa' },
+const CATEGORIAS: { id: CategoriaId; label: string; icon: React.ReactNode }[] = [
+  { id: 'filmes', label: 'Filmes', icon: <Film aria-hidden="true" /> },
+  { id: 'series', label: 'Séries', icon: <Tv aria-hidden="true" /> },
+  { id: 'animes', label: 'Animes', icon: <Sparkles aria-hidden="true" /> },
+  { id: 'mangas', label: 'Mangás', icon: <BookOpen aria-hidden="true" /> },
+  { id: 'livros', label: 'Livros', icon: <Library aria-hidden="true" /> },
+  { id: 'podcasts', label: 'Podcasts', icon: <Mic2 aria-hidden="true" /> },
+  { id: 'videos', label: 'Vídeos', icon: <Play aria-hidden="true" /> },
+  { id: 'artigos', label: 'Artigos', icon: <FileText aria-hidden="true" /> },
 ];
 
 export default function BibliotecaPage() {
@@ -30,17 +31,16 @@ export default function BibliotecaPage() {
   const [gatilhoAdicionar, setGatilhoAdicionar] = useState(0);
   const [busca, setBusca] = useState('');
 
-  // Cada Section avisa aqui quantos itens carregou — usado pro badge
-  // de contagem na sidebar (só aparece na categoria ativa, ver Sidebar.tsx).
-  const [contagens, setContagens] = useState<Record<CategoriaId, number>>({
-    filmes: 0,
-    series: 0,
-    animes: 0,
-    mangas: 0,
-    livros: 0,
-    podcasts: 0,
-    videos: 0,
-    artigos: 0,
+  // Cada Section avisa aqui quantos itens carregou para os contadores da sidebar.
+  const [contagens, setContagens] = useState<Record<CategoriaId, number | null>>({
+    filmes: null,
+    series: null,
+    animes: null,
+    mangas: null,
+    livros: null,
+    podcasts: null,
+    videos: null,
+    artigos: null,
   });
 
   function handleAdicionar() {
@@ -137,7 +137,7 @@ export default function BibliotecaPage() {
             id: c.id,
             label: c.label,
             icon: c.icon,
-            count: contagens[c.id],
+            count: contagens[c.id] ?? undefined,
           }))}
           ativoId={categoriaAtiva}
           onSelecionar={(id) => selecionarCategoria(id as CategoriaId)}

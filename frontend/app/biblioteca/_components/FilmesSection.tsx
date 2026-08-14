@@ -227,6 +227,8 @@ export default function FilmesSection({ gatilhoAdicionar, busca = '', onTotalCar
               nota={filme.nota}
               ano={filme.ano_lancamento}
               generos={generosPorFilme[filme.uuid] ?? []}
+              status={filme.status}
+              detalhe={filme.duracao_minutos ? `${filme.duracao_minutos} min` : null}
               onClick={() => setPainelFilme(filme)}
               onEditar={() => abrirEdicao(filme)}
               onApagar={() => setFilmeParaApagar(filme.uuid)}

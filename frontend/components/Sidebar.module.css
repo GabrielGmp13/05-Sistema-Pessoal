@@ -1,39 +1,59 @@
 .sidebar {
   width: 100%;
-  min-height: 100%;
-  background: var(--bg);
-  border-right: 1px solid var(--border);
+  height: 100%;
+  min-height: 0;
+  background: color-mix(in oklch, var(--surface) 96%, var(--success-muted));
+  border: 1px solid color-mix(in oklch, var(--border) 82%, var(--success));
+  border-radius: 14px;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 12px 32px color-mix(in oklch, var(--foreground) 7%, transparent);
 }
 
 .corpo {
-  flex: 0 0 auto;
-  padding: 0.6rem 0.5rem 0.35rem;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 0.75rem 0.65rem 0.35rem;
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 0.2rem;
 }
 
 .buscaWrapper {
-  margin-bottom: 0.5rem;
+  position: relative;
+  margin-bottom: 0.55rem;
+}
+
+.buscaIcone {
+  position: absolute;
+  left: 0.65rem;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  color: var(--texto-secundario);
+  transform: translateY(-50%);
+  pointer-events: none;
 }
 
 .buscaInput {
   width: 100%;
-  background: var(--surface);
+  min-height: 2.25rem;
+  background: color-mix(in oklch, var(--bg) 72%, transparent);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 0.45rem 0.6rem;
+  padding: 0.45rem 0.65rem 0.45rem 2rem;
   color: var(--text);
   font-size: 0.78rem;
   outline: none;
-  transition: border-color 0.12s;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
   box-sizing: border-box;
 }
 
 .buscaInput:focus {
   border-color: var(--accent-foreground);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--accent) 48%, transparent);
 }
 
 .buscaInput::placeholder {
@@ -41,7 +61,7 @@
 }
 
 .secaoLabel {
-  padding: 0 0.6rem;
+  padding: 0 0.55rem;
   margin: 0 0 0.25rem;
   font-size: 0.62rem;
   letter-spacing: 0.12em;
@@ -56,49 +76,57 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.05rem;
+  gap: 0.12rem;
 }
 
 .item {
   display: flex;
   align-items: center;
-  min-height: 2.25rem;
+  min-height: 2.35rem;
   gap: 0.55rem;
   padding: 0.45rem 0.65rem;
   cursor: pointer;
   color: var(--texto-secundario);
   font-size: 0.88rem;
   font-weight: 500;
-  border: none;
-  border-left: 2px solid transparent;
+  border: 1px solid transparent;
   background: none;
   width: 100%;
   text-align: left;
   border-radius: 8px;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.15s;
 }
 
 .item:hover {
   background: var(--surface-2);
   color: var(--text);
+  transform: translateX(2px);
 }
 
 .itemAtivo {
-  color: var(--accent-foreground);
-  background: var(--accent-wash);
-  border-left-color: var(--accent-foreground);
+  color: var(--success-foreground);
+  background: color-mix(in oklch, var(--success-muted) 76%, var(--surface));
+  border-color: color-mix(in oklch, var(--success) 30%, var(--border));
+  box-shadow: inset 3px 0 0 color-mix(in oklch, var(--success) 78%, var(--accent-foreground));
 }
 
 .itemAtivo:hover {
-  background: var(--accent-wash);
-  color: var(--accent-foreground);
+  background: color-mix(in oklch, var(--success-muted) 86%, var(--surface));
+  color: var(--success-foreground);
 }
 
 .icone {
   display: flex;
   align-items: center;
   flex-shrink: 0;
-  font-size: 1.05rem;
+  width: 1rem;
+  height: 1rem;
+}
+
+.icone svg {
+  width: 1rem;
+  height: 1rem;
+  stroke-width: 1.8;
 }
 
 .label {
@@ -110,18 +138,26 @@
 
 .count {
   font-size: 0.7rem;
-  color: var(--accent-foreground);
-  background: var(--accent-wash-forte);
-  border-radius: 6px;
-  padding: 0.1rem 0.42rem;
+  min-width: 1.55rem;
+  color: var(--texto-secundario);
+  background: color-mix(in oklch, var(--surface-2) 82%, transparent);
+  border: 1px solid color-mix(in oklch, var(--border) 78%, transparent);
+  border-radius: 999px;
+  padding: 0.08rem 0.38rem;
+  text-align: center;
   flex-shrink: 0;
   font-weight: 600;
 }
 
+.itemAtivo .count {
+  color: var(--success-foreground);
+  background: color-mix(in oklch, var(--surface) 76%, transparent);
+}
+
 .rodape {
   margin-top: auto;
-  padding: 0.5rem 0.6rem;
-  border-top: 1px solid var(--border);
+  padding: 0.65rem;
+  border-top: 1px solid color-mix(in oklch, var(--border) 82%, transparent);
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -130,7 +166,7 @@
 
 .btnSecundario {
   width: 100%;
-  min-height: 32px;
+  min-height: 34px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -157,18 +193,88 @@
 
 .btnAdicionar {
   width: 100%;
-  background: var(--primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  background: color-mix(in oklch, var(--success) 74%, var(--primary));
   color: var(--primary-foreground);
   border: none;
   border-radius: 8px;
-  min-height: 32px;
+  min-height: 36px;
   padding: 0.4rem 0.75rem;
   font-weight: 700;
   font-size: 0.82rem;
   cursor: pointer;
-  transition: filter 0.12s;
+  transition: filter 0.12s, transform 0.12s;
 }
 
 .btnAdicionar:hover {
   filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.btnAdicionar svg {
+  width: 15px;
+  height: 15px;
+}
+
+@media (max-height: 720px) and (min-width: 781px) {
+  .corpo {
+    padding-top: 0.55rem;
+  }
+
+  .item {
+    min-height: 2rem;
+    padding-block: 0.3rem;
+  }
+
+  .rodape {
+    padding-block: 0.45rem;
+  }
+}
+
+@media (max-width: 780px) {
+  .sidebar {
+    height: auto;
+  }
+
+  .corpo {
+    padding-bottom: 0.6rem;
+  }
+
+  .lista {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.35rem;
+  }
+
+  .item {
+    justify-content: center;
+    gap: 0.35rem;
+    padding-inline: 0.45rem;
+  }
+
+  .label {
+    flex: 0 1 auto;
+  }
+
+  .count {
+    min-width: 1.35rem;
+  }
+
+  .rodape {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .lista {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .rodape {
+    grid-template-columns: 1fr;
+  }
 }

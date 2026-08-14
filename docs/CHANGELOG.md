@@ -20,6 +20,14 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — implementação técnica concluída; homologação manual em andamento
 
+- **2026-08-13 (redesign visual da Biblioteca)** — A página única da Biblioteca
+  foi reformulada a partir da direção visual aprovada no protótipo v0, sem
+  importar dados mockados nem alterar os fluxos reais. Sidebar, hero e cards
+  compartilhados agora apresentam as oito categorias em uma composição mais
+  compacta, capas reais em colagem, status, notas, favoritos, metadados e
+  gêneros. CRUD, importações, Vídeo → Curso, modais, painéis e soft delete foram
+  preservados; sem migration, dependência ou API nova.
+
 - **2026-08-13 (correção dos fragmentos do topo)** — Removido o repasse de
   `background_url` para o rastro e as partículas da navbar, que esticava a
   imagem real pela barra. A foto agora permanece exclusivamente no bloco do

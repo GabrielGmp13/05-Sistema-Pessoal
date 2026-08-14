@@ -1,9 +1,23 @@
 'use client';
 
-import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { Heart, MoreHorizontal, Pencil, Star, Trash2 } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 
 import styles from './BibliotecaCard.module.css';
+
+const STATUS_LABEL: Record<string, string> = {
+  quero_ver: 'Quero ver',
+  assistindo: 'Assistindo',
+  assistido: 'Assistido',
+  quero_ler: 'Quero ler',
+  lendo: 'Lendo',
+  lido: 'Lido',
+  quero_ouvir: 'Quero ouvir',
+  ouvindo: 'Ouvindo',
+  concluido: 'Concluído',
+  pausado: 'Pausado',
+  abandonado: 'Abandonado',
+};
 
 interface BibliotecaCardProps {
   titulo: string;
@@ -12,6 +26,8 @@ interface BibliotecaCardProps {
   nota: number | null;
   ano: number | null;
   generos: { nome: string }[];
+  status?: string | null;
+  detalhe?: string | null;
   onClick: () => void;
   onEditar: () => void;
   onApagar: () => void;
@@ -27,6 +43,8 @@ export default function BibliotecaCard({
   nota,
   ano,
   generos,
+  status,
+  detalhe,
   onClick,
   onEditar,
   onApagar,
@@ -36,7 +54,9 @@ export default function BibliotecaCard({
 }: BibliotecaCardProps) {
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const generoPrincipal = generos[0]?.nome;
+  const generosVisiveis = generos.slice(0, 2);
+
+  const statusLabel = status ? STATUS_LABEL[status] ?? status : null;
 
   useEffect(() => {
     if (!menuAberto) return;
@@ -72,27 +92,38 @@ export default function BibliotecaCard({
           </div>
         )}
 
-        {favorito && (
-          <span className={styles.favorito} aria-label="Favorito">
-            ❤️
+        {nota != null ? (
+          <span className={styles.notaBadge} aria-label={`Nota ${Number(nota).toFixed(1)}`}>
+            <Star aria-hidden="true" />
+            {Number(nota).toFixed(1)}
           </span>
-        )}
+        ) : null}
+
+        {favorito ? (
+          <span className={styles.favorito} aria-label="Favorito">
+            <Heart aria-hidden="true" />
+          </span>
+        ) : null}
+
+        {statusLabel ? <span className={styles.status}>{statusLabel}</span> : null}
       </div>
 
       <div className={styles.body} onClick={onClick}>
         <h3 className={styles.nome}>{titulo}</h3>
 
         <div className={styles.linhaMeta}>
-          {ano != null ? <span className={styles.ano}>{ano}</span> : <span />}
-          {nota != null && (
-            <span className={styles.nota}>
-              <span className={styles.estrelaIcon}>★</span>
-              {Number(nota).toFixed(1)}
-            </span>
-          )}
+          {ano != null ? <span>{ano}</span> : null}
+          {ano != null && detalhe ? <span aria-hidden="true">·</span> : null}
+          {detalhe ? <span>{detalhe}</span> : null}
         </div>
 
-        {generoPrincipal && <p className={styles.genero}>{generoPrincipal}</p>}
+        {generosVisiveis.length > 0 ? (
+          <div className={styles.generos}>
+            {generosVisiveis.map((genero) => (
+              <span key={genero.nome}>{genero.nome}</span>
+            ))}
+          </div>
+        ) : null}
       </div>
 
       <div ref={menuRef} className={styles.menuWrapper}>

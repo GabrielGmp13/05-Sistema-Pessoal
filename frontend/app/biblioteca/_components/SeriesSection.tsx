@@ -208,7 +208,7 @@ export default function SeriesSection({ gatilhoAdicionar, busca = '', onTotalCar
         titulo="Séries"
         total={series.length}
         onAdicionar={abrirNovo}
-        rotuloAdicionar="Novo série"
+        rotuloAdicionar="Nova série"
         capas={series.map((f) => f.capa_url)}
         imagemFundo="/biblioteca/banners/series.jpg"
       />
@@ -237,6 +237,8 @@ export default function SeriesSection({ gatilhoAdicionar, busca = '', onTotalCar
               nota={serie.nota}
               ano={serie.ano_lancamento}
               generos={generosPorItem[serie.uuid] ?? []}
+              status={serie.status}
+              detalhe={serie.duracao_minutos ? `${serie.duracao_minutos} min` : null}
               onClick={() => setPainelSerie(serie)}
               onEditar={() => abrirEdicao(serie)}
               onApagar={() => setSerieParaApagar(serie.uuid)}

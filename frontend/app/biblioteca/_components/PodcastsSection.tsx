@@ -181,7 +181,7 @@ export default function PodcastsSection({ gatilhoAdicionar, busca = '', onTotalC
         titulo="Podcasts"
         total={podcasts.length}
         onAdicionar={abrirNovo}
-        rotuloAdicionar="Novo filme"
+        rotuloAdicionar="Novo podcast"
         capas={podcasts.map((f) => f.capa_url)}
         imagemFundo="/biblioteca/banners/podcasts.jpg"
       />
@@ -210,6 +210,8 @@ export default function PodcastsSection({ gatilhoAdicionar, busca = '', onTotalC
               nota={podcast.nota}
               ano={null} // podcasts não têm campo de ano
               generos={generosPorItem[podcast.uuid] ?? []}
+              status={podcast.status}
+              detalhe={podcast.episodio_atual > 0 ? `Ep. ${podcast.episodio_atual}` : null}
               onClick={() => setPainelPodcast(podcast)}
               onEditar={() => abrirEdicao(podcast)}
               onApagar={() => setPodcastParaApagar(podcast.uuid)}

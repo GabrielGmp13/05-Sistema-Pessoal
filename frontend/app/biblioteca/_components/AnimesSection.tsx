@@ -253,6 +253,8 @@ export default function AnimesSection({ gatilhoAdicionar, busca = '', onTotalCar
               nota={anime.nota}
               ano={anime.ano_lancamento}
               generos={generosPorItem[anime.uuid] ?? []}
+              status={anime.status}
+              detalhe={anime.duracao_minutos ? `${anime.duracao_minutos} min` : null}
               onClick={() => setPainelAnime(anime)}
               onEditar={() => abrirEdicao(anime)}
               onApagar={() => setAnimeParaApagar(anime.uuid)}
