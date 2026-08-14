@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
-import { ThemeToggle } from '@/components/ThemeToggle';
 import { GlobalNav } from '@/components/GlobalNav';
 
 export const metadata: Metadata = {
@@ -38,7 +37,6 @@ export default function RootLayout({
         <ThemeProvider>
           <GlobalNav />
           {children}
-          <ThemeToggle />
         </ThemeProvider>
       </body>
     </html>

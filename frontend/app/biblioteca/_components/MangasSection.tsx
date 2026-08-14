@@ -14,12 +14,14 @@ import { CampoInfo } from '@/components/PainelDetalheObra';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import VolumesEditor from '@/components/VolumesEditor';
 import SeletorGenero from '@/components/SeletorGenero';
+import StarRating from '@/components/StarRating';
 import BibliotecaBanner from './BibliotecaBanner';
 import BibliotecaCard from './BibliotecaCard';
 import BuscaMetadados from './BuscaMetadados';
 import { sb, getUserId } from '@/lib/supabase';
 import { getGeneros, getMapaGenerosDosItens, salvarGenerosDoItem, seedGenerosSeNecessario } from '@/lib/generos';
 import type { Genero } from '@/lib/generos';
+import { ordenarItensBiblioteca, type OrdenacaoBiblioteca } from '@/lib/biblioteca-ordenacao';
 import styles from './BibliotecaSection.module.css';
 
 const STATUS_LABEL: Record<string, string> = {
@@ -51,9 +53,17 @@ interface MangasSectionProps {
   gatilhoAdicionar: number;
   busca?: string;
   onTotalCarregado?: (total: number) => void;
+  ordenacao: OrdenacaoBiblioteca;
+  onOrdenacaoChange: (ordenacao: OrdenacaoBiblioteca) => void;
 }
 
-export default function MangasSection({ gatilhoAdicionar, busca = '', onTotalCarregado }: MangasSectionProps) {
+export default function MangasSection({
+  gatilhoAdicionar,
+  busca = '',
+  onTotalCarregado,
+  ordenacao,
+  onOrdenacaoChange,
+}: MangasSectionProps) {
   const [mangas, setMangas] = useState<Manga[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
@@ -195,7 +205,7 @@ export default function MangasSection({ gatilhoAdicionar, busca = '', onTotalCar
       campos.push({ label: 'Período de publicação', valor: periodo });
     }
     campos.push({ label: 'Capítulo atual', valor: String(manga.capitulo_atual) });
-    if (manga.nota != null) campos.push({ label: 'Nota', valor: `${manga.nota} / 10` });
+    if (manga.nota != null) campos.push({ label: 'Nota', valor: `${manga.nota} / 5` });
     if (manga.comentario) campos.push({ label: 'Comentário', valor: manga.comentario });
     return campos;
   }
@@ -203,6 +213,13 @@ export default function MangasSection({ gatilhoAdicionar, busca = '', onTotalCar
   const itensFiltrados = busca
     ? mangas.filter((m) => m.titulo.toLowerCase().includes(busca.toLowerCase()))
     : mangas;
+  const itensOrdenados = ordenarItensBiblioteca(itensFiltrados, ordenacao, {
+    titulo: (manga) => manga.titulo_traduzido || manga.titulo,
+    atualizadoEm: (manga) => manga.updated_at,
+    nota: (manga) => manga.nota,
+    favorito: (manga) => manga.favorito,
+    status: (manga) => manga.status,
+  });
 
   return (
     <>
@@ -213,13 +230,15 @@ export default function MangasSection({ gatilhoAdicionar, busca = '', onTotalCar
         rotuloAdicionar="Novo mangá"
         capas={mangas.map((m) => m.capa_url)}
         imagemFundo="/biblioteca/banners/mangas.jpg"
+        ordenacao={ordenacao}
+        onOrdenacaoChange={onOrdenacaoChange}
       />
 
       {erro && <p className={styles.erro}>{erro}</p>}
 
       {carregando ? (
         <p className={styles.vazio}>Carregando...</p>
-      ) : itensFiltrados.length === 0 ? (
+      ) : itensOrdenados.length === 0 ? (
         <div className={styles.vazio}>
           <p>{busca ? 'Nenhum mangá encontrado para esta busca.' : 'Nenhum mangá cadastrado ainda.'}</p>
           {!busca && (
@@ -230,7 +249,7 @@ export default function MangasSection({ gatilhoAdicionar, busca = '', onTotalCar
         </div>
       ) : (
         <div className={styles.grid}>
-          {itensFiltrados.map((manga) => (
+          {itensOrdenados.map((manga) => (
             <BibliotecaCard
               key={manga.uuid}
               titulo={manga.titulo}
@@ -350,23 +369,10 @@ export default function MangasSection({ gatilhoAdicionar, busca = '', onTotalCar
                   }
                 />
               </label>
-              <label>
-                Nota (0 a 10)
-                <input
-                  type="number"
-                  min={0}
-                  max={10}
-                  step={0.5}
-                  inputMode="decimal"
-                  value={form.nota ?? ''}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      nota: e.target.value === '' ? undefined : Number(e.target.value),
-                    })
-                  }
-                />
-              </label>
+              <StarRating
+                value={form.nota}
+                onChange={(nota) => setForm({ ...form, nota: nota ?? undefined })}
+              />
               <label>
                 Ano de início da publicação
                 <input

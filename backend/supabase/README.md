@@ -17,9 +17,14 @@ O ponto inicial oficial da cadeia CLI é:
 4. `20260811000100_agenda_v2.sql`;
 5. `20260811000200_biblioteca_videos_artigos.sql`;
 6. `20260811000300_conteudos_video.sql`;
-7. `20260812000100_revisao_arquivados.sql`.
+7. `20260812000100_revisao_arquivados.sql`;
 8. `20260812000200_projetos_receitas.sql` — validada no banco Docker local e
-   aplicada em produção em 2026-08-12 após dry-run limpo; pós-check sem pendências.
+   aplicada em produção em 2026-08-12 após dry-run limpo; pós-check sem pendências;
+9. `20260813000100_saude_financas_lugares.sql` — validada localmente e aplicada
+   em produção em 2026-08-13; pós-check sem pendências;
+10. `20260813000200_biblioteca_nota_cinco_estrelas.sql` — reset e teste SQL
+    específico aprovados; aplicada em produção em 2026-08-14 após dry-run
+    limpo e confirmada por pós-check sem pendências.
 
 As três baselines foram validadas por dois replays locais completos e por
 comparação com produção. Em 2026-08-08, `migration repair --status applied`
@@ -55,6 +60,18 @@ data; o pós-check remoto não encontrou pendências.
 `receitas`, com RLS, GRANT, checks e índices parciais. Após validação local e
 dry-run limpo, foi aplicada em produção em 2026-08-12; o pós-check remoto não
 encontrou migrations pendentes.
+
+`20260813000100_saude_financas_lugares.sql` cria os contratos manuais dos três
+módulos com RLS, GRANT, checks e índices. Foi validada localmente, aplicada em
+produção em 2026-08-13 após dry-run limpo e confirmada por pós-check.
+
+`20260813000200_biblioteca_nota_cinco_estrelas.sql` altera somente as colunas
+`nota` já existentes em Filmes, Séries, Animes, Mangás, Livros, Podcasts e
+Vídeos. Converte valores 0-10 proporcionalmente para 0-5, arredonda para o meio
+ponto mais próximo e atualiza tipo/constraints. O reset completo e
+`tests/validate_biblioteca_nota_cinco_estrelas.sql` passaram localmente; a
+migration foi aplicada em produção em 2026-08-14 após dry-run limpo e o
+pós-check remoto não mostrou migrations pendentes.
 
 ## Workflow para toda mudança futura
 

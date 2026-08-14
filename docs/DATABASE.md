@@ -64,6 +64,11 @@ dessas duas pastas deve ser executado como migration.
 | `20260812000100` | `20260812000100_revisao_arquivados.sql` | ✅ Reset/suíte SQL local aprovados e aplicada em produção em 2026-08-12 após dry-run limpo; pós-check sem pendências |
 | `20260812000200` | `20260812000200_projetos_receitas.sql` | ✅ Testes locais aprovados e aplicada em produção em 2026-08-12 após dry-run limpo; pós-check sem pendências |
 | `20260813000100` | `20260813000100_saude_financas_lugares.sql` | ✅ Reset/suíte SQL local aprovados e aplicada em produção em 2026-08-13 após dry-run limpo; pós-check sem pendências |
+| `20260813000200` | `20260813000200_biblioteca_nota_cinco_estrelas.sql` | ✅ Reset local e teste específico aprovados; aplicada em produção em 2026-08-14 após dry-run limpo; pós-check sem pendências |
+
+> **Estado confirmado (2026-08-14):** produção e cadeia local usam a escala
+> 0-5 da DEC-054 para as notas da Biblioteca. A migration não cria tabelas,
+> então a contagem permanece em 59.
 
 As três versões foram adotadas no histórico remoto em 2026-08-08 por
 `migration repair --status applied`, depois de recaptura somente leitura de
@@ -223,7 +228,7 @@ Convenção de status por tipo (texto livre, sem `CHECK` constraint — validaç
 
 ---
 
-## Schema — Biblioteca v2 (`006`–`014`)
+## Schema — Biblioteca v2 (`006`–`014` + incrementais timestamped)
 
 ### `generos`
 ```sql
@@ -247,13 +252,14 @@ duracao_segundos  INTEGER,
 capa_url          TEXT,
 assistido         BOOLEAN NOT NULL DEFAULT FALSE,
 favorito          BOOLEAN NOT NULL DEFAULT FALSE,
-nota              NUMERIC(3,1),
+nota              NUMERIC(2,1),
 comentario        TEXT,
 updated_at        TIMESTAMPTZ DEFAULT NOW(),
 deleted           BOOLEAN DEFAULT FALSE
 ```
-> Checks garantem título/URL não vazios, duração positiva e nota entre 0 e
-> 10. A UI extrai `youtube_id` e thumbnail apenas de URLs reconhecidas, sem API.
+> Checks garantem título/URL não vazios, duração positiva e nota entre 0 e 5
+> em passos de 0.5. A UI extrai `youtube_id` e thumbnail apenas de URLs
+> reconhecidas, sem API.
 
 ### `artigos` (migration `20260811000200`, aplicada em produção)
 ```sql
@@ -301,7 +307,7 @@ link_imdb          TEXT,
 link_mal           TEXT,
 link_anilist       TEXT,
 link_oficial       TEXT,
-nota               NUMERIC(3,1),   -- 0.0 a 10.0, ver DEC-033
+nota               NUMERIC(2,1),   -- 0.0 a 5.0 em passos de 0.5, ver DEC-054
 roteirista         TEXT,
 produtores         TEXT,
 estudio            TEXT,
@@ -311,7 +317,7 @@ bilheteria         NUMERIC(14,2),
 ano_lancamento     INTEGER,
 anime_uuid         TEXT REFERENCES animes(uuid),   -- nulo = filme normal
 tipo_complemento   TEXT,   -- 'filme' | 'ova' | 'ona' | 'special' — nulo = filme normal
-CONSTRAINT filmes_nota_range CHECK (nota IS NULL OR (nota BETWEEN 0 AND 10))
+CONSTRAINT filmes_nota_range CHECK (nota IS NULL OR (nota BETWEEN 0 AND 5 AND nota * 2 = trunc(nota * 2)))
 ```
 > `tecnologias` não existe (removida em `010`, confirmado ausente no dump).
 
@@ -344,14 +350,14 @@ link_imdb          TEXT,
 link_mal           TEXT,
 link_anilist       TEXT,
 link_oficial       TEXT,
-nota               NUMERIC(3,1),
+nota               NUMERIC(2,1),
 roteirista         TEXT,
 produtores         TEXT,
 estudio            TEXT,
 distribuidora      TEXT,
 ano_lancamento     INTEGER,
 ano_termino        INTEGER,
-CONSTRAINT series_nota_range CHECK (nota IS NULL OR (nota BETWEEN 0 AND 10))
+CONSTRAINT series_nota_range CHECK (nota IS NULL OR (nota BETWEEN 0 AND 5 AND nota * 2 = trunc(nota * 2)))
 ```
 
 ### `animes` (schema atual completo)
@@ -384,7 +390,7 @@ character_designer       TEXT,
 animador_chefe           TEXT,
 compositor               TEXT,
 status                   TEXT DEFAULT 'quero_ver',
-nota                     NUMERIC(3,1),
+nota                     NUMERIC(2,1),
 comentario               TEXT,
 data_inicio              DATE,
 data_fim                 DATE,
@@ -394,7 +400,7 @@ onde_consumi             TEXT,
 valor_pago               NUMERIC(10,2),
 updated_at               TIMESTAMPTZ DEFAULT NOW(),
 deleted                  BOOLEAN DEFAULT FALSE,
-CONSTRAINT animes_nota_range CHECK (nota IS NULL OR (nota BETWEEN 0 AND 10))
+CONSTRAINT animes_nota_range CHECK (nota IS NULL OR (nota BETWEEN 0 AND 5 AND nota * 2 = trunc(nota * 2)))
 ```
 
 ### `mangas` (schema atual completo)
@@ -425,13 +431,13 @@ link_imdb              TEXT,
 link_mal               TEXT,
 link_anilist           TEXT,
 link_oficial           TEXT,
-nota                   NUMERIC(3,1),
+nota                   NUMERIC(2,1),
 titulo_traduzido       TEXT,
 editora                TEXT,
 status_publicacao      TEXT DEFAULT 'em_andamento',
 ano_inicio_publicacao  INTEGER,
 ano_fim_publicacao     INTEGER,
-CONSTRAINT mangas_nota_range CHECK (nota IS NULL OR (nota BETWEEN 0 AND 10))
+CONSTRAINT mangas_nota_range CHECK (nota IS NULL OR (nota BETWEEN 0 AND 5 AND nota * 2 = trunc(nota * 2)))
 ```
 
 ### `livros` (schema atual completo)
@@ -464,12 +470,12 @@ link_imdb          TEXT,
 link_mal           TEXT,
 link_anilist       TEXT,
 link_oficial       TEXT,
-nota               NUMERIC(3,1),
+nota               NUMERIC(2,1),
 editora            TEXT,
 idioma             TEXT,
 formato            TEXT DEFAULT 'fisico',
 ano_publicacao     INTEGER,
-CONSTRAINT livros_nota_range CHECK (nota IS NULL OR (nota BETWEEN 0 AND 10))
+CONSTRAINT livros_nota_range CHECK (nota IS NULL OR (nota BETWEEN 0 AND 5 AND nota * 2 = trunc(nota * 2)))
 ```
 
 ### `podcasts` (schema atual completo)
@@ -499,9 +505,9 @@ link_imdb          TEXT,
 link_mal           TEXT,
 link_anilist       TEXT,
 link_oficial       TEXT,
-nota               NUMERIC(3,1),
+nota               NUMERIC(2,1),
 produtora          TEXT,
-CONSTRAINT podcasts_nota_range CHECK (nota IS NULL OR (nota BETWEEN 0 AND 10))
+CONSTRAINT podcasts_nota_range CHECK (nota IS NULL OR (nota BETWEEN 0 AND 5 AND nota * 2 = trunc(nota * 2)))
 ```
 > Sem campo de autor/diretor dedicado — `artistName` da iTunes API vai em `produtora`.
 

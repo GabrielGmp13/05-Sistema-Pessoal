@@ -14,12 +14,14 @@ import { CampoInfo } from '@/components/PainelDetalheObra';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import AnotacoesLivroEditor from '@/components/AnotacoesLivroEditor';
 import SeletorGenero from '@/components/SeletorGenero';
+import StarRating from '@/components/StarRating';
 import BibliotecaBanner from './BibliotecaBanner';
 import BibliotecaCard from './BibliotecaCard';
 import BuscaMetadados from './BuscaMetadados';
 import { sb, getUserId } from '@/lib/supabase';
 import { getGeneros, getMapaGenerosDosItens, salvarGenerosDoItem, seedGenerosSeNecessario } from '@/lib/generos';
 import type { Genero } from '@/lib/generos';
+import { ordenarItensBiblioteca, type OrdenacaoBiblioteca } from '@/lib/biblioteca-ordenacao';
 import styles from './BibliotecaSection.module.css';
 
 const STATUS_LABEL: Record<string, string> = {
@@ -50,9 +52,17 @@ interface LivrosSectionProps {
   gatilhoAdicionar: number;
   busca?: string;
   onTotalCarregado?: (total: number) => void;
+  ordenacao: OrdenacaoBiblioteca;
+  onOrdenacaoChange: (ordenacao: OrdenacaoBiblioteca) => void;
 }
 
-export default function LivrosSection({ gatilhoAdicionar, busca = '', onTotalCarregado }: LivrosSectionProps) {
+export default function LivrosSection({
+  gatilhoAdicionar,
+  busca = '',
+  onTotalCarregado,
+  ordenacao,
+  onOrdenacaoChange,
+}: LivrosSectionProps) {
   const [livros, setLivros] = useState<Livro[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
@@ -190,7 +200,7 @@ export default function LivrosSection({ gatilhoAdicionar, busca = '', onTotalCar
       });
     if (livro.ano_publicacao)
       campos.push({ label: 'Ano de publicação', valor: String(livro.ano_publicacao) });
-    if (livro.nota != null) campos.push({ label: 'Nota', valor: `${livro.nota} / 10` });
+    if (livro.nota != null) campos.push({ label: 'Nota', valor: `${livro.nota} / 5` });
     if (livro.comentario) campos.push({ label: 'Comentário', valor: livro.comentario });
     return campos;
   }
@@ -198,6 +208,13 @@ export default function LivrosSection({ gatilhoAdicionar, busca = '', onTotalCar
   const itensFiltrados = busca
     ? livros.filter((l) => l.titulo.toLowerCase().includes(busca.toLowerCase()))
     : livros;
+  const itensOrdenados = ordenarItensBiblioteca(itensFiltrados, ordenacao, {
+    titulo: (livro) => livro.titulo,
+    atualizadoEm: (livro) => livro.updated_at,
+    nota: (livro) => livro.nota,
+    favorito: (livro) => livro.favorito,
+    status: (livro) => livro.status,
+  });
 
   return (
     <>
@@ -208,6 +225,8 @@ export default function LivrosSection({ gatilhoAdicionar, busca = '', onTotalCar
         rotuloAdicionar="Nova leitura"
         capas={livros.map((f) => f.capa_url)}
         imagemFundo="/biblioteca/banners/livros.jpg"
+        ordenacao={ordenacao}
+        onOrdenacaoChange={onOrdenacaoChange}
       />
 
       <div className={styles.container}>
@@ -215,7 +234,7 @@ export default function LivrosSection({ gatilhoAdicionar, busca = '', onTotalCar
 
       {carregando ? (
         <p className={styles.vazio}>Carregando...</p>
-      ) : itensFiltrados.length === 0 ? (
+      ) : itensOrdenados.length === 0 ? (
         <div className={styles.vazio}>
           <p>{busca ? 'Nenhum livro encontrado para esta busca.' : 'Nenhum livro cadastrado ainda.'}</p>
           {!busca && (
@@ -226,7 +245,7 @@ export default function LivrosSection({ gatilhoAdicionar, busca = '', onTotalCar
         </div>
       ) : (
         <div className={styles.grid}>
-          {itensFiltrados.map((livro) => (
+          {itensOrdenados.map((livro) => (
             <BibliotecaCard
               key={livro.uuid}
               titulo={livro.titulo}
@@ -375,23 +394,10 @@ export default function LivrosSection({ gatilhoAdicionar, busca = '', onTotalCar
                   }
                 />
               </label>
-              <label>
-                Nota (0 a 10)
-                <input
-                  type="number"
-                  min={0}
-                  max={10}
-                  step={0.5}
-                  inputMode="decimal"
-                  value={form.nota ?? ''}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      nota: e.target.value === '' ? undefined : Number(e.target.value),
-                    })
-                  }
-                />
-              </label>
+              <StarRating
+                value={form.nota}
+                onChange={(nota) => setForm({ ...form, nota: nota ?? undefined })}
+              />
               <div>
                 <div style={{ fontSize: '0.82rem', color: 'var(--texto-secundario)', marginBottom: '0.4rem' }}>
                   Gêneros

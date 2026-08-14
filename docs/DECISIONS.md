@@ -949,3 +949,34 @@ e automações ficam para decisões próprias, com análise de segurança e cust
 
 A mudança é somente de composição e leitura: usa tabelas, RLS e bibliotecas já
 existentes. Não exige migration, Storage, API externa ou dependência nova.
+
+---
+
+## DEC-054 — Biblioteca volta à escala de 0-5 estrelas com meio ponto
+
+**Data:** 2026-08-14
+**Status:** ✅ Implementada, validada localmente e aplicada em produção em 2026-08-14; pós-check sem pendências
+
+### Decisão
+
+- Esta decisão reabre explicitamente a DEC-033. A nota principal de Filmes,
+  Séries, Animes, Mangás, Livros, Podcasts e Vídeos passa de 0-10 decimal para
+  0-5 estrelas em passos de 0.5.
+- `artigos` permanece sem nota: a tabela não possui esse campo e a mudança não
+  cria um contrato novo sem necessidade de produto.
+- A migration incremental `20260813000200_biblioteca_nota_cinco_estrelas.sql`
+  converte valores existentes dividindo por 2 e arredondando ao meio ponto mais
+  próximo, altera as sete colunas para `NUMERIC(2,1)` e impõe faixa e passo por
+  `CHECK`.
+- Formulários usam um seletor visual de cinco estrelas, incluindo zero, meias
+  estrelas e ausência de nota. Cards e painéis exibem a escala de cinco.
+- A ordenação da coleção é local e pode usar recência, título, nota, favorito
+  ou status; não cria preferência persistida nem coluna adicional.
+
+### Justificativa
+
+A referência visual aprovada e o uso pessoal favorecem a leitura direta por
+estrelas. Como ainda não há volume relevante de dados reais, a conversão é
+controlada e preserva proporcionalmente eventuais notas existentes. O teste
+SQL local cobre tipo, constraints e exemplos de conversão antes de qualquer
+operação remota.

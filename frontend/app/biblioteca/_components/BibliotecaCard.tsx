@@ -93,7 +93,7 @@ export default function BibliotecaCard({
         )}
 
         {nota != null ? (
-          <span className={styles.notaBadge} aria-label={`Nota ${Number(nota).toFixed(1)}`}>
+          <span className={styles.notaBadge} aria-label={`Nota ${Number(nota).toFixed(1)} de 5`}>
             <Star aria-hidden="true" />
             {Number(nota).toFixed(1)}
           </span>
@@ -105,7 +105,12 @@ export default function BibliotecaCard({
           </span>
         ) : null}
 
-        {statusLabel ? <span className={styles.status}>{statusLabel}</span> : null}
+        {statusLabel ? (
+          <span className={styles.status}>
+            <i aria-hidden="true" />
+            {statusLabel}
+          </span>
+        ) : null}
       </div>
 
       <div className={styles.body} onClick={onClick}>

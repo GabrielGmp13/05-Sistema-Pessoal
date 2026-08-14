@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react'
 
 import { getSession, sb } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
+import { ThemeToggle } from './ThemeToggle'
 import styles from './GlobalNav.module.css'
 
 const links = [
@@ -65,7 +66,13 @@ export function GlobalNav() {
     }
   }, [ocultarNavegacao])
 
-  if (ocultarNavegacao) return null
+  if (ocultarNavegacao) {
+    return (
+      <div className={styles.temaLogin}>
+        <ThemeToggle />
+      </div>
+    )
+  }
 
   async function handleLogout() {
     setSaindo(true)
@@ -83,7 +90,7 @@ export function GlobalNav() {
       <div className={styles.barra}>
         <span aria-hidden="true" className={styles.perfilRastro} />
         <span aria-hidden="true" className={styles.fragmentos}>
-          {Array.from({ length: 15 }, (_, indice) => <i key={indice} />)}
+          {Array.from({ length: 24 }, (_, indice) => <i key={indice} />)}
         </span>
         <Link
           href="/configuracoes"
@@ -134,15 +141,18 @@ export function GlobalNav() {
           })}
         </nav>
 
-        <button
-          type="button"
-          onClick={handleLogout}
-          disabled={saindo}
-          className={styles.sair}
-        >
-          <LogOut className="size-4" />
-          <span>{saindo ? 'Saindo...' : 'Sair'}</span>
-        </button>
+        <div className={styles.acoes}>
+          <ThemeToggle className={styles.tema} />
+          <button
+            type="button"
+            onClick={handleLogout}
+            disabled={saindo}
+            className={styles.sair}
+          >
+            <LogOut className="size-4" />
+            <span>{saindo ? 'Saindo...' : 'Sair'}</span>
+          </button>
+        </div>
       </div>
     </header>
   )

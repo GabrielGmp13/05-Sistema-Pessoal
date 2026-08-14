@@ -14,12 +14,14 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import ElencoEditor from '@/components/ElencoEditor';
 import TrilhaSonoraEditor from '@/components/TrilhaSonoraEditor';
 import SeletorGenero from '@/components/SeletorGenero';
+import StarRating from '@/components/StarRating';
 import BibliotecaBanner from './BibliotecaBanner';
 import BibliotecaCard from './BibliotecaCard';
 import BuscaMetadados from './BuscaMetadados';
 import { sb, getUserId } from '@/lib/supabase';
 import { getGeneros, getMapaGenerosDosItens, salvarGenerosDoItem, seedGenerosSeNecessario } from '@/lib/generos';
 import type { Genero } from '@/lib/generos';
+import { ordenarItensBiblioteca, type OrdenacaoBiblioteca } from '@/lib/biblioteca-ordenacao';
 import styles from './BibliotecaSection.module.css';
 
 const STATUS_LABEL: Record<string, string> = {
@@ -43,9 +45,17 @@ interface FilmesSectionProps {
   gatilhoAdicionar: number;
   busca?: string;
   onTotalCarregado?: (total: number) => void;
+  ordenacao: OrdenacaoBiblioteca;
+  onOrdenacaoChange: (ordenacao: OrdenacaoBiblioteca) => void;
 }
 
-export default function FilmesSection({ gatilhoAdicionar, busca = '', onTotalCarregado }: FilmesSectionProps) {
+export default function FilmesSection({
+  gatilhoAdicionar,
+  busca = '',
+  onTotalCarregado,
+  ordenacao,
+  onOrdenacaoChange,
+}: FilmesSectionProps) {
   const [filmes, setFilmes] = useState<Filme[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
@@ -165,7 +175,7 @@ export default function FilmesSection({ gatilhoAdicionar, busca = '', onTotalCar
     if (filme.diretor) campos.push({ label: 'Direção', valor: filme.diretor });
     if (filme.ano_lancamento) campos.push({ label: 'Ano', valor: String(filme.ano_lancamento) });
     campos.push({ label: 'Status', valor: STATUS_LABEL[filme.status] ?? filme.status });
-    if (filme.nota != null) campos.push({ label: 'Nota', valor: `${filme.nota} / 10` });
+    if (filme.nota != null) campos.push({ label: 'Nota', valor: `${filme.nota} / 5` });
     if (filme.roteirista) campos.push({ label: 'Roteiro', valor: filme.roteirista });
     if (filme.produtores) campos.push({ label: 'Produção', valor: filme.produtores });
     if (filme.estudio) campos.push({ label: 'Estúdio', valor: filme.estudio });
@@ -190,6 +200,13 @@ export default function FilmesSection({ gatilhoAdicionar, busca = '', onTotalCar
   const filmesFiltrados = busca
     ? filmes.filter((f) => f.titulo.toLowerCase().includes(busca.toLowerCase()))
     : filmes;
+  const filmesOrdenados = ordenarItensBiblioteca(filmesFiltrados, ordenacao, {
+    titulo: (filme) => filme.titulo,
+    atualizadoEm: (filme) => filme.updated_at,
+    nota: (filme) => filme.nota,
+    favorito: (filme) => filme.favorito,
+    status: (filme) => filme.status,
+  });
 
   return (
     <>
@@ -200,6 +217,8 @@ export default function FilmesSection({ gatilhoAdicionar, busca = '', onTotalCar
         rotuloAdicionar="Novo filme"
         capas={filmes.map((f) => f.capa_url)}
         imagemFundo="/biblioteca/banners/filmes.jpg"
+        ordenacao={ordenacao}
+        onOrdenacaoChange={onOrdenacaoChange}
       />
 
       <div className={styles.container}>
@@ -207,7 +226,7 @@ export default function FilmesSection({ gatilhoAdicionar, busca = '', onTotalCar
 
       {carregando ? (
         <p className={styles.vazio}>Carregando...</p>
-      ) : filmesFiltrados.length === 0 ? (
+      ) : filmesOrdenados.length === 0 ? (
         <div className={styles.vazio}>
           <p>{busca ? 'Nenhum filme encontrado para esta busca.' : 'Nenhum filme cadastrado ainda.'}</p>
           {!busca && (
@@ -218,7 +237,7 @@ export default function FilmesSection({ gatilhoAdicionar, busca = '', onTotalCar
         </div>
       ) : (
         <div className={styles.grid}>
-          {filmesFiltrados.map((filme) => (
+          {filmesOrdenados.map((filme) => (
             <BibliotecaCard
               key={filme.uuid}
               titulo={filme.titulo}
@@ -291,23 +310,10 @@ export default function FilmesSection({ gatilhoAdicionar, busca = '', onTotalCar
                   <option value="abandonado">Abandonado</option>
                 </select>
               </label>
-              <label>
-                Nota (0 a 10)
-                <input
-                  type="number"
-                  min={0}
-                  max={10}
-                  step={0.5}
-                  inputMode="decimal"
-                  value={form.nota ?? ''}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      nota: e.target.value === '' ? undefined : Number(e.target.value),
-                    })
-                  }
-                />
-              </label>
+              <StarRating
+                value={form.nota}
+                onChange={(nota) => setForm({ ...form, nota: nota ?? undefined })}
+              />
               <label>
                 Ano de lançamento
                 <input

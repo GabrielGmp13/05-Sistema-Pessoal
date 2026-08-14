@@ -14,6 +14,7 @@ import {
 } from '@/lib/artigos';
 import BibliotecaBanner from './BibliotecaBanner';
 import BibliotecaCard from './BibliotecaCard';
+import { ordenarItensBiblioteca, type OrdenacaoBiblioteca } from '@/lib/biblioteca-ordenacao';
 import styles from './BibliotecaSection.module.css';
 
 const FORM_VAZIO: ArtigoInput = {
@@ -29,13 +30,21 @@ interface Props {
   gatilhoAdicionar: number;
   busca?: string;
   onTotalCarregado?: (total: number) => void;
+  ordenacao: OrdenacaoBiblioteca;
+  onOrdenacaoChange: (ordenacao: OrdenacaoBiblioteca) => void;
 }
 
 function formatarData(data: string) {
   return new Date(`${data}T12:00:00`).toLocaleDateString('pt-BR');
 }
 
-export default function ArtigosSection({ gatilhoAdicionar, busca = '', onTotalCarregado }: Props) {
+export default function ArtigosSection({
+  gatilhoAdicionar,
+  busca = '',
+  onTotalCarregado,
+  ordenacao,
+  onOrdenacaoChange,
+}: Props) {
   const [artigos, setArtigos] = useState<Artigo[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
@@ -124,20 +133,34 @@ export default function ArtigosSection({ gatilhoAdicionar, busca = '', onTotalCa
   const filtrados = busca
     ? artigos.filter((artigo) => [artigo.titulo, artigo.autor, artigo.site_origem].some((valor) => valor?.toLowerCase().includes(busca.toLowerCase())))
     : artigos;
+  const ordenados = ordenarItensBiblioteca(filtrados, ordenacao, {
+    titulo: (artigo) => artigo.titulo,
+    atualizadoEm: (artigo) => artigo.updated_at,
+    favorito: (artigo) => artigo.favorito,
+    status: (artigo) => (artigo.data_leitura ? 'lido' : 'nao_lido'),
+  });
 
   return (
     <>
-      <BibliotecaBanner titulo="Artigos" total={artigos.length} onAdicionar={abrirNovo} rotuloAdicionar="Novo artigo" />
+      <BibliotecaBanner
+        titulo="Artigos"
+        total={artigos.length}
+        onAdicionar={abrirNovo}
+        rotuloAdicionar="Novo artigo"
+        ordenacao={ordenacao}
+        onOrdenacaoChange={onOrdenacaoChange}
+        notaDisponivel={false}
+      />
       <div className={styles.container}>
         {erro && <p className={styles.erro}>{erro}</p>}
-        {carregando ? <p className={styles.vazio}>Carregando...</p> : filtrados.length === 0 ? (
+        {carregando ? <p className={styles.vazio}>Carregando...</p> : ordenados.length === 0 ? (
           <div className={styles.vazio}>
             <p>{busca ? 'Nenhum artigo encontrado para esta busca.' : 'Nenhum artigo cadastrado ainda.'}</p>
             {!busca && <button className={styles.btnPrimario} onClick={abrirNovo}>Adicionar o primeiro</button>}
           </div>
         ) : (
           <div className={styles.grid}>
-            {filtrados.map((artigo) => (
+            {ordenados.map((artigo) => (
               <BibliotecaCard
                 key={artigo.uuid}
                 titulo={artigo.titulo}

@@ -15,12 +15,14 @@ import ElencoEditor from '@/components/ElencoEditor';
 import TrilhaSonoraEditor from '@/components/TrilhaSonoraEditor';
 import TemporadasEditor from '@/components/TemporadasEditor';
 import SeletorGenero from '@/components/SeletorGenero';
+import StarRating from '@/components/StarRating';
 import BibliotecaBanner from './BibliotecaBanner';
 import BuscaMetadados from './BuscaMetadados';
 import BibliotecaCard from './BibliotecaCard';
 import { sb, getUserId } from '@/lib/supabase';
 import { getGeneros, getMapaGenerosDosItens, salvarGenerosDoItem, seedGenerosSeNecessario } from '@/lib/generos';
 import type { Genero } from '@/lib/generos';
+import { ordenarItensBiblioteca, type OrdenacaoBiblioteca } from '@/lib/biblioteca-ordenacao';
 import styles from './BibliotecaSection.module.css';
 
 const STATUS_LABEL: Record<string, string> = {
@@ -46,9 +48,17 @@ interface SeriesSectionProps {
   gatilhoAdicionar: number;
   busca?: string;
   onTotalCarregado?: (total: number) => void;
+  ordenacao: OrdenacaoBiblioteca;
+  onOrdenacaoChange: (ordenacao: OrdenacaoBiblioteca) => void;
 }
 
-export default function SeriesSection({ gatilhoAdicionar, busca = '', onTotalCarregado }: SeriesSectionProps) {
+export default function SeriesSection({
+  gatilhoAdicionar,
+  busca = '',
+  onTotalCarregado,
+  ordenacao,
+  onOrdenacaoChange,
+}: SeriesSectionProps) {
   const [series, setSeries] = useState<Serie[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
@@ -178,7 +188,7 @@ export default function SeriesSection({ gatilhoAdicionar, busca = '', onTotalCar
       label: 'Progresso',
       valor: `T${serie.temporada_atual} · Ep ${serie.episodio_atual}`,
     });
-    if (serie.nota != null) campos.push({ label: 'Nota', valor: `${serie.nota} / 10` });
+    if (serie.nota != null) campos.push({ label: 'Nota', valor: `${serie.nota} / 5` });
     if (serie.roteirista) campos.push({ label: 'Roteiro', valor: serie.roteirista });
     if (serie.produtores) campos.push({ label: 'Produção', valor: serie.produtores });
     if (serie.estudio) campos.push({ label: 'Estúdio', valor: serie.estudio });
@@ -201,6 +211,13 @@ export default function SeriesSection({ gatilhoAdicionar, busca = '', onTotalCar
   const itensFiltrados = busca
     ? series.filter((s) => s.titulo.toLowerCase().includes(busca.toLowerCase()))
     : series;
+  const itensOrdenados = ordenarItensBiblioteca(itensFiltrados, ordenacao, {
+    titulo: (serie) => serie.titulo,
+    atualizadoEm: (serie) => serie.updated_at,
+    nota: (serie) => serie.nota,
+    favorito: (serie) => serie.favorito,
+    status: (serie) => serie.status,
+  });
 
   return (
     <>
@@ -211,13 +228,15 @@ export default function SeriesSection({ gatilhoAdicionar, busca = '', onTotalCar
         rotuloAdicionar="Nova série"
         capas={series.map((f) => f.capa_url)}
         imagemFundo="/biblioteca/banners/series.jpg"
+        ordenacao={ordenacao}
+        onOrdenacaoChange={onOrdenacaoChange}
       />
 
       {erro && <p className={styles.erro}>{erro}</p>}
 
       {carregando ? (
         <p className={styles.vazio}>Carregando...</p>
-      ) : itensFiltrados.length === 0 ? (
+      ) : itensOrdenados.length === 0 ? (
         <div className={styles.vazio}>
           <p>{busca ? 'Nenhuma série encontrada para esta busca.' : 'Nenhuma série cadastrada ainda.'}</p>
           {!busca && (
@@ -228,7 +247,7 @@ export default function SeriesSection({ gatilhoAdicionar, busca = '', onTotalCar
         </div>
       ) : (
         <div className={styles.grid}>
-          {itensFiltrados.map((serie) => (
+          {itensOrdenados.map((serie) => (
             <BibliotecaCard
               key={serie.uuid}
               titulo={serie.titulo}
@@ -327,23 +346,10 @@ export default function SeriesSection({ gatilhoAdicionar, busca = '', onTotalCar
                   }
                 />
               </label>
-              <label>
-                Nota (0 a 10)
-                <input
-                  type="number"
-                  min={0}
-                  max={10}
-                  step={0.5}
-                  inputMode="decimal"
-                  value={form.nota ?? ''}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      nota: e.target.value === '' ? undefined : Number(e.target.value),
-                    })
-                  }
-                />
-              </label>
+              <StarRating
+                value={form.nota}
+                onChange={(nota) => setForm({ ...form, nota: nota ?? undefined })}
+              />
               <label>
                 Ano de lançamento
                 <input

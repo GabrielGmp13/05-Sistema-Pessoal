@@ -52,8 +52,8 @@ operacional.
 **Fase:** Fase 7 — implementação técnica da v2 expandida concluída; homologação manual final em andamento. A v2 é o único frontend ativo (v1 removida em 2026-07-19, DEC-031).
 **Decisão-chave:** DEC-018 (reabre DEC-006) — frontend migrou de HTML puro para Next.js/React
 **Deploy:** ✅ em produção no Vercel desde 2026-07-13 (não "pendente" — ver `ARCHITECTURE.md`)
-**Schema:** baseline confirmada via dump real em 2026-08 com 44 tabelas; produção e ambiente local estão em 59 tabelas após as migrations incrementais até Saúde/Finanças/Lugares (ver `DATABASE.md`).
-**Histórico CLI:** adotado em produção em 2026-08-08 — as três baselines e as migrations incrementais até `20260813000100_saude_financas_lugares.sql` estão registradas como `applied`; pós-check remoto sem pendências em 2026-08-13.
+**Schema:** baseline confirmada via dump real em 2026-08 com 44 tabelas; produção e ambiente local estão em 59 tabelas após as migrations incrementais aplicadas até `20260813000200_biblioteca_nota_cinco_estrelas.sql` (ver `DATABASE.md`).
+**Histórico CLI:** adotado em produção em 2026-08-08 — as três baselines e as migrations incrementais até `20260813000200_biblioteca_nota_cinco_estrelas.sql` estão registradas como `applied`. A migration de notas foi validada por reset/teste SQL, aplicada em produção após dry-run limpo e confirmada por pós-check sem pendências em 2026-08-14.
 **Reprodutibilidade:** Node.js `24.15.0`, npm `12.0.1`, `npm ci`, typecheck e build validados; CI mínima ativa. Lint mantém 40 achados conhecidos e informativos na medição de 2026-08-12.
 **Próxima tarefa imediata:** concluir a homologação manual autenticada da v2 expandida, incluindo Treino, Diário, módulos CRUD e responsividade; ver `TASKS_NOW.md`.
 

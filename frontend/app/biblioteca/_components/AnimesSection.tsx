@@ -16,6 +16,7 @@ import OpeningsEndingsEditor from '@/components/OpeningsEndingsEditor';
 import TemporadasAnimeEditor from '@/components/TemporadasAnimesEditor';
 import ComplementosEditor from '@/components/ComplementosEditor';
 import OrdemConsumoEditor from '@/components/OrdemConsumoEditor';
+import StarRating from '@/components/StarRating';
 import BuscaMetadados from './BuscaMetadados';
 import SeletorGenero from '@/components/SeletorGenero';
 import BibliotecaBanner from './BibliotecaBanner';
@@ -23,6 +24,7 @@ import BibliotecaCard from './BibliotecaCard';
 import { sb, getUserId } from '@/lib/supabase';
 import { getGeneros, getMapaGenerosDosItens, salvarGenerosDoItem, seedGenerosSeNecessario } from '@/lib/generos';
 import type { Genero } from '@/lib/generos';
+import { ordenarItensBiblioteca, type OrdenacaoBiblioteca } from '@/lib/biblioteca-ordenacao';
 import styles from './BibliotecaSection.module.css';
 
 const STATUS_LABEL: Record<string, string> = {
@@ -53,9 +55,17 @@ interface AnimesSectionProps {
   gatilhoAdicionar: number;
   busca?: string;
   onTotalCarregado?: (total: number) => void;
+  ordenacao: OrdenacaoBiblioteca;
+  onOrdenacaoChange: (ordenacao: OrdenacaoBiblioteca) => void;
 }
 
-export default function AnimesSection({ gatilhoAdicionar, busca = '', onTotalCarregado }: AnimesSectionProps) {
+export default function AnimesSection({
+  gatilhoAdicionar,
+  busca = '',
+  onTotalCarregado,
+  ordenacao,
+  onOrdenacaoChange,
+}: AnimesSectionProps) {
   const [animes, setAnimes] = useState<Anime[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
@@ -195,7 +205,7 @@ export default function AnimesSection({ gatilhoAdicionar, busca = '', onTotalCar
       campos.push({ label: 'Período', valor: periodo });
     }
     campos.push({ label: 'Status', valor: STATUS_LABEL[anime.status] ?? anime.status });
-    if (anime.nota != null) campos.push({ label: 'Nota', valor: `${anime.nota} / 10` });
+    if (anime.nota != null) campos.push({ label: 'Nota', valor: `${anime.nota} / 5` });
     if (anime.diretor) campos.push({ label: 'Direção', valor: anime.diretor });
     if (anime.estudio) campos.push({ label: 'Estúdio', valor: anime.estudio });
     if (anime.character_designer)
@@ -216,6 +226,13 @@ export default function AnimesSection({ gatilhoAdicionar, busca = '', onTotalCar
         return titulo.includes(busca.toLowerCase());
       })
     : animes;
+  const itensOrdenados = ordenarItensBiblioteca(itensFiltrados, ordenacao, {
+    titulo: (anime) => anime.nome_traduzido || anime.nome_original,
+    atualizadoEm: (anime) => anime.updated_at,
+    nota: (anime) => anime.nota,
+    favorito: (anime) => anime.favorito,
+    status: (anime) => anime.status,
+  });
 
   return (
     <>
@@ -226,6 +243,8 @@ export default function AnimesSection({ gatilhoAdicionar, busca = '', onTotalCar
         rotuloAdicionar="Novo anime"
         capas={animes.map((f) => f.capa_url)}
         imagemFundo="/biblioteca/banners/animes.jpg"
+        ordenacao={ordenacao}
+        onOrdenacaoChange={onOrdenacaoChange}
       />
 
       <div className={styles.container}>
@@ -233,7 +252,7 @@ export default function AnimesSection({ gatilhoAdicionar, busca = '', onTotalCar
 
       {carregando ? (
         <p className={styles.vazio}>Carregando...</p>
-      ) : itensFiltrados.length === 0 ? (
+      ) : itensOrdenados.length === 0 ? (
         <div className={styles.vazio}>
           <p>{busca ? 'Nenhum anime encontrado para esta busca.' : 'Nenhum anime cadastrado ainda.'}</p>
           {!busca && (
@@ -244,7 +263,7 @@ export default function AnimesSection({ gatilhoAdicionar, busca = '', onTotalCar
         </div>
       ) : (
         <div className={styles.grid}>
-          {itensFiltrados.map((anime) => (
+          {itensOrdenados.map((anime) => (
             <BibliotecaCard
               key={anime.uuid}
               titulo={anime.nome_traduzido || anime.nome_original}
@@ -322,23 +341,10 @@ export default function AnimesSection({ gatilhoAdicionar, busca = '', onTotalCar
                   <option value="abandonado">Abandonado</option>
                 </select>
               </label>
-              <label>
-                Nota (0 a 10)
-                <input
-                  type="number"
-                  min={0}
-                  max={10}
-                  step={0.5}
-                  inputMode="decimal"
-                  value={form.nota ?? ''}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      nota: e.target.value === '' ? undefined : Number(e.target.value),
-                    })
-                  }
-                />
-              </label>
+              <StarRating
+                value={form.nota}
+                onChange={(nota) => setForm({ ...form, nota: nota ?? undefined })}
+              />
               <label>
                 Ano de lançamento
                 <input

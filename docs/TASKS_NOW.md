@@ -5,11 +5,11 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 ---
 
 ## Status geral
-**Fase atual:** Fase 7 (v2 expandida) — implementação técnica concluída. Hub, Treino, Biblioteca, Estudos, Revisão, Agenda, Perfil, Projetos, Receitas, Diário, Saúde, Finanças e Lugares possuem caminhos reais de uso; a v1 está aposentada (DEC-031) e `frontend/` é o único frontend ativo.
-**Bloqueio:** nenhum bloqueio técnico ou de banco conhecido; declarar a v2 expandida concluída depende da homologação manual final dos fluxos e da responsividade.
-**Banco:** produção está alinhada até `20260813000100_saude_financas_lugares.sql`, aplicada em 2026-08-13 após dry-run limpo; o pós-check remoto não mostrou pendências.
+**Fase atual:** Fase 7 (v2 expandida) — polimento final da Biblioteca em validação. Hub, Treino, Biblioteca, Estudos, Revisão, Agenda, Perfil, Projetos, Receitas, Diário, Saúde, Finanças e Lugares possuem caminhos reais de uso; a v1 está aposentada (DEC-031) e `frontend/` é o único frontend ativo.
+**Bloqueio:** nenhum bloqueio técnico conhecido para publicar o refinamento da Biblioteca; a migration de notas já está aplicada em produção.
+**Banco:** produção e cadeia local estão alinhadas até `20260813000200_biblioteca_nota_cinco_estrelas.sql`; pós-check remoto de 2026-08-14 não mostrou migrations pendentes.
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** concluir o checklist manual autenticado da v2 expandida, com atenção a Treino, Diário, CRUDs, Biblioteca, Agenda/Revisão e responsividade do topo.
+**Próxima ação:** publicar o lote da Biblioteca e retomar o checklist manual autenticado em temas claro/escuro e desktop/mobile.
 
 ---
 
@@ -116,9 +116,15 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 ## Redesign visual da Biblioteca — 2026-08-13
 
 - [x] Direção visual do protótipo v0 adaptada aos componentes reais, sem dados mockados ou troca de lógica
-- [x] Sidebar compacta em painel, busca refinada, contadores nas oito categorias e ações inferiores preservadas
+- [x] Sidebar compacta em painel, busca refinada, contadores reais das oito categorias carregados desde a entrada e ações inferiores preservadas
 - [x] Hero de categoria em card com label, título, total, ação de cadastro e colagem das capas reais
-- [x] Cards verticais com capa dominante, nota, favorito, status, metadados, gêneros e menu existente
+- [x] Cards verticais refinados com capa dominante, nota em estrela, favorito, status, metadados, gêneros e menu existente
+- [x] Ordenação local real por recência, título, nota, favoritos e status, aplicada depois da busca nas oito categorias
+- [x] Seletor acessível de cinco estrelas e meias estrelas substituiu os inputs numéricos nas sete categorias que possuem `nota`; Artigos permanece sem nota
+- [x] Toggle de tema movido para a área de ações ao lado de “Sair” em todas as rotas autenticadas
+- [x] Fragmentos do topo refinados como pétalas/lascas abstratas; `background_url` continua restrita ao perfil
+- [x] Reset local completo e teste específico de `20260813000200_biblioteca_nota_cinco_estrelas.sql` aprovados
+- [x] Dry-run limpo, migration aplicada em produção e pós-check sem pendências (2026-08-14)
 - [x] CRUD, importações de metadados, gêneros, Vídeo → Curso, painéis, modais e soft delete preservados
 - [ ] Validar o novo visual autenticado em produção nos temas claro/escuro e em desktop/mobile
 

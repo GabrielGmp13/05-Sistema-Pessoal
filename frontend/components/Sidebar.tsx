@@ -8,7 +8,7 @@ export interface SidebarItem {
   id: string;
   label: string;
   icon?: React.ReactNode;
-  count?: number;
+  count?: number | null;
 }
 
 interface SidebarProps {
@@ -65,8 +65,13 @@ export default function Sidebar({
                   >
                     {item.icon && <span className={styles.icone}>{item.icon}</span>}
                     <span className={styles.label}>{item.label}</span>
-                    {item.count != null && (
-                      <span className={styles.count}>{item.count}</span>
+                    {item.count !== undefined && (
+                      <span
+                        className={styles.count}
+                        aria-label={item.count == null ? 'Contagem carregando' : `${item.count} itens`}
+                      >
+                        {item.count ?? '...'}
+                      </span>
                     )}
                   </button>
                 </li>

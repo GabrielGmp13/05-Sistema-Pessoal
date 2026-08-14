@@ -13,12 +13,14 @@ import PainelSimples from '@/components/PainelSimples';
 import { CampoInfo } from '@/components/PainelDetalheObra';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import SeletorGenero from '@/components/SeletorGenero';
+import StarRating from '@/components/StarRating';
 import BibliotecaBanner from './BibliotecaBanner';
 import BibliotecaCard from './BibliotecaCard';
 import { sb, getUserId } from '@/lib/supabase';
 import BuscaMetadados from './BuscaMetadados';
 import { getGeneros, getMapaGenerosDosItens, salvarGenerosDoItem, seedGenerosSeNecessario } from '@/lib/generos';
 import type { Genero } from '@/lib/generos';
+import { ordenarItensBiblioteca, type OrdenacaoBiblioteca } from '@/lib/biblioteca-ordenacao';
 import styles from './BibliotecaSection.module.css';
 
 const STATUS_LABEL: Record<string, string> = {
@@ -40,9 +42,17 @@ interface PodcastsSectionProps {
   gatilhoAdicionar: number;
   busca?: string;
   onTotalCarregado?: (total: number) => void;
+  ordenacao: OrdenacaoBiblioteca;
+  onOrdenacaoChange: (ordenacao: OrdenacaoBiblioteca) => void;
 }
 
-export default function PodcastsSection({ gatilhoAdicionar, busca = '', onTotalCarregado }: PodcastsSectionProps) {
+export default function PodcastsSection({
+  gatilhoAdicionar,
+  busca = '',
+  onTotalCarregado,
+  ordenacao,
+  onOrdenacaoChange,
+}: PodcastsSectionProps) {
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
@@ -166,7 +176,7 @@ export default function PodcastsSection({ gatilhoAdicionar, busca = '', onTotalC
     if (podcast.produtora) campos.push({ label: 'Produtora', valor: podcast.produtora });
     campos.push({ label: 'Status', valor: STATUS_LABEL[podcast.status] ?? podcast.status });
     campos.push({ label: 'Episódio atual', valor: String(podcast.episodio_atual) });
-    if (podcast.nota != null) campos.push({ label: 'Nota', valor: `${podcast.nota} / 10` });
+    if (podcast.nota != null) campos.push({ label: 'Nota', valor: `${podcast.nota} / 5` });
     if (podcast.comentario) campos.push({ label: 'Comentário', valor: podcast.comentario });
     return campos;
   }
@@ -174,6 +184,13 @@ export default function PodcastsSection({ gatilhoAdicionar, busca = '', onTotalC
   const itensFiltrados = busca
     ? podcasts.filter((p) => p.titulo.toLowerCase().includes(busca.toLowerCase()))
     : podcasts;
+  const itensOrdenados = ordenarItensBiblioteca(itensFiltrados, ordenacao, {
+    titulo: (podcast) => podcast.titulo,
+    atualizadoEm: (podcast) => podcast.updated_at,
+    nota: (podcast) => podcast.nota,
+    favorito: (podcast) => podcast.favorito,
+    status: (podcast) => podcast.status,
+  });
 
   return (
     <>
@@ -184,13 +201,15 @@ export default function PodcastsSection({ gatilhoAdicionar, busca = '', onTotalC
         rotuloAdicionar="Novo podcast"
         capas={podcasts.map((f) => f.capa_url)}
         imagemFundo="/biblioteca/banners/podcasts.jpg"
+        ordenacao={ordenacao}
+        onOrdenacaoChange={onOrdenacaoChange}
       />
 
       {erro && <p className={styles.erro}>{erro}</p>}
 
       {carregando ? (
         <p className={styles.vazio}>Carregando...</p>
-      ) : itensFiltrados.length === 0 ? (
+      ) : itensOrdenados.length === 0 ? (
         <div className={styles.vazio}>
           <p>{busca ? 'Nenhum podcast encontrado para esta busca.' : 'Nenhum podcast cadastrado ainda.'}</p>
           {!busca && (
@@ -201,7 +220,7 @@ export default function PodcastsSection({ gatilhoAdicionar, busca = '', onTotalC
         </div>
       ) : (
         <div className={styles.grid}>
-          {itensFiltrados.map((podcast) => (
+          {itensOrdenados.map((podcast) => (
             <BibliotecaCard
               key={podcast.uuid}
               titulo={podcast.titulo}
@@ -288,23 +307,10 @@ export default function PodcastsSection({ gatilhoAdicionar, busca = '', onTotalC
                   }
                 />
               </label>
-              <label>
-                Nota (0 a 10)
-                <input
-                  type="number"
-                  min={0}
-                  max={10}
-                  step={0.5}
-                  inputMode="decimal"
-                  value={form.nota ?? ''}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      nota: e.target.value === '' ? undefined : Number(e.target.value),
-                    })
-                  }
-                />
-              </label>
+              <StarRating
+                value={form.nota}
+                onChange={(nota) => setForm({ ...form, nota: nota ?? undefined })}
+              />
               <div>
                 <div style={{ fontSize: '0.82rem', color: 'var(--texto-secundario)', marginBottom: '0.4rem' }}>
                   Gêneros

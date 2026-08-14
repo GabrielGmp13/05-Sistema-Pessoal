@@ -13,7 +13,7 @@ export interface Filme {
   capa_url: string | null;
   capa_path: string | null;
   status: StatusFilme;
-  nota: number | null; // NUMERIC(2,1), 1-5 com meia estrela — DEC-023
+  nota: number | null; // NUMERIC(2,1), 0-5 com meia estrela — DEC-054
   comentario: string | null;
   data_inicio: string | null; // DATE (YYYY-MM-DD)
   data_fim: string | null;

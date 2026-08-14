@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BookOpen, FileText, Film, Library, Mic2, Play, Sparkles, Tv } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
 import FilmesSection from './_components/FilmesSection';
@@ -11,6 +11,8 @@ import LivrosSection from './_components/LivrosSection';
 import PodcastsSection from './_components/PodcastsSection';
 import VideosSection from './_components/VideosSection';
 import ArtigosSection from './_components/ArtigosSection';
+import { sb } from '@/lib/supabase';
+import type { OrdenacaoBiblioteca } from '@/lib/biblioteca-ordenacao';
 import layoutStyles from './layout.module.css';
 
 type CategoriaId = 'filmes' | 'series' | 'animes' | 'mangas' | 'livros' | 'podcasts' | 'videos' | 'artigos';
@@ -26,12 +28,24 @@ const CATEGORIAS: { id: CategoriaId; label: string; icon: React.ReactNode }[] = 
   { id: 'artigos', label: 'Artigos', icon: <FileText aria-hidden="true" /> },
 ];
 
+const TABELAS_POR_CATEGORIA: Record<CategoriaId, string> = {
+  filmes: 'filmes',
+  series: 'series',
+  animes: 'animes',
+  mangas: 'mangas',
+  livros: 'livros',
+  podcasts: 'podcasts',
+  videos: 'videos',
+  artigos: 'artigos',
+};
+
 export default function BibliotecaPage() {
   const [categoriaAtiva, setCategoriaAtiva] = useState<CategoriaId>('filmes');
   const [gatilhoAdicionar, setGatilhoAdicionar] = useState(0);
   const [busca, setBusca] = useState('');
+  const [ordenacao, setOrdenacao] = useState<OrdenacaoBiblioteca>('recentes');
 
-  // Cada Section avisa aqui quantos itens carregou para os contadores da sidebar.
+  // A carga inicial preenche tudo; cada Section mantém sua contagem atualizada após CRUD.
   const [contagens, setContagens] = useState<Record<CategoriaId, number | null>>({
     filmes: null,
     series: null,
@@ -43,6 +57,31 @@ export default function BibliotecaPage() {
     artigos: null,
   });
 
+  useEffect(() => {
+    let ativo = true;
+
+    async function carregarContagens() {
+      const resultados = await Promise.all(
+        (Object.entries(TABELAS_POR_CATEGORIA) as [CategoriaId, string][]).map(
+          async ([categoria, tabela]) => {
+            const { count, error } = await sb
+              .from(tabela)
+              .select('uuid', { count: 'exact', head: true })
+              .eq('deleted', false);
+            return [categoria, error ? null : count ?? 0] as const;
+          },
+        ),
+      );
+
+      if (ativo) setContagens(Object.fromEntries(resultados) as Record<CategoriaId, number | null>);
+    }
+
+    void carregarContagens();
+    return () => {
+      ativo = false;
+    };
+  }, []);
+
   function handleAdicionar() {
     setGatilhoAdicionar((v) => v + 1);
   }
@@ -53,6 +92,7 @@ export default function BibliotecaPage() {
 
   function selecionarCategoria(id: CategoriaId) {
     setGatilhoAdicionar(0);
+    if (id === 'artigos' && ordenacao === 'nota') setOrdenacao('recentes');
     setCategoriaAtiva(id);
   }
 
@@ -60,6 +100,8 @@ export default function BibliotecaPage() {
     const props = {
       gatilhoAdicionar,
       busca,
+      ordenacao,
+      onOrdenacaoChange: setOrdenacao,
     };
     switch (categoriaAtiva) {
       case 'filmes':
@@ -137,7 +179,7 @@ export default function BibliotecaPage() {
             id: c.id,
             label: c.label,
             icon: c.icon,
-            count: contagens[c.id] ?? undefined,
+            count: contagens[c.id],
           }))}
           ativoId={categoriaAtiva}
           onSelecionar={(id) => selecionarCategoria(id as CategoriaId)}

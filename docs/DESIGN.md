@@ -130,7 +130,7 @@ navegação por categoria.
 **Estrutura, de cima pra baixo:**
 1. **Campo de busca** (opcional, controlado pelo componente pai)
 2. **Rótulo de seção** (ex: "Biblioteca") — uppercase, pequeno, `--texto-secundario`
-3. **Lista de itens** — ícone + label + badge de contagem nas categorias já carregadas
+3. **Lista de itens** — ícone + label + badge; as contagens reais de todas as categorias são carregadas na entrada do módulo
 4. **Rodapé** — ação secundária opcional e botão primário (ex: "+ Adicionar obra")
 
 Em todas as rotas autenticadas, o perfil fica no início da navegação global
@@ -141,13 +141,17 @@ e compartilham altura, alinhamento central e a borda inferior do `header`; o
 efeito principal do perfil fica contido na célula esquerda. A imagem real de
 background nunca é aplicada ao restante da barra: ela desaparece dentro do
 perfil por máscara. Fora dele, a continuidade visual usa apenas manchas e
-fragmentos abstratos derivados dos tokens do tema, com presença maior até
+fragmentos abstratos em forma de pétalas/lascas derivados dos tokens do tema, com presença maior até
 “Início” e redução gradual depois. A sidebar da Biblioteca não
 duplica perfil. O próprio perfil é o acesso a `/configuracoes`, com hover e
 foco visíveis; não existe engrenagem ou atalho separado. Fragmentos pequenos e
 com opacidade decrescente usam `--accent`, `--accent-wash` e
 `--accent-wash-forte`, sem repetir ou esticar `background_url`, formar uma faixa
 sólida ou prejudicar a leitura da navegação.
+
+O toggle de tema pertence à área direita da navegação global, imediatamente ao
+lado de “Sair”. Ele não deve voltar a flutuar sobre o conteúdo das páginas; na
+tela de login, onde não há logout, permanece como ação isolada no topo direito.
 
 Item ativo: pill com fundo derivado de `--success-muted`, contraste por
 `--success-foreground` e marcador interno sutil. A sidebar é um painel
@@ -167,7 +171,9 @@ um módulo com sidebar.
 - Mini-colagem lateral de até quatro capas/thumbnails reais e distintos
 - Fallback abstrato elegante; a imagem estática antiga pode aparecer apenas
   como textura de baixa opacidade quando não houver capa real
-- Logo abaixo, cabeçalho "Sua coleção" com contador em pill
+- Logo abaixo, cabeçalho "Sua coleção" com contador em pill e menu de ordenação
+  por recência, título, nota, favoritos ou status. A ordenação é local e atua
+  sobre a lista já filtrada pela busca.
 - O hero rola normalmente e usa os tokens globais nos temas claro e escuro
 
 ---
@@ -181,7 +187,9 @@ futuro (ex: se Hábitos ou Projetos precisarem de card com imagem).
 - Imagem em `aspect-ratio: 2/3`, `object-fit: cover`, leve zoom no hover
 - Coração no canto superior direito da imagem — **só renderiza se o item for
   favorito**, nunca ícone vazio pra não-favoritos
-- Nota em badge sobre a capa e status no rodapé da imagem
+- Nota de 0-5 em badge com estrela sobre a capa e status no rodapé da imagem;
+  formulários usam cinco estrelas com seleção em passos de 0.5, nunca input
+  numérico simples (DEC-054)
 - Título em até 2 linhas, ano/duração ou progresso quando o schema oferece
 - Até 2 gêneros em pills compactas
 - Menu de ações ("⋯") discreto na área de informações, com clique externo e

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import PainelSimples from '@/components/PainelSimples';
 import type { CampoInfo } from '@/components/PainelDetalheObra';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import StarRating from '@/components/StarRating';
 import BuscaMetadados from './BuscaMetadados';
 import {
   apagarVideo,
@@ -25,6 +26,7 @@ import {
 } from '@/lib/conteudos';
 import BibliotecaBanner from './BibliotecaBanner';
 import BibliotecaCard from './BibliotecaCard';
+import { ordenarItensBiblioteca, type OrdenacaoBiblioteca } from '@/lib/biblioteca-ordenacao';
 import styles from './BibliotecaSection.module.css';
 
 const FORM_VAZIO: VideoInput = {
@@ -41,6 +43,8 @@ interface Props {
   gatilhoAdicionar: number;
   busca?: string;
   onTotalCarregado?: (total: number) => void;
+  ordenacao: OrdenacaoBiblioteca;
+  onOrdenacaoChange: (ordenacao: OrdenacaoBiblioteca) => void;
 }
 
 function formatarDuracao(segundos: number) {
@@ -52,7 +56,13 @@ function formatarDuracao(segundos: number) {
     : `${minutos}:${restante.toString().padStart(2, '0')}`;
 }
 
-export default function VideosSection({ gatilhoAdicionar, busca = '', onTotalCarregado }: Props) {
+export default function VideosSection({
+  gatilhoAdicionar,
+  busca = '',
+  onTotalCarregado,
+  ordenacao,
+  onOrdenacaoChange,
+}: Props) {
   const [videos, setVideos] = useState<Video[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
@@ -229,7 +239,7 @@ export default function VideosSection({ gatilhoAdicionar, busca = '', onTotalCar
     if (video.canal) campos.push({ label: 'Canal', valor: video.canal });
     campos.push({ label: 'Status', valor: video.assistido ? 'Assistido' : 'Não assistido' });
     if (video.duracao_segundos) campos.push({ label: 'Duração', valor: formatarDuracao(video.duracao_segundos) });
-    if (video.nota != null) campos.push({ label: 'Nota', valor: `${video.nota} / 10` });
+    if (video.nota != null) campos.push({ label: 'Nota', valor: `${video.nota} / 5` });
     if (video.comentario) campos.push({ label: 'Comentário', valor: video.comentario });
     return campos;
   }
@@ -237,6 +247,13 @@ export default function VideosSection({ gatilhoAdicionar, busca = '', onTotalCar
   const filtrados = busca
     ? videos.filter((video) => [video.titulo, video.canal].some((valor) => valor?.toLowerCase().includes(busca.toLowerCase())))
     : videos;
+  const ordenados = ordenarItensBiblioteca(filtrados, ordenacao, {
+    titulo: (video) => video.titulo,
+    atualizadoEm: (video) => video.updated_at,
+    nota: (video) => video.nota,
+    favorito: (video) => video.favorito,
+    status: (video) => (video.assistido ? 'assistido' : 'nao_assistido'),
+  });
 
   return (
     <>
@@ -246,18 +263,20 @@ export default function VideosSection({ gatilhoAdicionar, busca = '', onTotalCar
         onAdicionar={abrirNovo}
         rotuloAdicionar="Novo vídeo"
         capas={videos.map((video) => video.capa_url)}
+        ordenacao={ordenacao}
+        onOrdenacaoChange={onOrdenacaoChange}
       />
       <div className={styles.container}>
         {erro && <p className={styles.erro}>{erro}</p>}
         {mensagem && <p className={styles.sucesso}>{mensagem}</p>}
-        {carregando ? <p className={styles.vazio}>Carregando...</p> : filtrados.length === 0 ? (
+        {carregando ? <p className={styles.vazio}>Carregando...</p> : ordenados.length === 0 ? (
           <div className={styles.vazio}>
             <p>{busca ? 'Nenhum vídeo encontrado para esta busca.' : 'Nenhum vídeo cadastrado ainda.'}</p>
             {!busca && <button className={styles.btnPrimario} onClick={abrirNovo}>Adicionar o primeiro</button>}
           </div>
         ) : (
           <div className={styles.grid}>
-            {filtrados.map((video) => (
+            {ordenados.map((video) => (
               <BibliotecaCard
                 key={video.uuid}
                 titulo={video.titulo}
@@ -306,7 +325,7 @@ export default function VideosSection({ gatilhoAdicionar, busca = '', onTotalCar
               <label>Canal<input value={form.canal ?? ''} onChange={(event) => setForm({ ...form, canal: event.target.value })} /></label>
               <label>Duração em segundos<input type="number" min={1} inputMode="numeric" value={form.duracao_segundos ?? ''} onChange={(event) => setForm({ ...form, duracao_segundos: event.target.value === '' ? null : Number(event.target.value) })} /></label>
               <label>URL da capa<input type="url" value={form.capa_url ?? ''} onChange={(event) => setForm({ ...form, capa_url: event.target.value })} /></label>
-              <label>Nota (0 a 10)<input type="number" min={0} max={10} step={0.5} inputMode="decimal" value={form.nota ?? ''} onChange={(event) => setForm({ ...form, nota: event.target.value === '' ? null : Number(event.target.value) })} /></label>
+              <StarRating value={form.nota} onChange={(nota) => setForm({ ...form, nota })} />
               <label className={styles.checkboxLabel}><input type="checkbox" checked={form.assistido ?? false} onChange={(event) => setForm({ ...form, assistido: event.target.checked })} />Assistido</label>
               <label className={styles.checkboxLabel}><input type="checkbox" checked={form.favorito ?? false} onChange={(event) => setForm({ ...form, favorito: event.target.checked })} />Favorito</label>
               <label>Comentário<textarea rows={3} value={form.comentario ?? ''} onChange={(event) => setForm({ ...form, comentario: event.target.value })} /></label>

@@ -20,6 +20,18 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — implementação técnica concluída; homologação manual em andamento
 
+- **2026-08-14 (Biblioteca: estrelas, ordenação e acabamento v0)** — As oito
+  contagens da sidebar passaram a carregar na entrada do módulo; a busca ganhou
+  ordenação local por recência, título, nota, favoritos e status. As sete
+  categorias que possuem `nota` agora usam cinco estrelas com meio ponto nos
+  formulários, cards e detalhes; Artigos continua corretamente sem nota. A
+  migration incremental `20260813000200_biblioteca_nota_cinco_estrelas.sql`
+  converte 0-10 para 0-5, foi aprovada em reset e teste SQL local, aplicada em
+  produção após dry-run limpo e confirmada por pós-check sem pendências. Cards
+  foram refinados na direção do protótipo v0, o toggle de tema foi movido para
+  junto de “Sair” e o topo passou a usar pétalas/lascas temáticas sem repetir a
+  imagem real do perfil.
+
 - **2026-08-13 (redesign visual da Biblioteca)** — A página única da Biblioteca
   foi reformulada a partir da direção visual aprovada no protótipo v0, sem
   importar dados mockados nem alterar os fluxos reais. Sidebar, hero e cards

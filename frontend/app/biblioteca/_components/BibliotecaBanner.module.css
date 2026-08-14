@@ -243,6 +243,93 @@
   text-align: center;
 }
 
+.colecaoAcoes {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.ordenacao {
+  position: relative;
+}
+
+.ordenacaoBotao {
+  display: inline-flex;
+  min-height: 2.15rem;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--texto-secundario);
+  font-size: 0.75rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.ordenacaoBotao:hover,
+.ordenacaoBotao:focus-visible {
+  border-color: color-mix(in oklch, var(--success) 38%, var(--border));
+  color: var(--text);
+}
+
+.ordenacaoBotao svg {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+.ordenacaoBotao svg:last-child {
+  width: 0.8rem;
+}
+
+.ordenacaoMenu {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 0.35rem);
+  right: 0;
+  display: grid;
+  min-width: 12rem;
+  overflow: hidden;
+  padding: 0.3rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: 0 14px 30px color-mix(in oklch, var(--foreground) 16%, transparent);
+}
+
+.ordenacaoMenu button {
+  display: flex;
+  min-height: 2rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0.5rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.75rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ordenacaoMenu button:hover,
+.ordenacaoMenu button[aria-checked='true'] {
+  background: var(--surface-2);
+}
+
+.ordenacaoMenu button:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
+.ordenacaoMenu svg {
+  width: 0.85rem;
+  height: 0.85rem;
+  color: var(--success-foreground);
+}
+
 @media (max-width: 900px) {
   .conteudo {
     width: 62%;
@@ -292,5 +379,18 @@
 
   .colecaoCabecalho {
     margin-top: 1.2rem;
+    align-items: flex-start;
+  }
+
+  .colecaoAcoes {
+    align-items: flex-end;
+    flex-direction: column-reverse;
+  }
+
+  .ordenacaoBotao span {
+    max-width: 7.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
