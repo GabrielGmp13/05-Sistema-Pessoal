@@ -27,6 +27,7 @@ export interface Livro {
   valor_pago: number | null;
   banner_url: string | null;
   banner_path: string | null;
+  duracao_minutos: number | null;
   link_oficial: string | null;
   // bibliográficos/leitura — B5 (012)
   editora: string | null;

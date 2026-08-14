@@ -31,6 +31,9 @@ import { buscarResumoTempoEstudo, ResumoTempoEstudo } from '@/lib/sessoes-estudo
 import { listarProjetos, listarTodasTarefasProjetos, Projeto, TarefaProjeto } from '@/lib/projetos'
 import { listarReceitas, Receita } from '@/lib/receitas'
 import { buscarDadosInsights, DadosInsights } from '@/lib/insights'
+import { listarHumor, RegistroHumor } from '@/lib/saude'
+import { LancamentoFinanceiro, listarLancamentosFinanceiros } from '@/lib/financas'
+import { listarLugares, Lugar } from '@/lib/lugares'
 
 const modules = [
   {
@@ -95,6 +98,9 @@ interface DadosHub {
   receitas: Receita[] | null
   insights: DadosInsights | null
   tarefasProjetos: TarefaProjeto[] | null
+  humor: RegistroHumor[] | null
+  lancamentos: LancamentoFinanceiro[] | null
+  lugares: Lugar[] | null
 }
 
 const DADOS_INICIAIS: DadosHub = {
@@ -108,6 +114,9 @@ const DADOS_INICIAIS: DadosHub = {
   receitas: null,
   insights: null,
   tarefasProjetos: null,
+  humor: null,
+  lancamentos: null,
+  lugares: null,
 }
 
 function formatarDuracao(minutos: number) {
@@ -136,6 +145,9 @@ export default function HomePage() {
       listarReceitas(),
       buscarDadosInsights(),
       listarTodasTarefasProjetos(),
+      listarHumor(),
+      listarLancamentosFinanceiros(),
+      listarLugares(),
     ])
     setDados({
       tempo: resultados[0].status === 'fulfilled' ? resultados[0].value : null,
@@ -148,6 +160,9 @@ export default function HomePage() {
       receitas: resultados[7].status === 'fulfilled' ? resultados[7].value : null,
       insights: resultados[8].status === 'fulfilled' ? resultados[8].value : null,
       tarefasProjetos: resultados[9].status === 'fulfilled' ? resultados[9].value : null,
+      humor: resultados[10].status === 'fulfilled' ? resultados[10].value : null,
+      lancamentos: resultados[11].status === 'fulfilled' ? resultados[11].value : null,
+      lugares: resultados[12].status === 'fulfilled' ? resultados[12].value : null,
     })
     setCarregando(false)
   }, [])
@@ -501,6 +516,40 @@ function montarInsights(dados: DadosHub, hoje: string): InsightPessoal[] {
   if (compromisso) {
     const dias = diferencaDias(hoje, compromisso.data)
     itens.push({ id: 'compromisso', texto: `${compromisso.titulo} ${dias === 1 ? 'é amanhã' : `acontece em ${dias} dias`}`, detalhe: 'Próximo compromisso', href: '/agenda' })
+  }
+
+  const humorRecente = dados.humor?.[0]
+  if (humorRecente) {
+    itens.push({
+      id: 'saude-humor',
+      texto: `Último humor: ${humorRecente.humor}/5 · energia ${humorRecente.energia}/5`,
+      detalhe: 'Saúde',
+      href: '/saude',
+    })
+  }
+
+  const lancamentosMes = dados.lancamentos?.filter((item) => item.data.startsWith(hoje.slice(0, 7))) ?? []
+  if (lancamentosMes.length > 0) {
+    const saldo = lancamentosMes.reduce(
+      (total, item) => total + (item.tipo === 'entrada' ? Number(item.valor) : -Number(item.valor)),
+      0,
+    )
+    itens.push({
+      id: 'financas-saldo',
+      texto: `Saldo registrado no mês: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(saldo)}`,
+      detalhe: 'Finanças',
+      href: '/financas',
+    })
+  }
+
+  const lugar = dados.lugares?.find((item) => item.favorito) ?? dados.lugares?.[0]
+  if (lugar) {
+    itens.push({
+      id: 'lugar-destaque',
+      texto: `${lugar.favorito ? 'Lugar favorito' : 'Lugar em destaque'}: ${lugar.nome}`,
+      detalhe: 'Lugares',
+      href: '/lugares',
+    })
   }
 
   return itens

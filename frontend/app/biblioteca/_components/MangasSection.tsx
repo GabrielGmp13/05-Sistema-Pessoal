@@ -47,6 +47,7 @@ const FORM_VAZIO: MangaInput = {
   status_publicacao: 'em_andamento',
   editora: '',
   comentario: '',
+  favorito: false,
 };
 
 interface MangasSectionProps {
@@ -143,7 +144,9 @@ export default function MangasSection({
       capitulo_atual: manga.capitulo_atual,
       ano_inicio_publicacao: manga.ano_inicio_publicacao ?? undefined,
       ano_fim_publicacao: manga.ano_fim_publicacao ?? undefined,
+      duracao_minutos: manga.duracao_minutos ?? undefined,
       comentario: manga.comentario ?? '',
+      favorito: manga.favorito,
     });
     setGenerosSelecionados(generosPorItem[manga.uuid]?.map((g) => g.uuid) ?? []);
     setModalAberto(true);
@@ -206,8 +209,23 @@ export default function MangasSection({
     }
     campos.push({ label: 'Capítulo atual', valor: String(manga.capitulo_atual) });
     if (manga.nota != null) campos.push({ label: 'Nota', valor: `${manga.nota} / 5` });
+    if (manga.duracao_minutos)
+      campos.push({ label: 'Tempo estimado', valor: `${manga.duracao_minutos} min` });
     if (manga.comentario) campos.push({ label: 'Comentário', valor: manga.comentario });
     return campos;
+  }
+
+  async function alternarFavorito(manga: Manga) {
+    const atualizado = await atualizarManga(manga.uuid, {
+      titulo: manga.titulo,
+      favorito: !manga.favorito,
+    });
+    if (!atualizado) {
+      setErro('Não foi possível atualizar o favorito.');
+      return;
+    }
+    setMangas((atuais) => atuais.map((item) => item.uuid === atualizado.uuid ? atualizado : item));
+    setPainelManga((atual) => atual?.uuid === atualizado.uuid ? atualizado : atual);
   }
 
   const itensFiltrados = busca
@@ -259,9 +277,13 @@ export default function MangasSection({
               ano={manga.ano_inicio_publicacao}
               generos={generosPorItem[manga.uuid] ?? []}
               status={manga.status}
-              detalhe={manga.capitulo_atual > 0 ? `Cap. ${manga.capitulo_atual}` : null}
+              detalhe={[
+                manga.capitulo_atual > 0 ? `Cap. ${manga.capitulo_atual}` : null,
+                manga.duracao_minutos ? `${manga.duracao_minutos} min` : null,
+              ].filter(Boolean).join(' · ') || null}
               onClick={() => setPainelManga(manga)}
               onEditar={() => abrirEdicao(manga)}
+              onAlternarFavorito={() => void alternarFavorito(manga)}
               onApagar={() => setMangaParaApagar(manga.uuid)}
               menuAberto={menuAbertoUuid === manga.uuid}
               onAlternarMenu={() =>
@@ -402,6 +424,27 @@ export default function MangasSection({
                     })
                   }
                 />
+              </label>
+              <label>
+                Tempo estimado de leitura (min)
+                <input
+                  type="number"
+                  min={1}
+                  inputMode="numeric"
+                  value={form.duracao_minutos ?? ''}
+                  onChange={(e) => setForm({
+                    ...form,
+                    duracao_minutos: e.target.value === '' ? undefined : Number(e.target.value),
+                  })}
+                />
+              </label>
+              <label className={styles.checkboxLabel}>
+                <input
+                  type="checkbox"
+                  checked={form.favorito ?? false}
+                  onChange={(e) => setForm({ ...form, favorito: e.target.checked })}
+                />
+                Favorito
               </label>
               <div>
                 <div style={{ fontSize: '0.82rem', color: 'var(--texto-secundario)', marginBottom: '0.4rem' }}>

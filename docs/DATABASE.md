@@ -510,6 +510,12 @@ produtora          TEXT,
 CONSTRAINT podcasts_nota_range CHECK (nota IS NULL OR (nota BETWEEN 0 AND 5 AND nota * 2 = trunc(nota * 2)))
 ```
 > Sem campo de autor/diretor dedicado — `artistName` da iTunes API vai em `produtora`.
+>
+> **Uso de `duracao_minutos` na interface:** filme usa duração total; série,
+> anime e podcast usam duração média por episódio; mangá e livro usam tempo
+> estimado de leitura/consumo. O campo já existia nas seis tabelas originais e
+> continua opcional. Vídeos usam `duracao_segundos`; Artigos usam
+> `tempo_leitura_minutos`.
 
 ### Tabelas de junção `*_generos`
 Todas seguem o mesmo padrão — `uuid`, `user_id`, `<tipo_singular>_uuid`, `genero_uuid`, `updated_at`, `deleted`:

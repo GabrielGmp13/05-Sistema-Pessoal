@@ -20,6 +20,19 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — implementação técnica concluída; homologação manual em andamento
 
+- **2026-08-14 (duração, favoritos e fechamento do brainstorm)** — As oito
+  categorias da Biblioteca foram reconciliadas com os campos reais de tempo e
+  favorito já presentes no schema. Cards, painéis e formulários agora exibem e
+  editam duração de forma consistente; o menu compartilhado permite favoritar
+  ou remover favorito sem esconder o fallback manual. YouTube preserva duração
+  em segundos; TMDB enriquece filmes e séries pelos endpoints de detalhe; Jikan
+  preenche a duração média de anime quando disponível. A busca de podcast da
+  iTunes não fornece duração média confiável da obra, então esse campo continua
+  manual em vez de gravar um valor ambíguo. O Hub ganhou insights
+  simples de Saúde, Finanças e Lugares, o dashboard de Treino passou a mostrar
+  duração semanal e por sessão, e itens grandes do brainstorm foram
+  explicitados no backlog. Nenhuma migration ou dependência nova foi necessária.
+
 - **2026-08-14 (acabamento visual de cards e navegação)** — Os cards da
   Biblioteca receberam capa dominante com moldura interna, sobreposições mais
   próximas do protótipo v0 e corpo inferior específico para os temas claro e

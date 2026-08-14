@@ -26,6 +26,7 @@ export interface Manga {
   valor_pago: number | null;
   banner_url: string | null;
   banner_path: string | null;
+  duracao_minutos: number | null;
   link_mal: string | null;
   link_anilist: string | null;
   link_oficial: string | null;

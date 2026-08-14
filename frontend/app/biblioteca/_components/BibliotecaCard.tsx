@@ -30,6 +30,7 @@ interface BibliotecaCardProps {
   detalhe?: string | null;
   onClick: () => void;
   onEditar: () => void;
+  onAlternarFavorito: () => void;
   onApagar: () => void;
   menuAberto: boolean;
   onAlternarMenu: () => void;
@@ -47,6 +48,7 @@ export default function BibliotecaCard({
   detalhe,
   onClick,
   onEditar,
+  onAlternarFavorito,
   onApagar,
   menuAberto,
   onAlternarMenu,
@@ -149,6 +151,18 @@ export default function BibliotecaCard({
         </button>
         {menuAberto && (
           <div className={styles.menuDropdown} role="menu">
+            <button
+              type="button"
+              role="menuitem"
+              onClick={(event) => {
+                event.stopPropagation();
+                onAlternarMenu();
+                onAlternarFavorito();
+              }}
+            >
+              <Heart aria-hidden="true" />
+              {favorito ? 'Remover favorito' : 'Favoritar'}
+            </button>
             <button
               type="button"
               role="menuitem"

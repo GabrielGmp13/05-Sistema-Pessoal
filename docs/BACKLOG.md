@@ -22,6 +22,13 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 - [ ] Exportação de dados CSV/JSON via Supabase
 - [ ] Google Calendar OAuth via Supabase Edge Function (ver DEC-009 — decisão de não fazer isso no MVP)
 - [ ] Dashboard analytics avançado
+- [ ] Heatmap retrospectivo transversal (atividade por dia entre módulos) —
+      depende de definir quais eventos contam e como evitar comparar métricas
+      incompatíveis; não criar tabela agregada antes dessa decisão.
+- [ ] Uploads adicionais permanecem evoluções por domínio: capas/banners da
+      Biblioteca, provas/simulados, imagens de exercícios e fotos de Lugares.
+      Cada fluxo deve reutilizar bucket privado adequado ou ganhar decisão de
+      Storage/policy própria; não tratar como upload genérico irrestrito.
 - [ ] Modo múltiplos usuários (RLS já suporta — bastaria criar contas; não é objetivo do projeto por princípio, ver PROJECT_PRINCIPLES.md)
 - [x] Navegação global entre módulos e botão de logout visível — implementado em 2026-08-09 com hub `/`, navegação para Treino/Biblioteca/Estudos e logout via Supabase Auth.
 - [ ] Corrigir o corte residual da letra “g” em “Agenda” na navegação em uma combinação específica de largura/zoom; o usuário decidiu não bloquear o teste atual por isso (2026-08-12).
@@ -60,6 +67,12 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
       existe pra elas ainda — nem em `VISION.md`. Não construir sem antes
       confirmar com o usuário qual entra primeiro e se o modelo
       Matéria→Conteúdo de ENEM/Escola serve como está ou precisa de ajuste.
+- [ ] Idiomas como área própria de Estudos — decidir primeiro se reutiliza
+      Matéria→Conteúdo ou se precisa de vocabulário, prática e métricas
+      específicas; não é apenas um novo valor de `materias.tipo`.
+- [ ] Programação separada de Curso/Escola — confirmar se é uma área de Estudos,
+      um catálogo de projetos ou somente matérias/conteúdos existentes antes de
+      criar rota ou schema paralelo.
 - [x] Cronograma/planejamento temporal de estudo pertence à Agenda; Estudos
       permanece fonte de verdade de matérias, conteúdos e provas. Metas e
       prioridades avançadas continuam fora do escopo atual.
@@ -119,7 +132,8 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 - [ ] Saúde: gráficos de tendência, lembretes e fotos próprias ficam para uma
       evolução posterior; peso continua em `shape` e não deve ser duplicado.
 - [ ] Finanças: recorrência, importação bancária e cotações ficam fora da versão
-      inicial; qualquer integração financeira exigirá pesquisa de segurança.
+      inicial. BRAPI (ou outra fonte de cotações) exige decisão sobre ativos,
+      cache, limites e segurança antes de qualquer integração.
 - [ ] Lugares: upload de fotos, Maps/Places API e Google Photos permanecem
       futuros; a versão inicial usa capa por URL e link externo para Maps.
 

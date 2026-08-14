@@ -49,6 +49,7 @@ const FORM_VAZIO: AnimeInput = {
   animador_chefe: '',
   compositor: '',
   comentario: '',
+  favorito: false,
 };
 
 interface AnimesSectionProps {
@@ -152,6 +153,7 @@ export default function AnimesSection({
       animador_chefe: anime.animador_chefe ?? '',
       compositor: anime.compositor ?? '',
       comentario: anime.comentario ?? '',
+      favorito: anime.favorito,
     });
     setGenerosSelecionados(generosPorItem[anime.uuid]?.map((g) => g.uuid) ?? []);
     setModalAberto(true);
@@ -193,6 +195,19 @@ export default function AnimesSection({
     } else {
       await carregar();
     }
+  }
+
+  async function alternarFavorito(anime: Anime) {
+    const atualizado = await atualizarAnime(anime.uuid, {
+      nome_original: anime.nome_original,
+      favorito: !anime.favorito,
+    });
+    if (!atualizado) {
+      setErro('Não foi possível atualizar o favorito.');
+      return;
+    }
+    setAnimes((atuais) => atuais.map((item) => item.uuid === atualizado.uuid ? atualizado : item));
+    setPainelAnime((atual) => atual?.uuid === atualizado.uuid ? atualizado : atual);
   }
 
   function montarInfoGeral(anime: Anime): CampoInfo[] {
@@ -276,6 +291,7 @@ export default function AnimesSection({
               detalhe={anime.duracao_minutos ? `${anime.duracao_minutos} min` : null}
               onClick={() => setPainelAnime(anime)}
               onEditar={() => abrirEdicao(anime)}
+              onAlternarFavorito={() => void alternarFavorito(anime)}
               onApagar={() => setAnimeParaApagar(anime.uuid)}
               menuAberto={menuAbertoUuid === anime.uuid}
               onAlternarMenu={() =>
@@ -317,6 +333,7 @@ export default function AnimesSection({
                   sinopse: resultado.descricao ?? atual.sinopse,
                   estudio: resultado.autor ?? atual.estudio,
                   link_mal: resultado.linkOficial ?? atual.link_mal,
+                  duracao_minutos: resultado.duracaoMinutos ?? atual.duracao_minutos,
                 }))}
               />
               <label>
@@ -360,6 +377,14 @@ export default function AnimesSection({
                   }
                 />
               </label>
+              <label className={styles.checkboxLabel}>
+                <input
+                  type="checkbox"
+                  checked={form.favorito ?? false}
+                  onChange={(e) => setForm({ ...form, favorito: e.target.checked })}
+                />
+                Favorito
+              </label>
               <label>
                 Ano de término (vazio = em andamento)
                 <input
@@ -378,6 +403,7 @@ export default function AnimesSection({
                 Duração média por episódio (min)
                 <input
                   type="number"
+                  min={1}
                   inputMode="numeric"
                   value={form.duracao_minutos ?? ''}
                   onChange={(e) =>

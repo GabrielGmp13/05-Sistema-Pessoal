@@ -8,7 +8,7 @@ Visão macro de onde o Sistema Pessoal pretende chegar. Não é um roadmap detal
 
 | Módulo | Status | Observação |
 |---|---|---|
-| Dashboard | ✅ Hub operacional | `app/page.tsx` resume tempo, Agenda e revisões e alterna insights pessoais de Biblioteca, Estudos, Projetos e Receitas usando dados reais, incluindo próximos compromissos e tempo hoje/semana/mês. `GlobalNav` mantém navegação global e logout visíveis e agrupa áreas cotidianas em Diário. |
+| Dashboard | ✅ Hub operacional | `app/page.tsx` resume tempo, Agenda e revisões e alterna insights pessoais de Biblioteca, Estudos, Projetos, Receitas, Saúde, Finanças e Lugares usando dados reais, incluindo próximos compromissos e tempo hoje/semana/mês. `GlobalNav` mantém navegação global e logout visíveis e agrupa áreas cotidianas em Diário. |
 | Treino | ✅ Dashboard de domínio (v2) | `/treino` resume sessões, planos, exercícios e Shape; as rotas internas preservam CRUD, modo Academia e histórico corporal. Pendências de polimento vivem em `BACKLOG.md`. |
 | Revisão Espaçada | ✅ Implementada (v2) | `/revisao` lista cards pendentes e futuros, registra resultados pelo SM-2, aceita card manual e preserva os lembretes de conteúdo criados por Estudos (DEC-035). |
 | Biblioteca | ✅ Implementada (v2) | Catálogo consolidado em página única com oito categorias: Filmes, Séries, Animes, Mangás, Livros, Podcasts, Vídeos e Artigos. Os formulários importam metadados por YouTube, TMDB, Google Books, Jikan e iTunes com fallback manual; YouTube/TMDB dependem de chaves server-only. Continua sendo catálogo, nunca hospedagem de mídia (DEC-011). |

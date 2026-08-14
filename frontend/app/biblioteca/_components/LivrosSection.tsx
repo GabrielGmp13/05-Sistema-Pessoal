@@ -46,6 +46,7 @@ const FORM_VAZIO: LivroInput = {
   formato: 'fisico',
   status: 'quero_ler',
   comentario: '',
+  favorito: false,
 };
 
 interface LivrosSectionProps {
@@ -142,7 +143,9 @@ export default function LivrosSection({
       paginas_total: livro.paginas_total ?? undefined,
       pagina_atual: livro.pagina_atual,
       ano_publicacao: livro.ano_publicacao ?? undefined,
+      duracao_minutos: livro.duracao_minutos ?? undefined,
       comentario: livro.comentario ?? '',
+      favorito: livro.favorito,
     });
     setGenerosSelecionados(generosPorItem[livro.uuid]?.map((g) => g.uuid) ?? []);
     setModalAberto(true);
@@ -186,6 +189,19 @@ export default function LivrosSection({
     }
   }
 
+  async function alternarFavorito(livro: Livro) {
+    const atualizado = await atualizarLivro(livro.uuid, {
+      titulo: livro.titulo,
+      favorito: !livro.favorito,
+    });
+    if (!atualizado) {
+      setErro('Não foi possível atualizar o favorito.');
+      return;
+    }
+    setLivros((atuais) => atuais.map((item) => item.uuid === atualizado.uuid ? atualizado : item));
+    setPainelLivro((atual) => atual?.uuid === atualizado.uuid ? atualizado : atual);
+  }
+
   function montarInfoGeral(livro: Livro): CampoInfo[] {
     const campos: CampoInfo[] = [];
     if (livro.autor) campos.push({ label: 'Autor', valor: livro.autor });
@@ -201,6 +217,8 @@ export default function LivrosSection({
     if (livro.ano_publicacao)
       campos.push({ label: 'Ano de publicação', valor: String(livro.ano_publicacao) });
     if (livro.nota != null) campos.push({ label: 'Nota', valor: `${livro.nota} / 5` });
+    if (livro.duracao_minutos)
+      campos.push({ label: 'Duração/tempo', valor: `${livro.duracao_minutos} min` });
     if (livro.comentario) campos.push({ label: 'Comentário', valor: livro.comentario });
     return campos;
   }
@@ -255,9 +273,13 @@ export default function LivrosSection({
               ano={livro.ano_publicacao}
               generos={generosPorItem[livro.uuid] ?? []}
               status={livro.status}
-              detalhe={livro.paginas_total ? `${livro.paginas_total} págs.` : null}
+              detalhe={[
+                livro.paginas_total ? `${livro.paginas_total} págs.` : null,
+                livro.duracao_minutos ? `${livro.duracao_minutos} min` : null,
+              ].filter(Boolean).join(' · ') || null}
               onClick={() => setPainelLivro(livro)}
               onEditar={() => abrirEdicao(livro)}
+              onAlternarFavorito={() => void alternarFavorito(livro)}
               onApagar={() => setLivroParaApagar(livro.uuid)}
               menuAberto={menuAbertoUuid === livro.uuid}
               onAlternarMenu={() =>
@@ -393,6 +415,27 @@ export default function LivrosSection({
                     })
                   }
                 />
+              </label>
+              <label>
+                Duração/tempo estimado (min)
+                <input
+                  type="number"
+                  min={1}
+                  inputMode="numeric"
+                  value={form.duracao_minutos ?? ''}
+                  onChange={(e) => setForm({
+                    ...form,
+                    duracao_minutos: e.target.value === '' ? undefined : Number(e.target.value),
+                  })}
+                />
+              </label>
+              <label className={styles.checkboxLabel}>
+                <input
+                  type="checkbox"
+                  checked={form.favorito ?? false}
+                  onChange={(e) => setForm({ ...form, favorito: e.target.checked })}
+                />
+                Favorito
               </label>
               <StarRating
                 value={form.nota}

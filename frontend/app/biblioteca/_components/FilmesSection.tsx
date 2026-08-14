@@ -39,6 +39,7 @@ const FORM_VAZIO: FilmeInput = {
   produtores: '',
   estudio: '',
   distribuidora: '',
+  favorito: false,
 };
 
 interface FilmesSectionProps {
@@ -137,6 +138,8 @@ export default function FilmesSection({
       orcamento: filme.orcamento ?? undefined,
       bilheteria: filme.bilheteria ?? undefined,
       ano_lancamento: filme.ano_lancamento ?? undefined,
+      duracao_minutos: filme.duracao_minutos ?? undefined,
+      favorito: filme.favorito,
     });
     setGenerosSelecionados(generosPorFilme[filme.uuid]?.map((g) => g.uuid) ?? []);
     setModalAberto(true);
@@ -197,6 +200,19 @@ export default function FilmesSection({
     }
   }
 
+  async function alternarFavorito(filme: Filme) {
+    const atualizado = await atualizarFilme(filme.uuid, {
+      titulo: filme.titulo,
+      favorito: !filme.favorito,
+    });
+    if (!atualizado) {
+      setErro('Não foi possível atualizar o favorito.');
+      return;
+    }
+    setFilmes((atuais) => atuais.map((item) => item.uuid === atualizado.uuid ? atualizado : item));
+    setPainelFilme((atual) => atual?.uuid === atualizado.uuid ? atualizado : atual);
+  }
+
   const filmesFiltrados = busca
     ? filmes.filter((f) => f.titulo.toLowerCase().includes(busca.toLowerCase()))
     : filmes;
@@ -250,6 +266,7 @@ export default function FilmesSection({
               detalhe={filme.duracao_minutos ? `${filme.duracao_minutos} min` : null}
               onClick={() => setPainelFilme(filme)}
               onEditar={() => abrirEdicao(filme)}
+              onAlternarFavorito={() => void alternarFavorito(filme)}
               onApagar={() => setFilmeParaApagar(filme.uuid)}
               menuAberto={menuAbertoUuid === filme.uuid}
               onAlternarMenu={() =>
@@ -288,6 +305,7 @@ export default function FilmesSection({
                   capa_url: resultado.capaUrl ?? atual.capa_url,
                   banner_url: resultado.bannerUrl ?? atual.banner_url,
                   ano_lancamento: resultado.ano ?? atual.ano_lancamento,
+                  duracao_minutos: resultado.duracaoMinutos ?? atual.duracao_minutos,
                 }))}
               />
               <label>
@@ -328,6 +346,27 @@ export default function FilmesSection({
                     })
                   }
                 />
+              </label>
+              <label>
+                Duração (min)
+                <input
+                  type="number"
+                  min={1}
+                  inputMode="numeric"
+                  value={form.duracao_minutos ?? ''}
+                  onChange={(e) => setForm({
+                    ...form,
+                    duracao_minutos: e.target.value === '' ? undefined : Number(e.target.value),
+                  })}
+                />
+              </label>
+              <label className={styles.checkboxLabel}>
+                <input
+                  type="checkbox"
+                  checked={form.favorito ?? false}
+                  onChange={(e) => setForm({ ...form, favorito: e.target.checked })}
+                />
+                Favorito
               </label>
               {/* Gêneros */}
               <div>

@@ -16,6 +16,7 @@ export interface ResultadoMetadados {
   capaUrl?: string;
   bannerUrl?: string;
   ano?: number;
+  duracaoMinutos?: number;
   duracaoSegundos?: number;
   linkOficial?: string;
   identificadorExterno?: string;

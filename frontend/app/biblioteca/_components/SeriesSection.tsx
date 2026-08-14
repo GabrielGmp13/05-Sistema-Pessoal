@@ -42,6 +42,7 @@ const FORM_VAZIO: SerieInput = {
   produtores: '',
   estudio: '',
   distribuidora: '',
+  favorito: false,
 };
 
 interface SeriesSectionProps {
@@ -141,6 +142,8 @@ export default function SeriesSection({
       distribuidora: serie.distribuidora ?? '',
       ano_lancamento: serie.ano_lancamento ?? undefined,
       ano_termino: serie.ano_termino ?? undefined,
+      duracao_minutos: serie.duracao_minutos ?? undefined,
+      favorito: serie.favorito,
     });
     setGenerosSelecionados(generosPorItem[serie.uuid]?.map((g) => g.uuid) ?? []);
     setModalAberto(true);
@@ -194,6 +197,8 @@ export default function SeriesSection({
     if (serie.estudio) campos.push({ label: 'Estúdio', valor: serie.estudio });
     if (serie.distribuidora)
       campos.push({ label: 'Distribuidora', valor: serie.distribuidora });
+    if (serie.duracao_minutos)
+      campos.push({ label: 'Duração/ep', valor: `${serie.duracao_minutos} min` });
     if (serie.comentario) campos.push({ label: 'Comentário', valor: serie.comentario });
     return campos;
   }
@@ -206,6 +211,19 @@ export default function SeriesSection({
     } else {
       await carregar();
     }
+  }
+
+  async function alternarFavorito(serie: Serie) {
+    const atualizada = await atualizarSerie(serie.uuid, {
+      titulo: serie.titulo,
+      favorito: !serie.favorito,
+    });
+    if (!atualizada) {
+      setErro('Não foi possível atualizar o favorito.');
+      return;
+    }
+    setSeries((atuais) => atuais.map((item) => item.uuid === atualizada.uuid ? atualizada : item));
+    setPainelSerie((atual) => atual?.uuid === atualizada.uuid ? atualizada : atual);
   }
 
   const itensFiltrados = busca
@@ -260,6 +278,7 @@ export default function SeriesSection({
               detalhe={serie.duracao_minutos ? `${serie.duracao_minutos} min` : null}
               onClick={() => setPainelSerie(serie)}
               onEditar={() => abrirEdicao(serie)}
+              onAlternarFavorito={() => void alternarFavorito(serie)}
               onApagar={() => setSerieParaApagar(serie.uuid)}
               menuAberto={menuAbertoUuid === serie.uuid}
               onAlternarMenu={() =>
@@ -298,6 +317,7 @@ export default function SeriesSection({
                   capa_url: resultado.capaUrl ?? atual.capa_url,
                   banner_url: resultado.bannerUrl ?? atual.banner_url,
                   ano_lancamento: resultado.ano ?? atual.ano_lancamento,
+                  duracao_minutos: resultado.duracaoMinutos ?? atual.duracao_minutos,
                 }))}
               />
               <label>
@@ -379,6 +399,27 @@ export default function SeriesSection({
                     })
                   }
                 />
+              </label>
+              <label>
+                Duração média por episódio (min)
+                <input
+                  type="number"
+                  min={1}
+                  inputMode="numeric"
+                  value={form.duracao_minutos ?? ''}
+                  onChange={(e) => setForm({
+                    ...form,
+                    duracao_minutos: e.target.value === '' ? undefined : Number(e.target.value),
+                  })}
+                />
+              </label>
+              <label className={styles.checkboxLabel}>
+                <input
+                  type="checkbox"
+                  checked={form.favorito ?? false}
+                  onChange={(e) => setForm({ ...form, favorito: e.target.checked })}
+                />
+                Favorito
               </label>
               <div>
                 <div style={{ fontSize: '0.82rem', color: 'var(--texto-secundario)', marginBottom: '0.4rem' }}>

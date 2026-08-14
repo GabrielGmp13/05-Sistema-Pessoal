@@ -197,8 +197,9 @@ futuro (ex: se Hábitos ou Projetos precisarem de card com imagem).
   no tema escuro; título em até 2 linhas, ano/duração ou progresso quando o
   schema oferece
 - Até 2 gêneros em pills compactas
-- Menu de ações ("⋯") discreto na área de informações, com clique externo e
-  Escape preservados; em telas de toque ele permanece acessível
+- Menu de ações ("⋯") discreto na área de informações, com ação uniforme de
+  favoritar/remover favorito, edição e exclusão; clique externo e Escape são
+  preservados e, em telas de toque, ele permanece acessível
 
 ---
 

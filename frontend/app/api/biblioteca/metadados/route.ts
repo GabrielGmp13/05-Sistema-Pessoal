@@ -24,6 +24,14 @@ function duracaoIso8601(valor?: string): number | undefined {
   return Number(partes[1] ?? 0) * 3600 + Number(partes[2] ?? 0) * 60 + Number(partes[3] ?? 0);
 }
 
+function duracaoJikanEmMinutos(valor?: string | null): number | undefined {
+  if (!valor || valor.toLowerCase() === 'unknown') return undefined;
+  const horas = Number(valor.match(/(\d+)\s*hr/)?.[1] ?? 0);
+  const minutos = Number(valor.match(/(\d+)\s*min/)?.[1] ?? 0);
+  const total = horas * 60 + minutos;
+  return total > 0 ? total : undefined;
+}
+
 async function jsonExterno(url: string): Promise<unknown> {
   let response: Response;
   try {
@@ -103,16 +111,32 @@ async function buscarTmdb(q: string, serie: boolean): Promise<ResultadoMetadados
     }>;
   };
 
-  return (data.results ?? []).slice(0, 6).map((item) => ({
-    id: String(item.id),
-    titulo: item.title ?? item.name ?? 'Título não informado',
-    subtitulo: item.original_title ?? item.original_name,
-    descricao: item.overview || undefined,
-    capaUrl: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : undefined,
-    bannerUrl: item.backdrop_path ? `https://image.tmdb.org/t/p/w780${item.backdrop_path}` : undefined,
-    ano: ano(item.release_date ?? item.first_air_date),
-    identificadorExterno: String(item.id),
+  const resultados = (data.results ?? []).slice(0, 6);
+  const detalhes = await Promise.allSettled(resultados.map(async (item) => {
+    const detalheParams = new URLSearchParams({ api_key: chave, language: 'pt-BR' });
+    return await jsonExterno(`https://api.themoviedb.org/3/${tipo}/${item.id}?${detalheParams}`) as {
+      runtime?: number | null;
+      episode_run_time?: number[];
+    };
   }));
+
+  return resultados.map((item, indice) => {
+    const detalhe = detalhes[indice]?.status === 'fulfilled' ? detalhes[indice].value : undefined;
+    const duracaoMinutos = serie
+      ? detalhe?.episode_run_time?.find((duracao) => duracao > 0)
+      : detalhe?.runtime ?? undefined;
+    return {
+      id: String(item.id),
+      titulo: item.title ?? item.name ?? 'Título não informado',
+      subtitulo: item.original_title ?? item.original_name,
+      descricao: item.overview || undefined,
+      capaUrl: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : undefined,
+      bannerUrl: item.backdrop_path ? `https://image.tmdb.org/t/p/w780${item.backdrop_path}` : undefined,
+      ano: ano(item.release_date ?? item.first_air_date),
+      duracaoMinutos,
+      identificadorExterno: String(item.id),
+    };
+  });
 }
 
 async function buscarGoogleLivros(q: string): Promise<ResultadoMetadados[]> {
@@ -173,6 +197,7 @@ async function buscarJikan(q: string, manga: boolean): Promise<ResultadoMetadado
       images?: { jpg?: { large_image_url?: string; image_url?: string } };
       authors?: Array<{ name?: string }>;
       studios?: Array<{ name?: string }>;
+      duration?: string | null;
     }>;
   };
 
@@ -184,6 +209,7 @@ async function buscarJikan(q: string, manga: boolean): Promise<ResultadoMetadado
     descricao: item.synopsis ?? undefined,
     capaUrl: item.images?.jpg?.large_image_url ?? item.images?.jpg?.image_url,
     ano: item.year ?? ano(item.published?.from),
+    duracaoMinutos: manga ? undefined : duracaoJikanEmMinutos(item.duration),
     linkOficial: item.url,
     identificadorExterno: String(item.mal_id),
   }));

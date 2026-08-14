@@ -47,6 +47,7 @@ export interface RegistroShapeResumo {
 export interface DadosDashboardTreino {
   treinos: Treino[]
   sessoes: SessaoTreinoResumo[]
+  sessoesSemana: SessaoTreinoResumo[]
   registrosShape: RegistroShapeResumo[]
   totalExercicios: number
 }
@@ -204,15 +205,20 @@ export async function getDadosDashboardTreino(
   sb: SB,
   userId: string,
 ): Promise<DadosDashboardTreino | null> {
-  const [treinos, sessoes, shape, forca, cardio] = await Promise.all([
+  const inicioSemana = new Date()
+  inicioSemana.setDate(inicioSemana.getDate() - ((inicioSemana.getDay() + 6) % 7))
+  inicioSemana.setHours(0, 0, 0, 0)
+
+  const [treinos, sessoes, sessoesSemana, shape, forca, cardio] = await Promise.all([
     sb.from('treinos').select('uuid, nome, descricao, modulo_uuid').eq('user_id', userId).eq('deleted', false).order('nome'),
     sb.from('sessoes_treino').select('uuid, treino_uuid, data_inicio, data_fim').eq('user_id', userId).eq('deleted', false).order('data_inicio', { ascending: false }).limit(12),
+    sb.from('sessoes_treino').select('uuid, treino_uuid, data_inicio, data_fim').eq('user_id', userId).eq('deleted', false).gte('data_inicio', inicioSemana.toISOString()).order('data_inicio', { ascending: false }),
     sb.from('shape').select('uuid, data, peso').eq('user_id', userId).eq('deleted', false).order('data', { ascending: false }).limit(6),
     sb.from('exercicios_forca').select('uuid').eq('user_id', userId).eq('deleted', false),
     sb.from('exercicios_cardio').select('uuid').eq('user_id', userId).eq('deleted', false),
   ])
 
-  const erro = treinos.error ?? sessoes.error ?? shape.error ?? forca.error ?? cardio.error
+  const erro = treinos.error ?? sessoes.error ?? sessoesSemana.error ?? shape.error ?? forca.error ?? cardio.error
   if (erro) {
     console.error('[getDadosDashboardTreino]', erro)
     return null
@@ -221,6 +227,7 @@ export async function getDadosDashboardTreino(
   return {
     treinos: treinos.data ?? [],
     sessoes: sessoes.data ?? [],
+    sessoesSemana: sessoesSemana.data ?? [],
     registrosShape: shape.data ?? [],
     totalExercicios: (forca.data?.length ?? 0) + (cardio.data?.length ?? 0),
   }

@@ -234,6 +234,21 @@ export default function VideosSection({
     else await carregar();
   }
 
+  async function alternarFavorito(video: Video) {
+    const atualizado = await atualizarVideo(video.uuid, {
+      titulo: video.titulo,
+      url: video.url,
+      capa_url: video.capa_url,
+      favorito: !video.favorito,
+    });
+    if (!atualizado) {
+      setErro('Não foi possível atualizar o favorito.');
+      return;
+    }
+    setVideos((atuais) => atuais.map((item) => item.uuid === atualizado.uuid ? atualizado : item));
+    setPainelVideo((atual) => atual?.uuid === atualizado.uuid ? atualizado : atual);
+  }
+
   function montarInfo(video: Video): CampoInfo[] {
     const campos: CampoInfo[] = [];
     if (video.canal) campos.push({ label: 'Canal', valor: video.canal });
@@ -290,6 +305,7 @@ export default function VideosSection({
                 placeholder="▶"
                 onClick={() => setPainelVideo(video)}
                 onEditar={() => abrirEdicao(video)}
+                onAlternarFavorito={() => void alternarFavorito(video)}
                 onApagar={() => setVideoParaApagar(video.uuid)}
                 menuAberto={menuAbertoUuid === video.uuid}
                 onAlternarMenu={() => setMenuAbertoUuid(menuAbertoUuid === video.uuid ? null : video.uuid)}

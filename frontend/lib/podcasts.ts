@@ -24,6 +24,7 @@ export interface Podcast {
   valor_pago: number | null;
   banner_url: string | null;
   banner_path: string | null;
+  duracao_minutos: number | null;
   link_oficial: string | null;
   // B6 (013) — sai do comentario prefixado, ganha campo próprio
   produtora: string | null;

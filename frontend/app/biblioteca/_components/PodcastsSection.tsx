@@ -36,6 +36,7 @@ const FORM_VAZIO: PodcastInput = {
   produtora: '',
   status: 'quero_ouvir',
   comentario: '',
+  favorito: false,
 };
 
 interface PodcastsSectionProps {
@@ -127,7 +128,9 @@ export default function PodcastsSection({
       status: podcast.status,
       nota: podcast.nota ?? undefined,
       episodio_atual: podcast.episodio_atual,
+      duracao_minutos: podcast.duracao_minutos ?? undefined,
       comentario: podcast.comentario ?? '',
+      favorito: podcast.favorito,
     });
     setGenerosSelecionados(generosPorItem[podcast.uuid]?.map((g) => g.uuid) ?? []);
     setModalAberto(true);
@@ -171,12 +174,27 @@ export default function PodcastsSection({
     }
   }
 
+  async function alternarFavorito(podcast: Podcast) {
+    const atualizado = await atualizarPodcast(podcast.uuid, {
+      titulo: podcast.titulo,
+      favorito: !podcast.favorito,
+    });
+    if (!atualizado) {
+      setErro('Não foi possível atualizar o favorito.');
+      return;
+    }
+    setPodcasts((atuais) => atuais.map((item) => item.uuid === atualizado.uuid ? atualizado : item));
+    setPainelPodcast((atual) => atual?.uuid === atualizado.uuid ? atualizado : atual);
+  }
+
   function montarInfoGeral(podcast: Podcast): CampoInfo[] {
     const campos: CampoInfo[] = [];
     if (podcast.produtora) campos.push({ label: 'Produtora', valor: podcast.produtora });
     campos.push({ label: 'Status', valor: STATUS_LABEL[podcast.status] ?? podcast.status });
     campos.push({ label: 'Episódio atual', valor: String(podcast.episodio_atual) });
     if (podcast.nota != null) campos.push({ label: 'Nota', valor: `${podcast.nota} / 5` });
+    if (podcast.duracao_minutos)
+      campos.push({ label: 'Duração/ep', valor: `${podcast.duracao_minutos} min` });
     if (podcast.comentario) campos.push({ label: 'Comentário', valor: podcast.comentario });
     return campos;
   }
@@ -230,9 +248,13 @@ export default function PodcastsSection({
               ano={null} // podcasts não têm campo de ano
               generos={generosPorItem[podcast.uuid] ?? []}
               status={podcast.status}
-              detalhe={podcast.episodio_atual > 0 ? `Ep. ${podcast.episodio_atual}` : null}
+              detalhe={[
+                podcast.episodio_atual > 0 ? `Ep. ${podcast.episodio_atual}` : null,
+                podcast.duracao_minutos ? `${podcast.duracao_minutos} min` : null,
+              ].filter(Boolean).join(' · ') || null}
               onClick={() => setPainelPodcast(podcast)}
               onEditar={() => abrirEdicao(podcast)}
+              onAlternarFavorito={() => void alternarFavorito(podcast)}
               onApagar={() => setPodcastParaApagar(podcast.uuid)}
               menuAberto={menuAbertoUuid === podcast.uuid}
               onAlternarMenu={() =>
@@ -306,6 +328,27 @@ export default function PodcastsSection({
                     setForm({ ...form, episodio_atual: Number(e.target.value) })
                   }
                 />
+              </label>
+              <label>
+                Duração média por episódio (min)
+                <input
+                  type="number"
+                  min={1}
+                  inputMode="numeric"
+                  value={form.duracao_minutos ?? ''}
+                  onChange={(e) => setForm({
+                    ...form,
+                    duracao_minutos: e.target.value === '' ? undefined : Number(e.target.value),
+                  })}
+                />
+              </label>
+              <label className={styles.checkboxLabel}>
+                <input
+                  type="checkbox"
+                  checked={form.favorito ?? false}
+                  onChange={(e) => setForm({ ...form, favorito: e.target.checked })}
+                />
+                Favorito
               </label>
               <StarRating
                 value={form.nota}

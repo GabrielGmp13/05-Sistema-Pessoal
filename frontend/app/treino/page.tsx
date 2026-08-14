@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Activity, ArrowRight, CalendarDays, Dumbbell, Gauge, RefreshCw, Scale, Sparkles } from 'lucide-react'
+import { Activity, ArrowRight, CalendarDays, Clock3, Dumbbell, Gauge, RefreshCw, Scale, Sparkles } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { getSession, sb } from '@/lib/supabase'
@@ -42,14 +42,9 @@ export default function TreinoHubPage() {
     return () => window.clearTimeout(timeoutId)
   }, [carregar])
 
-  const inicioSemana = useMemo(() => {
-    const data = new Date()
-    const deslocamento = (data.getDay() + 6) % 7
-    data.setDate(data.getDate() - deslocamento)
-    data.setHours(0, 0, 0, 0)
-    return data
-  }, [])
-  const sessoesSemana = dados?.sessoes.filter((sessao) => new Date(sessao.data_inicio) >= inicioSemana).length ?? 0
+  const sessoesSemana = dados?.sessoesSemana.length ?? 0
+  const duracaoSemanaMinutos = dados?.sessoesSemana
+    .reduce((total, sessao) => total + (duracaoSessao(sessao.data_inicio, sessao.data_fim) ?? 0), 0) ?? 0
   const ultimoPeso = dados?.registrosShape.find((registro) => registro.peso !== null)
   const treinosPorUuid = useMemo(() => new Map(dados?.treinos.map((treino) => [treino.uuid, treino]) ?? []), [dados])
 
@@ -71,6 +66,7 @@ export default function TreinoHubPage() {
 
         <section className={styles.metricas} aria-label="Resumo de treino">
           <Metrica icon={CalendarDays} label="Sessões nesta semana" valor={carregando ? '...' : String(sessoesSemana)} />
+          <Metrica icon={Clock3} label="Tempo nesta semana" valor={carregando ? '...' : formatarDuracao(duracaoSemanaMinutos)} />
           <Metrica icon={Dumbbell} label="Treinos planejados" valor={carregando ? '...' : String(dados?.treinos.length ?? 0)} />
           <Metrica icon={Activity} label="Exercícios ativos" valor={carregando ? '...' : String(dados?.totalExercicios ?? 0)} />
           <Metrica icon={Scale} label="Último peso" valor={carregando ? '...' : ultimoPeso?.peso ? `${ultimoPeso.peso} kg` : '--'} />
@@ -119,7 +115,7 @@ export default function TreinoHubPage() {
                 return (
                   <li key={sessao.uuid}>
                     <span className={styles.sessaoIcone}><Dumbbell /></span>
-                    <span className={styles.sessaoTexto}><strong>{treino?.nome ?? 'Treino'}</strong><small>{formatarDataHora(sessao.data_inicio)}</small></span>
+                    <span className={styles.sessaoTexto}><strong>{treino?.nome ?? 'Treino'}</strong><small>{formatarDataHora(sessao.data_inicio)}{sessao.data_fim ? ` · ${formatarDuracao(duracaoSessao(sessao.data_inicio, sessao.data_fim) ?? 0)}` : ''}</small></span>
                     <span className={sessao.data_fim ? styles.concluida : styles.emAndamento}>{sessao.data_fim ? 'Concluída' : 'Em andamento'}</span>
                   </li>
                 )
@@ -142,4 +138,17 @@ function formatarData(data: string) {
 
 function formatarDataHora(data: string) {
   return new Date(data).toLocaleString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
+}
+
+function duracaoSessao(inicio: string, fim: string | null) {
+  if (!fim) return null
+  const minutos = Math.round((new Date(fim).getTime() - new Date(inicio).getTime()) / 60_000)
+  return minutos > 0 ? minutos : null
+}
+
+function formatarDuracao(minutos: number) {
+  if (minutos < 60) return `${minutos} min`
+  const horas = Math.floor(minutos / 60)
+  const restante = minutos % 60
+  return restante ? `${horas}h ${restante}min` : `${horas}h`
 }

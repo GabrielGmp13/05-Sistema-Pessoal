@@ -119,6 +119,20 @@ export default function ArtigosSection({
     else await carregar();
   }
 
+  async function alternarFavorito(artigo: Artigo) {
+    const atualizado = await atualizarArtigo(artigo.uuid, {
+      titulo: artigo.titulo,
+      url: artigo.url,
+      favorito: !artigo.favorito,
+    });
+    if (!atualizado) {
+      setErro('Não foi possível atualizar o favorito.');
+      return;
+    }
+    setArtigos((atuais) => atuais.map((item) => item.uuid === atualizado.uuid ? atualizado : item));
+    setPainelArtigo((atual) => atual?.uuid === atualizado.uuid ? atualizado : atual);
+  }
+
   function montarInfo(artigo: Artigo): CampoInfo[] {
     const campos: CampoInfo[] = [];
     if (artigo.autor) campos.push({ label: 'Autor', valor: artigo.autor });
@@ -174,6 +188,7 @@ export default function ArtigosSection({
                 placeholder="Aa"
                 onClick={() => setPainelArtigo(artigo)}
                 onEditar={() => abrirEdicao(artigo)}
+                onAlternarFavorito={() => void alternarFavorito(artigo)}
                 onApagar={() => setArtigoParaApagar(artigo.uuid)}
                 menuAberto={menuAbertoUuid === artigo.uuid}
                 onAlternarMenu={() => setMenuAbertoUuid(menuAbertoUuid === artigo.uuid ? null : artigo.uuid)}

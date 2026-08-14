@@ -258,7 +258,7 @@
   border: 1px solid var(--border);
   border-radius: 8px;
   overflow: hidden;
-  min-width: 110px;
+  min-width: 155px;
   z-index: 5;
   display: flex;
   flex-direction: column;
