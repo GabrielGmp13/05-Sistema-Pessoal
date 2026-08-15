@@ -20,6 +20,17 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — implementação técnica concluída; homologação manual em andamento
 
+- **2026-08-15 (Programação, investimentos e importação tabulada)** — Criado
+  `/programacao` como visão especializada de Projetos, com repositório,
+  linguagem, status e destaque. Finanças ganhou CRUD de posições e consulta
+  opcional de cotação por API Route server-side com `BRAPI_TOKEN`, sem persistir
+  preço de mercado. Revisão passou a importar CSV/TSV com parser local,
+  limites e deduplicação por pergunta/resposta. Hub, Diário e navegação foram
+  atualizados; uploads sem contrato seguro permaneceram documentados. A
+  migration `20260815000100_programacao_investimentos.sql` passou reset e dez
+  testes SQL, foi aplicada em produção após dry-run exclusivo e teve pós-check
+  completo, deixando produção e cadeia local sem pendências.
+
 - **2026-08-15 (Idiomas, novas áreas e histórico anual)** — Criado `/idiomas`
   com CRUD, nível/objetivo, vocabulário, práticas e métricas semanais/mensais.
   Olimpíadas, Vestibulares e Outros estudos passaram a reutilizar

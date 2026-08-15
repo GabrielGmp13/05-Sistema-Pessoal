@@ -1,6 +1,7 @@
 import { getUserId, now, sb, sbErr, softDelete } from './supabase'
 
 export type TipoMovimento = 'entrada' | 'saida'
+export type TipoInvestimento = 'acao' | 'fii' | 'etf' | 'bdr' | 'cripto' | 'renda_fixa' | 'outro'
 
 export interface CategoriaFinanceira {
   uuid: string
@@ -46,10 +47,22 @@ export interface MetaEconomia {
   deleted: boolean
 }
 
+export interface InvestimentoFinanceiro {
+  uuid: string
+  user_id: string
+  ticker: string
+  tipo: TipoInvestimento
+  quantidade: number
+  preco_medio: number
+  updated_at: string
+  deleted: boolean
+}
+
 export type CategoriaInput = Pick<CategoriaFinanceira, 'nome' | 'tipo' | 'cor'>
 export type LancamentoInput = Pick<LancamentoFinanceiro, 'categoria_uuid' | 'tipo' | 'valor' | 'data' | 'descricao'>
 export type OrcamentoInput = Pick<OrcamentoFinanceiro, 'categoria_uuid' | 'mes' | 'ano' | 'valor_limite'>
 export type MetaInput = Pick<MetaEconomia, 'titulo' | 'valor_alvo' | 'valor_atual' | 'data_alvo'>
+export type InvestimentoInput = Pick<InvestimentoFinanceiro, 'ticker' | 'tipo' | 'quantidade' | 'preco_medio'>
 
 async function listar<T>(tabela: string, ordem = 'updated_at'): Promise<T[] | null> {
   const userId = await getUserId()
@@ -74,11 +87,14 @@ export const listarCategoriasFinanceiras = () => listar<CategoriaFinanceira>('fi
 export const listarLancamentosFinanceiros = () => listar<LancamentoFinanceiro>('financas_lancamentos', 'data')
 export const listarOrcamentosFinanceiros = () => listar<OrcamentoFinanceiro>('financas_orcamentos')
 export const listarMetasEconomia = () => listar<MetaEconomia>('financas_metas_economia')
+export const listarInvestimentosFinanceiros = () => listar<InvestimentoFinanceiro>('financas_investimentos')
 export const salvarCategoriaFinanceira = (input: CategoriaInput, uuid?: string) => salvar<CategoriaFinanceira>('financas_categorias', input, uuid)
 export const salvarLancamentoFinanceiro = (input: LancamentoInput, uuid?: string) => salvar<LancamentoFinanceiro>('financas_lancamentos', input, uuid)
 export const salvarOrcamentoFinanceiro = (input: OrcamentoInput, uuid?: string) => salvar<OrcamentoFinanceiro>('financas_orcamentos', input, uuid)
 export const salvarMetaEconomia = (input: MetaInput, uuid?: string) => salvar<MetaEconomia>('financas_metas_economia', input, uuid)
+export const salvarInvestimentoFinanceiro = (input: InvestimentoInput, uuid?: string) => salvar<InvestimentoFinanceiro>('financas_investimentos', input, uuid)
 export const deletarCategoriaFinanceira = (uuid: string) => softDelete('financas_categorias', uuid)
 export const deletarLancamentoFinanceiro = (uuid: string) => softDelete('financas_lancamentos', uuid)
 export const deletarOrcamentoFinanceiro = (uuid: string) => softDelete('financas_orcamentos', uuid)
 export const deletarMetaEconomia = (uuid: string) => softDelete('financas_metas_economia', uuid)
+export const deletarInvestimentoFinanceiro = (uuid: string) => softDelete('financas_investimentos', uuid)

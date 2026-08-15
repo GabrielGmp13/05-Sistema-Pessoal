@@ -65,7 +65,7 @@ SELECT pg_temp.assert_true(
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 11
+  (SELECT count(*) = 13
    FROM pg_constraint
    WHERE conrelid IN ('public.projetos'::regclass, 'public.projetos_tarefas'::regclass, 'public.receitas'::regclass)
      AND contype = 'c'),

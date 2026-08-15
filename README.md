@@ -45,7 +45,9 @@ aplicação local fica em `http://localhost:3000`.
 
 Para ativar o preenchimento automático opcional da Biblioteca, configure
 `YOUTUBE_API_KEY` e `TMDB_API_KEY` somente no ambiente do servidor, sem o
-prefixo `NEXT_PUBLIC_`. Google Books, Jikan e iTunes Search não exigem chave.
+prefixo `NEXT_PUBLIC_`. `BRAPI_TOKEN`, também server-only, habilita cotações sob
+demanda em Finanças sem ser necessário para o CRUD de posições. Google Books,
+Jikan e iTunes Search não exigem chave.
 Localmente, as chaves ficam em `frontend/.env.local`. Em produção, cadastre-as
 em **Vercel → Project → Settings → Environment Variables**, marque o ambiente
 **Production** e faça um novo deploy para que sejam carregadas.

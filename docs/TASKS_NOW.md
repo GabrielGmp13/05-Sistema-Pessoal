@@ -5,11 +5,11 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 ---
 
 ## Status geral
-**Fase atual:** Fase 7 (v2 expandida) — Idiomas, novas áreas de Estudos e histórico retrospectivo implementados, aguardando homologação manual. Todos os módulos planejados neste ciclo possuem caminhos reais de uso; a v1 está aposentada (DEC-031) e `frontend/` é o único frontend ativo.
-**Bloqueio:** nenhum bloqueio técnico conhecido; a migration de Idiomas está aplicada em produção.
-**Banco:** produção e cadeia local estão alinhadas até `20260814000100_idiomas.sql`; pós-check remoto de 2026-08-15 não mostrou migrations pendentes.
+**Fase atual:** Fase 7 (v2 expandida) — Programação, investimentos leves e importação tabulada de flashcards completam a implementação técnica antes da homologação manual. Todos os módulos planejados neste ciclo possuem caminhos reais de uso; a v1 está aposentada (DEC-031) e `frontend/` é o único frontend ativo.
+**Bloqueio:** nenhum bloqueio técnico conhecido; a migration de Programação/Investimentos está aplicada em produção.
+**Banco:** produção e cadeia local estão alinhadas até `20260815000100_programacao_investimentos.sql`; pós-check remoto de 2026-08-15 confirmou 63 tabelas e nenhum dry-run pendente.
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** homologar Idiomas, áreas adicionais, Histórico e os ajustes recentes dos módulos em temas claro/escuro e desktop/mobile.
+**Próxima ação:** homologar Programação, Finanças, importação CSV/TSV e os demais módulos recentes em temas claro/escuro e desktop/mobile.
 
 ---
 
@@ -38,7 +38,18 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] Insights ampliados com tempo estudado hoje/semana/mês, receita recente e próximo compromisso, sem tabela nova
 - [x] Insights de Saúde, Finanças e Lugares adicionados a partir dos registros já existentes, completando a cobertura das áreas pedidas sem tabela nova
 - [x] Idioma ativo, prática semanal e dia mais ativo do ano integrados ao carrossel; atalhos de Idiomas e Histórico adicionados
+- [x] Projeto técnico destacado e resumo de posições de investimento integrados sem consultar nem persistir cotação no Hub
 - [ ] Validar visualmente o Hub com dados reais em desktop e mobile na etapa final
+
+## Programação, investimentos e flashcards tabulados — 2026-08-15
+
+- [x] `/programacao` implementado como visão especializada de `projetos`, com repositório, linguagem principal, status e destaque, sem GitHub API ou domínio duplicado
+- [x] Finanças ganhou CRUD de posições; cotação BRAPI é opcional, server-side, sob demanda e não persistida
+- [x] `/revisao` importa CSV/TSV de até 1 MB/500 cards, aceita módulo opcional e ignora pares pergunta/resposta duplicados do usuário
+- [x] Hub, Diário e navegação global atualizados; Histórico permanece baseado em eventos com data e não conta posição financeira sem data de negócio
+- [x] Uploads adicionais auditados e mantidos no backlog quando bucket/policy/destino não oferecem contrato seguro
+- [x] `20260815000100_programacao_investimentos.sql` passou reset local, dez testes SQL, dry-run remoto exclusivo, aplicação e pós-check
+- [ ] Homologar CRUDs, fallback sem `BRAPI_TOKEN`, consulta com token configurado e arquivos CSV/TSV reais
 
 ## Idiomas, áreas adicionais e Histórico — 2026-08-15
 
@@ -106,7 +117,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] Biblioteca passou a seguir o tema global; perfil foi movido da sidebar para o topo e as rolagens internas concorrentes foram removidas
 - [x] Revisão ganhou filtro de Arquivados, restauração e separação entre arquivar e apagar
 - [x] `20260812000100_revisao_arquivados.sql` passou em reset local e na suíte SQL completa
-- [x] Importação Anki auditada e mantida fora desta leva por exigir parser de pacote SQLite/ZIP e decisões de mapeamento
+- [x] Importação Anki `.apkg` auditada e mantida fora desta leva por exigir parser de pacote SQLite/ZIP; o fallback CSV/TSV foi implementado depois no lote de 2026-08-15
 - [x] Dry-run remoto limpo, migration aplicada em produção com autorização explícita e pós-check sem pendências (2026-08-12)
 - [x] Primeiro lote publicado; login validado pelo usuário em produção (2026-08-12)
 - [x] Perfil promovido ao topo global em todas as rotas, sem duplicar o link “Início”

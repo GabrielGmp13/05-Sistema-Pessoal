@@ -22,19 +22,21 @@ Variáveis necessárias:
 - `NEXT_PUBLIC_SUPABASE_URL`;
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
 
-Variáveis opcionais, usadas somente no servidor para preencher metadados da
-Biblioteca:
+Variáveis opcionais, usadas somente no servidor:
 
 - `YOUTUBE_API_KEY` — vídeos;
-- `TMDB_API_KEY` — filmes e séries.
+- `TMDB_API_KEY` — filmes e séries;
+- `BRAPI_TOKEN` — cotações sob demanda em Finanças.
 
 Não versione `.env.local`, não use prefixo `NEXT_PUBLIC_` nessas chaves
 privadas e não use credenciais privilegiadas no frontend.
 
-No desenvolvimento local, adicione as duas chaves a `frontend/.env.local`.
+No desenvolvimento local, adicione as chaves opcionais que quiser habilitar a
+`frontend/.env.local`.
 Na produção, use **Vercel → Project → Settings → Environment Variables**,
-marque **Production** e faça um redeploy. Google Books, Jikan e iTunes Search
-funcionam sem chave.
+marque **Production** e faça um redeploy. Sem `BRAPI_TOKEN`, as posições de
+investimento continuam funcionando e apenas a consulta de cotação fica inativa.
+Google Books, Jikan e iTunes Search funcionam sem chave.
 
 ## Verificações
 

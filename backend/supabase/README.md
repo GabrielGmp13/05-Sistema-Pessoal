@@ -28,6 +28,10 @@ O ponto inicial oficial da cadeia CLI é:
 11. `20260814000100_idiomas.sql` — cria Idiomas, Vocabulário e Práticas com
     RLS/GRANT; reset e nove testes SQL aprovados, aplicada em produção em
     2026-08-15 após dry-run exclusivo e confirmada por pós-check.
+12. `20260815000100_programacao_investimentos.sql` — especializa Projetos para
+    Programação e cria posições de investimento; reset e dez testes SQL
+    aprovados, aplicada em produção em 2026-08-15 após dry-run exclusivo e
+    confirmada por pós-check.
 
 As três baselines foram validadas por dois replays locais completos e por
 comparação com produção. Em 2026-08-08, `migration repair --status applied`
@@ -81,6 +85,13 @@ pós-check remoto não mostrou migrations pendentes.
 parciais. O reset local e os nove testes SQL passaram; o dry-run remoto listou
 somente essa migration, que foi aplicada em 2026-08-15. O pós-check confirmou
 as três tabelas, três policies, RLS e os doze privilégios CRUD esperados.
+
+`20260815000100_programacao_investimentos.sql` adiciona repositório, linguagem
+principal e destaque a `projetos`, além de criar `financas_investimentos` com
+checks, RLS, policy, GRANT e índice parcial. O reset e os dez testes SQL
+passaram; o dry-run remoto listou somente essa migration, aplicada em
+2026-08-15. O pós-check confirmou 63 tabelas, histórico remoto, três colunas de
+Programação e proteção completa da nova tabela; o dry-run final ficou vazio.
 
 ## Workflow para toda mudança futura
 

@@ -29,6 +29,9 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
       Biblioteca, provas/simulados, imagens de exercícios e fotos de Lugares.
       Cada fluxo deve reutilizar bucket privado adequado ou ganhar decisão de
       Storage/policy própria; não tratar como upload genérico irrestrito.
+      Auditoria de 2026-08-15 manteve Perfil, Receitas e Lugares em URL (não há
+      bucket dedicado); `banner_path` segue sem destino definido; e o bucket
+      `exercicios` exige hardening porque a policy atual tem `WITH CHECK = NULL`.
 - [ ] Modo múltiplos usuários (RLS já suporta — bastaria criar contas; não é objetivo do projeto por princípio, ver PROJECT_PRINCIPLES.md)
 - [x] Navegação global entre módulos e botão de logout visível — implementado em 2026-08-09 com hub `/`, navegação para Treino/Biblioteca/Estudos e logout via Supabase Auth.
 - [ ] Corrigir o corte residual da letra “g” em “Agenda” na navegação em uma combinação específica de largura/zoom; o usuário decidiu não bloquear o teste atual por isso (2026-08-12).
@@ -40,7 +43,11 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 - [ ] Importação de dados do sistema ENEM standalone antigo, se houver conteúdo relevante a resgatar
 - [x] Upload de materiais de estudo no bucket privado `documentos`, usando `arquivo_path` e signed URLs, implementado em 2026-08-12 sem mudança de Storage.
 - [x] Cursos (estrutura própria — módulos/aulas/certificado) — implementado na Fase 1B de Estudos v2 (DEC-036)
-- [ ] Importação Anki como etapa própria. Auditoria de 2026-08 confirmou que `.apkg` combina arquivo ZIP, banco SQLite do Anki e mídia; suportá-lo corretamente exige parser/dependência, escolha de baralho/modelo, tratamento de HTML/cloze/mídia e regra de duplicação. Uma alternativa futura mais leve é importar exportação tabulada de notas, mas ainda precisa de decisão explícita sobre mapeamento de campos e deduplicação. Não misturar com o CRUD atual de Revisão.
+- [x] Importação leve de exportações CSV/TSV implementada em `/revisao`, com
+      `pergunta`, `resposta`, módulo opcional, limites e deduplicação simples.
+- [ ] Importação Anki `.apkg` permanece etapa própria: o pacote combina ZIP,
+      SQLite e mídia e exige parser/dependência, escolha de baralho/modelo e
+      tratamento de HTML/cloze; não misturar com o importador tabulado atual.
 - [ ] Redação versionada (múltiplas versões, competências detalhadas), Fase 1 entrega só versão leve (DEC-035)
 - [x] Calendário acadêmico/cronograma absorvido pela Agenda v2; provas continuam em Estudos e são apenas exibidas na Agenda, sem duplicação
 - [ ] Metas diárias/semanais/mensais e sequência de dias estudando (streak) — avaliar sobreposição com o módulo Hábitos (ainda não iniciado) antes de construir algo específico de Estudos
@@ -62,9 +69,9 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 - [x] Áreas de estudo além de ENEM/Escola/Curso: Olimpíadas, Vestibulares e
       Outros reutilizam Matéria→Conteúdo; Idiomas ganhou domínio próprio por
       precisar de vocabulário, prática e métricas específicas (DEC-055).
-- [ ] Programação separada de Curso/Escola — confirmar se é uma área de Estudos,
-      um catálogo de projetos ou somente matérias/conteúdos existentes antes de
-      criar rota ou schema paralelo.
+- [x] Programação implementada como visão especializada de `projetos` em
+      `/programacao`, com repositório, linguagem, status e destaque; conteúdos
+      didáticos continuam em Estudos e não foi criado domínio paralelo.
 - [x] Cronograma/planejamento temporal de estudo pertence à Agenda; Estudos
       permanece fonte de verdade de matérias, conteúdos e provas. Metas e
       prioridades avançadas continuam fora do escopo atual.
@@ -123,9 +130,11 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
       2026-08-13, sem integração externa ou dependência nova.
 - [ ] Saúde: gráficos de tendência, lembretes e fotos próprias ficam para uma
       evolução posterior; peso continua em `shape` e não deve ser duplicado.
-- [ ] Finanças: recorrência, importação bancária e cotações ficam fora da versão
-      inicial. BRAPI (ou outra fonte de cotações) exige decisão sobre ativos,
-      cache, limites e segurança antes de qualquer integração.
+- [x] Finanças: posições manuais e consulta opcional sob demanda pela BRAPI
+      implementadas sem cache nem persistência da cotação; token fica somente
+      no servidor e a UI funciona sem ele.
+- [ ] Finanças: recorrência, importação bancária, histórico de cotação,
+      proventos e análise avançada continuam futuros e exigem contratos próprios.
 - [ ] Lugares: upload de fotos, Maps/Places API e Google Photos permanecem
       futuros; a versão inicial usa capa por URL e link externo para Maps.
 
@@ -138,11 +147,12 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 
 ## Dívida técnica de código (achados da auditoria de 2026-08)
 
-- [ ] Lint: 40 achados na execução reproduzível de 2026-08-12: 23 erros
-      `react-hooks/set-state-in-effect`, 13 warnings `exhaustive-deps` e 4
-      `no-img-element`. Os 2 `no-explicit-any` e os 2
-      `react/no-unescaped-entities` foram corrigidos na auditoria final local.
-      Investigar o restante caso a caso; lint continua informativo na CI.
+- [ ] Lint: 51 achados na execução reproduzível de 2026-08-15 (27 erros e
+      24 warnings), concentrados na dívida preexistente de efeitos síncronos,
+      dependências de hooks e imagens sem otimização. Os arquivos tocados no
+      lote Programação/Investimentos/CSV passaram lint direcionado sem erros;
+      restou apenas o `no-img-element` já conhecido do avatar global. Investigar
+      o restante caso a caso; lint continua informativo na CI.
 - [ ] npm 12 bloqueia por padrão os scripts de instalação transitivos de `sharp@0.34.5` e `unrs-resolver@1.12.2`. Instalação, typecheck e build passaram nesse estado; não aprovar scripts cegamente. Reavaliar somente se uma plataforma limpa demonstrar falha funcional (especialmente otimização de imagens ou resolução nativa).
 - [ ] `@types/node` permanece na linha 20, herdada do setup do Next, enquanto o runtime é Node 24. Typecheck e build passam e o código não depende de APIs exclusivas da major 24; alinhar os tipos apenas numa atualização deliberada, sem misturar com feature.
 - [ ] Hardening do banco, sempre em migrations incrementais separadas: revisar o `GRANT ALL` atual de `authenticated`; policies/`WITH CHECK` de `redacoes` e `exercicios`; `materias.user_id` sem cascade; ausência de `materias_tipo_check`; e a configuração `SECURITY DEFINER`/`search_path` de `public.rls_auto_enable()`. A baseline apenas preserva esses estados e nunca deve ser editada para corrigi-los.

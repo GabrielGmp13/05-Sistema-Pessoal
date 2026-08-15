@@ -1015,3 +1015,41 @@ heatmap também duplicaria eventos cuja fonte de verdade já existe.
 A migration incremental `20260814000100_idiomas.sql` adiciona somente as três
 tabelas de Idiomas com RLS, policies, GRANTs, checks e índices. As áreas
 acadêmicas e o heatmap não exigem schema novo nem integração externa.
+
+---
+
+## DEC-056 — Programação especializa Projetos; investimento separa posição de cotação; CSV/TSV é o limite do Anki leve
+
+**Data:** 2026-08-15
+**Status:** ✅ Implementada; migration aplicada em produção
+
+### Contexto
+
+Programação precisava de uma visão própria sem repetir o domínio de Projetos.
+Finanças precisava registrar patrimônio sem transformar preço externo em fonte
+de verdade local. Revisão podia absorver exportações tabuladas, mas `.apkg`
+exigiria ZIP, SQLite, mídia e decisões de modelo fora do lote. A auditoria de
+uploads também encontrou destinos e policies ainda incompletos.
+
+### Decisão
+
+- `/programacao` filtra e edita registros de `projetos` que tenham repositório
+  ou linguagem principal; `destaque` ordena a visão e alimenta o Hub. Não há
+  tabela paralela nem GitHub API.
+- `financas_investimentos` persiste ticker, tipo, quantidade e preço médio. A
+  cotação é consultada sob demanda por API Route server-side, usa
+  `BRAPI_TOKEN` opcional e nunca é gravada. Sem token, o CRUD permanece íntegro.
+- `/revisao` aceita CSV/TSV com cabeçalhos `pergunta`, `resposta` e `modulo`
+  opcional, até 1 MB/500 cards, e ignora duplicados por pergunta/resposta do
+  usuário. `.apkg` permanece backlog.
+- O Histórico não conta posições: elas não possuem data de negócio e usar
+  `updated_at` confundiria edição cadastral com atividade financeira. Os
+  lançamentos continuam sendo a fonte retrospectiva de Finanças.
+- Perfil, Receitas e Lugares continuam usando URL; `banner_path` segue sem
+  destino definido; upload de exercício aguarda policy `WITH CHECK` segura.
+
+### Impacto
+
+A migration `20260815000100_programacao_investimentos.sql` adiciona três campos
+a `projetos` e cria uma tabela com RLS, policy, GRANTs, checks e índices. Hub,
+Diário e navegação leem os novos contratos sem dependência nova ou cache de API.

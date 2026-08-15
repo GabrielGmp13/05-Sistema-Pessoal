@@ -7,7 +7,7 @@ import { ArrowDownLeft, ArrowRight, ArrowUpRight, BedDouble, CircleDollarSign, D
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { dataLocalIso } from '@/lib/date'
-import { LancamentoFinanceiro, listarLancamentosFinanceiros, listarMetasEconomia, MetaEconomia } from '@/lib/financas'
+import { InvestimentoFinanceiro, LancamentoFinanceiro, listarInvestimentosFinanceiros, listarLancamentosFinanceiros, listarMetasEconomia, MetaEconomia } from '@/lib/financas'
 import { listarLugares, Lugar } from '@/lib/lugares'
 import { listarReceitas, Receita } from '@/lib/receitas'
 import { listarHidratacao, listarHumor, listarMedicamentos, listarSono, Medicamento, RegistroHidratacao, RegistroHumor, RegistroSono } from '@/lib/saude'
@@ -19,11 +19,12 @@ interface DadosDiario {
   medicamentos: Medicamento[] | null
   lancamentos: LancamentoFinanceiro[] | null
   metas: MetaEconomia[] | null
+  investimentos: InvestimentoFinanceiro[] | null
   lugares: Lugar[] | null
   receitas: Receita[] | null
 }
 
-const INICIAL: DadosDiario = { sono: null, hidratacao: null, humor: null, medicamentos: null, lancamentos: null, metas: null, lugares: null, receitas: null }
+const INICIAL: DadosDiario = { sono: null, hidratacao: null, humor: null, medicamentos: null, lancamentos: null, metas: null, investimentos: null, lugares: null, receitas: null }
 const moeda = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
 
 export default function DiarioPage() {
@@ -37,11 +38,13 @@ export default function DiarioPage() {
     const resultados = await Promise.allSettled([
       listarSono(), listarHidratacao(), listarHumor(), listarMedicamentos(),
       listarLancamentosFinanceiros(), listarMetasEconomia(), listarLugares(), listarReceitas(),
+      listarInvestimentosFinanceiros(),
     ])
     const valor = <T,>(indice: number): T | null => resultados[indice].status === 'fulfilled' ? resultados[indice].value as T | null : null
     setDados({
       sono: valor<RegistroSono[]>(0), hidratacao: valor<RegistroHidratacao[]>(1), humor: valor<RegistroHumor[]>(2), medicamentos: valor<Medicamento[]>(3),
       lancamentos: valor<LancamentoFinanceiro[]>(4), metas: valor<MetaEconomia[]>(5), lugares: valor<Lugar[]>(6), receitas: valor<Receita[]>(7),
+      investimentos: valor<InvestimentoFinanceiro[]>(8),
     })
     setCarregando(false)
   }, [])
@@ -58,6 +61,7 @@ export default function DiarioPage() {
   const lancamentosMes = dados.lancamentos?.filter((item) => item.data.startsWith(mesAtual)) ?? []
   const entradas = lancamentosMes.filter((item) => item.tipo === 'entrada').reduce((total, item) => total + Number(item.valor), 0)
   const saidas = lancamentosMes.filter((item) => item.tipo === 'saida').reduce((total, item) => total + Number(item.valor), 0)
+  const custoInvestimentos = dados.investimentos?.reduce((total, item) => total + Number(item.quantidade) * Number(item.preco_medio), 0) ?? 0
   const favoritosLugar = useMemo(() => dados.lugares?.filter((item) => item.favorito) ?? [], [dados.lugares])
   const favoritasReceita = useMemo(() => dados.receitas?.filter((item) => item.favorito) ?? [], [dados.receitas])
   const houveFalha = !carregando && Object.values(dados).some((valor) => valor === null)
@@ -79,9 +83,9 @@ export default function DiarioPage() {
         { icon: ArrowUpRight, valor: moeda.format(entradas), label: 'entradas' },
         { icon: ArrowDownLeft, valor: moeda.format(saidas), label: 'saídas' },
         { icon: CircleDollarSign, valor: moeda.format(entradas - saidas), label: 'saldo' },
-        { icon: Star, valor: String(dados.metas?.length ?? 0), label: 'metas' },
+        { icon: Star, valor: String(dados.investimentos?.length ?? 0), label: 'posições' },
       ],
-      rodape: lancamentosMes.length ? `${lancamentosMes.length} lançamentos neste mês.` : 'Nenhum lançamento neste mês.',
+      rodape: `${lancamentosMes.length} lançamentos · ${dados.metas?.length ?? 0} metas · custo investido ${moeda.format(custoInvestimentos)}.`,
     },
     {
       href: '/lugares', titulo: 'Lugares', subtitulo: 'Destinos e memórias', icon: MapPinned,
@@ -100,7 +104,7 @@ export default function DiarioPage() {
       ],
       rodape: favoritasReceita[0] ? `Favorita: ${favoritasReceita[0].titulo}` : dados.receitas?.[0] ? `Mais recente: ${dados.receitas[0].titulo}` : 'Nenhuma receita cadastrada.',
     },
-  ], [aguaHoje, dados.lugares, dados.metas, dados.receitas, entradas, favoritasReceita, favoritosLugar, humorHoje, lancamentosMes.length, medicamentosAtivos.length, saidas, sonoHoje])
+  ], [aguaHoje, custoInvestimentos, dados.investimentos, dados.lugares, dados.metas, dados.receitas, entradas, favoritasReceita, favoritosLugar, humorHoje, lancamentosMes.length, medicamentosAtivos.length, saidas, sonoHoje])
 
   return (
     <main className="min-h-[calc(100vh-3.5rem)] bg-background text-foreground">

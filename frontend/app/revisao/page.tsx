@@ -10,6 +10,7 @@ import {
   Clock3,
   Eye,
   EyeOff,
+  FileUp,
   Plus,
   Trash2,
 } from 'lucide-react'
@@ -20,19 +21,21 @@ import { Field } from '@/components/study/field'
 import { MonoLabel } from '@/components/study/mono-label'
 import { Section } from '@/components/study/section'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { dataLocalIso } from '@/lib/date'
+import { analisarFlashcards } from '@/lib/flashcard-import'
 import {
   avaliarCard,
   CardRevisao,
   criarCardManual,
   definirCardArquivado,
   deletarCardRevisao,
+  importarCardsRevisao,
   listarCardsArquivados,
   listarCardsRevisao,
   Qualidade,
@@ -63,6 +66,8 @@ export default function RevisaoPage() {
   const [cardParaApagar, setCardParaApagar] = useState<CardRevisao | null>(null)
   const [erro, setErro] = useState('')
   const [novoCard, setNovoCard] = useState({ pergunta: '', resposta: '' })
+  const [importando, setImportando] = useState(false)
+  const [resultadoImportacao, setResultadoImportacao] = useState('')
 
   const carregar = useCallback(async () => {
     const [atuais, suspensos] = await Promise.all([
@@ -113,6 +118,31 @@ export default function RevisaoPage() {
 
     setNovoCard({ pergunta: '', resposta: '' })
     await carregar()
+  }
+
+  async function handleImportar(event: React.ChangeEvent<HTMLInputElement>) {
+    const arquivo = event.target.files?.[0]
+    event.target.value = ''
+    if (!arquivo) return
+    if (!/\.(csv|tsv)$/i.test(arquivo.name)) {
+      setErro('Selecione um arquivo .csv ou .tsv.')
+      return
+    }
+
+    setImportando(true)
+    setErro('')
+    setResultadoImportacao('')
+    try {
+      const cardsImportados = analisarFlashcards(await arquivo.text(), arquivo.size)
+      const resultado = await importarCardsRevisao(cardsImportados)
+      if (!resultado) throw new Error('Não foi possível salvar os cards importados.')
+      setResultadoImportacao(`${resultado.criados} card${resultado.criados === 1 ? '' : 's'} criado${resultado.criados === 1 ? '' : 's'} · ${resultado.duplicados} duplicado${resultado.duplicados === 1 ? '' : 's'} ignorado${resultado.duplicados === 1 ? '' : 's'}.`)
+      await carregar()
+    } catch (error) {
+      setErro(error instanceof Error ? error.message : 'Não foi possível importar o arquivo.')
+    } finally {
+      setImportando(false)
+    }
   }
 
   async function handleAvaliar(cardUuid: string, qualidade: Qualidade) {
@@ -282,6 +312,13 @@ export default function RevisaoPage() {
             </form>
           </Card>
         </Section>
+
+        <Section label="Lote" title="Importar CSV ou TSV">
+          <Card className="flex flex-wrap items-center justify-between gap-4 p-4">
+            <div className="min-w-0"><p className="text-sm font-medium">Importação leve de flashcards</p><p className="mt-1 text-xs text-muted-foreground">Use cabeçalhos <code>pergunta</code>, <code>resposta</code> e, opcionalmente, <code>modulo</code>. Limite de 1 MB ou 500 cards.</p>{resultadoImportacao ? <p role="status" className="mt-2 text-xs text-success">{resultadoImportacao}</p> : null}</div>
+            <label className={buttonVariants({ variant: 'outline', size: 'sm', className: importando ? 'pointer-events-none opacity-60' : 'cursor-pointer' })}><FileUp className="size-3.5" />{importando ? 'Importando...' : 'Selecionar arquivo'}<input type="file" accept=".csv,.tsv,text/csv,text/tab-separated-values" className="sr-only" onChange={(event) => void handleImportar(event)} disabled={importando} /></label>
+          </Card>
+        </Section>
       </div>
 
       {aba === 'arquivados' ? (
@@ -315,7 +352,7 @@ export default function RevisaoPage() {
       <ConfirmDialog
         open={cardParaApagar !== null}
         title="Apagar card?"
-        description={cardParaApagar?.modulo === 'estudos'
+        description={cardParaApagar?.modulo === 'estudos' && cardParaApagar.referencia_uuid
           ? `O lembrete de revisão de "${cardParaApagar.pergunta}" será removido. O conteúdo continuará existindo em Estudos.`
           : `O card "${cardParaApagar?.pergunta ?? ''}" será removido da revisão.`}
         confirmLabel="Apagar"
@@ -351,7 +388,7 @@ function RevisaoCard({
   onRestaurar?: () => void
   onApagar: () => void
 }) {
-  const origemEstudos = card.modulo === 'estudos'
+  const origemEstudos = card.modulo === 'estudos' && Boolean(card.referencia_uuid)
   const atrasado = card.proxima_revisao < hoje
   const temResposta = Boolean(card.resposta?.trim())
 
@@ -364,7 +401,7 @@ function RevisaoCard({
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant={origemEstudos ? 'success' : 'outline'}>
-              {origemEstudos ? 'Conteúdo de Estudos' : 'Card manual'}
+              {origemEstudos ? 'Conteúdo de Estudos' : card.modulo && card.modulo !== 'manual' ? card.modulo : 'Card manual'}
             </Badge>
             <Badge variant={atrasado ? 'warning' : 'outline'}>
               {atrasado ? 'Atrasada' : formatarData(card.proxima_revisao)}

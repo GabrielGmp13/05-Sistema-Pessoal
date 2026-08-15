@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { BookOpen, Brain, CalendarDays, CalendarRange, Dumbbell, FolderKanban, GraduationCap, Home, Languages, LogOut, NotebookTabs } from 'lucide-react'
+import { BookOpen, Brain, CalendarDays, CalendarRange, Code2, Dumbbell, FolderKanban, GraduationCap, Home, Languages, LogOut, NotebookTabs } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import type { CSSProperties } from 'react'
 
@@ -21,6 +21,7 @@ const links = [
   { href: '/agenda', label: 'Agenda', icon: CalendarDays },
   { href: '/historico', label: 'Histórico', icon: CalendarRange },
   { href: '/projetos', label: 'Projetos', icon: FolderKanban },
+  { href: '/programacao', label: 'Programação', icon: Code2 },
   { href: '/diario', label: 'Diário', icon: NotebookTabs },
 ]
 

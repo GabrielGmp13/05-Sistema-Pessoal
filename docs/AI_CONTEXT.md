@@ -52,10 +52,10 @@ operacional.
 **Fase:** Fase 7 — implementação técnica da v2 expandida concluída; homologação manual final em andamento. A v2 é o único frontend ativo (v1 removida em 2026-07-19, DEC-031).
 **Decisão-chave:** DEC-018 (reabre DEC-006) — frontend migrou de HTML puro para Next.js/React
 **Deploy:** ✅ em produção no Vercel desde 2026-07-13 (não "pendente" — ver `ARCHITECTURE.md`)
-**Schema:** baseline confirmada via dump real em 2026-08 com 44 tabelas; produção e ambiente local estão em 62 tabelas após as migrations incrementais aplicadas até `20260814000100_idiomas.sql` (ver `DATABASE.md`).
-**Histórico CLI:** adotado em produção em 2026-08-08 — as três baselines e as migrations incrementais até `20260814000100_idiomas.sql` estão registradas como `applied`. A migration de Idiomas foi validada por reset e suíte SQL completa, aplicada em produção após dry-run exclusivo e confirmada por pós-check sem pendências em 2026-08-15.
+**Schema:** baseline confirmada via dump real em 2026-08 com 44 tabelas; produção e ambiente local estão em 63 tabelas após as migrations incrementais aplicadas até `20260815000100_programacao_investimentos.sql` (ver `DATABASE.md`).
+**Histórico CLI:** adotado em produção em 2026-08-08 — as três baselines e as migrations incrementais até `20260815000100_programacao_investimentos.sql` estão registradas como `applied`. A migration mais recente foi validada por reset e dez testes SQL, aplicada em produção após dry-run exclusivo e confirmada por pós-check sem pendências em 2026-08-15.
 **Reprodutibilidade:** Node.js `24.15.0`, npm `12.0.1`, `npm ci`, typecheck e build validados; CI mínima ativa. Lint mantém 40 achados conhecidos e informativos na medição de 2026-08-12.
-**Próxima tarefa imediata:** concluir a homologação manual autenticada da v2 expandida, incluindo Treino, Diário, módulos CRUD e responsividade; ver `TASKS_NOW.md`.
+**Próxima tarefa imediata:** concluir a homologação manual autenticada da v2 expandida, incluindo Programação, investimentos, importação CSV/TSV, Treino, Diário e responsividade; ver `TASKS_NOW.md`.
 
 ---
 
@@ -63,7 +63,7 @@ operacional.
 
 | Camada | Tecnologia |
 |---|---|
-| Banco de dados | PostgreSQL via Supabase (62 tabelas em `public`, alinhadas entre produção e cadeia local) |
+| Banco de dados | PostgreSQL via Supabase (63 tabelas em `public`, alinhadas entre produção e cadeia local) |
 | Auth | Supabase Auth (email+senha) |
 | Storage | Supabase Storage — 5 buckets privados e 14 policies confirmados por captura remota versionada em `backend/supabase/snapshots/` |
 | Frontend | Next.js 16 (React 19) + TypeScript — pasta `frontend/`, único frontend do projeto |

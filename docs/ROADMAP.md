@@ -130,13 +130,14 @@ frontend ativo. Revisão Espaçada e Agenda ganharam páginas dedicadas em
 | 7.1 | Treino v2 | ✅ Completo — pendências de polimento em `BACKLOG.md` (gráfico de peso, upload de imagem de exercício) |
 | 7.2 | Biblioteca v2 | ✅ Oito categorias integradas; gêneros persistidos; busca de metadados para as categorias compatíveis implementada com YouTube, TMDB, Google Books, Jikan e iTunes, restando configuração opcional de YouTube/TMDB e testes manuais finais |
 | 7.3 | Estudos v2 (Fase 1 + Fase 1B) | ✅ 9 rotas de página implementadas e restilizadas (Tailwind/shadcn), incluindo `/estudos/enem/[area]`; schema estendido por `017`/`018`/`019` (gabarito ENEM em 2 fases, matéria única Escola/ENEM, domínio de conteúdo) — todas as migrations confirmadas executadas via dump real do banco (2026-08). Acesso principal passou no smoke de produção; teste profundo das 9 rotas internas permanece opcional — ver `TASKS_NOW.md` |
-| 7.4 | Revisão Espaçada v2 (página dedicada) | ✅ `/revisao` implementada com listas pendente/futura, avaliação SM-2, card manual e soft delete; validação manual fica para a etapa final |
+| 7.4 | Revisão Espaçada v2 (página dedicada) | ✅ `/revisao` implementada com listas pendente/futura, avaliação SM-2, card manual, importação CSV/TSV deduplicada e soft delete; validação manual fica para a etapa final |
 | 7.5 | Agenda v2 | ✅ Implementada e liberada para publicação: visão semanal, CRUD, cronograma de estudo, provas sem duplicação e vínculo com treino; migration incremental aplicada em produção |
 | 7.6 | Dashboard/hub operacional | ✅ Resumos reais e carrossel compacto de insights pessoais sobre as entidades existentes, sem migration |
 | 7.7 | Perfil, Projetos e Receitas | ✅ Frontend implementado e `20260812000200` aplicada em produção; resta teste manual |
 | 7.8 | Saúde, Finanças e Lugares | ✅ Frontend implementado e `20260813000100` aplicada em produção; resta teste manual |
 | 7.9 | Dashboards de domínio | ✅ `/treino` ampliado e `/diario` criado como agregador de Saúde, Finanças, Lugares e Receitas, sem migration |
 | 7.10 | Idiomas, áreas adicionais e histórico | ✅ `/idiomas`, Olimpíadas/Vestibulares/Outros e `/historico` implementados; migration `20260814000100` aplicada em produção, restando homologação manual |
+| 7.11 | Programação e investimentos leves | ✅ `/programacao` reutiliza Projetos; Finanças mantém posições e cotação opcional sob demanda; migration `20260815000100` aplicada em produção, restando homologação manual |
 
 ### Módulo: Projetos
 
@@ -154,7 +155,8 @@ frontend ativo. Revisão Espaçada e Agenda ganharam páginas dedicadas em
 
 **Saúde:** registros manuais de sono, hidratação, humor e medicamentos em
 `/saude`; peso permanece em `shape` como fonte única. **Finanças:** categorias,
-lançamentos, orçamento mensal e metas em `/financas`. **Lugares:** coleção e
+lançamentos, orçamento mensal, metas e posições em `/financas`; cotação é
+opcional, server-side e não persistida. **Lugares:** coleção e
 detalhe manual em `/lugares`, com link externo para Maps, sem API. Os três usam
 Supabase Auth/RLS, soft delete e nenhuma dependência ou integração externa nova.
 
@@ -164,3 +166,9 @@ Supabase Auth/RLS, soft delete e nenhuma dependência ou integração externa no
 semanal/mensal; sem Anki, IA, áudio ou API externa. **Histórico:** `/historico`
 calcula um heatmap anual diretamente dos registros existentes e das práticas de
 Idiomas, sem duplicar Agenda e sem tabela agregada. Ver DEC-055.
+
+### Módulo: Programação
+
+**Programação:** `/programacao` é uma visão especializada do domínio Projetos,
+identificada por repositório ou linguagem principal. Mantém status e destaque,
+sem GitHub API, colaboração ou tabela paralela. Ver DEC-056.

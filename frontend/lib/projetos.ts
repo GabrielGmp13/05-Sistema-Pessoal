@@ -10,6 +10,9 @@ export interface Projeto {
   descricao: string | null
   status: StatusProjeto
   data_prazo: string | null
+  repositorio_url: string | null
+  linguagem_principal: string | null
+  destaque: boolean
   updated_at: string
   deleted: boolean
 }
@@ -26,6 +29,7 @@ export interface TarefaProjeto {
 }
 
 export type ProjetoInput = Pick<Projeto, 'nome' | 'descricao' | 'status' | 'data_prazo'>
+  & Partial<Pick<Projeto, 'repositorio_url' | 'linguagem_principal' | 'destaque'>>
 
 export async function listarProjetos(): Promise<Projeto[] | null> {
   const userId = await getUserId()
@@ -40,6 +44,14 @@ export async function listarProjetos(): Promise<Projeto[] | null> {
 
   if (error) return sbErr(error, 'listarProjetos')
   return data as Projeto[]
+}
+
+export async function listarProjetosProgramacao(): Promise<Projeto[] | null> {
+  const projetos = await listarProjetos()
+  if (!projetos) return projetos
+  return projetos
+    .filter((projeto) => Boolean(projeto.repositorio_url || projeto.linguagem_principal))
+    .sort((a, b) => Number(b.destaque) - Number(a.destaque) || b.updated_at.localeCompare(a.updated_at))
 }
 
 export async function criarProjeto(input: ProjetoInput): Promise<Projeto | null> {

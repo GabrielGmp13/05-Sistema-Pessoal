@@ -11,6 +11,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock3,
+  Code2,
   Dumbbell,
   FolderKanban,
   GraduationCap,
@@ -34,7 +35,7 @@ import { listarProjetos, listarTodasTarefasProjetos, Projeto, TarefaProjeto } fr
 import { listarReceitas, Receita } from '@/lib/receitas'
 import { buscarDadosInsights, DadosInsights } from '@/lib/insights'
 import { listarHumor, RegistroHumor } from '@/lib/saude'
-import { LancamentoFinanceiro, listarLancamentosFinanceiros } from '@/lib/financas'
+import { InvestimentoFinanceiro, LancamentoFinanceiro, listarInvestimentosFinanceiros, listarLancamentosFinanceiros } from '@/lib/financas'
 import { listarLugares, Lugar } from '@/lib/lugares'
 import { buscarResumoIdiomasHub, ResumoIdiomasHub } from '@/lib/idiomas'
 import { listarAtividadeAnual, ResumoAtividadeAnual } from '@/lib/atividade'
@@ -97,6 +98,13 @@ const modules = [
     status: 'Em andamento',
   },
   {
+    href: '/programacao',
+    title: 'Programação',
+    description: 'Projetos técnicos com repositório, linguagem, status e destaques.',
+    icon: Code2,
+    status: 'Construção',
+  },
+  {
     href: '/diario',
     title: 'Diário',
     description: 'Saúde, finanças, lugares e receitas reunidos em uma visão pessoal.',
@@ -118,6 +126,7 @@ interface DadosHub {
   tarefasProjetos: TarefaProjeto[] | null
   humor: RegistroHumor[] | null
   lancamentos: LancamentoFinanceiro[] | null
+  investimentos: InvestimentoFinanceiro[] | null
   lugares: Lugar[] | null
   idiomas: ResumoIdiomasHub | null
   atividade: ResumoAtividadeAnual | null
@@ -136,6 +145,7 @@ const DADOS_INICIAIS: DadosHub = {
   tarefasProjetos: null,
   humor: null,
   lancamentos: null,
+  investimentos: null,
   lugares: null,
   idiomas: null,
   atividade: null,
@@ -172,6 +182,7 @@ export default function HomePage() {
       listarLugares(),
       buscarResumoIdiomasHub(),
       listarAtividadeAnual(Number(dataHoje.slice(0, 4))),
+      listarInvestimentosFinanceiros(),
     ])
     setDados({
       tempo: resultados[0].status === 'fulfilled' ? resultados[0].value : null,
@@ -189,6 +200,7 @@ export default function HomePage() {
       lugares: resultados[12].status === 'fulfilled' ? resultados[12].value : null,
       idiomas: resultados[13].status === 'fulfilled' ? resultados[13].value : null,
       atividade: resultados[14].status === 'fulfilled' ? resultados[14].value : null,
+      investimentos: resultados[15].status === 'fulfilled' ? resultados[15].value : null,
     })
     setCarregando(false)
   }, [])
@@ -524,6 +536,10 @@ function montarInsights(dados: DadosHub, hoje: string): InsightPessoal[] {
   if (vencidas > 0) itens.push({ id: 'revisoes', texto: `${vencidas} ${vencidas === 1 ? 'revisão vencida' : 'revisões vencidas'}`, detalhe: 'Revisão Espaçada', href: '/revisao' })
 
   if (dados.projetos && dados.tarefasProjetos) {
+    const projetoProgramacao = dados.projetos.find((item) => item.destaque && (item.repositorio_url || item.linguagem_principal))
+    if (projetoProgramacao) {
+      itens.push({ id: 'programacao-destaque', texto: `Projeto em destaque: ${projetoProgramacao.nome}${projetoProgramacao.linguagem_principal ? ` · ${projetoProgramacao.linguagem_principal}` : ''}`, detalhe: 'Programação', href: '/programacao' })
+    }
     const projeto = dados.projetos.find((item) => item.status !== 'concluido')
     if (projeto) {
       const pendentes = dados.tarefasProjetos.filter((tarefa) => tarefa.projeto_uuid === projeto.uuid && tarefa.status !== 'feito').length
@@ -563,6 +579,16 @@ function montarInsights(dados: DadosHub, hoje: string): InsightPessoal[] {
     itens.push({
       id: 'financas-saldo',
       texto: `Saldo registrado no mês: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(saldo)}`,
+      detalhe: 'Finanças',
+      href: '/financas',
+    })
+  }
+
+  if (dados.investimentos && dados.investimentos.length > 0) {
+    const custo = dados.investimentos.reduce((total, item) => total + Number(item.quantidade) * Number(item.preco_medio), 0)
+    itens.push({
+      id: 'financas-investimentos',
+      texto: `${dados.investimentos.length} ${dados.investimentos.length === 1 ? 'posição de investimento' : 'posições de investimento'} · custo ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(custo)}`,
       detalhe: 'Finanças',
       href: '/financas',
     })

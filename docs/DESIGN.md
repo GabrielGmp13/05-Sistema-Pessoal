@@ -150,9 +150,10 @@ foco visíveis; não existe engrenagem ou atalho separado. Fragmentos pequenos e
 orgânicos nunca repetem ou esticam `background_url`, formam faixa sólida ou
 prejudicam a leitura. Os links ficam sobre uma cápsula translúcida com blur,
 borda e item ativo próprio, separando conteúdo e decoração.
-Com Idiomas e Histórico, a faixa mantém rolagem horizontal abaixo de 960px;
-entre 960px e 1179px usa ícones com `aria-label`/tooltip, e a partir de 1180px
-volta a exibir os rótulos completos para evitar colisão com perfil e ações.
+Com Idiomas, Histórico e Programação, a faixa mantém rolagem horizontal abaixo
+de 960px; entre 960px e 1319px usa ícones com `aria-label`/tooltip, e a partir
+de 1320px volta a exibir os rótulos completos para evitar colisão com perfil e
+ações.
 
 O toggle de tema pertence à área direita da navegação global, imediatamente ao
 lado de “Sair”. Ele não deve voltar a flutuar sobre o conteúdo das páginas; na

@@ -33,6 +33,15 @@ export interface CardManualInput {
   resposta: string | null
 }
 
+export interface CardImportacaoInput extends CardManualInput {
+  modulo: string | null
+}
+
+export interface ResultadoImportacaoCards {
+  criados: number
+  duplicados: number
+}
+
 // qualidade: 0-5, mesma escala do SM-2 original (Anki-like)
 // 0-2 = errou / esqueceu · 3 = difícil mas lembrou · 4 = bom · 5 = fácil
 export type Qualidade = 0 | 1 | 2 | 3 | 4 | 5
@@ -230,6 +239,50 @@ export async function criarCardManual(
 
   if (error) return sbErr(error, 'criarCardManual')
   return data as CardRevisao
+}
+
+function chaveCard(pergunta: string, resposta: string | null) {
+  return `${pergunta.trim().toLocaleLowerCase('pt-BR')}\u0000${(resposta ?? '').trim().toLocaleLowerCase('pt-BR')}`
+}
+
+/** Importa cards independentes e ignora pares pergunta/resposta já existentes. */
+export async function importarCardsRevisao(
+  entradas: CardImportacaoInput[],
+): Promise<ResultadoImportacaoCards | null> {
+  const userId = await getUserId()
+  if (!userId) return null
+
+  const { data: existentes, error: erroBusca } = await sb
+    .from('revisao_espacada')
+    .select('pergunta, resposta')
+    .eq('user_id', userId)
+    .eq('deleted', false)
+
+  if (erroBusca) return sbErr(erroBusca, 'importarCardsRevisao:listar')
+
+  const chaves = new Set((existentes ?? []).map((card) => chaveCard(card.pergunta, card.resposta)))
+  const novos = entradas.filter((entrada) => {
+    const chave = chaveCard(entrada.pergunta, entrada.resposta)
+    if (chaves.has(chave)) return false
+    chaves.add(chave)
+    return true
+  })
+
+  if (novos.length === 0) return { criados: 0, duplicados: entradas.length }
+  const atualizadoEm = now()
+  const { error: erroInsert } = await sb.from('revisao_espacada').insert(novos.map((card) => ({
+    uuid: crypto.randomUUID(),
+    user_id: userId,
+    pergunta: card.pergunta,
+    resposta: card.resposta,
+    modulo: card.modulo?.trim() || 'manual',
+    referencia_uuid: null,
+    arquivado: false,
+    updated_at: atualizadoEm,
+  })))
+
+  if (erroInsert) return sbErr(erroInsert, 'importarCardsRevisao:inserir')
+  return { criados: novos.length, duplicados: entradas.length - novos.length }
 }
 
 /**

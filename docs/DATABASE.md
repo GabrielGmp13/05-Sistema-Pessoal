@@ -34,7 +34,7 @@ Chaves estrangeiras seguem `<tabela_singular>_uuid` (ex: `treino_uuid`, `materia
 
 **GRANT é obrigatório em toda migration, não opcional.** Projetos Supabase criados a partir de 2026-05-30 não recebem GRANT automático em nenhuma tabela nova, mesmo com RLS e policy corretos — sem o GRANT explícito para `authenticated`, a tabela fica inacessível via Data API (badge "API DISABLED" no dashboard) e o `supabase-js` recebe erro 42501 mesmo com policies válidas. RLS e GRANT são camadas independentes: GRANT decide se o papel alcança a tabela; RLS decide quais linhas ele vê dentro dela.
 
-**Confirmado no dump real (2026-08):** a baseline tinha 44 tabelas em `public`, todas com RLS, policy `user_own_data` e GRANT para `authenticated`. As migrations incrementais aplicadas adicionaram 18 tabelas; produção e ambiente local possuem agora 62 tabelas. `anon` continua sem `SELECT`/`INSERT` sobre dados da aplicação.
+**Confirmado no banco real (2026-08):** a baseline tinha 44 tabelas em `public`, todas com RLS, policy `user_own_data` e GRANT para `authenticated`. As migrations incrementais aplicadas adicionaram 19 tabelas; produção e ambiente local possuem agora 63 tabelas. `anon` continua sem `SELECT`/`INSERT` sobre dados da aplicação.
 
 Índices parciais `WHERE NOT deleted` existem nas tabelas principais para acelerar as queries que sempre filtram registros ativos — confirmados no dump para praticamente todas as tabelas de alto volume (ver lista completa na seção Índices, ao final).
 
@@ -66,9 +66,11 @@ dessas duas pastas deve ser executado como migration.
 | `20260813000100` | `20260813000100_saude_financas_lugares.sql` | ✅ Reset/suíte SQL local aprovados e aplicada em produção em 2026-08-13 após dry-run limpo; pós-check sem pendências |
 | `20260813000200` | `20260813000200_biblioteca_nota_cinco_estrelas.sql` | ✅ Reset local e teste específico aprovados; aplicada em produção em 2026-08-14 após dry-run limpo; pós-check sem pendências |
 | `20260814000100` | `20260814000100_idiomas.sql` | ✅ Reset e nove testes SQL aprovados; aplicada em produção em 2026-08-15 após dry-run exclusivo; pós-check confirmou tabelas, RLS, policies e GRANTs |
+| `20260815000100` | `20260815000100_programacao_investimentos.sql` | ✅ Reset e dez testes SQL aprovados; aplicada em produção em 2026-08-15 após dry-run exclusivo; pós-check confirmou 63 tabelas, histórico, campos de Projetos, RLS, policy e GRANT de Investimentos |
 
 > **Estado confirmado (2026-08-15):** produção e cadeia local estão alinhadas
-> até Idiomas. A migration cria três tabelas e leva `public` a 62 tabelas.
+> até Programação/Investimentos. A migration cria uma tabela e leva `public` a
+> 63 tabelas.
 
 As três baselines foram adotadas no histórico remoto em 2026-08-08 por
 `migration repair --status applied`, depois de recaptura somente leitura de
@@ -987,6 +989,9 @@ nome        TEXT NOT NULL,
 descricao   TEXT,
 status      TEXT NOT NULL DEFAULT 'ativo', -- 'ativo' | 'pausado' | 'concluido'
 data_prazo  DATE,
+repositorio_url TEXT,
+linguagem_principal TEXT,
+destaque    BOOLEAN NOT NULL DEFAULT FALSE,
 updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 deleted     BOOLEAN NOT NULL DEFAULT FALSE
 ```
@@ -1096,6 +1101,18 @@ valor_atual NUMERIC(12,2) NOT NULL DEFAULT 0, data_alvo DATE,
 updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), deleted BOOLEAN NOT NULL DEFAULT FALSE
 ```
 
+#### `financas_investimentos`
+```sql
+uuid TEXT PRIMARY KEY, user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+ticker TEXT NOT NULL,
+tipo TEXT NOT NULL, -- acao|fii|etf|bdr|cripto|renda_fixa|outro
+quantidade NUMERIC(18,8) NOT NULL,
+preco_medio NUMERIC(18,8) NOT NULL,
+updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), deleted BOOLEAN NOT NULL DEFAULT FALSE
+```
+> A tabela guarda somente a posição manual. A cotação atual é consultada sob
+> demanda pela API Route e não é persistida nem entra no Histórico.
+
 ### `lugares`
 ```sql
 uuid TEXT PRIMARY KEY, user_id UUID NOT NULL REFERENCES auth.users(id),
@@ -1134,7 +1151,7 @@ signed URLs/path `{user_id}/arquivo.ext` (DEC-010).
 
 ## Índices parciais confirmados no dump ou por migration aplicada (`WHERE NOT deleted`)
 
-Confirmados em: `agenda`, `animes`, `animes_episodios`, `animes_temporadas`, `anotacoes_estudo` (×2, conteúdo e matéria), `atividades`, `conteudos_materias` (×2), `elenco`, `exercicios_cardio`, `exercicios_forca`, `filmes` (×2, incluindo `anime_uuid`), `generos`, `idiomas`, `idiomas_vocabulario`, `idiomas_praticas` (×2), `livros`, `livros_anotacoes`, `mangas`, `mangas_volumes`, `materiais_estudo`, `materias`, `modulos_curso`, `modulos_treino`, `animes_ordem_consumo`, `podcasts`, `provas` (por `data`), `questoes_individuais` (×3: conteúdo, matéria, prova), `redacoes` (por `data`), `revisao_espacada` (por `proxima_revisao` e, desde `20260812000100`, por `user_id`, `arquivado` e `proxima_revisao`), `series`, `series_temporadas`, `sessoes_treino` (×2), `sessoes_estudo` (×2), `shape`, `simulados` (×2), `treinos` (por `modulo_uuid`), `trilha_sonora`.
+Confirmados em: `agenda`, `animes`, `animes_episodios`, `animes_temporadas`, `anotacoes_estudo` (×2, conteúdo e matéria), `atividades`, `conteudos_materias` (×2), `elenco`, `exercicios_cardio`, `exercicios_forca`, `filmes` (×2, incluindo `anime_uuid`), `financas_investimentos`, `generos`, `idiomas`, `idiomas_vocabulario`, `idiomas_praticas` (×2), `livros`, `livros_anotacoes`, `mangas`, `mangas_volumes`, `materiais_estudo`, `materias`, `modulos_curso`, `modulos_treino`, `animes_ordem_consumo`, `podcasts`, `projetos` (incluindo a visão especializada de programação), `provas` (por `data`), `questoes_individuais` (×3: conteúdo, matéria, prova), `redacoes` (por `data`), `revisao_espacada` (por `proxima_revisao` e, desde `20260812000100`, por `user_id`, `arquivado` e `proxima_revisao`), `series`, `series_temporadas`, `sessoes_treino` (×2), `sessoes_estudo` (×2), `shape`, `simulados` (×2), `treinos` (por `modulo_uuid`), `trilha_sonora`.
 
 ---
 

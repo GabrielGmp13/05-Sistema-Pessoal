@@ -367,7 +367,7 @@
   }
 }
 
-@media (min-width: 960px) and (max-width: 1179px) {
+@media (min-width: 960px) and (max-width: 1319px) {
   .link {
     width: 2.25rem;
     flex: 0 0 2.25rem;
@@ -398,7 +398,7 @@
   }
 }
 
-@media (min-width: 1180px) {
+@media (min-width: 1320px) {
   .barra {
     grid-template-columns: minmax(9rem, 10.5rem) minmax(0, 1fr) auto;
     column-gap: 0.5rem;

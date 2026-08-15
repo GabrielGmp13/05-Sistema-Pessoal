@@ -1,36 +1,51 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { ArrowDownLeft, ArrowUpRight, Landmark, Pencil, PiggyBank, Plus, Target, Trash2, WalletCards } from 'lucide-react'
+import { ArrowDownLeft, ArrowUpRight, Landmark, Pencil, PiggyBank, Plus, RefreshCw, Target, Trash2, TrendingUp, WalletCards } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Input } from '@/components/ui/input'
 import { Progress } from '@/components/ui/progress'
+import { buscarCotacao, CotacaoAtivo } from '@/lib/cotacoes'
 import {
   CategoriaFinanceira,
   deletarCategoriaFinanceira,
+  deletarInvestimentoFinanceiro,
   deletarLancamentoFinanceiro,
   deletarMetaEconomia,
   deletarOrcamentoFinanceiro,
+  InvestimentoFinanceiro,
   LancamentoFinanceiro,
   listarCategoriasFinanceiras,
+  listarInvestimentosFinanceiros,
   listarLancamentosFinanceiros,
   listarMetasEconomia,
   listarOrcamentosFinanceiros,
   MetaEconomia,
   OrcamentoFinanceiro,
   salvarCategoriaFinanceira,
+  salvarInvestimentoFinanceiro,
   salvarLancamentoFinanceiro,
   salvarMetaEconomia,
   salvarOrcamentoFinanceiro,
+  TipoInvestimento,
   TipoMovimento,
 } from '@/lib/financas'
 import { dataLocalIso } from '@/lib/date'
 
-type Exclusao = { tipo: 'categoria' | 'lancamento' | 'orcamento' | 'meta'; uuid: string; nome: string }
+type Exclusao = { tipo: 'categoria' | 'lancamento' | 'orcamento' | 'meta' | 'investimento'; uuid: string; nome: string }
 
 const moeda = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
+const tiposInvestimento: { value: TipoInvestimento; label: string }[] = [
+  { value: 'acao', label: 'Ação' },
+  { value: 'fii', label: 'FII' },
+  { value: 'etf', label: 'ETF' },
+  { value: 'bdr', label: 'BDR' },
+  { value: 'cripto', label: 'Cripto' },
+  { value: 'renda_fixa', label: 'Renda fixa' },
+  { value: 'outro', label: 'Outro' },
+]
 
 export default function FinancasPage() {
   const agora = new Date()
@@ -39,6 +54,7 @@ export default function FinancasPage() {
   const [lancamentos, setLancamentos] = useState<LancamentoFinanceiro[]>([])
   const [orcamentos, setOrcamentos] = useState<OrcamentoFinanceiro[]>([])
   const [metas, setMetas] = useState<MetaEconomia[]>([])
+  const [investimentos, setInvestimentos] = useState<InvestimentoFinanceiro[]>([])
   const [erro, setErro] = useState<string | null>(null)
   const [salvando, setSalvando] = useState(false)
   const [exclusao, setExclusao] = useState<Exclusao | null>(null)
@@ -59,16 +75,25 @@ export default function FinancasPage() {
   const [metaData, setMetaData] = useState('')
   const [orcamentoCategoria, setOrcamentoCategoria] = useState('')
   const [orcamentoValor, setOrcamentoValor] = useState('')
+  const [investimentoEditando, setInvestimentoEditando] = useState<InvestimentoFinanceiro | null>(null)
+  const [investimentoTicker, setInvestimentoTicker] = useState('')
+  const [investimentoTipo, setInvestimentoTipo] = useState<TipoInvestimento>('acao')
+  const [investimentoQuantidade, setInvestimentoQuantidade] = useState('')
+  const [investimentoPrecoMedio, setInvestimentoPrecoMedio] = useState('')
+  const [cotacoes, setCotacoes] = useState<Record<string, CotacaoAtivo>>({})
+  const [cotacaoCarregando, setCotacaoCarregando] = useState<string | null>(null)
+  const [avisoCotacao, setAvisoCotacao] = useState<string | null>(null)
 
   const carregar = useCallback(async () => {
-    const [categoriasData, lancamentosData, orcamentosData, metasData] = await Promise.all([
-      listarCategoriasFinanceiras(), listarLancamentosFinanceiros(), listarOrcamentosFinanceiros(), listarMetasEconomia(),
+    const [categoriasData, lancamentosData, orcamentosData, metasData, investimentosData] = await Promise.all([
+      listarCategoriasFinanceiras(), listarLancamentosFinanceiros(), listarOrcamentosFinanceiros(), listarMetasEconomia(), listarInvestimentosFinanceiros(),
     ])
-    if ([categoriasData, lancamentosData, orcamentosData, metasData].some((item) => item === null)) setErro('Parte dos dados financeiros não pôde ser carregada.')
+    if ([categoriasData, lancamentosData, orcamentosData, metasData, investimentosData].some((item) => item === null)) setErro('Parte dos dados financeiros não pôde ser carregada.')
     setCategorias(categoriasData ?? [])
     setLancamentos(lancamentosData ?? [])
     setOrcamentos(orcamentosData ?? [])
     setMetas(metasData ?? [])
+    setInvestimentos(investimentosData ?? [])
   }, [])
 
   useEffect(() => {
@@ -123,13 +148,40 @@ export default function FinancasPage() {
     await executar(() => salvarOrcamentoFinanceiro({ categoria_uuid: orcamentoCategoria, mes, ano, valor_limite: Number(orcamentoValor) }, existente?.uuid), () => { setOrcamentoCategoria(''); setOrcamentoValor('') })
   }
 
+  async function salvarInvestimento() {
+    const ticker = investimentoTicker.trim().toUpperCase()
+    const quantidade = Number(investimentoQuantidade)
+    const precoMedio = Number(investimentoPrecoMedio)
+    if (!/^[A-Z0-9.^-]{2,15}$/.test(ticker) || quantidade <= 0 || precoMedio < 0) {
+      return setErro('Informe ticker, quantidade e preço médio válidos.')
+    }
+    await executar(() => salvarInvestimentoFinanceiro({ ticker, tipo: investimentoTipo, quantidade, preco_medio: precoMedio }, investimentoEditando?.uuid), () => {
+      setInvestimentoEditando(null); setInvestimentoTicker(''); setInvestimentoTipo('acao'); setInvestimentoQuantidade(''); setInvestimentoPrecoMedio('')
+    })
+  }
+
   function editarCategoria(item: CategoriaFinanceira) { setCategoriaEditando(item); setCategoriaNome(item.nome); setCategoriaTipo(item.tipo); setCategoriaCor(item.cor ?? '#3b82f6') }
   function editarLancamento(item: LancamentoFinanceiro) { setLancamentoEditando(item); setLancamentoCategoria(item.categoria_uuid); setLancamentoValor(String(item.valor)); setLancamentoData(item.data); setLancamentoDescricao(item.descricao ?? '') }
   function editarMeta(item: MetaEconomia) { setMetaEditando(item); setMetaTitulo(item.titulo); setMetaAlvo(String(item.valor_alvo)); setMetaAtual(String(item.valor_atual)); setMetaData(item.data_alvo ?? '') }
+  function editarInvestimento(item: InvestimentoFinanceiro) { setInvestimentoEditando(item); setInvestimentoTicker(item.ticker); setInvestimentoTipo(item.tipo); setInvestimentoQuantidade(String(item.quantidade)); setInvestimentoPrecoMedio(String(item.preco_medio)) }
+
+  async function consultarCotacao(ticker: string) {
+    setCotacaoCarregando(ticker)
+    setAvisoCotacao(null)
+    try {
+      const resposta = await buscarCotacao(ticker)
+      if (!resposta.disponivel || !resposta.cotacao) setAvisoCotacao(resposta.mensagem ?? 'Cotação automática indisponível no momento.')
+      else setCotacoes((atuais) => ({ ...atuais, [ticker]: resposta.cotacao as CotacaoAtivo }))
+    } catch (error) {
+      setAvisoCotacao(error instanceof Error ? error.message : 'Não foi possível consultar a cotação.')
+    } finally {
+      setCotacaoCarregando(null)
+    }
+  }
 
   async function confirmarExclusao() {
     if (!exclusao) return
-    const acoes = { categoria: deletarCategoriaFinanceira, lancamento: deletarLancamentoFinanceiro, orcamento: deletarOrcamentoFinanceiro, meta: deletarMetaEconomia }
+    const acoes = { categoria: deletarCategoriaFinanceira, lancamento: deletarLancamentoFinanceiro, orcamento: deletarOrcamentoFinanceiro, meta: deletarMetaEconomia, investimento: deletarInvestimentoFinanceiro }
     await executar(() => acoes[exclusao.tipo](exclusao.uuid))
     setExclusao(null)
   }
@@ -138,7 +190,7 @@ export default function FinancasPage() {
 
   return (
     <main className="min-h-[calc(100vh-3.5rem)] bg-background text-foreground"><div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
-      <header className="flex flex-wrap items-end justify-between gap-4"><div><p className="font-mono text-xs uppercase text-muted-foreground">Organização pessoal</p><h1 className="mt-2 text-3xl font-semibold">Finanças</h1><p className="mt-2 text-muted-foreground">Entradas, saídas e objetivos sem depender de cotações externas.</p></div><label className="text-xs font-medium text-muted-foreground">Mês<Input type="month" value={periodo} onChange={(e) => setPeriodo(e.target.value)} className="mt-1 w-44" /></label></header>
+      <header className="flex flex-wrap items-end justify-between gap-4"><div><p className="font-mono text-xs uppercase text-muted-foreground">Organização pessoal</p><h1 className="mt-2 text-3xl font-semibold">Finanças</h1><p className="mt-2 text-muted-foreground">Entradas, saídas, objetivos e posições de investimento em um só lugar.</p></div><label className="text-xs font-medium text-muted-foreground">Mês<Input type="month" value={periodo} onChange={(e) => setPeriodo(e.target.value)} className="mt-1 w-44" /></label></header>
       {erro ? <p role="alert" className="mt-5 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm">{erro}</p> : null}
       <section className="mt-7 grid gap-3 sm:grid-cols-3"><Resumo icon={ArrowUpRight} label="Entradas" valor={entradas} positive /><Resumo icon={ArrowDownLeft} label="Saídas" valor={saidas} /><Resumo icon={WalletCards} label="Saldo" valor={saldo} positive={saldo >= 0} /></section>
 
@@ -155,6 +207,30 @@ export default function FinancasPage() {
 
         <section className="border-t border-border pt-5"><p className="font-mono text-xs uppercase text-muted-foreground">Objetivos</p><h2 className="mt-1 text-xl font-semibold">Metas de economia</h2><div className="mt-4 grid gap-3 sm:grid-cols-2"><Campo label="Título"><Input value={metaTitulo} onChange={(e) => setMetaTitulo(e.target.value)} /></Campo><Campo label="Data alvo"><Input type="date" value={metaData} onChange={(e) => setMetaData(e.target.value)} /></Campo><Campo label="Valor alvo"><Input type="number" min="0.01" step="0.01" value={metaAlvo} onChange={(e) => setMetaAlvo(e.target.value)} /></Campo><Campo label="Valor atual"><Input type="number" min="0" step="0.01" value={metaAtual} onChange={(e) => setMetaAtual(e.target.value)} /></Campo></div><Button className="mt-3" onClick={() => void salvarMeta()} disabled={salvando}><Target /> {metaEditando ? 'Salvar meta' : 'Criar meta'}</Button><ul className="mt-4 space-y-4">{metas.map((item) => <li key={item.uuid}><div className="flex items-center gap-2"><PiggyBank className="size-4 text-muted-foreground" /><span className="min-w-0 flex-1 truncate text-sm font-medium">{item.titulo}</span><Button size="icon-xs" variant="ghost" onClick={() => editarMeta(item)} aria-label={`Editar ${item.titulo}`}><Pencil /></Button><Button size="icon-xs" variant="ghost" onClick={() => setExclusao({ tipo: 'meta', uuid: item.uuid, nome: item.titulo })} aria-label={`Excluir ${item.titulo}`}><Trash2 /></Button></div><Progress className="mt-2" value={(Number(item.valor_atual) / Number(item.valor_alvo)) * 100} /><p className="mt-1 text-xs text-muted-foreground">{moeda.format(Number(item.valor_atual))} de {moeda.format(Number(item.valor_alvo))}</p></li>)}</ul></section>
       </div>
+
+      <section className="mt-10 border-t border-border pt-5">
+        <p className="font-mono text-xs uppercase text-muted-foreground">Patrimônio</p>
+        <div className="mt-1 flex flex-wrap items-end justify-between gap-3">
+          <div><h2 className="text-xl font-semibold">Investimentos</h2><p className="mt-1 text-sm text-muted-foreground">A posição fica salva; a cotação é consultada sob demanda e nunca é persistida.</p></div>
+          <strong className="font-mono text-sm tabular-nums">Custo acumulado: {moeda.format(investimentos.reduce((total, item) => total + Number(item.quantidade) * Number(item.preco_medio), 0))}</strong>
+        </div>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <Campo label="Ticker"><Input value={investimentoTicker} onChange={(e) => setInvestimentoTicker(e.target.value.toUpperCase())} placeholder="PETR4" maxLength={15} /></Campo>
+          <Campo label="Tipo"><select className={selectClass} value={investimentoTipo} onChange={(e) => setInvestimentoTipo(e.target.value as TipoInvestimento)}>{tiposInvestimento.map((tipo) => <option key={tipo.value} value={tipo.value}>{tipo.label}</option>)}</select></Campo>
+          <Campo label="Quantidade"><Input type="number" min="0.00000001" step="0.00000001" value={investimentoQuantidade} onChange={(e) => setInvestimentoQuantidade(e.target.value)} /></Campo>
+          <Campo label="Preço médio"><Input type="number" min="0" step="0.01" value={investimentoPrecoMedio} onChange={(e) => setInvestimentoPrecoMedio(e.target.value)} /></Campo>
+        </div>
+        <div className="mt-3 flex gap-2"><Button onClick={() => void salvarInvestimento()} disabled={salvando}><TrendingUp />{investimentoEditando ? 'Salvar posição' : 'Adicionar posição'}</Button>{investimentoEditando ? <Button variant="outline" onClick={() => { setInvestimentoEditando(null); setInvestimentoTicker(''); setInvestimentoQuantidade(''); setInvestimentoPrecoMedio('') }}>Cancelar</Button> : null}</div>
+        {avisoCotacao ? <p role="status" className="mt-3 text-xs text-muted-foreground">{avisoCotacao}</p> : null}
+        <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {investimentos.length === 0 ? <li className="text-sm text-muted-foreground">Nenhuma posição cadastrada.</li> : investimentos.map((item) => {
+            const cotacao = cotacoes[item.ticker]
+            const custo = Number(item.quantidade) * Number(item.preco_medio)
+            const valorAtual = cotacao ? Number(item.quantidade) * cotacao.preco : null
+            return <li key={item.uuid} className="rounded-lg border border-border bg-card p-4"><div className="flex items-start gap-2"><span className="flex size-9 items-center justify-center rounded-lg bg-secondary"><TrendingUp className="size-4" /></span><div className="min-w-0 flex-1"><strong className="block">{item.ticker}</strong><span className="text-xs text-muted-foreground">{tiposInvestimento.find((tipo) => tipo.value === item.tipo)?.label ?? item.tipo}</span></div><Button size="icon-xs" variant="ghost" onClick={() => editarInvestimento(item)} aria-label={`Editar ${item.ticker}`}><Pencil /></Button><Button size="icon-xs" variant="ghost" onClick={() => setExclusao({ tipo: 'investimento', uuid: item.uuid, nome: item.ticker })} aria-label={`Excluir ${item.ticker}`}><Trash2 /></Button></div><dl className="mt-4 grid grid-cols-2 gap-3 text-xs"><div><dt className="text-muted-foreground">Quantidade</dt><dd className="mt-1 font-mono">{Number(item.quantidade).toLocaleString('pt-BR', { maximumFractionDigits: 8 })}</dd></div><div><dt className="text-muted-foreground">Preço médio</dt><dd className="mt-1 font-mono">{moeda.format(Number(item.preco_medio))}</dd></div><div><dt className="text-muted-foreground">Custo</dt><dd className="mt-1 font-mono">{moeda.format(custo)}</dd></div><div><dt className="text-muted-foreground">Cotação</dt><dd className="mt-1 font-mono">{cotacao ? formatarCotacao(cotacao.preco, cotacao.moeda) : '—'}</dd></div></dl>{valorAtual !== null ? <p className="mt-3 text-xs text-muted-foreground">Valor estimado: <strong className="text-foreground">{formatarCotacao(valorAtual, cotacao.moeda)}</strong>{cotacao.variacao_percentual !== null ? ` · ${cotacao.variacao_percentual.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}% no dia` : ''}</p> : null}<Button className="mt-3" size="sm" variant="outline" onClick={() => void consultarCotacao(item.ticker)} disabled={cotacaoCarregando === item.ticker}><RefreshCw className={cotacaoCarregando === item.ticker ? 'animate-spin' : ''} />Consultar cotação</Button></li>
+          })}
+        </ul>
+      </section>
     </div><ConfirmDialog open={Boolean(exclusao)} onOpenChange={(open) => !open && setExclusao(null)} title="Excluir registro?" description={`“${exclusao?.nome ?? ''}” será removido das listas por exclusão lógica.`} confirmLabel="Excluir" onConfirm={confirmarExclusao} /></main>
   )
 }
@@ -162,3 +238,4 @@ export default function FinancasPage() {
 const selectClass = 'h-8 w-full rounded-lg border border-input bg-transparent px-2 text-sm outline-none focus:border-ring focus:ring-3 focus:ring-ring/30'
 function Campo({ label, children }: { label: string; children: React.ReactNode }) { return <label className="block text-sm"><span className="mb-1 block text-xs font-medium text-muted-foreground">{label}</span>{children}</label> }
 function Resumo({ icon: Icon, label, valor, positive = false }: { icon: typeof ArrowUpRight; label: string; valor: number; positive?: boolean }) { return <div className="rounded-lg border border-border bg-card p-4"><div className="flex items-center gap-2 text-xs text-muted-foreground"><Icon className="size-4" />{label}</div><strong className={`mt-3 block font-mono text-xl tabular-nums ${positive ? 'text-success' : ''}`}>{moeda.format(valor)}</strong></div> }
+function formatarCotacao(valor: number, currency: string) { try { return new Intl.NumberFormat('pt-BR', { style: 'currency', currency }).format(valor) } catch { return valor.toLocaleString('pt-BR', { maximumFractionDigits: 2 }) } }
