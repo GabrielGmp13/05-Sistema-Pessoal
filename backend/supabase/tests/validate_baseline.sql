@@ -15,39 +15,39 @@ $$;
 
 -- Estrutura do schema public.
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 59
+  (SELECT count(*) = 62
    FROM pg_class c
    JOIN pg_namespace n ON n.oid = c.relnamespace
    WHERE n.nspname = 'public' AND c.relkind = 'r'),
-  'public deve conter exatamente 59 tabelas'
+  'public deve conter exatamente 62 tabelas'
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 59
+  (SELECT count(*) = 62
    FROM pg_constraint c
    JOIN pg_namespace n ON n.oid = c.connamespace
    WHERE n.nspname = 'public' AND c.contype = 'p'),
-  'public deve conter exatamente 59 PKs'
+  'public deve conter exatamente 62 PKs'
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 114
+  (SELECT count(*) = 119
    FROM pg_constraint c
    JOIN pg_namespace n ON n.oid = c.connamespace
    WHERE n.nspname = 'public' AND c.contype = 'f'),
-  'public deve conter exatamente 114 FKs'
+  'public deve conter exatamente 119 FKs'
+);
+
+SELECT pg_temp.assert_true(
+  (SELECT count(*) = 69
+   FROM pg_constraint c
+   JOIN pg_namespace n ON n.oid = c.connamespace
+   WHERE n.nspname = 'public' AND c.contype = 'c'),
+  'public deve conter exatamente 69 checks'
 );
 
 SELECT pg_temp.assert_true(
   (SELECT count(*) = 63
-   FROM pg_constraint c
-   JOIN pg_namespace n ON n.oid = c.connamespace
-   WHERE n.nspname = 'public' AND c.contype = 'c'),
-  'public deve conter exatamente 63 checks'
-);
-
-SELECT pg_temp.assert_true(
-  (SELECT count(*) = 59
    FROM pg_index i
    JOIN pg_class t ON t.oid = i.indrelid
    JOIN pg_namespace n ON n.oid = t.relnamespace
@@ -55,17 +55,17 @@ SELECT pg_temp.assert_true(
    WHERE n.nspname = 'public'
      AND t.relkind = 'r'
      AND con.oid IS NULL),
-  'public deve conter exatamente 59 indices explicitos'
+  'public deve conter exatamente 63 indices explicitos'
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 59
+  (SELECT count(*) = 62
    FROM pg_class c
    JOIN pg_namespace n ON n.oid = c.relnamespace
    WHERE n.nspname = 'public'
      AND c.relkind = 'r'
      AND c.relrowsecurity),
-  'as 59 tabelas public devem ter RLS habilitada'
+  'as 62 tabelas public devem ter RLS habilitada'
 );
 
 SELECT pg_temp.assert_true(

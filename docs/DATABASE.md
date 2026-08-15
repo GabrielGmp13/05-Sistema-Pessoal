@@ -34,7 +34,7 @@ Chaves estrangeiras seguem `<tabela_singular>_uuid` (ex: `treino_uuid`, `materia
 
 **GRANT é obrigatório em toda migration, não opcional.** Projetos Supabase criados a partir de 2026-05-30 não recebem GRANT automático em nenhuma tabela nova, mesmo com RLS e policy corretos — sem o GRANT explícito para `authenticated`, a tabela fica inacessível via Data API (badge "API DISABLED" no dashboard) e o `supabase-js` recebe erro 42501 mesmo com policies válidas. RLS e GRANT são camadas independentes: GRANT decide se o papel alcança a tabela; RLS decide quais linhas ele vê dentro dela.
 
-**Confirmado no dump real (2026-08):** a baseline tinha 44 tabelas em `public`, todas com RLS, policy `user_own_data` e GRANT para `authenticated`. As migrations incrementais aplicadas adicionaram 15 tabelas; produção e ambiente local possuem agora 59 tabelas. `anon` continua sem `SELECT`/`INSERT` sobre dados da aplicação.
+**Confirmado no dump real (2026-08):** a baseline tinha 44 tabelas em `public`, todas com RLS, policy `user_own_data` e GRANT para `authenticated`. As migrations incrementais aplicadas adicionaram 18 tabelas; produção e ambiente local possuem agora 62 tabelas. `anon` continua sem `SELECT`/`INSERT` sobre dados da aplicação.
 
 Índices parciais `WHERE NOT deleted` existem nas tabelas principais para acelerar as queries que sempre filtram registros ativos — confirmados no dump para praticamente todas as tabelas de alto volume (ver lista completa na seção Índices, ao final).
 
@@ -65,12 +65,12 @@ dessas duas pastas deve ser executado como migration.
 | `20260812000200` | `20260812000200_projetos_receitas.sql` | ✅ Testes locais aprovados e aplicada em produção em 2026-08-12 após dry-run limpo; pós-check sem pendências |
 | `20260813000100` | `20260813000100_saude_financas_lugares.sql` | ✅ Reset/suíte SQL local aprovados e aplicada em produção em 2026-08-13 após dry-run limpo; pós-check sem pendências |
 | `20260813000200` | `20260813000200_biblioteca_nota_cinco_estrelas.sql` | ✅ Reset local e teste específico aprovados; aplicada em produção em 2026-08-14 após dry-run limpo; pós-check sem pendências |
+| `20260814000100` | `20260814000100_idiomas.sql` | ✅ Reset e nove testes SQL aprovados; aplicada em produção em 2026-08-15 após dry-run exclusivo; pós-check confirmou tabelas, RLS, policies e GRANTs |
 
-> **Estado confirmado (2026-08-14):** produção e cadeia local usam a escala
-> 0-5 da DEC-054 para as notas da Biblioteca. A migration não cria tabelas,
-> então a contagem permanece em 59.
+> **Estado confirmado (2026-08-15):** produção e cadeia local estão alinhadas
+> até Idiomas. A migration cria três tabelas e leva `public` a 62 tabelas.
 
-As três versões foram adotadas no histórico remoto em 2026-08-08 por
+As três baselines foram adotadas no histórico remoto em 2026-08-08 por
 `migration repair --status applied`, depois de recaptura somente leitura de
 produção e ensaio equivalente em projeto descartável. O repair não executou
 os SQLs. `schema_migrations` passou a conter exatamente as três versões; os
@@ -948,6 +948,37 @@ CONSTRAINT redacoes_competencia_1_check CHECK (competencia_1 IS NULL OR competen
 -- (mesma CHECK para competencia_2..5)
 ```
 
+### Idiomas (`20260814000100_idiomas.sql`)
+
+Idiomas é um domínio próprio, separado de `materias`/`conteudos`, porque
+vocabulário, prática e tempo possuem ciclo de vida próprio (DEC-055).
+
+```sql
+-- idiomas
+uuid TEXT PRIMARY KEY, user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+nome TEXT NOT NULL, nivel_atual TEXT, objetivo TEXT, cor TEXT,
+ativo BOOLEAN NOT NULL DEFAULT TRUE,
+updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), deleted BOOLEAN NOT NULL DEFAULT FALSE
+
+-- idiomas_vocabulario
+uuid TEXT PRIMARY KEY, user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+idioma_uuid TEXT NOT NULL REFERENCES idiomas(uuid) ON DELETE CASCADE,
+termo TEXT NOT NULL, traducao TEXT NOT NULL, exemplo TEXT,
+dominado BOOLEAN NOT NULL DEFAULT FALSE,
+updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), deleted BOOLEAN NOT NULL DEFAULT FALSE
+
+-- idiomas_praticas
+uuid TEXT PRIMARY KEY, user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+idioma_uuid TEXT NOT NULL REFERENCES idiomas(uuid) ON DELETE CASCADE,
+data DATE NOT NULL,
+tipo TEXT NOT NULL, -- leitura|escuta|conversacao|escrita|aula|revisao|outro
+duracao_minutos INTEGER NOT NULL, observacoes TEXT,
+updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), deleted BOOLEAN NOT NULL DEFAULT FALSE
+```
+
+As três tabelas têm RLS, policy `user_own_data`, CRUD explícito para
+`authenticated`, checks de domínio e índices parciais `WHERE NOT deleted`.
+
 ### `projetos`
 ```sql
 uuid        TEXT PRIMARY KEY,
@@ -1101,9 +1132,9 @@ signed URLs/path `{user_id}/arquivo.ext` (DEC-010).
 
 ---
 
-## Índices parciais confirmados no dump (`WHERE NOT deleted`)
+## Índices parciais confirmados no dump ou por migration aplicada (`WHERE NOT deleted`)
 
-Confirmados em: `agenda`, `animes`, `animes_episodios`, `animes_temporadas`, `anotacoes_estudo` (×2, conteúdo e matéria), `atividades`, `conteudos_materias` (×2), `elenco`, `exercicios_cardio`, `exercicios_forca`, `filmes` (×2, incluindo `anime_uuid`), `generos`, `livros`, `livros_anotacoes`, `mangas`, `mangas_volumes`, `materiais_estudo`, `materias`, `modulos_curso`, `modulos_treino`, `animes_ordem_consumo`, `podcasts`, `provas` (por `data`), `questoes_individuais` (×3: conteúdo, matéria, prova), `redacoes` (por `data`), `revisao_espacada` (por `proxima_revisao` e, desde `20260812000100`, por `user_id`, `arquivado` e `proxima_revisao`), `series`, `series_temporadas`, `sessoes_treino` (×2), `sessoes_estudo` (×2), `shape`, `simulados` (×2), `treinos` (por `modulo_uuid`), `trilha_sonora`.
+Confirmados em: `agenda`, `animes`, `animes_episodios`, `animes_temporadas`, `anotacoes_estudo` (×2, conteúdo e matéria), `atividades`, `conteudos_materias` (×2), `elenco`, `exercicios_cardio`, `exercicios_forca`, `filmes` (×2, incluindo `anime_uuid`), `generos`, `idiomas`, `idiomas_vocabulario`, `idiomas_praticas` (×2), `livros`, `livros_anotacoes`, `mangas`, `mangas_volumes`, `materiais_estudo`, `materias`, `modulos_curso`, `modulos_treino`, `animes_ordem_consumo`, `podcasts`, `provas` (por `data`), `questoes_individuais` (×3: conteúdo, matéria, prova), `redacoes` (por `data`), `revisao_espacada` (por `proxima_revisao` e, desde `20260812000100`, por `user_id`, `arquivado` e `proxima_revisao`), `series`, `series_temporadas`, `sessoes_treino` (×2), `sessoes_estudo` (×2), `shape`, `simulados` (×2), `treinos` (por `modulo_uuid`), `trilha_sonora`.
 
 ---
 
@@ -1123,7 +1154,7 @@ Confirmados em: `agenda`, `animes`, `animes_episodios`, `animes_temporadas`, `an
 
 **Gotcha NOVO confirmado no dump (2026-08): `materias.user_id` é a única FK do projeto sem `ON DELETE CASCADE`** (`REFERENCES auth.users(id)` puro, sem cláusula de cascata). Na prática, apagar o usuário deixaria linhas de `materias` órfãs (ou o `DELETE` falharia, dependendo de outras constraints) em vez de limpar em cascata como nas outras 43 tabelas. Não é um bug ativo (nenhuma tela depende desse comportamento), mas é uma inconsistência real que vale corrigir numa migration futura (`ALTER TABLE materias DROP CONSTRAINT materias_user_id_fkey, ADD CONSTRAINT materias_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE`) — não fazer isso às pressas, é baixo risco mas deve ser feito deliberadamente, não como parte de uma migration de feature.
 
-**Gotcha NOVO confirmado no dump (2026-08): `materias.tipo` nunca teve `CHECK constraint`.** A coluna é `TEXT` livre — a DEC-040 ("tipo perde 'enem'/'escola', ganha 'academica'") é uma convenção de aplicação, não é imposta pelo banco. Isso significa que um bug de frontend poderia gravar `tipo = 'enem'` de novo sem o banco reclamar. Considerar adicionar `CHECK (tipo IN ('academica','curso','olimpiada','outro'))` numa migration futura, depois de confirmar com o código real quais valores `lib/materias.ts` efetivamente usa hoje.
+**Gotcha NOVO confirmado no dump (2026-08): `materias.tipo` nunca teve `CHECK constraint`.** A coluna é `TEXT` livre — a DEC-040 ("tipo perde 'enem'/'escola', ganha 'academica'") é uma convenção de aplicação, não é imposta pelo banco. Isso significa que um bug de frontend poderia gravar `tipo = 'enem'` de novo sem o banco reclamar. Em 2026-08-15, `lib/materias.ts` usa explicitamente `academica`, `curso`, `olimpiada`, `vestibular`, `concurso` e `outro`. Considerar adicionar um `CHECK` com esse domínio numa migration futura, depois de auditar os dados reais de produção.
 
 **Gotcha (tipos `Input` vs. update parcial, Biblioteca v2):** `MangaVolumeInput`/`AnimeEpisodioInput` exigiam `numero` obrigatório, mas os editores usam `atualizarVolume()`/`atualizarEpisodio()` para toggles simples sem reenviar `numero`. Corrigido criando tipos `XxxUpdate` (Partial completo) separados dos tipos `Input` de criação. Padrão a seguir daqui em diante.
 

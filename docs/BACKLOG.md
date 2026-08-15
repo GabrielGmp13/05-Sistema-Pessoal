@@ -22,9 +22,9 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 - [ ] Exportação de dados CSV/JSON via Supabase
 - [ ] Google Calendar OAuth via Supabase Edge Function (ver DEC-009 — decisão de não fazer isso no MVP)
 - [ ] Dashboard analytics avançado
-- [ ] Heatmap retrospectivo transversal (atividade por dia entre módulos) —
-      depende de definir quais eventos contam e como evitar comparar métricas
-      incompatíveis; não criar tabela agregada antes dessa decisão.
+- [x] Heatmap retrospectivo transversal implementado em `/historico` sem tabela
+      agregada: conta registros por fonte/dia, permite filtro por área e evita
+      comparar duração, valor financeiro ou nota como se fossem a mesma métrica.
 - [ ] Uploads adicionais permanecem evoluções por domínio: capas/banners da
       Biblioteca, provas/simulados, imagens de exercícios e fotos de Lugares.
       Cada fluxo deve reutilizar bucket privado adequado ou ganhar decisão de
@@ -59,17 +59,9 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 - [ ] Vínculo direto entre um card de Revisão Espaçada e um compromisso da
       Agenda. A Agenda v2 já oferece horário/duração para estudo por matéria e
       conteúdo, mas não cria compromissos automaticamente a partir de cards.
-- [ ] Áreas de estudo além de ENEM/Escola/Curso — o rascunho original do
-      módulo (ver histórico de chat) previa Olimpíadas Científicas, Idiomas
-      e Vestibulares específicos como áreas completas e independentes.
-      `materias.tipo` aceita esses valores tecnicamente (sem `CHECK`
-      constraint no banco), mas nenhuma tela, dashboard ou decisão de escopo
-      existe pra elas ainda — nem em `VISION.md`. Não construir sem antes
-      confirmar com o usuário qual entra primeiro e se o modelo
-      Matéria→Conteúdo de ENEM/Escola serve como está ou precisa de ajuste.
-- [ ] Idiomas como área própria de Estudos — decidir primeiro se reutiliza
-      Matéria→Conteúdo ou se precisa de vocabulário, prática e métricas
-      específicas; não é apenas um novo valor de `materias.tipo`.
+- [x] Áreas de estudo além de ENEM/Escola/Curso: Olimpíadas, Vestibulares e
+      Outros reutilizam Matéria→Conteúdo; Idiomas ganhou domínio próprio por
+      precisar de vocabulário, prática e métricas específicas (DEC-055).
 - [ ] Programação separada de Curso/Escola — confirmar se é uma área de Estudos,
       um catálogo de projetos ou somente matérias/conteúdos existentes antes de
       criar rota ou schema paralelo.

@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { BookOpen, Brain, CalendarDays, Dumbbell, FolderKanban, GraduationCap, Home, LogOut, NotebookTabs } from 'lucide-react'
+import { BookOpen, Brain, CalendarDays, CalendarRange, Dumbbell, FolderKanban, GraduationCap, Home, Languages, LogOut, NotebookTabs } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import type { CSSProperties } from 'react'
 
@@ -16,8 +16,10 @@ const links = [
   { href: '/treino', label: 'Treino', icon: Dumbbell },
   { href: '/biblioteca', label: 'Biblioteca', icon: BookOpen },
   { href: '/estudos', label: 'Estudos', icon: GraduationCap },
+  { href: '/idiomas', label: 'Idiomas', icon: Languages },
   { href: '/revisao', label: 'Revisão', icon: Brain },
   { href: '/agenda', label: 'Agenda', icon: CalendarDays },
+  { href: '/historico', label: 'Histórico', icon: CalendarRange },
   { href: '/projetos', label: 'Projetos', icon: FolderKanban },
   { href: '/diario', label: 'Diário', icon: NotebookTabs },
 ]
@@ -151,7 +153,9 @@ export function GlobalNav() {
               <Link
                 key={link.href}
                 href={link.href}
+                aria-label={link.label}
                 aria-current={active ? 'page' : undefined}
+                title={link.label}
                 className={cn(
                   styles.link,
                   active && styles.linkAtivo,

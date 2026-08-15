@@ -197,9 +197,10 @@ Nenhuma.
 - Modo "fazer prova" com cronômetro/upload de PDF — não desenhado, ver
   BACKLOG.md e DEC-041.
 **Melhorias futuras**
-Ver `BACKLOG.md` (Fase 2 de Estudos, mais os itens de gap identificados na
-auditoria de 2026-08: áreas de Olimpíadas/Idiomas/Vestibulares, dono do
-"cronograma de estudo", widgets de tempo estudado no Hub). O design
+Ver `BACKLOG.md` para Anki, modo prova e demais evoluções de maior porte.
+Olimpíadas/Vestibulares/Outros e Idiomas foram implementados em 2026-08-15
+conforme DEC-055; o cronograma continua pertencendo à Agenda e os widgets de
+tempo já estão no Hub. O design
 Tailwind/shadcn já foi aplicado nas 9 rotas de página — os padrões de Sidebar/Banner/
 Card de `DESIGN.md` são específicos da Biblioteca (CSS Modules) e não se
 aplicam a Estudos, que segue seu próprio sistema visual.

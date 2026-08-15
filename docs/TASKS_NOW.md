@@ -5,11 +5,11 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 ---
 
 ## Status geral
-**Fase atual:** Fase 7 (v2 expandida) — metadados finais da Biblioteca e pequenos fechamentos do brainstorm em validação. Hub, Treino, Biblioteca, Estudos, Revisão, Agenda, Perfil, Projetos, Receitas, Diário, Saúde, Finanças e Lugares possuem caminhos reais de uso; a v1 está aposentada (DEC-031) e `frontend/` é o único frontend ativo.
-**Bloqueio:** nenhum bloqueio técnico conhecido para publicar o refinamento da Biblioteca; a migration de notas já está aplicada em produção.
-**Banco:** produção e cadeia local estão alinhadas até `20260813000200_biblioteca_nota_cinco_estrelas.sql`; pós-check remoto de 2026-08-14 não mostrou migrations pendentes.
+**Fase atual:** Fase 7 (v2 expandida) — Idiomas, novas áreas de Estudos e histórico retrospectivo implementados, aguardando homologação manual. Todos os módulos planejados neste ciclo possuem caminhos reais de uso; a v1 está aposentada (DEC-031) e `frontend/` é o único frontend ativo.
+**Bloqueio:** nenhum bloqueio técnico conhecido; a migration de Idiomas está aplicada em produção.
+**Banco:** produção e cadeia local estão alinhadas até `20260814000100_idiomas.sql`; pós-check remoto de 2026-08-15 não mostrou migrations pendentes.
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** homologar o coração direto e a duração da Biblioteca, os novos insights do Hub e o resumo de duração do Treino em temas claro/escuro e desktop/mobile.
+**Próxima ação:** homologar Idiomas, áreas adicionais, Histórico e os ajustes recentes dos módulos em temas claro/escuro e desktop/mobile.
 
 ---
 
@@ -37,7 +37,18 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] Bloco compacto de insights pessoais implementado com rotação automática a cada 5 segundos e navegação manual, usando Biblioteca, Estudos, Revisão, Projetos e Receitas
 - [x] Insights ampliados com tempo estudado hoje/semana/mês, receita recente e próximo compromisso, sem tabela nova
 - [x] Insights de Saúde, Finanças e Lugares adicionados a partir dos registros já existentes, completando a cobertura das áreas pedidas sem tabela nova
+- [x] Idioma ativo, prática semanal e dia mais ativo do ano integrados ao carrossel; atalhos de Idiomas e Histórico adicionados
 - [ ] Validar visualmente o Hub com dados reais em desktop e mobile na etapa final
+
+## Idiomas, áreas adicionais e Histórico — 2026-08-15
+
+- [x] `/idiomas` implementado com CRUD, objetivo/nível, vocabulário, domínio, práticas e resumos semanal/mensal
+- [x] Soft delete de idiomas, palavras e práticas protegido por `ConfirmDialog`
+- [x] Olimpíadas, Vestibulares e Outros estudos reutilizam `materias`, `conteudos` e a tela de Matéria sem cronograma paralelo
+- [x] `/historico` agrega nove fontes em sete áreas, com heatmap anual, filtro e resumo diário, sem tabela agregada
+- [x] Navegação global adaptada para Idiomas e Histórico, preservando rolagem mobile e ícones no desktop intermediário
+- [x] `20260814000100_idiomas.sql` passou reset local, nove testes SQL, dry-run exclusivo, aplicação e pós-check remoto
+- [ ] Testar manualmente CRUDs, filtros do heatmap e responsividade com dados reais
 
 ## Dashboards de domínio e Diário — 2026-08-13
 

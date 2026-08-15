@@ -6,6 +6,7 @@ import {
   BookOpen,
   Brain,
   CalendarDays,
+  CalendarRange,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
@@ -13,6 +14,7 @@ import {
   Dumbbell,
   FolderKanban,
   GraduationCap,
+  Languages,
   Lightbulb,
   NotebookTabs,
   RefreshCw,
@@ -34,6 +36,8 @@ import { buscarDadosInsights, DadosInsights } from '@/lib/insights'
 import { listarHumor, RegistroHumor } from '@/lib/saude'
 import { LancamentoFinanceiro, listarLancamentosFinanceiros } from '@/lib/financas'
 import { listarLugares, Lugar } from '@/lib/lugares'
+import { buscarResumoIdiomasHub, ResumoIdiomasHub } from '@/lib/idiomas'
+import { listarAtividadeAnual, ResumoAtividadeAnual } from '@/lib/atividade'
 
 const modules = [
   {
@@ -58,6 +62,13 @@ const modules = [
     status: 'Hub acadêmico',
   },
   {
+    href: '/idiomas',
+    title: 'Idiomas',
+    description: 'Vocabulário, práticas, objetivos e tempo dedicado.',
+    icon: Languages,
+    status: 'Aprendizado',
+  },
+  {
     href: '/revisao',
     title: 'Revisão Espaçada',
     description: 'Cards vencidos e futuros com intervalos calculados pelo SM-2.',
@@ -70,6 +81,13 @@ const modules = [
     description: 'Compromissos, estudos, provas e treinos organizados por data.',
     icon: CalendarDays,
     status: 'Planejamento',
+  },
+  {
+    href: '/historico',
+    title: 'Histórico',
+    description: 'Heatmap anual das atividades registradas em todos os módulos.',
+    icon: CalendarRange,
+    status: 'Retrospectiva',
   },
   {
     href: '/projetos',
@@ -101,6 +119,8 @@ interface DadosHub {
   humor: RegistroHumor[] | null
   lancamentos: LancamentoFinanceiro[] | null
   lugares: Lugar[] | null
+  idiomas: ResumoIdiomasHub | null
+  atividade: ResumoAtividadeAnual | null
 }
 
 const DADOS_INICIAIS: DadosHub = {
@@ -117,6 +137,8 @@ const DADOS_INICIAIS: DadosHub = {
   humor: null,
   lancamentos: null,
   lugares: null,
+  idiomas: null,
+  atividade: null,
 }
 
 function formatarDuracao(minutos: number) {
@@ -148,6 +170,8 @@ export default function HomePage() {
       listarHumor(),
       listarLancamentosFinanceiros(),
       listarLugares(),
+      buscarResumoIdiomasHub(),
+      listarAtividadeAnual(Number(dataHoje.slice(0, 4))),
     ])
     setDados({
       tempo: resultados[0].status === 'fulfilled' ? resultados[0].value : null,
@@ -163,6 +187,8 @@ export default function HomePage() {
       humor: resultados[10].status === 'fulfilled' ? resultados[10].value : null,
       lancamentos: resultados[11].status === 'fulfilled' ? resultados[11].value : null,
       lugares: resultados[12].status === 'fulfilled' ? resultados[12].value : null,
+      idiomas: resultados[13].status === 'fulfilled' ? resultados[13].value : null,
+      atividade: resultados[14].status === 'fulfilled' ? resultados[14].value : null,
     })
     setCarregando(false)
   }, [])
@@ -549,6 +575,35 @@ function montarInsights(dados: DadosHub, hoje: string): InsightPessoal[] {
       texto: `${lugar.favorito ? 'Lugar favorito' : 'Lugar em destaque'}: ${lugar.nome}`,
       detalhe: 'Lugares',
       href: '/lugares',
+    })
+  }
+
+  if (dados.idiomas?.idiomaAtivo) {
+    itens.push({
+      id: 'idioma-ativo',
+      texto: `Idioma ativo: ${dados.idiomas.idiomaAtivo.nome}${dados.idiomas.idiomaAtivo.nivel_atual ? ` · nível ${dados.idiomas.idiomaAtivo.nivel_atual}` : ''}`,
+      detalhe: 'Idiomas',
+      href: '/idiomas',
+    })
+  }
+  if (dados.idiomas && dados.idiomas.minutosSemana > 0) {
+    itens.push({
+      id: 'idiomas-tempo',
+      texto: `${formatarDuracao(dados.idiomas.minutosSemana)} de prática de idiomas nesta semana`,
+      detalhe: 'Idiomas',
+      href: '/idiomas',
+    })
+  }
+
+  const diaMaisAtivo = dados.atividade?.dias.length
+    ? [...dados.atividade.dias].sort((a, b) => b.total - a.total)[0]
+    : null
+  if (diaMaisAtivo) {
+    itens.push({
+      id: 'historico-dia',
+      texto: `Dia mais ativo do ano: ${new Date(`${diaMaisAtivo.data}T00:00:00`).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })} · ${diaMaisAtivo.total} registros`,
+      detalhe: 'Histórico',
+      href: '/historico',
     })
   }
 

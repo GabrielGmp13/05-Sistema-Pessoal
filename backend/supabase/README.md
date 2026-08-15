@@ -25,6 +25,9 @@ O ponto inicial oficial da cadeia CLI é:
 10. `20260813000200_biblioteca_nota_cinco_estrelas.sql` — reset e teste SQL
     específico aprovados; aplicada em produção em 2026-08-14 após dry-run
     limpo e confirmada por pós-check sem pendências.
+11. `20260814000100_idiomas.sql` — cria Idiomas, Vocabulário e Práticas com
+    RLS/GRANT; reset e nove testes SQL aprovados, aplicada em produção em
+    2026-08-15 após dry-run exclusivo e confirmada por pós-check.
 
 As três baselines foram validadas por dois replays locais completos e por
 comparação com produção. Em 2026-08-08, `migration repair --status applied`
@@ -72,6 +75,12 @@ ponto mais próximo e atualiza tipo/constraints. O reset completo e
 `tests/validate_biblioteca_nota_cinco_estrelas.sql` passaram localmente; a
 migration foi aplicada em produção em 2026-08-14 após dry-run limpo e o
 pós-check remoto não mostrou migrations pendentes.
+
+`20260814000100_idiomas.sql` cria `idiomas`, `idiomas_vocabulario` e
+`idiomas_praticas`, com checks, FKs em cascata, RLS, policies, GRANTs e índices
+parciais. O reset local e os nove testes SQL passaram; o dry-run remoto listou
+somente essa migration, que foi aplicada em 2026-08-15. O pós-check confirmou
+as três tabelas, três policies, RLS e os doze privilégios CRUD esperados.
 
 ## Workflow para toda mudança futura
 

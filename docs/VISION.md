@@ -8,12 +8,14 @@ Visão macro de onde o Sistema Pessoal pretende chegar. Não é um roadmap detal
 
 | Módulo | Status | Observação |
 |---|---|---|
-| Dashboard | ✅ Hub operacional | `app/page.tsx` resume tempo, Agenda e revisões e alterna insights pessoais de Biblioteca, Estudos, Projetos, Receitas, Saúde, Finanças e Lugares usando dados reais, incluindo próximos compromissos e tempo hoje/semana/mês. `GlobalNav` mantém navegação global e logout visíveis e agrupa áreas cotidianas em Diário. |
+| Dashboard | ✅ Hub operacional | `app/page.tsx` resume tempo, Agenda e revisões e alterna insights pessoais dos módulos reais, incluindo Idiomas e o dia mais ativo do Histórico. `GlobalNav` mantém navegação global e logout visíveis e agrupa áreas cotidianas em Diário. |
 | Treino | ✅ Dashboard de domínio (v2) | `/treino` resume sessões, planos, exercícios e Shape; as rotas internas preservam CRUD, modo Academia e histórico corporal. Pendências de polimento vivem em `BACKLOG.md`. |
 | Revisão Espaçada | ✅ Implementada (v2) | `/revisao` lista cards pendentes e futuros, registra resultados pelo SM-2, aceita card manual e preserva os lembretes de conteúdo criados por Estudos (DEC-035). |
 | Biblioteca | ✅ Implementada (v2) | Catálogo consolidado em página única com oito categorias: Filmes, Séries, Animes, Mangás, Livros, Podcasts, Vídeos e Artigos. Os formulários importam metadados por YouTube, TMDB, Google Books, Jikan e iTunes com fallback manual; YouTube/TMDB dependem de chaves server-only. Continua sendo catálogo, nunca hospedagem de mídia (DEC-011). |
 | Agenda | ✅ Implementada (v2) | `/agenda` organiza compromissos gerais, cronograma de estudo, provas e treinos em visão semanal. Agenda é dona do planejamento temporal; Estudos continua fonte de verdade acadêmica. A migration incremental está aplicada em produção; resta homologação manual final. |
-| Estudos | ✅ Implementado no escopo atual (v2) | As nove rotas de ENEM, Escola, Curso, Redações, Matéria e Gabarito estão implementadas, assim como materiais, anotações e sessões. Matéria única, gabarito em duas fases e domínio SM-2 seguem DEC-040/041/042. Certificação rica, Flashcards/Anki, Redação versionada, calendário próprio, modo prova, Olimpíadas, Idiomas e vestibulares específicos permanecem evoluções futuras em `BACKLOG.md`, não bloqueios da v2 expandida. |
+| Estudos | ✅ Implementado e ampliado (v2) | ENEM, Escola, Curso, Redações, Olimpíadas, Vestibulares e Outros estudos reutilizam matérias/conteúdos compartilhados. Idiomas permanece próximo na navegação, mas usa domínio próprio conforme DEC-055. Flashcards/Anki, Redação versionada e modo prova continuam futuros. |
+| Idiomas | ✅ Implementado | `/idiomas` acompanha idiomas, nível, objetivo, vocabulário, domínio e práticas com tempo semanal/mensal; sem Anki, IA ou APIs externas. |
+| Histórico | ✅ Heatmap retrospectivo | `/historico` agrega atividade diária de Treino, Estudos, Agenda, Revisão, Saúde, Finanças e Idiomas, com filtros e detalhe por dia, sem Google Calendar ou tabela agregada. |
 | Hábitos | ⏳ Não iniciado | Sem tabela, sem decisão de escopo ainda |
 | Metas | ⏳ Não iniciado | Sem tabela, sem decisão de escopo ainda |
 | Projetos | ✅ Implementado (v2) | `/projetos` oferece CRUD e tarefas em três etapas; migration aplicada em produção, restando teste manual. |

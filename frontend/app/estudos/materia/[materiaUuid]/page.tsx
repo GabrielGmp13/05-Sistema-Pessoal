@@ -95,6 +95,16 @@ interface VinculoPendente {
   materiaUuid: string
 }
 
+type OrigemMateria = 'escola' | 'enem' | 'olimpiada' | 'vestibular' | 'outro'
+
+const ORIGENS_MATERIA: Record<OrigemMateria, { label: string; href: string }> = {
+  escola: { label: 'Escola', href: '/estudos/escola' },
+  enem: { label: 'ENEM', href: '/estudos/enem' },
+  olimpiada: { label: 'Olimpíadas', href: '/estudos/areas/olimpiada' },
+  vestibular: { label: 'Vestibulares', href: '/estudos/areas/vestibular' },
+  outro: { label: 'Outros estudos', href: '/estudos/areas/outro' },
+}
+
 export default function MateriaDetalhePage() {
   const params = useParams<{ materiaUuid: string }>()
   const materiaUuid = params.materiaUuid
@@ -104,7 +114,10 @@ export default function MateriaDetalhePage() {
   // ONDE ela aparece na navegação); o que é exibido AQUI é decidido pela
   // origem da navegação, não por um campo da matéria. Default 'escola' se
   // a página for aberta direto, sem vir de nenhum link (ex: link salvo).
-  const from = (searchParams.get('from') === 'enem' ? 'enem' : 'escola') as 'enem' | 'escola'
+  const origemParam = searchParams.get('from')
+  const from: OrigemMateria = origemParam && origemParam in ORIGENS_MATERIA
+    ? origemParam as OrigemMateria
+    : 'escola'
 
   const [materia, setMateria] = useState<Materia | null>(null)
   const [materiasVinculaveis, setMateriasVinculaveis] = useState<Materia[]>([])
@@ -132,14 +145,14 @@ export default function MateriaDetalhePage() {
     const [materiaAtual, cont, prov, ativ, sim, taxa, materias] = await Promise.all([
       buscarMateria(materiaUuid),
       listarConteudosPorMateria(materiaUuid),
-      from === 'escola' ? listarProvasPorMateria(materiaUuid) : Promise.resolve([]),
-      from === 'escola' ? listarAtividades(materiaUuid) : Promise.resolve([]),
+      from !== 'enem' ? listarProvasPorMateria(materiaUuid) : Promise.resolve([]),
+      from !== 'enem' ? listarAtividades(materiaUuid) : Promise.resolve([]),
       listarSimuladosPorMateria(materiaUuid),
       taxaDeAcertoRecente(30, materiaUuid),
-      listarMaterias('academica'),
+      listarMaterias(),
     ])
     setMateria(materiaAtual)
-    setMateriasVinculaveis((materias ?? []).filter((m) => m.uuid !== materiaUuid))
+    setMateriasVinculaveis((materias ?? []).filter((m) => m.uuid !== materiaUuid && m.tipo !== 'curso'))
     setConteudos(cont ?? [])
     setProvas(prov ?? [])
     setAtividades(ativ ?? [])
@@ -162,6 +175,8 @@ export default function MateriaDetalhePage() {
   }
 
   useEffect(() => {
+    // UUID e origem da rota determinam a consulta assíncrona do detalhe.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (materiaUuid) carregar()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [materiaUuid, from])
@@ -227,7 +242,7 @@ export default function MateriaDetalhePage() {
     if (!novaProva.titulo.trim() || !novaProva.data) return
     await criarProva({
       materia_uuid: materiaUuid,
-      tipo: 'escola', // prova ENEM nunca é criada aqui — só em /estudos/enem
+      tipo: from === 'escola' ? 'escola' : 'outro', // prova ENEM nunca é criada aqui — só em /estudos/enem
       conteudo_uuid: null,
       titulo: novaProva.titulo.trim(),
       data: novaProva.data,
@@ -361,17 +376,16 @@ export default function MateriaDetalhePage() {
     )
   }
 
-  const voltarPara = from === 'enem' ? '/estudos/enem' : '/estudos/escola'
-  const voltarLabel = from === 'enem' ? 'Voltar ao ENEM' : 'Voltar à Escola'
-  const mostrarProvasEAtividades = from === 'escola'
+  const origem = ORIGENS_MATERIA[from]
+  const mostrarProvasEAtividades = from !== 'enem'
 
   return (
     <PageShell>
       <div className="mb-5">
-        <BackLink href={voltarPara}>{voltarLabel}</BackLink>
+        <BackLink href={origem.href}>Voltar a {origem.label}</BackLink>
       </div>
       <PageHeader
-        eyebrow={from === 'enem' ? 'Matéria · ENEM' : 'Matéria · Escola'}
+        eyebrow={`Matéria · ${origem.label}`}
         title={materia.nome}
         actions={
           taxaAcerto != null ? (

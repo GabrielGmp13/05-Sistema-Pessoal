@@ -1,6 +1,6 @@
-import { sb, getUserId, sbErr } from './supabase';
+import { sb, getUserId, sbErr, softDelete } from './supabase';
 
-export type TipoMateria = 'academica' | 'olimpiada' | 'concurso' | 'curso' | 'outro';
+export type TipoMateria = 'academica' | 'olimpiada' | 'vestibular' | 'concurso' | 'curso' | 'outro';
 export type AreaEnem = 'linguagens' | 'humanas' | 'natureza' | 'matematica';
 
 export const AREA_ENEM_LABELS: Record<AreaEnem, string> = {
@@ -147,6 +147,10 @@ export async function atualizarMateria(uuid: string, update: MateriaUpdate): Pro
 
   if (error) return sbErr(error, 'atualizarMateria');
   return data;
+}
+
+export async function deletarMateria(uuid: string): Promise<boolean> {
+  return softDelete('materias', uuid);
 }
 
 // ============================================================================

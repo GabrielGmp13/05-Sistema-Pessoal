@@ -20,6 +20,14 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — implementação técnica concluída; homologação manual em andamento
 
+- **2026-08-15 (Idiomas, novas áreas e histórico anual)** — Criado `/idiomas`
+  com CRUD, nível/objetivo, vocabulário, práticas e métricas semanais/mensais.
+  Olimpíadas, Vestibulares e Outros estudos passaram a reutilizar
+  `materias`/`conteudos`; `/historico` agrega nove fontes em heatmap anual sem
+  tabela própria. Hub e navegação receberam os novos acessos e insights. A
+  migration `20260814000100_idiomas.sql` passou reset e nove testes SQL, foi
+  aplicada em produção após dry-run exclusivo e confirmada por pós-check.
+
 - **2026-08-14 (favorito rápido na Biblioteca)** — O coração passou a ficar
   sempre visível sobre a capa dos cards das oito categorias, vazado ou
   preenchido conforme o estado. Um clique alterna o favorito sem abrir o painel

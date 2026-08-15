@@ -136,6 +136,7 @@ frontend ativo. Revisão Espaçada e Agenda ganharam páginas dedicadas em
 | 7.7 | Perfil, Projetos e Receitas | ✅ Frontend implementado e `20260812000200` aplicada em produção; resta teste manual |
 | 7.8 | Saúde, Finanças e Lugares | ✅ Frontend implementado e `20260813000100` aplicada em produção; resta teste manual |
 | 7.9 | Dashboards de domínio | ✅ `/treino` ampliado e `/diario` criado como agregador de Saúde, Finanças, Lugares e Receitas, sem migration |
+| 7.10 | Idiomas, áreas adicionais e histórico | ✅ `/idiomas`, Olimpíadas/Vestibulares/Outros e `/historico` implementados; migration `20260814000100` aplicada em produção, restando homologação manual |
 
 ### Módulo: Projetos
 
@@ -156,3 +157,10 @@ frontend ativo. Revisão Espaçada e Agenda ganharam páginas dedicadas em
 lançamentos, orçamento mensal e metas em `/financas`. **Lugares:** coleção e
 detalhe manual em `/lugares`, com link externo para Maps, sem API. Os três usam
 Supabase Auth/RLS, soft delete e nenhuma dependência ou integração externa nova.
+
+### Módulos: Idiomas e Histórico
+
+**Idiomas:** domínio próprio em `/idiomas`, com vocabulário, práticas e tempo
+semanal/mensal; sem Anki, IA, áudio ou API externa. **Histórico:** `/historico`
+calcula um heatmap anual diretamente dos registros existentes e das práticas de
+Idiomas, sem duplicar Agenda e sem tabela agregada. Ver DEC-055.

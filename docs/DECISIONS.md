@@ -980,3 +980,38 @@ estrelas. Como ainda não há volume relevante de dados reais, a conversão é
 controlada e preserva proporcionalmente eventuais notas existentes. O teste
 SQL local cobre tipo, constraints e exemplos de conversão antes de qualquer
 operação remota.
+
+---
+
+## DEC-055 — Idiomas é domínio próprio; outras áreas reutilizam Estudos; Histórico é calculado
+
+**Data:** 2026-08-15
+**Status:** ✅ Implementada; migration aplicada em produção
+
+### Contexto
+
+O próximo lote precisava acomodar Idiomas, Olimpíadas, Vestibulares, Outros
+estudos e uma retrospectiva anual. Forçar tudo em `materias` criaria campos
+artificiais para vocabulário e prática; criar domínios separados para cada área
+acadêmica duplicaria `conteudos`, sessões e vínculos já existentes. Persistir o
+heatmap também duplicaria eventos cuja fonte de verdade já existe.
+
+### Decisão
+
+- Idiomas usa domínio próprio (`idiomas`, `idiomas_vocabulario` e
+  `idiomas_praticas`) porque nível, objetivo, domínio de termos e prática têm
+  ciclo de vida diferente de Matéria → Conteúdo. Não há Anki, IA, áudio ou API.
+- Olimpíadas, Vestibulares e Outros estudos usam novos valores de
+  `materias.tipo` e reaproveitam conteúdo, revisão, materiais, anotações,
+  sessões, provas, atividades e simulados. Agenda continua dona do tempo.
+- `/historico` calcula atividade por dia diretamente das tabelas existentes.
+  Cada registro vale uma ocorrência dentro da própria área; duração, valor e
+  nota não são somados entre domínios. Não existe tabela agregada.
+- Idiomas e Histórico entram no Hub e na navegação global; o topo usa ícones no
+  intervalo intermediário para não provocar overflow.
+
+### Impacto
+
+A migration incremental `20260814000100_idiomas.sql` adiciona somente as três
+tabelas de Idiomas com RLS, policies, GRANTs, checks e índices. As áreas
+acadêmicas e o heatmap não exigem schema novo nem integração externa.
