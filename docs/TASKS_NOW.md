@@ -5,11 +5,19 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 ---
 
 ## Status geral
-**Fase atual:** Fase 7 (v2 expandida) — Programação, investimentos leves e importação tabulada de flashcards completam a implementação técnica antes da homologação manual. Todos os módulos planejados neste ciclo possuem caminhos reais de uso; a v1 está aposentada (DEC-031) e `frontend/` é o único frontend ativo.
+**Fase atual:** Fase 7 (v2 expandida) — **release candidate congelada para homologação**. Todos os módulos planejados neste ciclo possuem caminhos reais de uso; a v1 está aposentada (DEC-031) e `frontend/` é o único frontend ativo.
 **Bloqueio:** nenhum bloqueio técnico conhecido; a migration de Programação/Investimentos está aplicada em produção.
 **Banco:** produção e cadeia local estão alinhadas até `20260815000100_programacao_investimentos.sql`; pós-check remoto de 2026-08-15 confirmou 63 tabelas e nenhum dry-run pendente.
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** executar e registrar a homologação manual completa descrita em `HOMOLOGATION_V2.md`, cobrindo todos os módulos, temas e tamanhos de tela.
+**Próxima ação:** executar e registrar a homologação manual completa descrita em `HOMOLOGATION_V2.md`, cobrindo todos os módulos, temas e tamanhos de tela. O handoff da release candidate está em `V2_RELEASE_CANDIDATE.md`.
+
+## Únicas tarefas ativas antes de concluir a v2
+
+- [ ] Executar integralmente `HOMOLOGATION_V2.md` em ambiente publicado e registrar commit/deploy, navegador, dispositivo e tema.
+- [ ] Corrigir e retestar somente bugs bloqueantes, falhas de segurança/dados e polimentos claramente decorrentes da homologação.
+- [ ] Confirmar desktop/mobile e temas claro/escuro antes de declarar a v2 concluída.
+
+**Congelamento de escopo:** não iniciar feature, módulo, integração, migration ou redesign antes da homologação. As caixas não marcadas nas seções históricas abaixo representam testes consolidados pelo checklist ou evoluções movidas para `BACKLOG.md`; não são autorização para ampliar a release candidate.
 
 ---
 

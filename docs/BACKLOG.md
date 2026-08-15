@@ -10,12 +10,33 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 
 ---
 
+## Pós-v2 — escopo oficialmente adiado
+
+A release candidate da v2 expandida está congelada. Os itens abaixo não entram
+antes da homologação; só serão priorizados depois que os bugs e polimentos
+encontrados no checklist forem tratados.
+
+- [ ] Google Calendar com OAuth e sincronização externa.
+- [ ] Google Photos e evolução de fotos de Lugares.
+- [ ] Importação completa do Anki em formato `.apkg`.
+- [ ] BRAPI/cotações avançadas: histórico, cache, análises e automações; a v2 mantém apenas consulta opcional sob demanda.
+- [ ] Uploads adicionais por domínio, sempre com bucket e policy definidos.
+- [ ] Extensão de navegador para captura de conteúdo.
+- [ ] Scraping e importações avançadas/em lote.
+- [ ] Testes automatizados de frontend, integração e E2E guiados por casos de alto valor.
+- [ ] Hardening incremental do banco e do Storage, sem editar baselines aplicadas.
+- [ ] Polimentos visuais identificados na homologação, sem redesign amplo.
+
+Os detalhes e dependências de cada item permanecem nas seções temáticas abaixo.
+
+---
+
 ## Treino
 
 - [ ] Notificações push (Service Worker Push API) — lembrete de treino — **depende de M2, fora de escopo v1**
 - [ ] Gráfico de evolução de carga por exercício
 - [ ] Volume semanal por grupo muscular
-- [ ] Página dedicada para `cardio` — **adiado para v2**, módulo de Treino será revisado por completo
+- [ ] Página dedicada para `cardio` — evolução pós-v2; o dashboard e os fluxos de cardio atuais permanecem como entrega da release candidate
 
 ## Geral
 

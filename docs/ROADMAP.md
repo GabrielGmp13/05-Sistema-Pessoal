@@ -80,7 +80,11 @@ Schema original: 11 tabelas (`livros`, `filmes`, `series`, `mangas`, `podcasts`,
 
 A página havia sido gerada assumindo colunas (`frente`, `verso`, `intervalo`, `fator`) diferentes das reais (`pergunta`, `resposta`, `intervalo_dias`, `ef`), e uma assinatura de `calcularSM2()` incompatível. Corrigido em 2026-07-11 — ver `DATABASE.md` → Gotchas. Na v2, o algoritmo vive em `frontend/lib/revisao.ts`, é reaproveitado por Estudos (DEC-035) e ganhou página dedicada em `/revisao` na Fase 7.4.
 
-## Fase 6 — Integrações Externas ⏳ FUTURO
+## Fase 6 — Integrações externas: entregas leves e pós-v2
+
+As integrações leves marcadas como concluídas fazem parte da release candidate.
+Google Calendar/OAuth, notificações e demais integrações pesadas permanecem
+oficialmente pós-v2 e não reabrem a Fase 7 antes da homologação.
 
 | Integração | Finalidade | Via |
 |---|---|---|
@@ -88,6 +92,8 @@ A página havia sido gerada assumindo colunas (`frente`, `verso`, `intervalo`, `
 | YouTube Data API | Metadados de vídeos | ✅ API Route unificada; requer `YOUTUBE_API_KEY` server-only |
 | TMDB API | Metadados filmes/séries | ✅ API Route unificada; requer `TMDB_API_KEY` server-only |
 | Google Books, Jikan, iTunes Search | Metadados livros/animes/mangás/podcasts | ✅ API Route unificada, sem key |
+| BRAPI | Cotação opcional de investimentos | ✅ API Route server-side sob demanda; `BRAPI_TOKEN` opcional, sem persistência de cotação |
+| Google Photos | Fotos e memórias de Lugares | Pós-v2; exige decisão de integração, permissão e Storage |
 | Notificações push | Lembretes de treino e revisão | Service Worker Push API |
 
 ## Infraestrutura do banco — cadeia CLI ✅ CONSOLIDADA
@@ -111,6 +117,10 @@ registradas em `TASKS_NOW.md`.
 **Objetivo concluído:** migrar e ampliar o frontend em Next.js/React (DEC-018),
 de forma incremental, módulo por módulo. A homologação manual final permanece
 aberta e não se confunde com features futuras do backlog.
+
+**Estado de release:** implementação congelada como release candidate em
+2026-08-15. Até a homologação terminar, somente bloqueadores, falhas de
+segurança/dados e polimentos encontrados nos testes podem alterar esta fase.
 
 **Importante:** v1 foi removida do projeto em 2026-07-19 (DEC-031) — o
 frontend Next.js (pasta `frontend/`, renomeada de `frontend-v2/`) é o único
@@ -138,6 +148,15 @@ frontend ativo. Revisão Espaçada e Agenda ganharam páginas dedicadas em
 | 7.9 | Dashboards de domínio | ✅ `/treino` ampliado e `/diario` criado como agregador de Saúde, Finanças, Lugares e Receitas, sem migration |
 | 7.10 | Idiomas, áreas adicionais e histórico | ✅ `/idiomas`, Olimpíadas/Vestibulares/Outros e `/historico` implementados; migration `20260814000100` aplicada em produção, restando homologação manual |
 | 7.11 | Programação e investimentos leves | ✅ `/programacao` reutiliza Projetos; Finanças mantém posições e cotação opcional sob demanda; migration `20260815000100` aplicada em produção, restando homologação manual |
+
+### Critério de encerramento da v2 expandida
+
+- [x] Implementação planejada concluída e congelada como release candidate
+- [x] Cadeia local e produção registradas sem migration pendente até `20260815000100`
+- [x] Typecheck, build e auditoria local final aprovados
+- [ ] Checklist `HOMOLOGATION_V2.md` concluído pelo usuário
+- [ ] Bloqueadores e polimentos decorrentes da homologação corrigidos e retestados
+- [ ] Aprovação final em desktop/mobile e temas claro/escuro
 
 ### Módulo: Projetos
 

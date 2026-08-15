@@ -4,6 +4,10 @@ Checklist operacional para validar a versão publicada com uma conta de teste
 autenticada. Use dados descartáveis nos testes de exclusão e **não apague o
 usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
 
+> Esta é a única etapa funcional aberta da release candidate. Consulte
+> `V2_RELEASE_CANDIDATE.md` para ambiente, migrations, itens pós-v2 e tratamento
+> de problemas encontrados.
+
 ## Registro da execução
 
 - [ ] Anotar data, commit/deploy testado e URL do ambiente

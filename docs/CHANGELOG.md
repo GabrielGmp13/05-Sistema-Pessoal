@@ -18,7 +18,15 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ---
 
-## v2 expandida (Next.js) — implementação técnica concluída; homologação manual em andamento
+## v2 expandida (Next.js) — release candidate congelada; homologação manual pendente
+
+- **2026-08-15 (congelamento da release candidate)** — A implementação geral
+  da v2 expandida foi encerrada e congelada para homologação. `TASKS_NOW.md`
+  passou a limitar o trabalho ativo ao checklist manual e às correções
+  decorrentes; `BACKLOG.md`, `ROADMAP.md`, `VISION.md` e `AI_CONTEXT.md` foram
+  reconciliados com o estado real. O handoff operacional foi consolidado em
+  `docs/V2_RELEASE_CANDIDATE.md`. Nenhuma feature, migration, dependência,
+  alteração de produto ou operação remota foi realizada.
 
 - **2026-08-15 (preparação da homologação final)** — Auditoria local confirmou
   31 páginas, 2 API Routes, variáveis documentadas e as 12 migrations da cadeia

@@ -2,6 +2,12 @@
 
 Visão macro de onde o Sistema Pessoal pretende chegar. Não é um roadmap detalhado — isso vive em `ROADMAP.md`. Aqui é só o mapa de módulos possíveis, para orientar decisões arquiteturais que precisam pensar além do módulo em construção no momento.
 
+> **Snapshot da release candidate (2026-08-15):** os módulos marcados como
+> implementados compõem a v2 expandida congelada para homologação. Esse status
+> significa implementação técnica concluída; a aprovação manual final continua
+> no checklist `HOMOLOGATION_V2.md`. Módulos não iniciados e evoluções citadas
+> como futuras permanecem pós-v2.
+
 ---
 
 ## Módulos
