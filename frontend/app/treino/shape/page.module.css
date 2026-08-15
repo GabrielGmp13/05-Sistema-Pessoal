@@ -5,6 +5,7 @@
 .form { display: flex; flex-direction: column; gap: .6rem; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; }
 .input { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: .6rem; color: var(--text); }
 .btnSalvar { background: var(--accent); color: var(--bg); border: none; border-radius: 8px; padding: .6rem; font-weight: 700; cursor: pointer; }
+.erro { color: var(--destructive); font-size: .78rem; }
 
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: .75rem; }

@@ -54,8 +54,8 @@ operacional.
 **Deploy:** ✅ em produção no Vercel desde 2026-07-13 (não "pendente" — ver `ARCHITECTURE.md`)
 **Schema:** baseline confirmada via dump real em 2026-08 com 44 tabelas; produção e ambiente local estão em 63 tabelas após as migrations incrementais aplicadas até `20260815000100_programacao_investimentos.sql` (ver `DATABASE.md`).
 **Histórico CLI:** adotado em produção em 2026-08-08 — as três baselines e as migrations incrementais até `20260815000100_programacao_investimentos.sql` estão registradas como `applied`. A migration mais recente foi validada por reset e dez testes SQL, aplicada em produção após dry-run exclusivo e confirmada por pós-check sem pendências em 2026-08-15.
-**Reprodutibilidade:** Node.js `24.15.0`, npm `12.0.1`, `npm ci`, typecheck e build validados; CI mínima ativa. Lint mantém 40 achados conhecidos e informativos na medição de 2026-08-12.
-**Próxima tarefa imediata:** concluir a homologação manual autenticada da v2 expandida, incluindo Programação, investimentos, importação CSV/TSV, Treino, Diário e responsividade; ver `TASKS_NOW.md`.
+**Reprodutibilidade:** Node.js `24.15.0`, npm `12.0.1`, `npm ci`, typecheck e build validados; CI mínima ativa. Lint mantém 51 achados conhecidos e informativos (27 erros e 24 warnings) na medição de 2026-08-15.
+**Próxima tarefa imediata:** executar a homologação manual autenticada completa de `HOMOLOGATION_V2.md`, cobrindo módulos, temas, responsividade e segurança básica; ver `TASKS_NOW.md`.
 
 ---
 
@@ -68,7 +68,7 @@ operacional.
 | Storage | Supabase Storage — 5 buckets privados e 14 policies confirmados por captura remota versionada em `backend/supabase/snapshots/` |
 | Frontend | Next.js 16 (React 19) + TypeScript — pasta `frontend/`, único frontend do projeto |
 | Estilização | CSS Modules (Treino/Biblioteca/Dashboard) + Tailwind v4/shadcn (Estudos) — stack mista intencional, DEC-038 |
-| Backend leve | API Routes (Next.js, serverless no Vercel) — primeira rota em `app/api/biblioteca/metadados`, para proteger chaves e padronizar importações |
+| Backend leve | 2 API Routes (Next.js, serverless no Vercel): metadados da Biblioteca e cotação opcional de Finanças, ambas protegendo chaves server-only |
 | Offline | Service Worker — fora de escopo por ora (Fase M2, ver `ROADMAP.md`) |
 | Hosting | Vercel — **em produção desde 2026-07-13** |
 | Toolchain | Node.js 24.15.0 + npm 12.0.1; versões fixadas no repositório |

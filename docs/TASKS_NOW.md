@@ -9,7 +9,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 **Bloqueio:** nenhum bloqueio técnico conhecido; a migration de Programação/Investimentos está aplicada em produção.
 **Banco:** produção e cadeia local estão alinhadas até `20260815000100_programacao_investimentos.sql`; pós-check remoto de 2026-08-15 confirmou 63 tabelas e nenhum dry-run pendente.
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** homologar Programação, Finanças, importação CSV/TSV e os demais módulos recentes em temas claro/escuro e desktop/mobile.
+**Próxima ação:** executar e registrar a homologação manual completa descrita em `HOMOLOGATION_V2.md`, cobrindo todos os módulos, temas e tamanhos de tela.
 
 ---
 
@@ -40,6 +40,17 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] Idioma ativo, prática semanal e dia mais ativo do ano integrados ao carrossel; atalhos de Idiomas e Histórico adicionados
 - [x] Projeto técnico destacado e resumo de posições de investimento integrados sem consultar nem persistir cotação no Hub
 - [ ] Validar visualmente o Hub com dados reais em desktop e mobile na etapa final
+
+## Homologação final da v2 expandida — 2026-08-15
+
+- [x] Inventário local confirmou 31 páginas, 2 API Routes e 12 migrations na cadeia ativa, sem migration nova neste lote
+- [x] Variáveis documentadas reconciliadas com o código: duas públicas do Supabase e três opcionais server-only
+- [x] Proteção global passou a validar o usuário no servidor antes de liberar páginas e APIs
+- [x] Validação do formulário de investimentos deixou de converter preço médio vazio em zero
+- [x] Upload de Shape foi alinhado ao contrato real do bucket: JPG/PNG/WebP, até 10 MB, com falha visível e rollback do arquivo se o registro não salvar
+- [x] Dois componentes sem importadores ou rota (`InlineAddForm` e `Switch`) foram removidos após varredura estática
+- [x] Checklist operacional consolidado em `docs/HOMOLOGATION_V2.md`
+- [ ] Executar o checklist autenticado em produção e registrar navegador, dispositivo, tema e evidências dos problemas encontrados
 
 ## Programação, investimentos e flashcards tabulados — 2026-08-15
 
@@ -126,7 +137,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] Sidebar da Biblioteca compactada e contraste do item ativo corrigido
 - [x] Topo deixa de quebrar prematuramente em grade: desktop compacto começa em 960px e larguras menores usam navegação horizontal controlada
 - [x] Perfil permanece como único acesso às Configurações e o topo recebe fragmentos sutis do background, com fallback temático
-- [ ] Confirmar o deploy de `0fef310` e continuar o teste manual autenticado em desktop/mobile
+- [x] O lote `0fef310` está incorporado ao histórico atual; os testes manuais restantes foram consolidados em `docs/HOMOLOGATION_V2.md`
 
 ## Integrações externas da Biblioteca — primeiro lote
 

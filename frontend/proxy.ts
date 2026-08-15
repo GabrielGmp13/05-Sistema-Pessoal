@@ -27,13 +27,15 @@ export async function proxy(request: NextRequest) {
     }
   );
 
-  const { data: { session } } = await supabase.auth.getSession();
+  // No servidor, getSession() apenas lê o cookie e não valida sua autenticidade.
+  // getUser() confirma o token no Supabase Auth antes de liberar rotas protegidas.
+  const { data: { user } } = await supabase.auth.getUser();
 
   const rotaEhPublica = ROTAS_PUBLICAS.some((rota) =>
     request.nextUrl.pathname.startsWith(rota)
   );
 
-  if (!session && !rotaEhPublica) {
+  if (!user && !rotaEhPublica) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     return NextResponse.redirect(url);

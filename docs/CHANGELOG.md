@@ -20,6 +20,15 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — implementação técnica concluída; homologação manual em andamento
 
+- **2026-08-15 (preparação da homologação final)** — Auditoria local confirmou
+  31 páginas, 2 API Routes, variáveis documentadas e as 12 migrations da cadeia
+  ativa, sem alteração de banco. A proteção global passou a validar o token no
+  Supabase Auth antes de liberar rotas; investimentos deixaram de aceitar preço
+  médio vazio como zero; e o upload de Shape foi alinhado aos formatos e ao
+  limite real do bucket, com erro visível. Dois componentes sem consumidores
+  foram removidos. A documentação arquitetural foi reconciliada e o checklist
+  manual completo foi criado em `docs/HOMOLOGATION_V2.md`.
+
 - **2026-08-15 (Programação, investimentos e importação tabulada)** — Criado
   `/programacao` como visão especializada de Projetos, com repositório,
   linguagem, status e destaque. Finanças ganhou CRUD de posições e consulta

@@ -152,7 +152,15 @@ export default function FinancasPage() {
     const ticker = investimentoTicker.trim().toUpperCase()
     const quantidade = Number(investimentoQuantidade)
     const precoMedio = Number(investimentoPrecoMedio)
-    if (!/^[A-Z0-9.^-]{2,15}$/.test(ticker) || quantidade <= 0 || precoMedio < 0) {
+    if (
+      !/^[A-Z0-9.^-]{2,15}$/.test(ticker)
+      || !investimentoQuantidade.trim()
+      || !investimentoPrecoMedio.trim()
+      || !Number.isFinite(quantidade)
+      || !Number.isFinite(precoMedio)
+      || quantidade <= 0
+      || precoMedio < 0
+    ) {
       return setErro('Informe ticker, quantidade e preço médio válidos.')
     }
     await executar(() => salvarInvestimentoFinanceiro({ ticker, tipo: investimentoTipo, quantidade, preco_medio: precoMedio }, investimentoEditando?.uuid), () => {

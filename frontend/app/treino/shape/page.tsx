@@ -22,6 +22,7 @@ export default function ShapePage() {
   const [obs, setObs] = useState('')
   const [arquivo, setArquivo] = useState<File | null>(null)
   const [enviando, setEnviando] = useState(false)
+  const [erro, setErro] = useState<string | null>(null)
 
   const sb = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -65,6 +66,7 @@ export default function ShapePage() {
   async function handleSalvar(e: React.FormEvent) {
     e.preventDefault()
     if (!userId) return
+    setErro(null)
     setEnviando(true)
 
     const uuid = crypto.randomUUID()
@@ -76,7 +78,9 @@ export default function ShapePage() {
       const { error: erroUpload } = await sb.storage.from('shape').upload(fotoPath, arquivo)
       if (erroUpload) {
         console.error('[upload shape]', erroUpload)
-        fotoPath = null
+        setErro('Não foi possível enviar a foto. Confira o formato e o tamanho do arquivo.')
+        setEnviando(false)
+        return
       }
     }
 
@@ -89,13 +93,40 @@ export default function ShapePage() {
       observacoes: obs || null,
     })
 
-    if (!error) {
+    if (error) {
+      console.error('[shape salvar]', error)
+      if (fotoPath) {
+        const { error: erroLimpeza } = await sb.storage.from('shape').remove([fotoPath])
+        if (erroLimpeza) console.error('[shape limpar upload]', erroLimpeza)
+      }
+      setErro('Não foi possível salvar o registro de Shape.')
+    } else {
       setPeso('')
       setObs('')
       setArquivo(null)
       await recarregar(userId)
     }
     setEnviando(false)
+  }
+
+  function handleArquivoSelecionado(e: React.ChangeEvent<HTMLInputElement>) {
+    const selecionado = e.target.files?.[0] ?? null
+    setErro(null)
+
+    if (selecionado && !['image/jpeg', 'image/png', 'image/webp'].includes(selecionado.type)) {
+      setArquivo(null)
+      setErro('Use uma imagem JPG, PNG ou WebP.')
+      e.target.value = ''
+      return
+    }
+    if (selecionado && selecionado.size > 10 * 1024 * 1024) {
+      setArquivo(null)
+      setErro('A foto deve ter no máximo 10 MB.')
+      e.target.value = ''
+      return
+    }
+
+    setArquivo(selecionado)
   }
 
   return (
@@ -106,10 +137,11 @@ export default function ShapePage() {
       <form className={styles.form} onSubmit={handleSalvar}>
         <input type="number" inputMode="decimal" className={styles.input} placeholder="Peso (kg)" value={peso} onChange={(e) => setPeso(e.target.value)} />
         <input type="text" className={styles.input} placeholder="Observações (opcional)" value={obs} onChange={(e) => setObs(e.target.value)} />
-        <input type="file" accept="image/*" onChange={(e) => setArquivo(e.target.files?.[0] ?? null)} />
+        <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleArquivoSelecionado} />
         <button className={styles.btnSalvar} disabled={enviando} type="submit">
           {enviando ? 'Salvando…' : 'Registrar'}
         </button>
+        {erro ? <p role="alert" className={styles.erro}>{erro}</p> : null}
       </form>
 
       <div className={styles.grid}>

@@ -99,25 +99,28 @@ runtime nem de desenvolvimento instalada permanentemente.
 A CI em `.github/workflows/validate.yml` usa placeholders públicos e inertes
 para as duas variáveis Supabase do cliente; não acessa produção nem faz deploy.
 `npm ci`, typecheck e build são bloqueantes. O lint é informativo enquanto os
-43 achados catalogados em `BACKLOG.md` permanecerem. Não existe suíte de testes
+51 achados catalogados em `BACKLOG.md` permanecerem. Não existe suíte de testes
 do frontend; a suíte automatizada atual é a validação SQL local da baseline em
 `backend/supabase/tests/`.
 
 ### Rotas confirmadas pelo build
 
-O build de 2026-08-11 reconheceu 19 páginas da aplicação, além do `_not-found`
-gerado pelo Next.js:
+O inventário de 2026-08-15 confirmou 31 páginas da aplicação e 2 API Routes,
+além do `_not-found` gerado pelo Next.js:
 
-- base: `/`, `/login` e `/revisao`;
-- Biblioteca: `/biblioteca` e `/biblioteca/generos`;
-- Estudos (9): `/estudos`, `/estudos/curso`,
+- base e portais (7): `/`, `/login`, `/configuracoes`, `/agenda`, `/revisao`,
+  `/diario` e `/historico`;
+- Biblioteca (2): `/biblioteca` e `/biblioteca/generos`;
+- Estudos (10): `/estudos`, `/estudos/areas/[tipo]`, `/estudos/curso`,
   `/estudos/curso/[materiaUuid]`, `/estudos/enem`,
   `/estudos/enem/[area]`, `/estudos/enem/gabarito/[provaUuid]`,
-  `/estudos/escola`, `/estudos/materia/[materiaUuid]` e
-  `/estudos/redacoes`;
+  `/estudos/escola`, `/estudos/materia/[materiaUuid]` e `/estudos/redacoes`;
 - Treino (5): `/treino`, `/treino/shape`, `/treino/[moduloUuid]`,
   `/treino/[moduloUuid]/[treinoUuid]` e
-  `/treino/[moduloUuid]/[treinoUuid]/academia`.
+  `/treino/[moduloUuid]/[treinoUuid]/academia`;
+- demais domínios (7): `/financas`, `/idiomas`, `/lugares`, `/programacao`,
+  `/projetos`, `/receitas` e `/saude`;
+- APIs (2): `/api/biblioteca/metadados` e `/api/financas/cotacao`.
 
 ### Histórico operacional do banco
 
@@ -137,10 +140,10 @@ no futuro) usam um `layout.tsx` próprio dentro da pasta de rota do módulo
 lateral fixa (`components/Sidebar.tsx`, genérico e reutilizável) — proporção
 de layout **2/9 sidebar, 7/9 conteúdo**. Diferente da navegação global de
 nível 1 (`components/GlobalNav.tsx`), cada sidebar é escopada à pasta de rota
-do próprio módulo. A navegação global dá acesso a `/`, `/treino`,
-`/biblioteca` e `/estudos` e mantém o logout visível; a troca de categoria
-dentro da Biblioteca continua sendo estado de cliente (`useState`), sem
-reload nem URL nova.
+do próprio módulo. A navegação global dá acesso aos módulos de primeiro nível,
+agrupa Saúde, Finanças, Lugares e Receitas sob Diário, abre Configurações pelo
+perfil e mantém o logout visível; a troca de categoria dentro da Biblioteca
+continua sendo estado de cliente (`useState`), sem reload nem URL nova.
 
 ### Hierarquia de camadas
 
@@ -156,22 +159,21 @@ Supabase Cloud       ← PostgreSQL + Auth + Storage + Realtime
 
 ```
 Componente (React, .tsx)
-│ chamaria via fetch()
+│ chama via fetch()
 ▼
-app/api/**/route.ts  ← API Routes (server-side, roda no Vercel) — NENHUMA EXISTE AINDA
-│ usaria segredo (env var server-only) + falaria com API externa e/ou Supabase
+app/api/**/route.ts  ← API Routes (server-side, roda no Vercel)
+│ usa segredo opcional (env var server-only) e fala com API externa
 ▼
-API externa (TMDB, etc.) e/ou Supabase Cloud
+YouTube, TMDB, Google Books, Jikan, iTunes e BRAPI
 ```
 
 **Regra de decisão:** se a operação não precisa de segredo nem lógica exclusiva
 de servidor, o componente fala direto com o Supabase client. Se precisa de uma
 chave de API ou processamento que não pode ser exposto no navegador, passa por
-uma API Route — mas **isso ainda é só o padrão planejado**: nenhuma rota
-`app/api/**` foi criada até agora (confirmado via inspeção do repositório,
-2026-08). A necessidade real mais próxima é a integração de TMDB para
-Filmes/Séries (única API externa da Biblioteca que exige segredo — ver
-`TASKS_NOW.md`).
+uma API Route. Hoje `app/api/biblioteca/metadados/route.ts` unifica as fontes
+de metadados e mantém `YOUTUBE_API_KEY`/`TMDB_API_KEY` no servidor;
+`app/api/financas/cotacao/route.ts` mantém `BRAPI_TOKEN` no servidor e não
+persiste a cotação. As duas rotas estão cobertas pelo `proxy.ts` global.
 
 ### `lib/supabase.ts` — client Supabase + helpers
 Funções: `getSession()`, `getUserId()`, `getSignedUrl()`, `uploadFile()`, `deleteFile()`, `softDelete()`, `sbErr()`, `now()`.
@@ -199,8 +201,10 @@ conveniência de query. Ver DEC-040.
 ### `proxy.ts` — proteção de rota (DEC-021, renomeado de `middleware.ts` em 2026-07-19, DEC-031)
 Fica na **raiz de `frontend/`** (não dentro de `app/`). Protege toda rota por
 padrão (fail-safe), exceto as listadas em `ROTAS_PUBLICAS` (hoje só `/login`).
-Usa `createServerClient` de `@supabase/ssr` para ler a sessão via cookies e
-redireciona para `/login` quando ausente.
+Usa `createServerClient` de `@supabase/ssr` e valida o usuário com
+`auth.getUser()` antes de liberar a rota; `auth.getSession()` não é usado para
+autorização server-side porque apenas leria o cookie sem validar sua
+autenticidade. Redireciona para `/login` quando o usuário não é confirmado.
 
 **Nota de nomenclatura (Next.js 16):** o arquivo se chama `proxy.ts` e exporta
 a função `proxy()`, não `middleware()` — convenção renomeada pelo próprio
@@ -209,15 +213,12 @@ Runtime). A migração para `proxy.ts` corrigiu um bug real: `proxy.ts` roda em
 runtime Node.js por padrão, o que resolveu um erro `__dirname is not defined`
 causado por incompatibilidade do `@supabase/ssr` com o Edge Runtime. Ver DEC-031.
 
-### API Routes — componente planejado, ainda não construído
-Rodariam como funções serverless no Vercel (mesmo runtime do build do Next.js
-— não Edge Functions do Supabase, ver DEC-018). Guardariam segredo como
-variável de ambiente **sem prefixo `NEXT_PUBLIC_`**.
-
-Uso planejado mais próximo: `app/api/tmdb/search/route.ts`, para a integração
-de metadados de Filmes/Séries da Biblioteca (`TASKS_NOW.md` → "Próxima tarefa
-de escopo"). Google Books, Jikan e iTunes Search não precisam de API Route —
-não exigem chave secreta, podem ser chamadas direto do client.
+### API Routes — backend leve server-side
+Rodam como funções serverless no Vercel (mesmo runtime do build do Next.js —
+não Edge Functions do Supabase, ver DEC-018). Segredos ficam em variáveis de
+ambiente **sem prefixo `NEXT_PUBLIC_`**. O projeto possui duas rotas: a rota
+unificada de metadados da Biblioteca e a consulta opcional de cotação de
+Finanças. Nenhuma delas usa `service_role` ou persiste resposta externa.
 
 ### v1 (HTML puro) — histórico, sem código no repositório atual
 Usava `assets/supabase.js` (client global `window.sb`), `assets/auth.js` e
