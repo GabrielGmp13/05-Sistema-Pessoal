@@ -67,7 +67,7 @@ dessas duas pastas deve ser executado como migration.
 | `20260813000200` | `20260813000200_biblioteca_nota_cinco_estrelas.sql` | ✅ Reset local e teste específico aprovados; aplicada em produção em 2026-08-14 após dry-run limpo; pós-check sem pendências |
 | `20260814000100` | `20260814000100_idiomas.sql` | ✅ Reset e nove testes SQL aprovados; aplicada em produção em 2026-08-15 após dry-run exclusivo; pós-check confirmou tabelas, RLS, policies e GRANTs |
 | `20260815000100` | `20260815000100_programacao_investimentos.sql` | ✅ Reset e dez testes SQL aprovados; aplicada em produção em 2026-08-15 após dry-run exclusivo; pós-check confirmou 63 tabelas, histórico, campos de Projetos, RLS, policy e GRANT de Investimentos |
-| `20260815000200` | `20260815000200_v21_hardening.sql` | ✅ Reset e dez testes SQL aprovados; aplicada em produção em 2026-08-15 após dry-run exclusivo; pós-check confirmou histórico alinhado e nenhum arquivo pendente |
+| `20260815000200` | `20260815000200_v21_hardening.sql` | ✅ Reset e onze testes SQL aprovados; aplicada em produção em 2026-08-15 após dry-run exclusivo; pós-check confirmou histórico alinhado e nenhum arquivo pendente |
 
 > **Estado confirmado (2026-08-15):** produção e cadeia local estão alinhadas
 > até o hardening v2.1. A migration não cria tabelas; `public` permanece com

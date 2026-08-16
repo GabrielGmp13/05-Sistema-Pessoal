@@ -27,7 +27,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] Finanças ganhou valor atual, resultado e cobertura de cotações das posições, mantendo BRAPI opcional e sob demanda.
 - [x] Busca de metadados da Biblioteca ganhou origem, prévia mais informativa e orientação para limite/indisponibilidade das APIs.
 - [x] Treino ganhou upload privado de imagem/GIF de exercício, signed URL e rollback do arquivo quando o registro falha.
-- [x] Migration `20260815000200_v21_hardening.sql` alinhou `materias.tipo`, cascade de usuário e policies de `exercicios`/`redacoes`; reset, dez testes, dry-run exclusivo, aplicação e pós-check aprovados.
+- [x] Migration `20260815000200_v21_hardening.sql` alinhou `materias.tipo`, cascade de usuário e policies de `exercicios`/`redacoes`; reset, onze testes, dry-run exclusivo, aplicação e pós-check aprovados.
 - [ ] Homologar manualmente os fluxos v2.1 com dados reais em desktop/mobile e temas claro/escuro.
 
 ---

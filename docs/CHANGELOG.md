@@ -27,7 +27,7 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
   metadados. Treino passou a aceitar imagem/GIF privado de exercício com signed
   URL e rollback. A migration `20260815000200_v21_hardening.sql` normalizou o
   domínio de `materias.tipo`, alinhou cascade e endureceu as policies de
-  `exercicios`/`redacoes`; reset, dez testes SQL, dry-run exclusivo, aplicação
+  `exercicios`/`redacoes`; reset, onze testes SQL, dry-run exclusivo, aplicação
   remota e pós-check vazio foram aprovados. Sem dependência nova.
 
 - **2026-08-15 (congelamento da release candidate)** — A implementação geral

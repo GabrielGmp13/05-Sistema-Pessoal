@@ -33,7 +33,7 @@ O ponto inicial oficial da cadeia CLI é:
     aprovados, aplicada em produção em 2026-08-15 após dry-run exclusivo e
     confirmada por pós-check.
 13. `20260815000200_v21_hardening.sql` — normaliza o domínio de Matérias,
-    adiciona cascade e endurece policies de exercícios/redações; reset e dez
+    adiciona cascade e endurece policies de exercícios/redações; reset e onze
     testes SQL aprovados, aplicada em produção em 2026-08-15 após dry-run
     exclusivo e confirmada por pós-check vazio.
 
@@ -101,7 +101,7 @@ Programação e proteção completa da nova tabela; o dry-run final ficou vazio.
 para `academica`, define default e CHECK de `materias.tipo`, alinha a FK de
 usuário com `ON DELETE CASCADE` e recria as policies de `exercicios` e
 `redacoes` para `authenticated`, com `USING` e `WITH CHECK` por primeira pasta.
-O reset e os dez testes SQL passaram; o dry-run remoto listou somente essa
+O reset e os onze testes SQL passaram; o dry-run remoto listou somente essa
 migration, aplicada em 2026-08-15. O pós-check alinhou as 13 versões e deixou o
 dry-run vazio.
 
