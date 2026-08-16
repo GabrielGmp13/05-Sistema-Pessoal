@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { CalendarRange, ChevronLeft, ChevronRight } from 'lucide-react'
+import { CalendarRange, ChevronLeft, ChevronRight, Download } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -79,6 +79,23 @@ export default function HistoricoPage() {
   const areasDetalhe: AreaAtividade[] = filtro === 'todas'
     ? Object.keys(AREA_ATIVIDADE_LABELS) as AreaAtividade[]
     : [filtro]
+  const resumoMensal = useMemo(() => Array.from({ length: 12 }, (_, mes) => {
+    const prefixo = `${ano}-${String(mes + 1).padStart(2, '0')}`
+    const dias = (resumo?.dias ?? []).filter((dia) => dia.data.startsWith(prefixo) && totalDoDia(dia) > 0)
+    return { mes, dias: dias.length, total: dias.reduce((soma, dia) => soma + totalDoDia(dia), 0) }
+  }), [ano, resumo, totalDoDia])
+
+  function exportarCsv() {
+    const cabecalho = ['data', ...areasDetalhe, 'total']
+    const linhas = (resumo?.dias ?? []).filter((dia) => totalDoDia(dia) > 0).map((dia) => [dia.data, ...areasDetalhe.map((area) => dia.areas[area] ?? 0), totalDoDia(dia)])
+    const csv = [cabecalho, ...linhas].map((linha) => linha.join(';')).join('\n')
+    const url = URL.createObjectURL(new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' }))
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `historico-${ano}-${filtro}.csv`
+    link.click()
+    URL.revokeObjectURL(url)
+  }
 
   function mudarAno(novoAno: number) {
     setAno(novoAno)
@@ -105,7 +122,7 @@ export default function HistoricoPage() {
         <Card className="mt-5 p-4 sm:p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div><h2 className="font-semibold">Atividade por dia</h2><p className="mt-1 text-xs text-muted-foreground">Clique em um quadrado para ver o resumo daquele dia.</p></div>
-            <Select value={filtro} onChange={(event) => setFiltro(event.target.value as FiltroArea)} className="w-full sm:w-44" aria-label="Filtrar área"><option value="todas">Todas as áreas</option>{Object.entries(AREA_ATIVIDADE_LABELS).map(([valor, label]) => <option key={valor} value={valor}>{label}</option>)}</Select>
+            <div className="flex flex-col gap-2 sm:flex-row"><Select value={filtro} onChange={(event) => setFiltro(event.target.value as FiltroArea)} className="w-full sm:w-44" aria-label="Filtrar área"><option value="todas">Todas as áreas</option>{Object.entries(AREA_ATIVIDADE_LABELS).map(([valor, label]) => <option key={valor} value={valor}>{label}</option>)}</Select><Button type="button" variant="outline" size="sm" onClick={exportarCsv} disabled={totalRegistros === 0}><Download className="size-3.5" />Exportar CSV</Button></div>
           </div>
 
           {carregando ? <Skeleton className="mt-6 h-32 w-full" /> : (
@@ -120,8 +137,10 @@ export default function HistoricoPage() {
             </div>
           )}
 
-          <div className="mt-4 flex items-center justify-end gap-2 text-xs text-muted-foreground"><span>Menos</span>{[0, 1, 2, 3, 4].map((nivel) => <i key={nivel} className={cn('size-3 rounded-sm border border-border', styles[`nivel${nivel}`])} />)}<span>Mais</span></div>
+          <div className="mt-4 flex flex-wrap items-center justify-end gap-2 text-xs text-muted-foreground"><span>0</span>{[0, 1, 2, 3, 4].map((nivel) => <i key={nivel} className={cn('size-3 rounded-sm border border-border', styles[`nivel${nivel}`])} />)}<span>1 · 2–3 · 4–6 · 7+</span></div>
         </Card>
+
+        <Card className="mt-5 p-5"><h2 className="font-semibold">Resumo mensal</h2><p className="mt-1 text-xs text-muted-foreground">Dias ativos e registros no filtro atual.</p><div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-6">{resumoMensal.map((item) => <button type="button" key={item.mes} className="rounded-lg border border-border bg-secondary/40 p-3 text-left hover:bg-secondary" onClick={() => setSelecionado(`${ano}-${String(item.mes + 1).padStart(2, '0')}-01`)}><span className="block text-xs capitalize text-muted-foreground">{new Date(ano, item.mes, 1).toLocaleDateString('pt-BR', { month: 'short' })}</span><strong className="mt-1 block font-mono">{item.total}</strong><span className="text-[11px] text-muted-foreground">{item.dias} dias ativos</span></button>)}</div></Card>
 
         <Card className="mt-5 p-5">
           <div className="flex items-center gap-3"><span className="flex size-9 items-center justify-center rounded-lg bg-secondary"><CalendarRange className="size-4" /></span><div><p className="font-mono text-xs uppercase text-muted-foreground">Dia selecionado</p><h2 className="font-semibold">{formatarData(selecionado)}</h2></div><Badge variant="outline" className="ml-auto">{totalDoDia(detalheSelecionado)} registros</Badge></div>

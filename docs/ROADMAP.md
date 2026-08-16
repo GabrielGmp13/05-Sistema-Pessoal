@@ -118,9 +118,9 @@ registradas em `TASKS_NOW.md`.
 de forma incremental, módulo por módulo. A homologação manual final permanece
 aberta e não se confunde com features futuras do backlog.
 
-**Estado de release:** implementação congelada como release candidate em
-2026-08-15. Até a homologação terminar, somente bloqueadores, falhas de
-segurança/dados e polimentos encontrados nos testes podem alterar esta fase.
+**Estado de release:** a release candidate recebeu em 2026-08-15 o lote v2.1
+de melhorias documentadas e hardening. A homologação manual continua sendo o
+critério de saída; integrações e decisões maiores permanecem futuras.
 
 **Importante:** v1 foi removida do projeto em 2026-07-19 (DEC-031) — o
 frontend Next.js (pasta `frontend/`, renomeada de `frontend-v2/`) é o único
@@ -137,22 +137,22 @@ frontend ativo. Revisão Espaçada e Agenda ganharam páginas dedicadas em
 | Sub-fase | Descrição | Status |
 |---|---|---|
 | 7.0 | Setup do projeto Next.js — estrutura de pastas, `lib/supabase.ts`, `proxy.ts` (renomeado de `middleware.ts`, DEC-031), layout base, CSS global | ✅ Completo |
-| 7.1 | Treino v2 | ✅ Completo — pendências de polimento em `BACKLOG.md` (gráfico de peso, upload de imagem de exercício) |
+| 7.1 | Treino v2 | ✅ Completo — upload privado de imagem/GIF de exercício entregue na v2.1; gráfico de peso permanece no backlog |
 | 7.2 | Biblioteca v2 | ✅ Oito categorias integradas; gêneros persistidos; busca de metadados para as categorias compatíveis implementada com YouTube, TMDB, Google Books, Jikan e iTunes, restando configuração opcional de YouTube/TMDB e testes manuais finais |
 | 7.3 | Estudos v2 (Fase 1 + Fase 1B) | ✅ 9 rotas de página implementadas e restilizadas (Tailwind/shadcn), incluindo `/estudos/enem/[area]`; schema estendido por `017`/`018`/`019` (gabarito ENEM em 2 fases, matéria única Escola/ENEM, domínio de conteúdo) — todas as migrations confirmadas executadas via dump real do banco (2026-08). Acesso principal passou no smoke de produção; teste profundo das 9 rotas internas permanece opcional — ver `TASKS_NOW.md` |
-| 7.4 | Revisão Espaçada v2 (página dedicada) | ✅ `/revisao` implementada com listas pendente/futura, avaliação SM-2, card manual, importação CSV/TSV deduplicada e soft delete; validação manual fica para a etapa final |
-| 7.5 | Agenda v2 | ✅ Implementada e liberada para publicação: visão semanal, CRUD, cronograma de estudo, provas sem duplicação e vínculo com treino; migration incremental aplicada em produção |
+| 7.4 | Revisão Espaçada v2 (página dedicada) | ✅ `/revisao` implementada com listas pendente/futura, avaliação SM-2, card manual, importação CSV/TSV com prévia/módulo padrão/deduplicação e soft delete; validação manual fica para a etapa final |
+| 7.5 | Agenda v2 | ✅ Implementada: visões semanal e mensal, CRUD, cronograma de estudo, provas sem duplicação e vínculo com treino; migration incremental aplicada em produção |
 | 7.6 | Dashboard/hub operacional | ✅ Resumos reais e carrossel compacto de insights pessoais sobre as entidades existentes, sem migration |
 | 7.7 | Perfil, Projetos e Receitas | ✅ Frontend implementado e `20260812000200` aplicada em produção; resta teste manual |
 | 7.8 | Saúde, Finanças e Lugares | ✅ Frontend implementado e `20260813000100` aplicada em produção; resta teste manual |
 | 7.9 | Dashboards de domínio | ✅ `/treino` ampliado e `/diario` criado como agregador de Saúde, Finanças, Lugares e Receitas, sem migration |
-| 7.10 | Idiomas, áreas adicionais e histórico | ✅ `/idiomas`, Olimpíadas/Vestibulares/Outros e `/historico` implementados; migration `20260814000100` aplicada em produção, restando homologação manual |
+| 7.10 | Idiomas, áreas adicionais e histórico | ✅ `/idiomas`, Olimpíadas/Vestibulares/Outros e `/historico` implementados; Histórico ganhou resumo mensal e CSV na v2.1; resta homologação manual |
 | 7.11 | Programação e investimentos leves | ✅ `/programacao` reutiliza Projetos; Finanças mantém posições e cotação opcional sob demanda; migration `20260815000100` aplicada em produção, restando homologação manual |
 
 ### Critério de encerramento da v2 expandida
 
 - [x] Implementação planejada concluída e congelada como release candidate
-- [x] Cadeia local e produção registradas sem migration pendente até `20260815000100`
+- [x] Cadeia local e produção registradas sem migration pendente até `20260815000200`
 - [x] Typecheck, build e auditoria local final aprovados
 - [ ] Checklist `HOMOLOGATION_V2.md` concluído pelo usuário
 - [ ] Bloqueadores e polimentos decorrentes da homologação corrigidos e retestados

@@ -1,6 +1,9 @@
 import { createBrowserClient } from '@supabase/ssr'
 
 type SB = ReturnType<typeof createBrowserClient>
+const BUCKET_EXERCICIOS = 'exercicios'
+const TIPOS_IMAGEM_EXERCICIO = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
+const LIMITE_IMAGEM_EXERCICIO = 5 * 1024 * 1024
 
 export interface Treino {
   uuid: string
@@ -124,7 +127,7 @@ export async function getExerciciosForca(sb: SB, userId: string, treinoUuid: str
 
 export async function criarExercicioForca(
   sb: SB, userId: string, treinoUuid: string,
-  dados: { nome: string; series_alvo: number; reps_alvo: number; carga_alvo: number; descanso_segundos: number; ordem: number }
+  dados: { nome: string; series_alvo: number; reps_alvo: number; carga_alvo: number; descanso_segundos: number; imagem_path?: string | null; ordem: number }
 ): Promise<{ error: string | null }> {
   const { error } = await sb.from('exercicios_forca').insert({
     uuid: crypto.randomUUID(),
@@ -165,7 +168,7 @@ export async function getExerciciosCardio(sb: SB, userId: string, treinoUuid: st
 
 export async function criarExercicioCardio(
   sb: SB, userId: string, treinoUuid: string,
-  dados: { nome: string; distancia_alvo_km: number | null; duracao_alvo_minutos: number | null; ordem: number }
+  dados: { nome: string; distancia_alvo_km: number | null; duracao_alvo_minutos: number | null; imagem_path?: string | null; ordem: number }
 ): Promise<{ error: string | null }> {
   const { error } = await sb.from('exercicios_cardio').insert({
     uuid: crypto.randomUUID(),
@@ -184,6 +187,34 @@ export async function softDeleteExercicioCardio(sb: SB, uuid: string): Promise<{
     .eq('uuid', uuid)
   if (error) console.error('[softDeleteExercicioCardio]', error)
   return { error: error?.message ?? null }
+}
+
+export async function uploadImagemExercicio(sb: SB, userId: string, file: File): Promise<{ path: string | null; error: string | null }> {
+  if (!TIPOS_IMAGEM_EXERCICIO.has(file.type)) return { path: null, error: 'Use JPG, PNG, WebP ou GIF.' }
+  if (file.size > LIMITE_IMAGEM_EXERCICIO) return { path: null, error: 'A imagem deve ter no máximo 5 MB.' }
+  const extensao = file.name.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g, '') || 'bin'
+  const path = `${userId}/${crypto.randomUUID()}.${extensao}`
+  const { error } = await sb.storage.from(BUCKET_EXERCICIOS).upload(path, file, { upsert: false })
+  if (error) {
+    console.error('[uploadImagemExercicio]', error)
+    return { path: null, error: 'Não foi possível enviar a imagem.' }
+  }
+  return { path, error: null }
+}
+
+export async function getImagemExercicioUrl(sb: SB, path: string): Promise<string | null> {
+  const { data, error } = await sb.storage.from(BUCKET_EXERCICIOS).createSignedUrl(path, 60 * 60)
+  if (error) {
+    console.error('[getImagemExercicioUrl]', error)
+    return null
+  }
+  return data.signedUrl
+}
+
+export async function deleteImagemExercicio(sb: SB, path: string): Promise<boolean> {
+  const { error } = await sb.storage.from(BUCKET_EXERCICIOS).remove([path])
+  if (error) console.error('[deleteImagemExercicio]', error)
+  return !error
 }
 
 export async function getTodosTreinos(sb: SB, userId: string): Promise<Treino[]> {

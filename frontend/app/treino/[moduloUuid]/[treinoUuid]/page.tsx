@@ -7,6 +7,7 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import {
   getExerciciosForca, criarExercicioForca, softDeleteExercicioForca,
   getExerciciosCardio, criarExercicioCardio, softDeleteExercicioCardio,
+  deleteImagemExercicio, getImagemExercicioUrl, uploadImagemExercicio,
   type ExercicioForca, type ExercicioCardio,
 } from '@/lib/treino'
 import styles from './page.module.css'
@@ -25,6 +26,10 @@ export default function PlanoTreinoPage() {
   const [descanso, setDescanso] = useState('60')
   const [distancia, setDistancia] = useState('')
   const [duracao, setDuracao] = useState('')
+  const [imagem, setImagem] = useState<File | null>(null)
+  const [imagensUrl, setImagensUrl] = useState<Record<string, string>>({})
+  const [erro, setErro] = useState('')
+  const [salvando, setSalvando] = useState(false)
   const [exercicioParaApagar, setExercicioParaApagar] = useState<{
     uuid: string
     tipo: 'forca' | 'cardio'
@@ -36,8 +41,11 @@ export default function PlanoTreinoPage() {
   )
 
   async function recarregar(uid: string) {
-    setForca(await getExerciciosForca(sb, uid, treinoUuid))
-    setCardio(await getExerciciosCardio(sb, uid, treinoUuid))
+    const [listaForca, listaCardio] = await Promise.all([getExerciciosForca(sb, uid, treinoUuid), getExerciciosCardio(sb, uid, treinoUuid)])
+    setForca(listaForca)
+    setCardio(listaCardio)
+    const urls = await Promise.all([...listaForca, ...listaCardio].filter((item) => item.imagem_path).map(async (item) => [item.uuid, await getImagemExercicioUrl(sb, item.imagem_path as string)] as const))
+    setImagensUrl(Object.fromEntries(urls.filter((item): item is readonly [string, string] => Boolean(item[1]))))
   }
 
   useEffect(() => {
@@ -53,35 +61,60 @@ export default function PlanoTreinoPage() {
   async function handleAdicionar(e: React.FormEvent) {
     e.preventDefault()
     if (!userId || !nome.trim()) return
+    setSalvando(true)
+    setErro('')
     const ordem = tipoNovo === 'forca' ? forca.length : cardio.length
+    let imagemPath: string | null = null
+    if (imagem) {
+      const upload = await uploadImagemExercicio(sb, userId, imagem)
+      if (upload.error || !upload.path) {
+        setErro(upload.error ?? 'Não foi possível enviar a imagem.')
+        setSalvando(false)
+        return
+      }
+      imagemPath = upload.path
+    }
 
+    let resultado: { error: string | null }
     if (tipoNovo === 'forca') {
-      await criarExercicioForca(sb, userId, treinoUuid, {
+      resultado = await criarExercicioForca(sb, userId, treinoUuid, {
          nome: nome.trim(),
          series_alvo: Number(series) || 0,
          reps_alvo: Number(reps) || 0,
          carga_alvo: Number(carga) || 0,
          descanso_segundos: Number(descanso) || 0,
+         imagem_path: imagemPath,
          ordem,
       })
     } else {
-      await criarExercicioCardio(sb, userId, treinoUuid, {
+      resultado = await criarExercicioCardio(sb, userId, treinoUuid, {
         nome: nome.trim(),
         distancia_alvo_km: distancia ? Number(distancia) : null,
         duracao_alvo_minutos: duracao ? Number(duracao) : null,
+        imagem_path: imagemPath,
        ordem,
       })
     }
+    if (resultado.error) {
+      if (imagemPath) await deleteImagemExercicio(sb, imagemPath)
+      setErro('Não foi possível salvar o exercício.')
+      setSalvando(false)
+      return
+    }
     setNome('')
+    setImagem(null)
     await recarregar(userId)
+    setSalvando(false)
   }
 
   async function handleApagarConfirmado() {
     if (!userId || !exercicioParaApagar) return
-    if (exercicioParaApagar.tipo === 'forca') {
-      await softDeleteExercicioForca(sb, exercicioParaApagar.uuid)
-    } else {
-      await softDeleteExercicioCardio(sb, exercicioParaApagar.uuid)
+    const exercicio = exercicioParaApagar.tipo === 'forca' ? forca.find((item) => item.uuid === exercicioParaApagar.uuid) : cardio.find((item) => item.uuid === exercicioParaApagar.uuid)
+    const resultado = exercicioParaApagar.tipo === 'forca'
+      ? await softDeleteExercicioForca(sb, exercicioParaApagar.uuid)
+      : await softDeleteExercicioCardio(sb, exercicioParaApagar.uuid)
+    if (!resultado.error && exercicio?.imagem_path) {
+      await deleteImagemExercicio(sb, exercicio.imagem_path)
     }
     await recarregar(userId)
   }
@@ -90,6 +123,7 @@ export default function PlanoTreinoPage() {
     <div className={styles.container}>
       <button className={styles.voltar} onClick={() => router.push(`/treino/${moduloUuid}`)}>← Treinos</button>
       <h1 className={styles.titulo}>Exercícios</h1>
+      {erro ? <p role="alert" className={styles.erro}>{erro}</p> : null}
 
       <form className={styles.form} onSubmit={handleAdicionar}>
         <div className={styles.tipoToggle}>
@@ -113,7 +147,9 @@ export default function PlanoTreinoPage() {
           </div>
         )}
 
-        <button className={styles.btnSalvar} type="submit">Adicionar exercício</button>
+        <label className={styles.arquivo}>Imagem ou GIF opcional (JPG, PNG, WebP ou GIF · até 5 MB)<input type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={(event) => setImagem(event.target.files?.[0] ?? null)} /></label>
+
+        <button className={styles.btnSalvar} type="submit" disabled={salvando}>{salvando ? 'Salvando...' : 'Adicionar exercício'}</button>
       </form>
 
       {forca.length > 0 && (
@@ -122,6 +158,7 @@ export default function PlanoTreinoPage() {
           <div className={styles.lista}>
             {forca.map((ex) => (
               <div key={ex.uuid} className={styles.card}>
+                {imagensUrl[ex.uuid] ? <img src={imagensUrl[ex.uuid]} alt="" className={styles.imagemExercicio} /> : null}
                 <div>
                   <p className={styles.nome}>{ex.nome}</p>
                   <p className={styles.meta}>{ex.series_alvo}x{ex.reps_alvo} · {ex.carga_alvo}kg · {ex.descanso_segundos}s descanso</p>
@@ -139,6 +176,7 @@ export default function PlanoTreinoPage() {
           <div className={styles.lista}>
             {cardio.map((ex) => (
               <div key={ex.uuid} className={styles.card}>
+                {imagensUrl[ex.uuid] ? <img src={imagensUrl[ex.uuid]} alt="" className={styles.imagemExercicio} /> : null}
                 <div>
                   <p className={styles.nome}>{ex.nome}</p>
                   <p className={styles.meta}>{ex.distancia_alvo_km ? `${ex.distancia_alvo_km}km` : ''} {ex.duracao_alvo_minutos ? `· ${ex.duracao_alvo_minutos}min` : ''}</p>

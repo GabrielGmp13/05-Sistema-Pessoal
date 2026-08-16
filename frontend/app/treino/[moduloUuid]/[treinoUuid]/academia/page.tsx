@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
-import { getExerciciosForca, getExerciciosCardio, type ExercicioForca, type ExercicioCardio } from '@/lib/treino'
+import { getExerciciosForca, getExerciciosCardio, getImagemExercicioUrl, type ExercicioForca, type ExercicioCardio } from '@/lib/treino'
 import { criarSessao, finalizarSessao, salvarExecucoesForca, salvarExecucaoCardio, getRecordeCarga, type SerieForca } from '@/lib/execucoes'
 import styles from './page.module.css'
 
@@ -19,6 +19,7 @@ export default function AcademiaPage() {
   const [seriesPorExercicio, setSeriesPorExercicio] = useState<Record<string, EstadoSerie[]>>({})
   const [cardioFeito, setCardioFeito] = useState<Record<string, { concluido: boolean; distancia: string; duracao: string }>>({})
   const [prs, setPrs] = useState<Record<string, number>>({})
+  const [imagensUrl, setImagensUrl] = useState<Record<string, string>>({})
   const [salvando, setSalvando] = useState(false)
   const [finalizado, setFinalizado] = useState(false)
 
@@ -40,6 +41,8 @@ export default function AcademiaPage() {
       ])
       setForca(listaForca)
       setCardio(listaCardio)
+      const urls = await Promise.all([...listaForca, ...listaCardio].filter((item) => item.imagem_path).map(async (item) => [item.uuid, await getImagemExercicioUrl(sb, item.imagem_path as string)] as const))
+      setImagensUrl(Object.fromEntries(urls.filter((item): item is readonly [string, string] => Boolean(item[1]))))
 
       const estadoInicial: Record<string, EstadoSerie[]> = {}
       const recordes: Record<string, number> = {}
@@ -127,6 +130,7 @@ export default function AcademiaPage() {
       {forca.map((ex) => (
         <div key={ex.uuid} className={styles.exercicio}>
           <div className={styles.exercicioHeader}>
+            {imagensUrl[ex.uuid] ? <img src={imagensUrl[ex.uuid]} alt="" className={styles.imagemExercicio} /> : null}
             <p className={styles.nome}>{ex.nome}</p>
             {bateuPR(ex.uuid) && <span className={styles.badgePR}>PR</span>}
           </div>
@@ -148,6 +152,7 @@ export default function AcademiaPage() {
 
       {cardio.map((ex) => (
         <div key={ex.uuid} className={styles.exercicio}>
+          {imagensUrl[ex.uuid] ? <img src={imagensUrl[ex.uuid]} alt="" className={styles.imagemExercicio} /> : null}
           <p className={styles.nome}>{ex.nome}</p>
           <div className={styles.linhaCardio}>
             <input type="number" inputMode="decimal" className={styles.inputSerie}

@@ -110,6 +110,7 @@ function formatarPeriodo(inicio: Date, fim: Date) {
 
 export default function AgendaPage() {
   const [dataReferencia, setDataReferencia] = useState(hojeLocal())
+  const [visualizacao, setVisualizacao] = useState<'semana' | 'mes'>('semana')
   const [eventos, setEventos] = useState<EventoAgenda[]>([])
   const [provas, setProvas] = useState<Prova[]>([])
   const [materias, setMaterias] = useState<Materia[]>([])
@@ -128,9 +129,22 @@ export default function AgendaPage() {
     const dias = Array.from({ length: 7 }, (_, indice) => somarDias(inicio, indice))
     return { inicio, fim: dias[6], dias }
   }, [dataReferencia])
+  const mesCalendario = useMemo(() => {
+    const referencia = dataLocal(dataReferencia)
+    const primeiro = new Date(referencia.getFullYear(), referencia.getMonth(), 1)
+    const ultimo = new Date(referencia.getFullYear(), referencia.getMonth() + 1, 0)
+    const inicio = new Date(primeiro)
+    inicio.setDate(inicio.getDate() - inicio.getDay())
+    const fim = new Date(ultimo)
+    fim.setDate(fim.getDate() + (6 - fim.getDay()))
+    const dias: Date[] = []
+    for (const cursor = new Date(inicio); cursor <= fim; cursor.setDate(cursor.getDate() + 1)) dias.push(new Date(cursor))
+    return { inicio, fim, dias, mes: referencia.getMonth() }
+  }, [dataReferencia])
 
-  const inicioIso = isoLocal(semana.inicio)
-  const fimIso = isoLocal(semana.fim)
+  const periodoAtivo = visualizacao === 'semana' ? semana : mesCalendario
+  const inicioIso = isoLocal(periodoAtivo.inicio)
+  const fimIso = isoLocal(periodoAtivo.fim)
 
   const carregar = useCallback(async () => {
     setCarregando(true)
@@ -253,8 +267,11 @@ export default function AgendaPage() {
     else await carregar()
   }
 
-  function navegarSemana(dias: number) {
-    setDataReferencia(isoLocal(somarDias(dataLocal(dataReferencia), dias)))
+  function navegarPeriodo(direcao: -1 | 1) {
+    const atual = dataLocal(dataReferencia)
+    if (visualizacao === 'semana') atual.setDate(atual.getDate() + direcao * 7)
+    else atual.setMonth(atual.getMonth() + direcao, 1)
+    setDataReferencia(isoLocal(atual))
   }
 
   const materiasPorUuid = useMemo(
@@ -272,25 +289,26 @@ export default function AgendaPage() {
       <PageHeader
         eyebrow="Planejamento"
         title="Agenda"
-        description="Compromissos gerais, estudos, provas e treinos organizados por semana."
+        description="Compromissos gerais, estudos, provas e treinos em visão semanal ou mensal."
         actions={<Button type="button" onClick={() => abrirNovo(dataReferencia)}><Plus />Novo compromisso</Button>}
       />
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
-          <Button type="button" variant="outline" size="icon" onClick={() => navegarSemana(-7)} aria-label="Semana anterior"><ChevronLeft /></Button>
+          <Button type="button" variant="outline" size="icon" onClick={() => navegarPeriodo(-1)} aria-label="Período anterior"><ChevronLeft /></Button>
           <Button type="button" variant="outline" onClick={() => setDataReferencia(hojeLocal())}>Hoje</Button>
-          <Button type="button" variant="outline" size="icon" onClick={() => navegarSemana(7)} aria-label="Próxima semana"><ChevronRight /></Button>
+          <Button type="button" variant="outline" size="icon" onClick={() => navegarPeriodo(1)} aria-label="Próximo período"><ChevronRight /></Button>
+          <div className="ml-2 flex rounded-lg border border-border p-0.5"><Button type="button" size="sm" variant={visualizacao === 'semana' ? 'default' : 'ghost'} onClick={() => setVisualizacao('semana')}>Semana</Button><Button type="button" size="sm" variant={visualizacao === 'mes' ? 'default' : 'ghost'} onClick={() => setVisualizacao('mes')}>Mês</Button></div>
         </div>
         <div className="flex flex-col gap-1 sm:items-end">
-          <strong className="text-sm font-semibold">{formatarPeriodo(semana.inicio, semana.fim)}</strong>
+          <strong className="text-sm font-semibold">{visualizacao === 'semana' ? formatarPeriodo(semana.inicio, semana.fim) : dataLocal(dataReferencia).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</strong>
           <Input type="date" value={dataReferencia} onChange={(event) => setDataReferencia(event.target.value)} className="w-40" aria-label="Escolher data" />
         </div>
       </div>
 
       {erro ? <p role="alert" className="mt-5 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">{erro}</p> : null}
 
-      <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-7">
+      {visualizacao === 'semana' ? <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-7">
         {semana.dias.map((dia) => {
           const data = isoLocal(dia)
           const eventosDoDia = eventos.filter((evento) => evento.data === data)
@@ -330,7 +348,13 @@ export default function AgendaPage() {
             </section>
           )
         })}
-      </div>
+      </div> : <div className="mt-6 overflow-x-auto"><div className="grid min-w-[46rem] grid-cols-7 border-l border-t border-border">{['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((dia) => <div key={dia} className="border-b border-r border-border bg-muted/50 px-2 py-2 text-center text-xs font-medium text-muted-foreground">{dia}</div>)}{mesCalendario.dias.map((dia) => {
+        const data = isoLocal(dia)
+        const eventosDoDia = eventos.filter((evento) => evento.data === data)
+        const provasDoDia = provas.filter((prova) => prova.data === data)
+        const foraDoMes = dia.getMonth() !== mesCalendario.mes
+        return <section key={data} className={`min-h-28 border-b border-r border-border p-2 ${foraDoMes ? 'bg-muted/25 text-muted-foreground' : 'bg-card'}`}><div className="flex items-center justify-between"><span className={`flex size-7 items-center justify-center rounded-full text-xs font-semibold ${data === hojeLocal() ? 'bg-primary text-primary-foreground' : ''}`}>{dia.getDate()}</span><Button type="button" size="icon-xs" variant="ghost" onClick={() => abrirNovo(data)} aria-label={`Adicionar compromisso em ${data}`}><Plus /></Button></div><div className="mt-2 space-y-1">{provasDoDia.slice(0, 2).map((prova) => <div key={prova.uuid} className="truncate rounded bg-primary/10 px-1.5 py-1 text-[11px] text-primary" title={prova.titulo || 'Prova'}>{prova.titulo || 'Prova'}</div>)}{eventosDoDia.slice(0, 3).map((evento) => <button type="button" key={evento.uuid} className={`block w-full truncate rounded px-1.5 py-1 text-left text-[11px] ${evento.concluido ? 'bg-muted line-through' : 'bg-secondary'}`} title={evento.titulo} onClick={() => abrirEdicao(evento)}>{evento.hora_inicio ? `${evento.hora_inicio.slice(0, 5)} ` : ''}{evento.titulo}</button>)}{eventosDoDia.length + provasDoDia.length > 5 ? <p className="text-[10px] text-muted-foreground">+{eventosDoDia.length + provasDoDia.length - 5} itens</p> : null}</div></section>
+      })}</div></div>}
 
       {dialogAberto ? (
         <EventoDialog

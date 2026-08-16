@@ -18,7 +18,17 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ---
 
-## v2 expandida (Next.js) — release candidate congelada; homologação manual pendente
+## v2 expandida (Next.js) — v2.1 pronta tecnicamente; homologação manual pendente
+
+- **2026-08-15 (melhorias documentadas v2.1)** — Agenda ganhou visão mensal;
+  Revisão passou a pré-visualizar CSV/TSV e filtrar por módulo; Histórico ganhou
+  resumo mensal, legenda e exportação CSV; Finanças mostra valor atual, resultado
+  e cobertura de cotações; Biblioteca detalha melhor origem/limites da busca de
+  metadados. Treino passou a aceitar imagem/GIF privado de exercício com signed
+  URL e rollback. A migration `20260815000200_v21_hardening.sql` normalizou o
+  domínio de `materias.tipo`, alinhou cascade e endureceu as policies de
+  `exercicios`/`redacoes`; reset, dez testes SQL, dry-run exclusivo, aplicação
+  remota e pós-check vazio foram aprovados. Sem dependência nova.
 
 - **2026-08-15 (congelamento da release candidate)** — A implementação geral
   da v2 expandida foi encerrada e congelada para homologação. `TASKS_NOW.md`

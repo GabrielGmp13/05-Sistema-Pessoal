@@ -281,6 +281,13 @@
   cursor: pointer;
 }
 
+.fonteMetadados {
+  margin: 0;
+  padding: 0.45rem 0.6rem;
+  color: var(--muted-foreground);
+  font-size: 0.68rem;
+}
+
 .resultadoMetadados:hover {
   background: var(--muted);
 }
@@ -304,6 +311,18 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.resultadoMetadados em {
+  display: -webkit-box;
+  margin-top: 0.2rem;
+  overflow: hidden;
+  color: var(--muted-foreground);
+  font-size: 0.68rem;
+  font-style: normal;
+  line-height: 1.3;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .resultadoMetadados small {

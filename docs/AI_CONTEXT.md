@@ -49,11 +49,11 @@ operacional.
 
 ## Estado atual (2026-08)
 
-**Fase:** Fase 7 — v2 expandida em **release candidate**, com implementação congelada para homologação manual. Até o checklist ser concluído, entram somente correções de bloqueadores e polimentos decorrentes dos testes; features novas permanecem no backlog. A v2 é o único frontend ativo (v1 removida em 2026-07-19, DEC-031).
+**Fase:** v2.1 — melhorias documentadas de baixo risco implementadas sobre a release candidate da v2 expandida. Permanecem para homologação manual os fluxos novos e a release como um todo; integrações pesadas e decisões de produto continuam no backlog. A v2 é o único frontend ativo (v1 removida em 2026-07-19, DEC-031).
 **Decisão-chave:** DEC-018 (reabre DEC-006) — frontend migrou de HTML puro para Next.js/React
 **Deploy:** ✅ em produção no Vercel desde 2026-07-13 (não "pendente" — ver `ARCHITECTURE.md`)
-**Schema:** baseline confirmada via dump real em 2026-08 com 44 tabelas; produção e ambiente local estão em 63 tabelas após as migrations incrementais aplicadas até `20260815000100_programacao_investimentos.sql` (ver `DATABASE.md`).
-**Histórico CLI:** adotado em produção em 2026-08-08 — as três baselines e as migrations incrementais até `20260815000100_programacao_investimentos.sql` estão registradas como `applied`. A migration mais recente foi validada por reset e dez testes SQL, aplicada em produção após dry-run exclusivo e confirmada por pós-check sem pendências em 2026-08-15.
+**Schema:** baseline confirmada via dump real em 2026-08 com 44 tabelas; produção e ambiente local estão em 63 tabelas após as migrations incrementais aplicadas até `20260815000200_v21_hardening.sql` (ver `DATABASE.md`).
+**Histórico CLI:** adotado em produção em 2026-08-08 — as três baselines e as migrations incrementais até `20260815000200_v21_hardening.sql` estão registradas como `applied`. A migration mais recente foi validada por reset e dez testes SQL, aplicada em produção após dry-run exclusivo e confirmada por pós-check sem pendências em 2026-08-15.
 **Reprodutibilidade:** Node.js `24.15.0`, npm `12.0.1`, `npm ci`, typecheck e build validados; CI mínima ativa. Lint mantém 51 achados conhecidos e informativos (27 erros e 24 warnings) na medição de 2026-08-15.
 **Próxima tarefa imediata:** executar a homologação manual autenticada completa de `HOMOLOGATION_V2.md`, cobrindo módulos, temas, responsividade e segurança básica; o handoff operacional está em `V2_RELEASE_CANDIDATE.md` e as únicas tarefas ativas estão em `TASKS_NOW.md`.
 

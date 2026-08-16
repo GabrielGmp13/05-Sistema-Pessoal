@@ -5,6 +5,11 @@ import { useEffect, useRef, useState } from 'react';
 import { buscarMetadados, type FonteMetadados, type ResultadoMetadados } from '@/lib/biblioteca-metadados';
 import styles from './BibliotecaSection.module.css';
 
+const FONTE_LABEL: Record<FonteMetadados, string> = {
+  youtube: 'YouTube', tmdb_filme: 'TMDB', tmdb_serie: 'TMDB', google_livros: 'Google Books',
+  jikan_anime: 'Jikan', jikan_manga: 'Jikan', itunes_podcast: 'iTunes',
+};
+
 interface BuscaMetadadosProps {
   fonte: FonteMetadados;
   termo: string;
@@ -57,6 +62,7 @@ export default function BuscaMetadados({ fonte, termo, onSelect }: BuscaMetadado
       {mensagem && <p className={styles.buscaMetadadosMensagem}>{mensagem}</p>}
       {resultados.length > 0 && (
         <div className={styles.resultadosMetadados} aria-label="Sugestões de preenchimento automático">
+          <p className={styles.fonteMetadados}>Resultados de {FONTE_LABEL[fonte]} · selecione para preencher e revise antes de salvar</p>
           {resultados.map((resultado) => (
             <button
               type="button"
@@ -70,9 +76,10 @@ export default function BuscaMetadados({ fonte, termo, onSelect }: BuscaMetadado
               }}
             >
               {resultado.capaUrl ? <img src={resultado.capaUrl} alt="" /> : <span className={styles.resultadoSemCapa} />}
-              <span><strong>{resultado.titulo}</strong><small>{resultado.autor ?? resultado.ano ?? resultado.subtitulo ?? ''}</small></span>
+              <span><strong>{resultado.titulo}</strong><small>{[resultado.autor ?? resultado.subtitulo, resultado.ano, resultado.duracaoMinutos ? `${resultado.duracaoMinutos} min` : null].filter(Boolean).join(' · ')}</small>{resultado.descricao ? <em>{resultado.descricao}</em> : null}</span>
             </button>
           ))}
+          <p className={styles.fonteMetadados}>A disponibilidade e as quotas pertencem ao provedor. Falhas nunca bloqueiam o cadastro manual.</p>
         </div>
       )}
     </div>

@@ -1053,3 +1053,28 @@ uploads também encontrou destinos e policies ainda incompletos.
 A migration `20260815000100_programacao_investimentos.sql` adiciona três campos
 a `projetos` e cria uma tabela com RLS, policy, GRANTs, checks e índices. Hub,
 Diário e navegação leem os novos contratos sem dependência nova ou cache de API.
+
+---
+
+## DEC-057 — v2.1 prioriza melhorias locais e endurece contratos existentes
+
+**Data:** 2026-08-15
+**Status:** ✅ Implementada; migration aplicada em produção
+
+### Decisão
+
+- A Agenda mantém uma única fonte de dados e adiciona apenas a visão mensal.
+- Histórico e Revisão evoluem no cliente, com resumo/exportação e prévia de
+  importação, sem tabelas agregadas ou parser `.apkg`.
+- Imagens de exercícios usam o bucket privado `exercicios`, path por usuário,
+  signed URL e rollback quando o registro falha; não nasce bucket genérico.
+- O domínio real de `materias.tipo`, sua FK de usuário e as policies de
+  `exercicios`/`redacoes` são alinhados exclusivamente por migration incremental.
+- Uploads sem destino inequívoco, recorrência financeira e integrações externas
+  permanecem no backlog até possuírem contrato próprio.
+
+### Impacto
+
+`20260815000200_v21_hardening.sql` não cria tabelas: normaliza o tipo de
+matéria, adiciona CHECK/default, cascade e policies completas para usuários
+autenticados. O frontend ganha somente melhorias sobre dados e rotas existentes.

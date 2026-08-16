@@ -12,19 +12,19 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 
 ## Pós-v2 — escopo oficialmente adiado
 
-A release candidate da v2 expandida está congelada. Os itens abaixo não entram
-antes da homologação; só serão priorizados depois que os bugs e polimentos
-encontrados no checklist forem tratados.
+A v2.1 absorveu apenas melhorias documentadas de baixo risco. Os itens abaixo
+continuam posteriores à homologação ou dependem de contrato, integração ou
+decisão maior.
 
 - [ ] Google Calendar com OAuth e sincronização externa.
 - [ ] Google Photos e evolução de fotos de Lugares.
 - [ ] Importação completa do Anki em formato `.apkg`.
 - [ ] BRAPI/cotações avançadas: histórico, cache, análises e automações; a v2 mantém apenas consulta opcional sob demanda.
-- [ ] Uploads adicionais por domínio, sempre com bucket e policy definidos.
+- [ ] Uploads adicionais por domínio, sempre com bucket e policy definidos; imagem/GIF de exercício já foi entregue na v2.1.
 - [ ] Extensão de navegador para captura de conteúdo.
 - [ ] Scraping e importações avançadas/em lote.
 - [ ] Testes automatizados de frontend, integração e E2E guiados por casos de alto valor.
-- [ ] Hardening incremental do banco e do Storage, sem editar baselines aplicadas.
+- [ ] Hardening incremental restante do banco e do Storage, sem editar baselines aplicadas.
 - [ ] Polimentos visuais identificados na homologação, sem redesign amplo.
 
 Os detalhes e dependências de cada item permanecem nas seções temáticas abaixo.
@@ -40,19 +40,19 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
 
 ## Geral
 
-- [ ] Exportação de dados CSV/JSON via Supabase
+- [ ] Exportação geral de dados CSV/JSON via Supabase; o Histórico já exporta o recorte visível em CSV.
 - [ ] Google Calendar OAuth via Supabase Edge Function (ver DEC-009 — decisão de não fazer isso no MVP)
 - [ ] Dashboard analytics avançado
 - [x] Heatmap retrospectivo transversal implementado em `/historico` sem tabela
       agregada: conta registros por fonte/dia, permite filtro por área e evita
       comparar duração, valor financeiro ou nota como se fossem a mesma métrica.
 - [ ] Uploads adicionais permanecem evoluções por domínio: capas/banners da
-      Biblioteca, provas/simulados, imagens de exercícios e fotos de Lugares.
+      Biblioteca, provas/simulados e fotos de Lugares.
       Cada fluxo deve reutilizar bucket privado adequado ou ganhar decisão de
       Storage/policy própria; não tratar como upload genérico irrestrito.
       Auditoria de 2026-08-15 manteve Perfil, Receitas e Lugares em URL (não há
-      bucket dedicado); `banner_path` segue sem destino definido; e o bucket
-      `exercicios` exige hardening porque a policy atual tem `WITH CHECK = NULL`.
+      bucket dedicado); `banner_path` segue sem destino definido. Imagem/GIF de
+      exercício foi entregue na v2.1 após hardening incremental do bucket.
 - [ ] Modo múltiplos usuários (RLS já suporta — bastaria criar contas; não é objetivo do projeto por princípio, ver PROJECT_PRINCIPLES.md)
 - [x] Navegação global entre módulos e botão de logout visível — implementado em 2026-08-09 com hub `/`, navegação para Treino/Biblioteca/Estudos e logout via Supabase Auth.
 - [ ] Corrigir o corte residual da letra “g” em “Agenda” na navegação em uma combinação específica de largura/zoom; o usuário decidiu não bloquear o teste atual por isso (2026-08-12).
@@ -65,7 +65,8 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
 - [x] Upload de materiais de estudo no bucket privado `documentos`, usando `arquivo_path` e signed URLs, implementado em 2026-08-12 sem mudança de Storage.
 - [x] Cursos (estrutura própria — módulos/aulas/certificado) — implementado na Fase 1B de Estudos v2 (DEC-036)
 - [x] Importação leve de exportações CSV/TSV implementada em `/revisao`, com
-      `pergunta`, `resposta`, módulo opcional, limites e deduplicação simples.
+      `pergunta`, `resposta`, módulo opcional, limites, prévia antes de gravar,
+      módulo padrão, filtro e deduplicação simples.
 - [ ] Importação Anki `.apkg` permanece etapa própria: o pacote combina ZIP,
       SQLite e mídia e exige parser/dependência, escolha de baralho/modelo e
       tratamento de HTML/cloze; não misturar com o importador tabulado atual.
@@ -134,7 +135,8 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
 - [x] Busca externa integrada aos formulários de Filmes, Séries, Animes,
       Mangás, Livros e Podcasts via TMDB, Jikan, Google Books e iTunes Search.
       TMDB usa `TMDB_API_KEY` server-only; as fontes públicas mantêm fallback
-      manual quando há limite ou indisponibilidade temporária (2026-08-12).
+      manual quando há limite ou indisponibilidade temporária. A v2.1 tornou
+      origem, prévia e orientação sobre limites mais explícitas.
 - [ ] Edição de itens já criados em listas aninhadas (elenco, trilha sonora, temporadas, openings/endings, volumes) — hoje só dá pra criar ou apagar; os únicos campos editáveis depois de criado são os toggles (`lido`, `filler`, `assistido`)
 - [ ] Reordenação manual (drag-and-drop) do campo `ordem` em elenco/trilha sonora/openings-endings/volumes — hoje `ordem` só reflete sequência de criação
 - [x] `animes_generos` consumida por `lib/generos.ts` e pela UI de Animes.
@@ -153,7 +155,8 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
       evolução posterior; peso continua em `shape` e não deve ser duplicado.
 - [x] Finanças: posições manuais e consulta opcional sob demanda pela BRAPI
       implementadas sem cache nem persistência da cotação; token fica somente
-      no servidor e a UI funciona sem ele.
+      no servidor e a UI funciona sem ele. A v2.1 adicionou valor atual,
+      resultado e cobertura das cotações disponíveis.
 - [ ] Finanças: recorrência, importação bancária, histórico de cotação,
       proventos e análise avançada continuam futuros e exigem contratos próprios.
 - [ ] Lugares: upload de fotos, Maps/Places API e Google Photos permanecem
@@ -163,7 +166,7 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
 
 - [x] Substituir `confirm()` nativo do navegador por modal de confirmação ao apagar treino — concluído com o `ConfirmDialog` reutilizável em 2026-08-11.
 - [ ] Gráfico de evolução de peso em `app/treino/shape/page.tsx` — decisão de dependência ainda não tomada para v2 (Chart.js não está no `package.json` atual — se retomado, escolher biblioteca do zero, não assumir Chart.js como já decidido)
-- [ ] Upload de imagem/GIF de exercício (`imagem_path`) — CRUD ficou só textual; o bucket privado `exercicios` e sua policy existem e estão na baseline, mas a policy atual tem `WITH CHECK = NULL`. Qualquer hardening deve vir em migration separada antes/ junto da UI, nunca por edição da baseline.
+- [x] Upload de imagem/GIF de exercício (`imagem_path`) entregue na v2.1 com bucket privado, signed URL, validação de tipo/tamanho, rollback e policy endurecida pela migration incremental `20260815000200`.
 - [ ] Reordenação de exercícios (`ordem`) via drag-and-drop ou setas — hoje `ordem` só reflete sequência de criação
 
 ## Dívida técnica de código (achados da auditoria de 2026-08)
@@ -176,9 +179,9 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
       o restante caso a caso; lint continua informativo na CI.
 - [ ] npm 12 bloqueia por padrão os scripts de instalação transitivos de `sharp@0.34.5` e `unrs-resolver@1.12.2`. Instalação, typecheck e build passaram nesse estado; não aprovar scripts cegamente. Reavaliar somente se uma plataforma limpa demonstrar falha funcional (especialmente otimização de imagens ou resolução nativa).
 - [ ] `@types/node` permanece na linha 20, herdada do setup do Next, enquanto o runtime é Node 24. Typecheck e build passam e o código não depende de APIs exclusivas da major 24; alinhar os tipos apenas numa atualização deliberada, sem misturar com feature.
-- [ ] Hardening do banco, sempre em migrations incrementais separadas: revisar o `GRANT ALL` atual de `authenticated`; policies/`WITH CHECK` de `redacoes` e `exercicios`; `materias.user_id` sem cascade; ausência de `materias_tipo_check`; e a configuração `SECURITY DEFINER`/`search_path` de `public.rls_auto_enable()`. A baseline apenas preserva esses estados e nunca deve ser editada para corrigi-los.
-- [ ] `materias.user_id` é a única FK do projeto sem `ON DELETE CASCADE` (confirmado no dump real, 2026-08) — corrigir numa migration dedicada, não em conjunto com uma feature nova. Ver `DATABASE.md` → Gotchas.
-- [ ] `materias.tipo` nunca teve `CHECK constraint` — considerar adicionar depois de confirmar com o código quais valores `lib/materias.ts` usa hoje de fato. Ver `DATABASE.md` → Gotchas.
+- [ ] Hardening do banco, sempre em migrations incrementais separadas: revisar o `GRANT ALL` atual de `authenticated` e a configuração `SECURITY DEFINER`/`search_path` de `public.rls_auto_enable()`. Policies de `redacoes`/`exercicios`, cascade e domínio de `materias` foram corrigidos em `20260815000200`; a baseline permanece histórica e não deve ser editada.
+- [x] `materias.user_id` alinhada com `ON DELETE CASCADE` pela migration incremental `20260815000200`.
+- [x] `materias.tipo` normalizado, com default `academica` e CHECK do domínio real pela migration incremental `20260815000200`.
 - [ ] Frontend sem testes unitários, de integração ou E2E automatizados. A CI mínima já valida instalação, tipos e build; a única suíte automatizada funcional existente é a validação SQL local da baseline. Adicionar testes quando houver um primeiro caso de alto valor, sem introduzir framework apenas por cobertura nominal.
 
 ## v3 (futuro distante)

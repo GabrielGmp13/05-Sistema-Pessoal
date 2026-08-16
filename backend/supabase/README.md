@@ -32,6 +32,10 @@ O ponto inicial oficial da cadeia CLI é:
     Programação e cria posições de investimento; reset e dez testes SQL
     aprovados, aplicada em produção em 2026-08-15 após dry-run exclusivo e
     confirmada por pós-check.
+13. `20260815000200_v21_hardening.sql` — normaliza o domínio de Matérias,
+    adiciona cascade e endurece policies de exercícios/redações; reset e dez
+    testes SQL aprovados, aplicada em produção em 2026-08-15 após dry-run
+    exclusivo e confirmada por pós-check vazio.
 
 As três baselines foram validadas por dois replays locais completos e por
 comparação com produção. Em 2026-08-08, `migration repair --status applied`
@@ -92,6 +96,14 @@ checks, RLS, policy, GRANT e índice parcial. O reset e os dez testes SQL
 passaram; o dry-run remoto listou somente essa migration, aplicada em
 2026-08-15. O pós-check confirmou 63 tabelas, histórico remoto, três colunas de
 Programação e proteção completa da nova tabela; o dry-run final ficou vazio.
+
+`20260815000200_v21_hardening.sql` não cria tabela. Normaliza `escola`/`enem`
+para `academica`, define default e CHECK de `materias.tipo`, alinha a FK de
+usuário com `ON DELETE CASCADE` e recria as policies de `exercicios` e
+`redacoes` para `authenticated`, com `USING` e `WITH CHECK` por primeira pasta.
+O reset e os dez testes SQL passaram; o dry-run remoto listou somente essa
+migration, aplicada em 2026-08-15. O pós-check alinhou as 13 versões e deixou o
+dry-run vazio.
 
 ## Workflow para toda mudança futura
 

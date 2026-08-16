@@ -39,11 +39,11 @@ SELECT pg_temp.assert_true(
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 75
+  (SELECT count(*) = 76
    FROM pg_constraint c
    JOIN pg_namespace n ON n.oid = c.connamespace
    WHERE n.nspname = 'public' AND c.contype = 'c'),
-  'public deve conter exatamente 75 checks'
+  'public deve conter exatamente 76 checks'
 );
 
 SELECT pg_temp.assert_true(
@@ -80,9 +80,9 @@ SELECT pg_temp.assert_true(
   'as 46 policies historicas user_own_data devem preservar definicao equivalente'
 );
 
--- Defaults e constraints historicamente divergentes.
+-- Defaults e constraints reconciliados pelo hardening v2.1.
 SELECT pg_temp.assert_true(
-  (SELECT pg_get_expr(d.adbin, d.adrelid) = '''escola''::text'
+  (SELECT pg_get_expr(d.adbin, d.adrelid) = '''academica''::text'
    FROM pg_attribute a
    JOIN pg_class t ON t.oid = a.attrelid
    JOIN pg_namespace n ON n.oid = t.relnamespace
@@ -90,25 +90,25 @@ SELECT pg_temp.assert_true(
    WHERE n.nspname = 'public'
      AND t.relname = 'materias'
      AND a.attname = 'tipo'),
-  'materias.tipo deve ter DEFAULT escola'
+  'materias.tipo deve ter DEFAULT academica'
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT confdeltype = 'a'
+  (SELECT confdeltype = 'c'
    FROM pg_constraint
    WHERE conname = 'materias_user_id_fkey'
      AND conrelid = 'public.materias'::regclass),
-  'materias_user_id_fkey deve permanecer sem ON DELETE CASCADE'
+  'materias_user_id_fkey deve usar ON DELETE CASCADE'
 );
 
 SELECT pg_temp.assert_true(
-  NOT EXISTS (
+  EXISTS (
     SELECT 1
     FROM pg_constraint
     WHERE conname = 'materias_tipo_check'
       AND conrelid = 'public.materias'::regclass
   ),
-  'materias_tipo_check deve permanecer ausente'
+  'materias_tipo_check deve existir'
 );
 
 -- Grants explícitos da baseline.
@@ -282,12 +282,12 @@ WITH expected(name, command, roles, using_expr, check_expr) AS (
     ('docs_insert','INSERT',ARRAY['authenticated']::name[], NULL,'((bucket_id = ''documentos''::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))'),
     ('docs_select','SELECT',ARRAY['authenticated']::name[], '((bucket_id = ''documentos''::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))',NULL),
     ('docs_update','UPDATE',ARRAY['authenticated']::name[], '((bucket_id = ''documentos''::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))',NULL),
-    ('redacoes_isolamento_usuario','ALL',ARRAY['public']::name[], '((bucket_id = ''redacoes''::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))','((bucket_id = ''redacoes''::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))'),
+    ('redacoes_isolamento_usuario','ALL',ARRAY['authenticated']::name[], '((bucket_id = ''redacoes''::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))','((bucket_id = ''redacoes''::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))'),
     ('shape_delete','DELETE',ARRAY['authenticated']::name[], '((bucket_id = ''shape''::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))',NULL),
     ('shape_insert','INSERT',ARRAY['authenticated']::name[], NULL,'((bucket_id = ''shape''::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))'),
     ('shape_select','SELECT',ARRAY['authenticated']::name[], '((bucket_id = ''shape''::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))',NULL),
     ('shape_update','UPDATE',ARRAY['authenticated']::name[], '((bucket_id = ''shape''::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))',NULL),
-    ('user_own_files_exercicios','ALL',ARRAY['public']::name[], '((bucket_id = ''exercicios''::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))',NULL)
+    ('user_own_files_exercicios','ALL',ARRAY['authenticated']::name[], '((bucket_id = ''exercicios''::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))','((bucket_id = ''exercicios''::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))')
 ), actual AS (
   SELECT policyname, cmd, roles, qual, with_check
   FROM pg_policies

@@ -25,10 +25,11 @@ import { Button, buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { dataLocalIso } from '@/lib/date'
-import { analisarFlashcards } from '@/lib/flashcard-import'
+import { analisarFlashcards, FlashcardImportado } from '@/lib/flashcard-import'
 import {
   avaliarCard,
   CardRevisao,
@@ -68,6 +69,9 @@ export default function RevisaoPage() {
   const [novoCard, setNovoCard] = useState({ pergunta: '', resposta: '' })
   const [importando, setImportando] = useState(false)
   const [resultadoImportacao, setResultadoImportacao] = useState('')
+  const [previewImportacao, setPreviewImportacao] = useState<FlashcardImportado[]>([])
+  const [moduloPadrao, setModuloPadrao] = useState('manual')
+  const [filtroModulo, setFiltroModulo] = useState('todos')
 
   const carregar = useCallback(async () => {
     const [atuais, suspensos] = await Promise.all([
@@ -92,16 +96,19 @@ export default function RevisaoPage() {
   }, [carregar])
 
   const hoje = dataLocalIso()
+  const modulosDisponiveis = useMemo(() => [...new Set([...cards, ...arquivados].map((card) => card.modulo || 'manual'))].sort(), [cards, arquivados])
+  const cardsFiltrados = useMemo(() => filtroModulo === 'todos' ? cards : cards.filter((card) => (card.modulo || 'manual') === filtroModulo), [cards, filtroModulo])
+  const arquivadosFiltrados = useMemo(() => filtroModulo === 'todos' ? arquivados : arquivados.filter((card) => (card.modulo || 'manual') === filtroModulo), [arquivados, filtroModulo])
   const { pendentes, futuras, atrasadas, paraHoje } = useMemo(() => {
-    const atrasados = cards.filter((card) => card.proxima_revisao < hoje)
-    const hojeCards = cards.filter((card) => card.proxima_revisao === hoje)
+    const atrasados = cardsFiltrados.filter((card) => card.proxima_revisao < hoje)
+    const hojeCards = cardsFiltrados.filter((card) => card.proxima_revisao === hoje)
     return {
       pendentes: [...atrasados, ...hojeCards],
-      futuras: cards.filter((card) => card.proxima_revisao > hoje),
+      futuras: cardsFiltrados.filter((card) => card.proxima_revisao > hoje),
       atrasadas: atrasados.length,
       paraHoje: hojeCards.length,
     }
-  }, [cards, hoje])
+  }, [cardsFiltrados, hoje])
 
   async function handleCriarCard(event: React.FormEvent) {
     event.preventDefault()
@@ -120,7 +127,7 @@ export default function RevisaoPage() {
     await carregar()
   }
 
-  async function handleImportar(event: React.ChangeEvent<HTMLInputElement>) {
+  async function handleSelecionarImportacao(event: React.ChangeEvent<HTMLInputElement>) {
     const arquivo = event.target.files?.[0]
     event.target.value = ''
     if (!arquivo) return
@@ -129,14 +136,27 @@ export default function RevisaoPage() {
       return
     }
 
+    setErro('')
+    setResultadoImportacao('')
+    try {
+      setPreviewImportacao(analisarFlashcards(await arquivo.text(), arquivo.size))
+    } catch (error) {
+      setPreviewImportacao([])
+      setErro(error instanceof Error ? error.message : 'Não foi possível ler o arquivo.')
+    }
+  }
+
+  async function confirmarImportacao() {
+    if (previewImportacao.length === 0) return
     setImportando(true)
     setErro('')
     setResultadoImportacao('')
     try {
-      const cardsImportados = analisarFlashcards(await arquivo.text(), arquivo.size)
+      const cardsImportados = previewImportacao.map((card) => ({ ...card, modulo: card.modulo || moduloPadrao }))
       const resultado = await importarCardsRevisao(cardsImportados)
       if (!resultado) throw new Error('Não foi possível salvar os cards importados.')
       setResultadoImportacao(`${resultado.criados} card${resultado.criados === 1 ? '' : 's'} criado${resultado.criados === 1 ? '' : 's'} · ${resultado.duplicados} duplicado${resultado.duplicados === 1 ? '' : 's'} ignorado${resultado.duplicados === 1 ? '' : 's'}.`)
+      setPreviewImportacao([])
       await carregar()
     } catch (error) {
       setErro(error instanceof Error ? error.message : 'Não foi possível importar o arquivo.')
@@ -224,6 +244,10 @@ export default function RevisaoPage() {
           Arquivados
           <Badge variant="outline">{arquivados.length}</Badge>
         </Button>
+        <Select value={filtroModulo} onChange={(event) => setFiltroModulo(event.target.value)} className="ml-auto w-40" aria-label="Filtrar por módulo">
+          <option value="todos">Todos os módulos</option>
+          {modulosDisponiveis.map((modulo) => <option key={modulo} value={modulo}>{modulo === 'manual' ? 'Manual' : modulo}</option>)}
+        </Select>
       </div>
 
       <div className={`${aba === 'ativos' ? '' : 'hidden'} mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3`}>
@@ -314,23 +338,24 @@ export default function RevisaoPage() {
         </Section>
 
         <Section label="Lote" title="Importar CSV ou TSV">
-          <Card className="flex flex-wrap items-center justify-between gap-4 p-4">
-            <div className="min-w-0"><p className="text-sm font-medium">Importação leve de flashcards</p><p className="mt-1 text-xs text-muted-foreground">Use cabeçalhos <code>pergunta</code>, <code>resposta</code> e, opcionalmente, <code>modulo</code>. Limite de 1 MB ou 500 cards.</p>{resultadoImportacao ? <p role="status" className="mt-2 text-xs text-success">{resultadoImportacao}</p> : null}</div>
-            <label className={buttonVariants({ variant: 'outline', size: 'sm', className: importando ? 'pointer-events-none opacity-60' : 'cursor-pointer' })}><FileUp className="size-3.5" />{importando ? 'Importando...' : 'Selecionar arquivo'}<input type="file" accept=".csv,.tsv,text/csv,text/tab-separated-values" className="sr-only" onChange={(event) => void handleImportar(event)} disabled={importando} /></label>
+          <Card className="p-4">
+            <div className="flex flex-wrap items-center justify-between gap-4"><div className="min-w-0"><p className="text-sm font-medium">Importação leve de flashcards</p><p className="mt-1 text-xs text-muted-foreground">Use cabeçalhos <code>pergunta</code>, <code>resposta</code> e, opcionalmente, <code>modulo</code>. Limite de 1 MB ou 500 cards.</p>{resultadoImportacao ? <p role="status" className="mt-2 text-xs text-success">{resultadoImportacao}</p> : null}</div>
+            <label className={buttonVariants({ variant: 'outline', size: 'sm', className: importando ? 'pointer-events-none opacity-60' : 'cursor-pointer' })}><FileUp className="size-3.5" />Selecionar arquivo<input type="file" accept=".csv,.tsv,text/csv,text/tab-separated-values" className="sr-only" onChange={(event) => void handleSelecionarImportacao(event)} disabled={importando} /></label></div>
+            {previewImportacao.length > 0 ? <div className="mt-4 border-t border-border pt-4"><div className="flex flex-wrap items-end justify-between gap-3"><Field label="Módulo padrão" htmlFor="modulo-padrao" optional><Select id="modulo-padrao" value={moduloPadrao} onChange={(event) => setModuloPadrao(event.target.value)} className="w-44"><option value="manual">Manual</option><option value="estudos">Estudos</option><option value="idiomas">Idiomas</option><option value="treino">Treino</option></Select></Field><p className="text-xs text-muted-foreground">Aplicado somente às linhas sem <code>modulo</code>.</p></div><div className="mt-3 overflow-x-auto"><table className="w-full min-w-[34rem] text-left text-xs"><thead className="text-muted-foreground"><tr><th className="pb-2 pr-3">Pergunta</th><th className="pb-2 pr-3">Resposta</th><th className="pb-2">Módulo</th></tr></thead><tbody>{previewImportacao.slice(0, 10).map((card, indice) => <tr key={`${card.pergunta}-${indice}`} className="border-t border-border"><td className="max-w-56 truncate py-2 pr-3">{card.pergunta}</td><td className="max-w-56 truncate py-2 pr-3">{card.resposta || '—'}</td><td className="py-2">{card.modulo || moduloPadrao}</td></tr>)}</tbody></table></div>{previewImportacao.length > 10 ? <p className="mt-2 text-xs text-muted-foreground">Mostrando 10 de {previewImportacao.length} cards.</p> : null}<div className="mt-4 flex gap-2"><Button type="button" size="sm" disabled={importando} onClick={() => void confirmarImportacao()}>{importando ? 'Importando...' : `Importar ${previewImportacao.length} cards`}</Button><Button type="button" size="sm" variant="outline" disabled={importando} onClick={() => setPreviewImportacao([])}>Cancelar</Button></div></div> : null}
           </Card>
         </Section>
       </div>
 
       {aba === 'arquivados' ? (
         <div className="mt-10">
-          <Section label="Guardados" title="Cards arquivados" count={arquivados.length}>
+          <Section label="Guardados" title="Cards arquivados" count={arquivadosFiltrados.length}>
             {carregando ? (
               <ListaSkeleton />
-            ) : arquivados.length === 0 ? (
+            ) : arquivadosFiltrados.length === 0 ? (
               <EmptyState icon={Archive} title="Nenhum card arquivado" compact />
             ) : (
               <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-                {arquivados.map((card) => (
+                {arquivadosFiltrados.map((card) => (
                   <RevisaoCard
                     key={card.uuid}
                     card={card}

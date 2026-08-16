@@ -67,9 +67,10 @@ dessas duas pastas deve ser executado como migration.
 | `20260813000200` | `20260813000200_biblioteca_nota_cinco_estrelas.sql` | ✅ Reset local e teste específico aprovados; aplicada em produção em 2026-08-14 após dry-run limpo; pós-check sem pendências |
 | `20260814000100` | `20260814000100_idiomas.sql` | ✅ Reset e nove testes SQL aprovados; aplicada em produção em 2026-08-15 após dry-run exclusivo; pós-check confirmou tabelas, RLS, policies e GRANTs |
 | `20260815000100` | `20260815000100_programacao_investimentos.sql` | ✅ Reset e dez testes SQL aprovados; aplicada em produção em 2026-08-15 após dry-run exclusivo; pós-check confirmou 63 tabelas, histórico, campos de Projetos, RLS, policy e GRANT de Investimentos |
+| `20260815000200` | `20260815000200_v21_hardening.sql` | ✅ Reset e dez testes SQL aprovados; aplicada em produção em 2026-08-15 após dry-run exclusivo; pós-check confirmou histórico alinhado e nenhum arquivo pendente |
 
 > **Estado confirmado (2026-08-15):** produção e cadeia local estão alinhadas
-> até Programação/Investimentos. A migration cria uma tabela e leva `public` a
+> até o hardening v2.1. A migration não cria tabelas; `public` permanece com
 > 63 tabelas.
 
 As três baselines foram adotadas no histórico remoto em 2026-08-08 por
@@ -731,9 +732,9 @@ deleted               BOOLEAN DEFAULT FALSE
 ### `materias`
 ```sql
 uuid                       TEXT PRIMARY KEY,
-user_id                    UUID NOT NULL REFERENCES auth.users(id),  -- ⚠️ sem ON DELETE CASCADE, ver Gotchas
+user_id                    UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
 nome                       TEXT NOT NULL,
-tipo                       TEXT NOT NULL DEFAULT 'escola',  -- sem CHECK constraint no banco, ver Gotchas
+tipo                       TEXT NOT NULL DEFAULT 'academica',
 cor                        TEXT,
 updated_at                 TIMESTAMPTZ DEFAULT NOW(),
 deleted                    BOOLEAN DEFAULT FALSE,
@@ -746,16 +747,12 @@ data_conclusao             DATE,
 area_enem                  TEXT,      -- CHECK: 'linguagens'|'humanas'|'natureza'|'matematica'
 mostra_escola               BOOLEAN NOT NULL DEFAULT FALSE,
 mostra_enem                 BOOLEAN NOT NULL DEFAULT FALSE,
-CONSTRAINT materias_area_enem_check CHECK (area_enem IS NULL OR area_enem IN ('linguagens','humanas','natureza','matematica'))
+CONSTRAINT materias_area_enem_check CHECK (area_enem IS NULL OR area_enem IN ('linguagens','humanas','natureza','matematica')),
+CONSTRAINT materias_tipo_check CHECK (tipo IN ('academica','olimpiada','vestibular','concurso','curso','outro'))
 ```
-> **Gotcha confirmado no dump:** o `DEFAULT` da coluna `tipo` continua `'escola'`
-> (não foi alterado para `'academica'` quando a DEC-040 foi aplicada — a
-> migration só mudou os dados existentes, não o valor padrão da coluna).
-> Como não existe `CHECK` sobre `tipo`, isso não quebra nada tecnicamente
-> (o banco aceita qualquer texto), mas uma matéria criada sem passar `tipo`
-> explicitamente nasce como `'escola'`, não `'academica'`. Conferir se
-> `lib/materias.ts` sempre passa `tipo: 'academica'` explicitamente ao criar
-> matéria acadêmica — não depender do default do banco.
+> Desde `20260815000200_v21_hardening.sql`, valores históricos `escola`/`enem`
+> são normalizados para `academica`, o default corresponde à DEC-040, o domínio
+> é imposto por CHECK e a FK de usuário usa cascade.
 
 ### `conteudos`
 ```sql
@@ -1139,11 +1136,10 @@ roles, `USING` e `WITH CHECK` estão preservados em
 `backend/supabase/snapshots/2026-08-07-production/critical_storage_metadata.json`
 e reproduzidos por `20260807000300_baseline_storage.sql`.
 
-O estado atual inclui policies historicamente configuradas de formas
-diferentes para `redacoes` e `exercicios`. Isso é estado preservado, não
-aprovação de hardening: qualquer ajuste deve ser uma migration incremental
-separada. A decisão permanente continua sendo manter buckets privados e usar
-signed URLs/path `{user_id}/arquivo.ext` (DEC-010).
+Desde `20260815000200_v21_hardening.sql`, as policies de `redacoes` e
+`exercicios` são limitadas a `authenticated` e possuem `USING` e `WITH CHECK`
+para a primeira pasta `{user_id}`. A decisão permanente continua sendo manter
+buckets privados e usar signed URLs/path `{user_id}/arquivo.ext` (DEC-010).
 
 > ⚠️ **Pendência:** `banner_path` (existente desde `006_biblioteca_v2_base.sql`) não tem bucket de Storage definido — só `banner_url` (link externo) funciona hoje. Ver `BACKLOG.md`.
 
@@ -1169,9 +1165,9 @@ Confirmados em: `agenda`, `animes`, `animes_episodios`, `animes_temporadas`, `an
 
 **Gotcha (cascade de deleção de usuário):** quase todas as tabelas usam `user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE` — apagar um usuário em Authentication → Users apaga em cascata todos os dados dele, sem confirmação extra, sem backup no free tier. Confirmado na prática em 2026-07-13 (ver `CHANGELOG.md`). **Nunca deletar um usuário sem certeza absoluta.**
 
-**Gotcha NOVO confirmado no dump (2026-08): `materias.user_id` é a única FK do projeto sem `ON DELETE CASCADE`** (`REFERENCES auth.users(id)` puro, sem cláusula de cascata). Na prática, apagar o usuário deixaria linhas de `materias` órfãs (ou o `DELETE` falharia, dependendo de outras constraints) em vez de limpar em cascata como nas outras 43 tabelas. Não é um bug ativo (nenhuma tela depende desse comportamento), mas é uma inconsistência real que vale corrigir numa migration futura (`ALTER TABLE materias DROP CONSTRAINT materias_user_id_fkey, ADD CONSTRAINT materias_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE`) — não fazer isso às pressas, é baixo risco mas deve ser feito deliberadamente, não como parte de uma migration de feature.
+**Gotcha resolvido em 2026-08-15:** `materias.user_id` era a única FK do projeto sem `ON DELETE CASCADE`; `20260815000200_v21_hardening.sql` alinhou a FK às demais tabelas.
 
-**Gotcha NOVO confirmado no dump (2026-08): `materias.tipo` nunca teve `CHECK constraint`.** A coluna é `TEXT` livre — a DEC-040 ("tipo perde 'enem'/'escola', ganha 'academica'") é uma convenção de aplicação, não é imposta pelo banco. Isso significa que um bug de frontend poderia gravar `tipo = 'enem'` de novo sem o banco reclamar. Em 2026-08-15, `lib/materias.ts` usa explicitamente `academica`, `curso`, `olimpiada`, `vestibular`, `concurso` e `outro`. Considerar adicionar um `CHECK` com esse domínio numa migration futura, depois de auditar os dados reais de produção.
+**Gotcha resolvido em 2026-08-15:** `materias.tipo` era texto livre e conservava default histórico `escola`; `20260815000200_v21_hardening.sql` normalizou os dados, definiu default `academica` e adicionou o domínio documentado por CHECK.
 
 **Gotcha (tipos `Input` vs. update parcial, Biblioteca v2):** `MangaVolumeInput`/`AnimeEpisodioInput` exigiam `numero` obrigatório, mas os editores usam `atualizarVolume()`/`atualizarEpisodio()` para toggles simples sem reenviar `numero`. Corrigido criando tipos `XxxUpdate` (Partial completo) separados dos tipos `Input` de criação. Padrão a seguir daqui em diante.
 
@@ -1179,9 +1175,8 @@ Confirmados em: `agenda`, `animes`, `animes_episodios`, `animes_temporadas`, `an
 
 **Gotcha (migrations locais divergindo do banco, 2026-08):** seis arquivos de migration nunca foram copiados para o VS Code (falha de cópia manual, não perda de dado) e dois outros (`015`, `016`) tinham conteúdo corrompido no repositório enquanto o banco real estava correto. Ver seção "Migrações" no topo deste documento para o que foi feito. **Lição:** rodar `supabase db dump` periodicamente e comparar contra os arquivos locais evita que essa divergência se acumule silenciosamente de novo.
 
-**Estado preservado pela baseline, não correção retroativa:** produção possui
-`GRANT ALL` para `authenticated` nas 44 tabelas, as policies atuais de
-`redacoes`/`exercicios`, `materias.user_id` sem `ON DELETE CASCADE` e nenhuma
-constraint `materias_tipo_check`. Esses pontos e os demais hardenings conhecidos
-devem ser tratados em migrations incrementais futuras e independentes. Nunca
-editar as baselines para “corrigir” o passado.
+**Estado preservado pela baseline, com correção incremental:** a baseline
+continua reproduzindo o retrato histórico; policies de `redacoes`/`exercicios`,
+cascade e domínio de `materias` foram corrigidos somente pela migration
+incremental `20260815000200`. Os demais hardenings conhecidos continuam
+futuros. Nunca editar as baselines para “corrigir” o passado.

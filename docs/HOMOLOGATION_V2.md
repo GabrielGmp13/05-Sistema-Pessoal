@@ -35,6 +35,7 @@ usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
 
 - [ ] Dashboard mostra planos, exercícios, duração semanal e sessões recentes corretamente
 - [ ] Criar/editar/excluir módulo, treino e exercícios de força/cardio funciona com cancelamento seguro
+- [ ] Imagem/GIF de exercício aceita JPG/PNG/WebP/GIF até 5 MB, reaparece por URL assinada e não deixa arquivo órfão se o cadastro falhar
 - [ ] Modo Academia registra séries/cardio, conclui sessão e atualiza duração/histórico
 - [ ] Shape salva peso/observação e aceita foto JPG/PNG/WebP de até 10 MB por URL assinada
 - [ ] Arquivo inválido ou falha de upload em Shape exibe erro e não cria registro incompleto
@@ -47,6 +48,7 @@ usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
 - [ ] Duração/tempo aparece e edita corretamente nas oito categorias conforme o campo real
 - [ ] Notas de 0–5, gêneros, status e listas aninhadas preservam os valores após recarregar
 - [ ] YouTube/TMDB funcionam com chave; ausência de chave mantém cadastro manual; fontes públicas tratam indisponibilidade
+- [ ] Prévia de metadados identifica a fonte, mostra os campos úteis e orienta o cadastro manual quando a API limita ou falha
 - [ ] Vídeo pode ser vinculado a Curso sem duplicação no mesmo curso
 
 ## Estudos
@@ -64,12 +66,14 @@ usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
 - [ ] Card manual cria, revela resposta, recebe avaliação e é reagendado pelo SM-2
 - [ ] Cards de Estudos continuam vinculados ao conteúdo correto
 - [ ] Arquivar, restaurar e excluir exigem o fluxo esperado e atualizam os filtros
-- [ ] CSV e TSV reais importam cabeçalhos/linhas válidas, módulo opcional e acentos
+- [ ] CSV e TSV reais mostram prévia antes de gravar, importam módulo opcional/default e preservam acentos
+- [ ] Filtro de módulo atualiza cards ativos e arquivados sem alterar os registros
 - [ ] Limites de 1 MB/500 cards e deduplicação exibem mensagens claras sem importação parcial indevida
 
 ## Agenda
 
-- [ ] Semana anterior/seguinte e retorno à semana atual funcionam no fuso local
+- [ ] Semana/mês anterior e seguinte, alternância de visão e retorno ao período atual funcionam no fuso local
+- [ ] Visão mensal posiciona dias corretamente e não duplica provas ou compromissos
 - [ ] CRUD de evento geral, estudo e treino preserva data, horário e duração
 - [ ] Provas aparecem por leitura de Estudos sem duplicação e apontam para a matéria correta
 - [ ] Concluir/reabrir e excluir atualizam Hub e Agenda após recarregar
@@ -111,6 +115,7 @@ usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
 - [ ] Orçamentos e metas calculam progresso sem divisão ou valores inválidos
 - [ ] Posição exige ticker, quantidade positiva e preço médio explicitamente preenchido
 - [ ] Editar/excluir posição atualiza custo acumulado; cotação nunca persiste no banco
+- [ ] Valor atual, resultado e cobertura usam somente posições com cotação disponível e sinalizam cobertura parcial
 - [ ] Sem `BRAPI_TOKEN`, CRUD continua funcional e a indisponibilidade é clara
 - [ ] Com `BRAPI_TOKEN`, ticker válido consulta sob demanda; erro/timeout externo não quebra a página
 
@@ -130,6 +135,7 @@ usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
 ## Histórico
 
 - [ ] Heatmap anual, troca de ano, filtro por área e detalhe do dia usam as nove fontes esperadas
+- [ ] Resumo mensal e exportação CSV respeitam ano/filtro atuais e preservam datas no fuso local
 - [ ] Sessão de treino só conta quando concluída; Agenda só conta eventos concluídos
 - [ ] Totais são contagens de atividade, sem somar duração, valor financeiro ou nota
 - [ ] Falha parcial de uma fonte é sinalizada sem apagar os resultados das demais

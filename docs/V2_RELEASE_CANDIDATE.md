@@ -2,10 +2,9 @@
 
 ## Estado
 
-A implementação planejada da v2 expandida está concluída e congelada para
-homologação manual. A base técnica anterior ao congelamento é o commit
-`c2f8a25`; este documento acompanha o commit documental
-`docs: freeze v2 expanded release candidate`.
+A implementação planejada da v2 expandida recebeu o lote v2.1 de melhorias
+documentadas e permanece em homologação manual. A base congelada era `c2f8a25`;
+o estado corrente inclui o hardening e os fluxos registrados na DEC-057.
 
 Até a aprovação final, o escopo permitido é executar o checklist, corrigir
 bugs bloqueantes ou falhas de segurança/dados e aplicar polimentos diretamente
@@ -45,15 +44,13 @@ versionar `.env.local`, service role, senha, connection string ou
 
 ## Banco e migrations
 
-- A cadeia operacional ativa contém 12 migrations em
+- A cadeia operacional ativa contém 13 migrations em
   `backend/supabase/migrations/`.
 - As três baselines e as incrementais até
-  `20260815000100_programacao_investimentos.sql` estão registradas como
+  `20260815000200_v21_hardening.sql` estão registradas como
   aplicadas em produção.
-- O pós-check registrado em 2026-08-15 confirmou 63 tabelas e nenhuma migration
-  pendente.
-- O congelamento da release candidate não cria migration e não altera o
-  Supabase remoto.
+- O pós-check registrado em 2026-08-15 confirmou 63 tabelas, 13 versões
+  alinhadas e nenhuma migration pendente.
 
 Qualquer correção futura de schema deve sair do lote de polimento, receber uma
 nova migration timestamped e cumprir integralmente o fluxo de segurança de
@@ -76,11 +73,11 @@ ser declarada concluída quando:
 - Google Photos
 - Anki `.apkg`
 - BRAPI/cotações avançadas
-- uploads adicionais
+- uploads adicionais além de imagem/GIF de exercício
 - extensão de navegador
 - scraping e importações avançadas
 - testes automatizados
-- hardening do banco e do Storage
+- hardening restante do banco e do Storage
 - polimentos visuais encontrados na homologação
 
 ## Se um problema for encontrado

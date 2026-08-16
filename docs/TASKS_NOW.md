@@ -5,11 +5,11 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 ---
 
 ## Status geral
-**Fase atual:** Fase 7 (v2 expandida) — **release candidate congelada para homologação**. Todos os módulos planejados neste ciclo possuem caminhos reais de uso; a v1 está aposentada (DEC-031) e `frontend/` é o único frontend ativo.
-**Bloqueio:** nenhum bloqueio técnico conhecido; a migration de Programação/Investimentos está aplicada em produção.
-**Banco:** produção e cadeia local estão alinhadas até `20260815000100_programacao_investimentos.sql`; pós-check remoto de 2026-08-15 confirmou 63 tabelas e nenhum dry-run pendente.
+**Fase atual:** v2.1 — lote documentado de melhorias de baixo risco concluído tecnicamente; homologação manual permanece pendente. A v1 está aposentada (DEC-031) e `frontend/` é o único frontend ativo.
+**Bloqueio:** nenhum bloqueio técnico conhecido; a migration de hardening v2.1 está aplicada em produção.
+**Banco:** produção e cadeia local estão alinhadas até `20260815000200_v21_hardening.sql`; pós-check remoto de 2026-08-15 confirmou o histórico alinhado e dry-run vazio.
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** executar e registrar a homologação manual completa descrita em `HOMOLOGATION_V2.md`, cobrindo todos os módulos, temas e tamanhos de tela. O handoff da release candidate está em `V2_RELEASE_CANDIDATE.md`.
+**Próxima ação:** executar e registrar a homologação manual completa descrita em `HOMOLOGATION_V2.md`, incluindo os fluxos v2.1, temas e tamanhos de tela.
 
 ## Únicas tarefas ativas antes de concluir a v2
 
@@ -17,7 +17,18 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [ ] Corrigir e retestar somente bugs bloqueantes, falhas de segurança/dados e polimentos claramente decorrentes da homologação.
 - [ ] Confirmar desktop/mobile e temas claro/escuro antes de declarar a v2 concluída.
 
-**Congelamento de escopo:** não iniciar feature, módulo, integração, migration ou redesign antes da homologação. As caixas não marcadas nas seções históricas abaixo representam testes consolidados pelo checklist ou evoluções movidas para `BACKLOG.md`; não são autorização para ampliar a release candidate.
+**Escopo após o lote:** não iniciar módulo, integração pesada ou redesign antes da homologação. As caixas não marcadas nas seções históricas abaixo representam testes consolidados pelo checklist ou evoluções movidas para `BACKLOG.md`; não são autorização para ampliar a release candidate.
+
+## Melhorias documentadas v2.1 — 2026-08-15
+
+- [x] Agenda ganhou alternância semanal/mensal sem duplicar provas ou compromissos.
+- [x] Revisão ganhou prévia de CSV/TSV, módulo padrão e filtro de módulo para cards ativos/arquivados.
+- [x] Histórico ganhou resumo mensal, legenda explícita e exportação CSV do período filtrado.
+- [x] Finanças ganhou valor atual, resultado e cobertura de cotações das posições, mantendo BRAPI opcional e sob demanda.
+- [x] Busca de metadados da Biblioteca ganhou origem, prévia mais informativa e orientação para limite/indisponibilidade das APIs.
+- [x] Treino ganhou upload privado de imagem/GIF de exercício, signed URL e rollback do arquivo quando o registro falha.
+- [x] Migration `20260815000200_v21_hardening.sql` alinhou `materias.tipo`, cascade de usuário e policies de `exercicios`/`redacoes`; reset, dez testes, dry-run exclusivo, aplicação e pós-check aprovados.
+- [ ] Homologar manualmente os fluxos v2.1 com dados reais em desktop/mobile e temas claro/escuro.
 
 ---
 
