@@ -95,13 +95,19 @@ export function GlobalNav() {
   }
 
   async function handleLogout() {
+    if (saindo) return
     setSaindo(true)
-    const { error } = await sb.auth.signOut()
-    if (error) {
-      console.error('Erro ao sair:', error)
+    try {
+      const { error } = await sb.auth.signOut()
+      if (error) {
+        console.error('Erro ao sair:', error)
+        return
+      }
+      router.replace('/login')
+      router.refresh()
+    } finally {
+      setSaindo(false)
     }
-    router.replace('/login')
-    router.refresh()
   }
 
   const inicial = perfil?.nome.charAt(0).toUpperCase() || 'U'

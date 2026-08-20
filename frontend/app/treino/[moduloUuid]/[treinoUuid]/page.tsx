@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
@@ -27,6 +27,7 @@ export default function PlanoTreinoPage() {
   const [distancia, setDistancia] = useState('')
   const [duracao, setDuracao] = useState('')
   const [imagem, setImagem] = useState<File | null>(null)
+  const [erroImagem, setErroImagem] = useState('')
   const [imagensUrl, setImagensUrl] = useState<Record<string, string>>({})
   const [erro, setErro] = useState('')
   const [salvando, setSalvando] = useState(false)
@@ -34,6 +35,7 @@ export default function PlanoTreinoPage() {
     uuid: string
     tipo: 'forca' | 'cardio'
   } | null>(null)
+  const inputImagemRef = useRef<HTMLInputElement>(null)
 
   const sb = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -60,7 +62,7 @@ export default function PlanoTreinoPage() {
 
   async function handleAdicionar(e: React.FormEvent) {
     e.preventDefault()
-    if (!userId || !nome.trim()) return
+    if (!userId || !nome.trim() || erroImagem) return
     setSalvando(true)
     setErro('')
     const ordem = tipoNovo === 'forca' ? forca.length : cardio.length
@@ -102,7 +104,7 @@ export default function PlanoTreinoPage() {
       return
     }
     setNome('')
-    setImagem(null)
+    limparImagem()
     await recarregar(userId)
     setSalvando(false)
   }
@@ -117,6 +119,26 @@ export default function PlanoTreinoPage() {
       await deleteImagemExercicio(sb, exercicio.imagem_path)
     }
     await recarregar(userId)
+  }
+
+  function selecionarImagem(event: React.ChangeEvent<HTMLInputElement>) {
+    const selecionada = event.target.files?.[0] ?? null
+    setImagem(selecionada)
+    setErroImagem('')
+    if (!selecionada) return
+    if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(selecionada.type)) {
+      setErroImagem('Use uma imagem JPG, PNG, WebP ou GIF.')
+      return
+    }
+    if (selecionada.size > 5 * 1024 * 1024) {
+      setErroImagem('A imagem deve ter no máximo 5 MB.')
+    }
+  }
+
+  function limparImagem() {
+    setImagem(null)
+    setErroImagem('')
+    if (inputImagemRef.current) inputImagemRef.current.value = ''
   }
 
   return (
@@ -147,9 +169,16 @@ export default function PlanoTreinoPage() {
           </div>
         )}
 
-        <label className={styles.arquivo}>Imagem ou GIF opcional (JPG, PNG, WebP ou GIF · até 5 MB)<input type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={(event) => setImagem(event.target.files?.[0] ?? null)} /></label>
+        <label className={styles.arquivo}>Imagem ou GIF opcional (JPG, PNG, WebP ou GIF · até 5 MB)<input ref={inputImagemRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={selecionarImagem} /></label>
+        {imagem ? (
+          <div className={styles.arquivoSelecionado}>
+            <span className={erroImagem ? styles.arquivoInvalido : undefined}>{imagem.name}</span>
+            <button type="button" onClick={limparImagem}>Remover arquivo</button>
+          </div>
+        ) : null}
+        {erroImagem ? <p role="alert" className={styles.erroImagem}>{erroImagem} Remova o arquivo ou escolha outro.</p> : null}
 
-        <button className={styles.btnSalvar} type="submit" disabled={salvando}>{salvando ? 'Salvando...' : 'Adicionar exercício'}</button>
+        <button className={styles.btnSalvar} type="submit" disabled={salvando || Boolean(erroImagem)}>{salvando ? 'Salvando...' : 'Adicionar exercício'}</button>
       </form>
 
       {forca.length > 0 && (

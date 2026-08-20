@@ -36,6 +36,10 @@ O ponto inicial oficial da cadeia CLI é:
     adiciona cascade e endurece policies de exercícios/redações; reset e onze
     testes SQL aprovados, aplicada em produção em 2026-08-15 após dry-run
     exclusivo e confirmada por pós-check vazio.
+14. `20260820000100_redacoes_nota_mil.sql` — amplia `redacoes.nota` para
+    `NUMERIC(5,1)` e limita o valor a 0–1000; reset e 12 testes SQL aprovados,
+    aplicada em produção em 2026-08-20 após dry-run exclusivo e confirmada por
+    pós-check de schema, histórico e dry-run vazio.
 
 As três baselines foram validadas por dois replays locais completos e por
 comparação com produção. Em 2026-08-08, `migration repair --status applied`
@@ -104,6 +108,12 @@ usuário com `ON DELETE CASCADE` e recria as policies de `exercicios` e
 O reset e os onze testes SQL passaram; o dry-run remoto listou somente essa
 migration, aplicada em 2026-08-15. O pós-check alinhou as 13 versões e deixou o
 dry-run vazio.
+
+`20260820000100_redacoes_nota_mil.sql` corrige o limite histórico de
+`redacoes.nota`, que em `NUMERIC(4,1)` não comportava 1000,0. O reset e os 12
+testes SQL passaram; o dry-run remoto listou somente esta migration, aplicada
+em produção em 2026-08-20. O pós-check confirmou `NUMERIC(5,1)`, constraint
+0–1000, a 14ª versão no histórico e dry-run vazio.
 
 ## Workflow para toda mudança futura
 

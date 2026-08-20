@@ -317,7 +317,13 @@ export default function SeriesSection({
                   capa_url: resultado.capaUrl ?? atual.capa_url,
                   banner_url: resultado.bannerUrl ?? atual.banner_url,
                   ano_lancamento: resultado.ano ?? atual.ano_lancamento,
+                  ano_termino: resultado.anoTermino ?? atual.ano_termino,
                   duracao_minutos: resultado.duracaoMinutos ?? atual.duracao_minutos,
+                  diretor: resultado.diretor ?? atual.diretor,
+                  roteirista: resultado.roteirista ?? atual.roteirista,
+                  produtores: resultado.produtores ?? atual.produtores,
+                  estudio: resultado.estudio ?? atual.estudio,
+                  classificacao_indicativa: resultado.classificacaoIndicativa ?? atual.classificacao_indicativa,
                 }))}
               />
               <label>

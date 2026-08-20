@@ -113,10 +113,20 @@ async function buscarTmdb(q: string, serie: boolean): Promise<ResultadoMetadados
 
   const resultados = (data.results ?? []).slice(0, 6);
   const detalhes = await Promise.allSettled(resultados.map(async (item) => {
-    const detalheParams = new URLSearchParams({ api_key: chave, language: 'pt-BR' });
+    const detalheParams = new URLSearchParams({
+      api_key: chave,
+      language: 'pt-BR',
+      append_to_response: serie ? 'credits,content_ratings' : 'credits,release_dates',
+    });
     return await jsonExterno(`https://api.themoviedb.org/3/${tipo}/${item.id}?${detalheParams}`) as {
       runtime?: number | null;
       episode_run_time?: number[];
+      last_air_date?: string | null;
+      created_by?: Array<{ name?: string }>;
+      production_companies?: Array<{ name?: string }>;
+      credits?: { crew?: Array<{ name?: string; job?: string }> };
+      content_ratings?: { results?: Array<{ iso_3166_1?: string; rating?: string }> };
+      release_dates?: { results?: Array<{ iso_3166_1?: string; release_dates?: Array<{ certification?: string }> }> };
     };
   }));
 
@@ -125,6 +135,23 @@ async function buscarTmdb(q: string, serie: boolean): Promise<ResultadoMetadados
     const duracaoMinutos = serie
       ? detalhe?.episode_run_time?.find((duracao) => duracao > 0)
       : detalhe?.runtime ?? undefined;
+    const equipe = detalhe?.credits?.crew ?? [];
+    const diretores = serie
+      ? detalhe?.created_by?.map((pessoa) => pessoa.name).filter(Boolean)
+      : equipe.filter((pessoa) => pessoa.job === 'Director').map((pessoa) => pessoa.name).filter(Boolean);
+    const roteiristas = equipe
+      .filter((pessoa) => pessoa.job === 'Screenplay' || pessoa.job === 'Writer')
+      .map((pessoa) => pessoa.name)
+      .filter(Boolean);
+    const produtores = equipe
+      .filter((pessoa) => pessoa.job === 'Producer' || pessoa.job === 'Executive Producer')
+      .map((pessoa) => pessoa.name)
+      .filter(Boolean);
+    const classificacao = serie
+      ? detalhe?.content_ratings?.results?.find((valor) => valor.iso_3166_1 === 'BR')?.rating
+      : detalhe?.release_dates?.results
+        ?.find((valor) => valor.iso_3166_1 === 'BR')
+        ?.release_dates?.find((valor) => valor.certification)?.certification;
     return {
       id: String(item.id),
       titulo: item.title ?? item.name ?? 'Título não informado',
@@ -135,6 +162,12 @@ async function buscarTmdb(q: string, serie: boolean): Promise<ResultadoMetadados
       ano: ano(item.release_date ?? item.first_air_date),
       duracaoMinutos,
       identificadorExterno: String(item.id),
+      diretor: diretores?.join(', ') || undefined,
+      roteirista: roteiristas.join(', ') || undefined,
+      produtores: produtores.join(', ') || undefined,
+      estudio: detalhe?.production_companies?.map((empresa) => empresa.name).filter(Boolean).join(', ') || undefined,
+      classificacaoIndicativa: classificacao || undefined,
+      anoTermino: serie ? ano(detalhe?.last_air_date) : undefined,
     };
   });
 }
@@ -193,10 +226,16 @@ async function buscarJikan(q: string, manga: boolean): Promise<ResultadoMetadado
       synopsis?: string | null;
       url?: string;
       year?: number | null;
-      published?: { from?: string | null };
+      published?: { from?: string | null; to?: string | null };
+      aired?: { from?: string | null; to?: string | null };
+      status?: string | null;
+      rating?: string | null;
       images?: { jpg?: { large_image_url?: string; image_url?: string } };
       authors?: Array<{ name?: string }>;
       studios?: Array<{ name?: string }>;
+      producers?: Array<{ name?: string }>;
+      licensors?: Array<{ name?: string }>;
+      serializations?: Array<{ name?: string }>;
       duration?: string | null;
     }>;
   };
@@ -208,11 +247,26 @@ async function buscarJikan(q: string, manga: boolean): Promise<ResultadoMetadado
     autor: manga ? item.authors?.map((autor) => autor.name).filter(Boolean).join(', ') : item.studios?.map((estudio) => estudio.name).filter(Boolean).join(', '),
     descricao: item.synopsis ?? undefined,
     capaUrl: item.images?.jpg?.large_image_url ?? item.images?.jpg?.image_url,
-    ano: item.year ?? ano(item.published?.from),
+    ano: item.year ?? ano(item.aired?.from ?? item.published?.from),
     duracaoMinutos: manga ? undefined : duracaoJikanEmMinutos(item.duration),
     linkOficial: item.url,
     identificadorExterno: String(item.mal_id),
+    produtores: manga ? undefined : item.producers?.map((valor) => valor.name).filter(Boolean).join(', ') || undefined,
+    estudio: manga ? undefined : item.studios?.map((valor) => valor.name).filter(Boolean).join(', ') || undefined,
+    distribuidora: manga ? undefined : item.licensors?.map((valor) => valor.name).filter(Boolean).join(', ') || undefined,
+    classificacaoIndicativa: manga ? undefined : item.rating ?? undefined,
+    editora: manga ? item.serializations?.map((valor) => valor.name).filter(Boolean).join(', ') || undefined : undefined,
+    anoTermino: ano(item.aired?.to ?? item.published?.to),
+    statusPublicacao: manga ? statusPublicacaoJikan(item.status) : undefined,
   }));
+}
+
+function statusPublicacaoJikan(status?: string | null): ResultadoMetadados['statusPublicacao'] {
+  const normalizado = status?.toLowerCase() ?? '';
+  if (normalizado.includes('finished') || normalizado.includes('complete')) return 'concluida';
+  if (normalizado.includes('hiatus')) return 'hiato';
+  if (normalizado.includes('discontinued') || normalizado.includes('cancel')) return 'cancelada';
+  return normalizado ? 'em_andamento' : undefined;
 }
 
 async function buscarItunes(q: string): Promise<ResultadoMetadados[]> {

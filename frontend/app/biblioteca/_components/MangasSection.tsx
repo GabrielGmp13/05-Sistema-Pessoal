@@ -323,6 +323,9 @@ export default function MangasSection({
                   mal_id: resultado.identificadorExterno ?? atual.mal_id,
                   capa_url: resultado.capaUrl ?? atual.capa_url,
                   ano_inicio_publicacao: resultado.ano ?? atual.ano_inicio_publicacao,
+                  ano_fim_publicacao: resultado.anoTermino ?? atual.ano_fim_publicacao,
+                  editora: resultado.editora ?? atual.editora,
+                  status_publicacao: resultado.statusPublicacao ?? atual.status_publicacao,
                   link_mal: resultado.linkOficial ?? atual.link_mal,
                 }))}
               />

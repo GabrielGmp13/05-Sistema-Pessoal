@@ -76,15 +76,13 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
 - [ ] Notas por avaliação com peso (ex: "Prova bimestral" peso 2, "Lista" peso 1) e nota máxima customizável por avaliação, com média ponderada calculada — ideia trazida por um componente gerado pelo v0.dev (`GradeManager`) na tela de Matéria, descartada da restilização de 2026-07-31 por não ter schema equivalente. `provas.nota` hoje é só uma nota simples por prova. Se for adotada, exige tabela nova (algo como `lancamentos_nota`) e entra como decisão de schema em `DECISIONS.md`, não como ajuste de UI.
 - [ ] Estatísticas avançadas de Estudos (ranking de conteúdos fracos/fortes, eficiência de estudo) — depende de volume real de dado acumulado, sem sentido construir com o schema vazio
 - [ ] Upload de arquivo de prova/gabarito em `simulados` — Fase 1 entrega só campos numéricos/observação, sem anexo
-- [ ] Modo "fazer prova na hora" — upload do PDF da prova, cronômetro de
-      fundo (dia 1 ~5h30 / dia 2 ~5h, confirmar minutos exatos), PDF aberto
-      no navegador enquanto o cronômetro roda, gabarito digital preenchido
-      em paralelo (redação fica de fora — escrita à mão, só foto depois).
-      Dois modos de exibição do cronômetro: contagem regressiva simples e
-      estilo "relógio de sala de aplicador" (blocos de 30 em 30 min,
-      riscando o que já passou). Trava novas respostas quando o tempo
-      esgota. Feature grande, própria — ver DEC-041 (registrado, não
-      esquecido) — precisa de `MODULE_TEMPLATE.md` antes de qualquer schema.
+- [x] Base do modo "fazer prova na hora" publicada no fechamento da primeira
+      rodada de homologação: botão por prova, contagem regressiva (Dia 1 5h30,
+      Dia 2 5h), prazo persistido no navegador, gabarito de 90 questões e
+      salvamento ao finalizar; redação permanece fora (DEC-058).
+- [ ] Evolução do modo de prova: upload/abertura do PDF e visual alternativo de
+      "relógio de sala de aplicador" em blocos de 30 minutos. Exige contrato de
+      upload próprio; não bloqueia a base cronometrada já entregue.
 - [ ] Vínculo direto entre um card de Revisão Espaçada e um compromisso da
       Agenda. A Agenda v2 já oferece horário/duração para estudo por matéria e
       conteúdo, mas não cria compromissos automaticamente a partir de cards.

@@ -44,13 +44,13 @@ versionar `.env.local`, service role, senha, connection string ou
 
 ## Banco e migrations
 
-- A cadeia operacional ativa contém 13 migrations em
+- A cadeia operacional ativa contém 14 migrations em
   `backend/supabase/migrations/`.
 - As três baselines e as incrementais até
-  `20260815000200_v21_hardening.sql` estão registradas como
+  `20260820000100_redacoes_nota_mil.sql` estão registradas como
   aplicadas em produção.
-- O pós-check registrado em 2026-08-15 confirmou 63 tabelas, 13 versões
-  alinhadas e nenhuma migration pendente.
+- O pós-check registrado em 2026-08-20 confirmou 63 tabelas, 14 versões
+  alinhadas, `redacoes.nota NUMERIC(5,1)` e nenhuma migration pendente.
 
 Qualquer correção futura de schema deve sair do lote de polimento, receber uma
 nova migration timestamped e cumprir integralmente o fluxo de segurança de

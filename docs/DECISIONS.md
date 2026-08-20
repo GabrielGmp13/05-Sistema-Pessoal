@@ -1078,3 +1078,36 @@ Diário e navegação leem os novos contratos sem dependência nova ou cache de 
 `20260815000200_v21_hardening.sql` não cria tabelas: normaliza o tipo de
 matéria, adiciona CHECK/default, cascade e policies completas para usuários
 autenticados. O frontend ganha somente melhorias sobre dados e rotas existentes.
+
+---
+
+## DEC-058 — Fechamento da homologação amplia temas, Shape e execução do ENEM sem novos domínios
+
+**Data:** 2026-08-20
+**Status:** ✅ Implementada e publicada
+
+### Decisão
+
+- O seletor global preserva claro/escuro e acrescenta um tema claro suave no
+  mesmo `ThemeProvider` e na mesma chave de `localStorage`, sem dependência.
+- Botões primários de CSS Modules usam tokens semânticos de ação baseados em
+  `primary`/`primary-foreground`; `accent` continua reservado a wash e destaque.
+- Shape continua em sua tabela/bucket atuais. Edição, exclusão lógica e troca de
+  foto usam `updated_at` para desempatar registros do mesmo dia; o dashboard
+  assina as fotos existentes e calcula 10 pontos por sessão concluída, sem
+  persistir pontuação artificial.
+- A primeira versão de “Fazer prova ENEM” reutiliza `provas`, as 90 linhas do
+  gabarito e `tempo_minutos`. O prazo fica localmente no navegador, usa 330
+  minutos no Dia 1 e 300 no Dia 2, salva respostas em branco ao finalizar e
+  deixa redação/correção para os fluxos já existentes. PDF e relógio de
+  aplicador continuam no backlog.
+- `redacoes.nota` deve comportar a soma válida de cinco competências de 200.
+  A correção é `NUMERIC(5,1)` com faixa 0–1000 em migration incremental; não se
+  descarta nem arredonda a nota para contornar o schema incorreto.
+
+### Estado operacional
+
+O frontend passou em typecheck e build. A migration passou reset e 12 testes
+SQL; o dry-run remoto listou somente `20260820000100_redacoes_nota_mil.sql`,
+aplicada com autorização explícita em 2026-08-20. O pós-check confirmou
+`NUMERIC(5,1)`, faixa 0–1000, histórico alinhado e nenhuma migration pendente.

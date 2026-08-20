@@ -60,6 +60,7 @@ export interface PesoShape {
   data: string
   peso: number | null
   observacoes: string | null
+  updated_at: string
 }
 
 export type SonoInput = Pick<RegistroSono, 'data' | 'horas_dormidas' | 'horario_dormir' | 'horario_acordar' | 'qualidade'>
@@ -120,11 +121,12 @@ export async function buscarUltimoPeso(): Promise<PesoShape | null> {
   if (!userId) return null
   const { data, error } = await sb
     .from('shape')
-    .select('uuid, data, peso, observacoes')
+    .select('uuid, data, peso, observacoes, updated_at')
     .eq('user_id', userId)
     .eq('deleted', false)
     .not('peso', 'is', null)
     .order('data', { ascending: false })
+    .order('updated_at', { ascending: false })
     .limit(1)
     .maybeSingle()
   if (error) return sbErr(error, 'buscarUltimoPeso')

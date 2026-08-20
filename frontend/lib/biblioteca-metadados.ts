@@ -24,6 +24,14 @@ export interface ResultadoMetadados {
   editora?: string;
   idioma?: string;
   paginas?: number;
+  diretor?: string;
+  roteirista?: string;
+  produtores?: string;
+  estudio?: string;
+  distribuidora?: string;
+  classificacaoIndicativa?: string;
+  anoTermino?: number;
+  statusPublicacao?: 'em_andamento' | 'concluida' | 'hiato' | 'cancelada';
 }
 
 interface RespostaMetadados {

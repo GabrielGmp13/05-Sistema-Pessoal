@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { Loader2, PenLine, Save } from 'lucide-react'
+import { Clock3, Loader2, PenLine, Save } from 'lucide-react'
 import {
   listarTodasMateriasEnem,
   Materia,
@@ -63,6 +63,11 @@ export default function GabaritoProvaPage() {
   const [salvandoLancamento, setSalvandoLancamento] = useState(false)
   const [salvandoCorrecao, setSalvandoCorrecao] = useState(false)
   const [erro, setErro] = useState('')
+  const [modoProva, setModoProva] = useState(false)
+  const [fimProva, setFimProva] = useState<number | null>(null)
+  const [agora, setAgora] = useState(() => Date.now())
+  const [finalizandoTempo, setFinalizandoTempo] = useState(false)
+  const [tentativaAutomatica, setTentativaAutomatica] = useState(false)
 
   // Fase LANÇAR — grade visual, uma letra selecionada por número (ou nenhuma = branco)
   const [letrasSelecionadas, setLetrasSelecionadas] = useState<Record<number, Letra>>({})
@@ -98,6 +103,26 @@ export default function GabaritoProvaPage() {
     if (provaUuid) carregar()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [provaUuid])
+
+  useEffect(() => {
+    if (!prova || !new URLSearchParams(window.location.search).has('modo')) return
+    if (new URLSearchParams(window.location.search).get('modo') !== 'prova') return
+    const chave = `sistema-pessoal:enem-fim:${prova.uuid}`
+    const salvo = Number(localStorage.getItem(chave))
+    const duracaoMinutos = prova.tempo_minutos ?? (prova.tipo === 'enem_dia1' ? 330 : 300)
+    const fim = Number.isFinite(salvo) && salvo > 0 ? salvo : Date.now() + duracaoMinutos * 60_000
+    localStorage.setItem(chave, String(fim))
+    setFimProva(fim)
+    setModoProva(true)
+    setTentativaAutomatica(false)
+    setAgora(Date.now())
+  }, [prova])
+
+  useEffect(() => {
+    if (!modoProva || !fimProva) return
+    const intervalId = window.setInterval(() => setAgora(Date.now()), 1000)
+    return () => window.clearInterval(intervalId)
+  }, [fimProva, modoProva])
 
   // Busca conteúdos sob demanda, conforme o usuário escolhe a matéria de
   // cada linha na correção (matéria não é mais fixa por linha antecipada).
@@ -150,26 +175,52 @@ export default function GabaritoProvaPage() {
     })
   }
 
-  async function handleSalvarLancamento() {
-    if (!prova) return
+  async function handleSalvarLancamento(): Promise<boolean> {
+    if (!prova) return false
     const respostas: RespostaLancamento[] = []
     for (let n = 1; n <= 90; n++) {
       if (numerosJaLancados.has(n)) continue
       respostas.push({ numero: n, letra_marcada: letrasSelecionadas[n] ?? null })
     }
-    if (respostas.length === 0) return
+    if (respostas.length === 0) return true
 
     setSalvandoLancamento(true)
     const salvo = await lancarRespostasGabarito(provaUuid, prova.data, respostas)
     setSalvandoLancamento(false)
     if (!salvo) {
       setErro('Não foi possível salvar o lançamento do gabarito.')
-      return
+      return false
     }
     setErro('')
     setLetrasSelecionadas({})
     await carregar()
+    return true
   }
+
+  async function finalizarModoProva() {
+    if (!prova || finalizandoTempo || salvandoLancamento) return
+    setFinalizandoTempo(true)
+    const salvo = await handleSalvarLancamento()
+    if (!salvo) {
+      setFinalizandoTempo(false)
+      return
+    }
+    localStorage.removeItem(`sistema-pessoal:enem-fim:${prova.uuid}`)
+    setModoProva(false)
+    setFimProva(null)
+    setFinalizandoTempo(false)
+  }
+
+  const segundosRestantes = fimProva ? Math.max(0, Math.ceil((fimProva - agora) / 1000)) : null
+
+  useEffect(() => {
+    if (modoProva && segundosRestantes === 0 && !tentativaAutomatica && !finalizandoTempo && !salvandoLancamento) {
+      setTentativaAutomatica(true)
+      void finalizarModoProva()
+    }
+    // finalizarModoProva usa o estado atual do gabarito; a guarda evita execução duplicada.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modoProva, segundosRestantes, tentativaAutomatica, finalizandoTempo, salvandoLancamento])
 
   function atualizarLinhaCorrecao(
     uuid: string,
@@ -298,9 +349,18 @@ export default function GabaritoProvaPage() {
       </div>
       <PageHeader
         eyebrow={prova.tipo === 'enem_dia1' ? 'Dia 1' : 'Dia 2'}
-        title="Gabarito digital"
-        description="Marque a letra de cada questão, igual ao cartão-resposta oficial. Quem ficar sem clique é contado como em branco quando você salvar."
+        title={modoProva ? 'Fazer prova ENEM' : 'Gabarito digital'}
+        description={modoProva ? 'O cronômetro usa a duração oficial do dia. Marque as respostas; questões sem letra serão salvas em branco ao finalizar.' : 'Marque a letra de cada questão, igual ao cartão-resposta oficial. Quem ficar sem clique é contado como em branco quando você salvar.'}
       />
+
+      {modoProva && segundosRestantes !== null ? (
+        <Card className="sticky top-2 z-30 mt-6 flex flex-wrap items-center gap-3 border-primary/35 bg-card/95 p-4 shadow-lg backdrop-blur">
+          <Clock3 className="size-5 text-primary" />
+          <div><MonoLabel>Tempo restante</MonoLabel><strong className="font-mono text-2xl tabular-nums">{formatarCronometro(segundosRestantes)}</strong></div>
+          <p className="min-w-48 flex-1 text-xs text-muted-foreground">Dia {prova.tipo === 'enem_dia1' ? '1 · 5h30' : '2 · 5h'} · redação fora deste fluxo</p>
+          <Button type="button" onClick={() => void finalizarModoProva()} disabled={finalizandoTempo || salvandoLancamento}>{finalizandoTempo || salvandoLancamento ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}Finalizar prova</Button>
+        </Card>
+      ) : null}
 
       {erro ? (
         <p role="alert" className="mt-6 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
@@ -329,7 +389,7 @@ export default function GabaritoProvaPage() {
       </div>
 
       {/* Redação — só dia 1 */}
-      {prova.tipo === 'enem_dia1' && (
+      {prova.tipo === 'enem_dia1' && !modoProva && (
         <Card className="mt-6 p-5">
           <div className="flex items-center gap-2">
             <PenLine className="size-4 text-muted-foreground" />
@@ -424,16 +484,16 @@ export default function GabaritoProvaPage() {
           </div>
 
           <div className="flex justify-end">
-            <Button size="lg" onClick={handleSalvarLancamento} disabled={salvandoLancamento}>
+            <Button size="lg" onClick={() => void (modoProva ? finalizarModoProva() : handleSalvarLancamento())} disabled={salvandoLancamento || finalizandoTempo}>
               {salvandoLancamento ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
-              Salvar lançamento
+              {modoProva ? 'Finalizar prova e salvar' : 'Salvar lançamento'}
             </Button>
           </div>
         </div>
       )}
 
       {/* FASE 2 — Corrigir (linha a linha: matéria, conteúdo, motivo, dificuldade) */}
-      {pendentesCorrecao.length > 0 && (
+      {pendentesCorrecao.length > 0 && !modoProva && (
         <div className="mt-10 flex flex-col gap-4">
           <h2 className="text-base font-semibold">Corrigir ({pendentesCorrecao.length} pendentes)</h2>
           <Card className="divide-y divide-border overflow-hidden">
@@ -528,4 +588,11 @@ export default function GabaritoProvaPage() {
       )}
     </PageShell>
   )
+}
+
+function formatarCronometro(totalSegundos: number) {
+  const horas = Math.floor(totalSegundos / 3600)
+  const minutos = Math.floor((totalSegundos % 3600) / 60)
+  const segundos = totalSegundos % 60
+  return [horas, minutos, segundos].map((valor) => String(valor).padStart(2, '0')).join(':')
 }

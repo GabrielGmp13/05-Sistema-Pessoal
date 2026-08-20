@@ -45,12 +45,15 @@ export interface RegistroShapeResumo {
   uuid: string
   data: string
   peso: number | null
+  foto_path: string | null
+  updated_at: string
 }
 
 export interface DadosDashboardTreino {
   treinos: Treino[]
   sessoes: SessaoTreinoResumo[]
   sessoesSemana: SessaoTreinoResumo[]
+  sessoesConcluidas: Array<Pick<SessaoTreinoResumo, 'treino_uuid'>>
   registrosShape: RegistroShapeResumo[]
   totalExercicios: number
 }
@@ -240,16 +243,17 @@ export async function getDadosDashboardTreino(
   inicioSemana.setDate(inicioSemana.getDate() - ((inicioSemana.getDay() + 6) % 7))
   inicioSemana.setHours(0, 0, 0, 0)
 
-  const [treinos, sessoes, sessoesSemana, shape, forca, cardio] = await Promise.all([
+  const [treinos, sessoes, sessoesSemana, sessoesConcluidas, shape, forca, cardio] = await Promise.all([
     sb.from('treinos').select('uuid, nome, descricao, modulo_uuid').eq('user_id', userId).eq('deleted', false).order('nome'),
     sb.from('sessoes_treino').select('uuid, treino_uuid, data_inicio, data_fim').eq('user_id', userId).eq('deleted', false).order('data_inicio', { ascending: false }).limit(12),
     sb.from('sessoes_treino').select('uuid, treino_uuid, data_inicio, data_fim').eq('user_id', userId).eq('deleted', false).gte('data_inicio', inicioSemana.toISOString()).order('data_inicio', { ascending: false }),
-    sb.from('shape').select('uuid, data, peso').eq('user_id', userId).eq('deleted', false).order('data', { ascending: false }).limit(6),
+    sb.from('sessoes_treino').select('treino_uuid').eq('user_id', userId).eq('deleted', false).not('data_fim', 'is', null),
+    sb.from('shape').select('uuid, data, peso, foto_path, updated_at').eq('user_id', userId).eq('deleted', false).order('data', { ascending: false }).order('updated_at', { ascending: false }).limit(6),
     sb.from('exercicios_forca').select('uuid').eq('user_id', userId).eq('deleted', false),
     sb.from('exercicios_cardio').select('uuid').eq('user_id', userId).eq('deleted', false),
   ])
 
-  const erro = treinos.error ?? sessoes.error ?? sessoesSemana.error ?? shape.error ?? forca.error ?? cardio.error
+  const erro = treinos.error ?? sessoes.error ?? sessoesSemana.error ?? sessoesConcluidas.error ?? shape.error ?? forca.error ?? cardio.error
   if (erro) {
     console.error('[getDadosDashboardTreino]', erro)
     return null
@@ -259,6 +263,7 @@ export async function getDadosDashboardTreino(
     treinos: treinos.data ?? [],
     sessoes: sessoes.data ?? [],
     sessoesSemana: sessoesSemana.data ?? [],
+    sessoesConcluidas: sessoesConcluidas.data ?? [],
     registrosShape: shape.data ?? [],
     totalExercicios: (forca.data?.length ?? 0) + (cardio.data?.length ?? 0),
   }

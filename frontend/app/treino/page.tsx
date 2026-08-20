@@ -15,6 +15,8 @@ export default function TreinoHubPage() {
   const [dados, setDados] = useState<DadosDashboardTreino | null>(null)
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState('')
+  const [fotosShape, setFotosShape] = useState<string[]>([])
+  const [fotoShapeAtiva, setFotoShapeAtiva] = useState(0)
 
   const carregar = useCallback(async () => {
     setCarregando(true)
@@ -33,6 +35,17 @@ export default function TreinoHubPage() {
     ])
     setModulos(modulosAtuais)
     setDados(resumo)
+    if (resumo) {
+      const fotos = resumo.registrosShape.filter((registro) => registro.foto_path)
+      const urls = await Promise.all(fotos.map(async (registro) => {
+        const { data } = await sb.storage.from('shape').createSignedUrl(registro.foto_path as string, 3600)
+        return data?.signedUrl ?? null
+      }))
+      setFotosShape(urls.filter((url): url is string => Boolean(url)))
+      setFotoShapeAtiva(0)
+    } else {
+      setFotosShape([])
+    }
     if (!resumo) setErro('Parte do resumo de treino não pôde ser carregada.')
     setCarregando(false)
   }, [])
@@ -42,11 +55,32 @@ export default function TreinoHubPage() {
     return () => window.clearTimeout(timeoutId)
   }, [carregar])
 
+  useEffect(() => {
+    if (fotosShape.length < 2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const intervalId = window.setInterval(() => {
+      setFotoShapeAtiva((atual) => (atual + 1) % fotosShape.length)
+    }, 6000)
+    return () => window.clearInterval(intervalId)
+  }, [fotosShape])
+
   const sessoesSemana = dados?.sessoesSemana.length ?? 0
   const duracaoSemanaMinutos = dados?.sessoesSemana
     .reduce((total, sessao) => total + (duracaoSessao(sessao.data_inicio, sessao.data_fim) ?? 0), 0) ?? 0
   const ultimoPeso = dados?.registrosShape.find((registro) => registro.peso !== null)
   const treinosPorUuid = useMemo(() => new Map(dados?.treinos.map((treino) => [treino.uuid, treino]) ?? []), [dados])
+  const progressoModulos = useMemo(() => {
+    const moduloPorTreino = new Map(dados?.treinos.map((treino) => [treino.uuid, treino.modulo_uuid]) ?? [])
+    const sessoesPorModulo = new Map<string, number>()
+    for (const sessao of dados?.sessoesConcluidas ?? []) {
+      const moduloUuid = moduloPorTreino.get(sessao.treino_uuid)
+      if (moduloUuid) sessoesPorModulo.set(moduloUuid, (sessoesPorModulo.get(moduloUuid) ?? 0) + 1)
+    }
+    return modulos.map((modulo) => {
+      const sessoes = sessoesPorModulo.get(modulo.uuid) ?? 0
+      return { ...modulo, sessoes, pontos: sessoes * 10 }
+    })
+  }, [dados, modulos])
+  const maiorPontuacao = Math.max(1, ...progressoModulos.map((modulo) => modulo.pontos))
 
   return (
     <main className={styles.pagina}>
@@ -93,13 +127,36 @@ export default function TreinoHubPage() {
           </section>
 
           <aside className={styles.shape}>
-            <div><p className={styles.eyebrow}>Evolução</p><h2>Shape</h2></div>
-            <Scale />
-            <strong>{ultimoPeso?.peso ? `${ultimoPeso.peso} kg` : 'Sem peso registrado'}</strong>
-            <span>{ultimoPeso ? formatarData(ultimoPeso.data) : 'Fotos e histórico corporal'}</span>
-            <Link href="/treino/shape">Abrir Shape <ArrowRight /></Link>
+            {fotosShape[fotoShapeAtiva] ? <span aria-hidden="true" className={styles.shapeFundo} style={{ backgroundImage: `url(${fotosShape[fotoShapeAtiva]})` }} /> : null}
+            <span aria-hidden="true" className={styles.shapeMascara} />
+            <div className={styles.shapeConteudo}>
+              <div><p className={styles.eyebrow}>Evolução</p><h2>Shape</h2></div>
+              <Scale />
+              <strong>{ultimoPeso?.peso ? `${ultimoPeso.peso} kg` : 'Sem peso registrado'}</strong>
+              <span>{ultimoPeso ? formatarData(ultimoPeso.data) : 'Fotos e histórico corporal'}</span>
+              <Link href="/treino/shape">Abrir Shape <ArrowRight /></Link>
+            </div>
           </aside>
         </div>
+
+        <section className={styles.secao}>
+          <div className={styles.secaoCabecalho}>
+            <div><p className={styles.eyebrow}>Pontuação pessoal</p><h2>Progresso por modalidade</h2></div>
+            <span>10 pontos por sessão concluída</span>
+          </div>
+          {progressoModulos.every((modulo) => modulo.pontos === 0) ? (
+            <p className={styles.vazio}>Finalize sessões para começar sua pontuação por modalidade.</p>
+          ) : (
+            <div className={styles.progressoModulos}>
+              {progressoModulos.map((modulo) => (
+                <div key={modulo.uuid} className={styles.progressoModulo}>
+                  <div><strong>{modulo.nome}</strong><span>{modulo.pontos} pts · {modulo.sessoes} {modulo.sessoes === 1 ? 'sessão' : 'sessões'}</span></div>
+                  <div className={styles.progressoTrilho} aria-label={`${modulo.nome}: ${modulo.pontos} pontos`}><span style={{ width: `${(modulo.pontos / maiorPontuacao) * 100}%`, backgroundColor: modulo.cor }} /></div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
 
         <section className={styles.secao}>
           <div className={styles.secaoCabecalho}>

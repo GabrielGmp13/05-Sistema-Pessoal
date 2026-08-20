@@ -260,6 +260,12 @@ export default function AgendaPage() {
     else await carregar()
   }
 
+  async function alternarEventoEditando() {
+    if (!eventoEditando) return
+    await alternarConcluido(eventoEditando)
+    setDialogAberto(false)
+  }
+
   async function apagarEvento() {
     if (!eventoParaApagar) return
     const apagado = await deletarEventoAgenda(eventoParaApagar.uuid)
@@ -361,6 +367,7 @@ export default function AgendaPage() {
           formulario={formulario}
           editando={eventoEditando !== null}
           salvando={salvando}
+          concluido={eventoEditando?.concluido}
           materias={materias}
           conteudos={conteudos}
           treinos={treinos}
@@ -368,6 +375,7 @@ export default function AgendaPage() {
           onMudarTipo={mudarTipo}
           onClose={() => setDialogAberto(false)}
           onSubmit={salvarEvento}
+          onAlternarConcluido={eventoEditando ? alternarEventoEditando : undefined}
         />
       ) : null}
 
@@ -406,7 +414,7 @@ function EventoCard({ evento, materia, treino, onEditar, onApagar, onAlternar }:
         </div>
       </div>
       <div className="mt-3 flex justify-end gap-1 border-t border-border pt-2">
-        <Button type="button" variant="ghost" size="icon-xs" onClick={onAlternar} aria-label={evento.concluido ? 'Reabrir compromisso' : 'Concluir compromisso'}><Check /></Button>
+        <Button type="button" variant="outline" size="sm" onClick={onAlternar} aria-label={evento.concluido ? 'Reabrir compromisso' : 'Concluir compromisso'}><Check />{evento.concluido ? 'Reabrir' : 'Concluir'}</Button>
         <Button type="button" variant="ghost" size="icon-xs" onClick={onEditar} aria-label="Editar compromisso"><Edit3 /></Button>
         <Button type="button" variant="ghost" size="icon-xs" onClick={onApagar} aria-label="Apagar compromisso"><Trash2 /></Button>
       </div>
@@ -431,10 +439,11 @@ function ProvaAgenda({ prova, materia }: { prova: Prova; materia?: Materia }) {
   return prova.materia_uuid ? <Link href={`/estudos/materia/${prova.materia_uuid}`} className="outline-none focus-visible:ring-[3px] focus-visible:ring-ring/30">{conteudo}</Link> : conteudo
 }
 
-function EventoDialog({ formulario, editando, salvando, materias, conteudos, treinos, onChange, onMudarTipo, onClose, onSubmit }: {
+function EventoDialog({ formulario, editando, salvando, concluido, materias, conteudos, treinos, onChange, onMudarTipo, onClose, onSubmit, onAlternarConcluido }: {
   formulario: FormularioEvento
   editando: boolean
   salvando: boolean
+  concluido?: boolean
   materias: Materia[]
   conteudos: Conteudo[]
   treinos: Treino[]
@@ -442,6 +451,7 @@ function EventoDialog({ formulario, editando, salvando, materias, conteudos, tre
   onMudarTipo: (tipo: TipoEventoAgenda) => void
   onClose: () => void
   onSubmit: (event: React.FormEvent) => void
+  onAlternarConcluido?: () => void
 }) {
   useEffect(() => {
     function fechar(event: KeyboardEvent) { if (event.key === 'Escape') onClose() }
@@ -476,7 +486,7 @@ function EventoDialog({ formulario, editando, salvando, materias, conteudos, tre
           {formulario.tipo === 'treino' ? <Field label="Treino" htmlFor="evento-treino" className="sm:col-span-2"><Select id="evento-treino" required value={formulario.treinoUuid} onChange={(event) => onChange((atual) => ({ ...atual, treinoUuid: event.target.value }))}><option value="">Selecione</option>{treinos.map((treino) => <option key={treino.uuid} value={treino.uuid}>{treino.nome}</option>)}</Select></Field> : null}
 
           <Field label="Descrição" htmlFor="evento-descricao" optional className="sm:col-span-2"><Textarea id="evento-descricao" value={formulario.descricao} onChange={(event) => onChange((atual) => ({ ...atual, descricao: event.target.value }))} /></Field>
-          <div className="flex justify-end gap-2 border-t border-border pt-4 sm:col-span-2"><Button type="button" variant="outline" onClick={onClose} disabled={salvando}>Cancelar</Button><Button type="submit" disabled={salvando}>{salvando ? 'Salvando...' : 'Salvar'}</Button></div>
+          <div className="flex flex-wrap justify-end gap-2 border-t border-border pt-4 sm:col-span-2">{onAlternarConcluido ? <Button type="button" variant="secondary" onClick={onAlternarConcluido} disabled={salvando} className="mr-auto"><Check />{concluido ? 'Reabrir compromisso' : 'Concluir compromisso'}</Button> : null}<Button type="button" variant="outline" onClick={onClose} disabled={salvando}>Cancelar</Button><Button type="submit" disabled={salvando}>{salvando ? 'Salvando...' : 'Salvar'}</Button></div>
         </form>
       </div>
     </div>

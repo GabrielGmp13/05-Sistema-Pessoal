@@ -2,11 +2,11 @@
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 
-type Tema = 'claro' | 'escuro'
+export type Tema = 'claro' | 'suave' | 'escuro'
 
 interface TemaContextValue {
   tema: Tema
-  alternarTema: () => void
+  definirTema: (tema: Tema) => void
 }
 
 const TemaContext = createContext<TemaContextValue | null>(null)
@@ -16,7 +16,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [tema, setTema] = useState<Tema>('claro')
 
   useEffect(() => {
-    const salvo = localStorage.getItem(CHAVE_STORAGE) as Tema | null
+    const valorSalvo = localStorage.getItem(CHAVE_STORAGE)
+    const salvo = valorSalvo === 'claro' || valorSalvo === 'suave' || valorSalvo === 'escuro'
+      ? valorSalvo
+      : null
     const preferencia =
       salvo ?? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'escuro' : 'claro')
     setTema(preferencia)
@@ -24,17 +27,15 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', tema === 'escuro')
+    document.documentElement.classList.toggle('soft', tema === 'suave')
   }, [tema])
 
-  function alternarTema() {
-    setTema((atual) => {
-      const proximo = atual === 'claro' ? 'escuro' : 'claro'
-      localStorage.setItem(CHAVE_STORAGE, proximo)
-      return proximo
-    })
+  function definirTema(proximo: Tema) {
+    localStorage.setItem(CHAVE_STORAGE, proximo)
+    setTema(proximo)
   }
 
-  return <TemaContext.Provider value={{ tema, alternarTema }}>{children}</TemaContext.Provider>
+  return <TemaContext.Provider value={{ tema, definirTema }}>{children}</TemaContext.Provider>
 }
 
 export function useTema() {

@@ -23,6 +23,7 @@ usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
 - [ ] Nome, descrição, avatar e background salvam, aparecem no topo e persistem após recarregar
 - [ ] URLs vazias mantêm o fallback do tema; URLs inválidas não quebram o layout
 - [ ] Logout encerra a sessão; voltar no navegador não reabre conteúdo protegido
+- [ ] Depois de entrar novamente, o botão de logout mostra “Sair” sem exigir F5
 
 ## Hub
 
@@ -34,11 +35,14 @@ usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
 ## Treino
 
 - [ ] Dashboard mostra planos, exercícios, duração semanal e sessões recentes corretamente
-- [ ] Criar/editar/excluir módulo, treino e exercícios de força/cardio funciona com cancelamento seguro
+- [ ] Os sete módulos fixos aparecem; criar/editar/excluir treino e exercícios de força/cardio funciona com cancelamento seguro
 - [ ] Imagem/GIF de exercício aceita JPG/PNG/WebP/GIF até 5 MB, reaparece por URL assinada e não deixa arquivo órfão se o cadastro falhar
 - [ ] Modo Academia registra séries/cardio, conclui sessão e atualiza duração/histórico
 - [ ] Shape salva peso/observação e aceita foto JPG/PNG/WebP de até 10 MB por URL assinada
 - [ ] Arquivo inválido ou falha de upload em Shape exibe erro e não cria registro incompleto
+- [ ] Arquivo inválido de exercício pode ser removido/substituído e bloqueia o envio enquanto inválido
+- [ ] Clicar num Shape permite editar/excluir; dois registros no mesmo dia usam o mais atualizado em Saúde/Treino
+- [ ] Card de Shape alterna fotos reais discretamente e a pontuação por modalidade corresponde às sessões concluídas
 
 ## Biblioteca
 
@@ -59,7 +63,9 @@ usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
 - [ ] Upload de material aceita apenas formatos previstos, até 50 MB, e abre por URL assinada
 - [ ] Curso cria módulos/aulas, conclui/reabre e exibe vídeo vinculado da Biblioteca
 - [ ] Gabarito ENEM valida letra/classificação, calcula resultados e conclui a prova quando completo
+- [ ] “Fazer prova ENEM” inicia 5h30/5h, mantém o prazo após recarregar e salva o cartão ao finalizar
 - [ ] Redação salva texto/notas/competências e foto privada; substituir/remover imagem mantém consistência
+- [ ] Redação com C1–C5 em 200 salva nota total 1000 após a migration deste lote
 
 ## Revisão
 
@@ -77,6 +83,7 @@ usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
 - [ ] CRUD de evento geral, estudo e treino preserva data, horário e duração
 - [ ] Provas aparecem por leitura de Estudos sem duplicação e apontam para a matéria correta
 - [ ] Concluir/reabrir e excluir atualizam Hub e Agenda após recarregar
+- [ ] Concluir/reabrir é visível por texto no card e no modal, não depende de interpretar apenas um ícone
 
 ## Diário
 
@@ -147,9 +154,9 @@ usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
 - [ ] Modais, painéis, menus e formulários cabem na viewport e mantêm foco/teclado utilizáveis
 - [ ] Tabelas, grids, cards com textos longos e estados vazios não sobrepõem controles
 
-## Tema claro e escuro
+## Temas claro, suave e escuro
 
-- [ ] Alternância funciona no login e em todas as rotas autenticadas e persiste após recarregar
+- [ ] Seleção claro/suave/escuro funciona no login e em todas as rotas autenticadas e persiste após recarregar
 - [ ] Texto, bordas, inputs, foco, alertas, favoritos, estrelas e ações destrutivas têm contraste suficiente
 - [ ] Imagens, placeholders, signed URLs e background do perfil não ocultam conteúdo
 - [ ] Animações respeitam `prefers-reduced-motion`

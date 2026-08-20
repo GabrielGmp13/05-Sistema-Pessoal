@@ -68,10 +68,11 @@ dessas duas pastas deve ser executado como migration.
 | `20260814000100` | `20260814000100_idiomas.sql` | ✅ Reset e nove testes SQL aprovados; aplicada em produção em 2026-08-15 após dry-run exclusivo; pós-check confirmou tabelas, RLS, policies e GRANTs |
 | `20260815000100` | `20260815000100_programacao_investimentos.sql` | ✅ Reset e dez testes SQL aprovados; aplicada em produção em 2026-08-15 após dry-run exclusivo; pós-check confirmou 63 tabelas, histórico, campos de Projetos, RLS, policy e GRANT de Investimentos |
 | `20260815000200` | `20260815000200_v21_hardening.sql` | ✅ Reset e onze testes SQL aprovados; aplicada em produção em 2026-08-15 após dry-run exclusivo; pós-check confirmou histórico alinhado e nenhum arquivo pendente |
+| `20260820000100` | `20260820000100_redacoes_nota_mil.sql` | ✅ Reset e 12 testes SQL aprovados; dry-run listou somente esta migration; aplicada em produção em 2026-08-20; pós-check confirmou `NUMERIC(5,1)`, constraint 0–1000, histórico e dry-run vazio |
 
-> **Estado confirmado (2026-08-15):** produção e cadeia local estão alinhadas
-> até o hardening v2.1. A migration não cria tabelas; `public` permanece com
-> 63 tabelas.
+> **Estado confirmado (2026-08-20):** produção e cadeia local estão alinhadas
+> até `20260820000100_redacoes_nota_mil.sql`. A migration não cria tabelas;
+> `public` permanece com 63 tabelas.
 
 As três baselines foram adotadas no histórico remoto em 2026-08-08 por
 `migration repair --status applied`, depois de recaptura somente leitura de
@@ -932,7 +933,7 @@ uuid          TEXT PRIMARY KEY,
 user_id       UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
 tema          TEXT NOT NULL,
 texto         TEXT,             -- nullable desde 017 — permite registrar só a foto
-nota          NUMERIC(4,1),
+nota          NUMERIC(5,1),       -- 0 a 1000 desde 20260820000100
 comentario    TEXT,
 data          DATE NOT NULL,
 updated_at    TIMESTAMPTZ DEFAULT NOW(),
@@ -945,7 +946,11 @@ competencia_5 NUMERIC(5,1),
 imagem_path   TEXT,          -- bucket 'redacoes', foto da folha manuscrita
 CONSTRAINT redacoes_competencia_1_check CHECK (competencia_1 IS NULL OR competencia_1 BETWEEN 0 AND 200)
 -- (mesma CHECK para competencia_2..5)
+CONSTRAINT redacoes_nota_range CHECK (nota IS NULL OR nota BETWEEN 0 AND 1000)
 ```
+> `20260820000100_redacoes_nota_mil.sql`, aplicada em produção em 2026-08-20,
+> corrige o limite histórico de `NUMERIC(4,1)`. Cinco competências de 200 agora
+> podem produzir e persistir a nota total válida de 1000,0.
 
 ### Idiomas (`20260814000100_idiomas.sql`)
 

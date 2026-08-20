@@ -5,17 +5,34 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 ---
 
 ## Status geral
-**Fase atual:** v2.1 — lote documentado de melhorias de baixo risco concluído tecnicamente; homologação manual permanece pendente. A v1 está aposentada (DEC-031) e `frontend/` é o único frontend ativo.
-**Bloqueio:** nenhum bloqueio técnico conhecido; a migration de hardening v2.1 está aplicada em produção.
-**Banco:** produção e cadeia local estão alinhadas até `20260815000200_v21_hardening.sql`; pós-check remoto de 2026-08-15 confirmou o histórico alinhado e dry-run vazio.
+**Fase atual:** v2.1 — correções da primeira rodada de homologação publicadas; reteste manual em produção pendente. A v1 está aposentada (DEC-031) e `frontend/` é o único frontend ativo.
+**Bloqueio:** nenhum bloqueio técnico conhecido neste lote; resta homologação manual autenticada.
+**Banco:** produção e cadeia local estão alinhadas até `20260820000100_redacoes_nota_mil.sql`; o pós-check de 2026-08-20 confirmou `redacoes.nota NUMERIC(5,1)`, faixa 0–1000 e dry-run remoto vazio.
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** executar e registrar a homologação manual completa descrita em `HOMOLOGATION_V2.md`, incluindo os fluxos v2.1, temas e tamanhos de tela.
+**Próxima ação:** retestar em produção as correções registradas em `docs/teste.md`, nos três temas e em desktop/mobile.
+
+## Correções da homologação v2.1 — publicadas em 2026-08-20
+
+- [x] Logout reseta “Saindo...” em erro, troca de rota e novo login.
+- [x] Botões principais de Treino usam tokens de ação com contraste consistente.
+- [x] Imagem inválida de exercício pode ser removida ou substituída e bloqueia o envio.
+- [x] Shape permite editar/excluir por clique no registro, com `ConfirmDialog`; Saúde e Treino desempataram registros do mesmo dia por `updated_at`.
+- [x] Card de Shape no dashboard usa dados/fotos reais com rotação discreta; pontuação por modalidade deriva de sessões concluídas.
+- [x] Agenda tornou concluir/reabrir visível no card e no modal de edição.
+- [x] Tema suave foi adicionado sem remover claro/escuro e usa a mesma preferência persistida.
+- [x] TMDB e Jikan preenchem campos adicionais já existentes no schema; demais fontes preservam seus contratos atuais.
+- [x] Base do modo “Fazer prova ENEM” usa o gabarito existente, cronômetro de 5h30/5h e persistência local do prazo; redação fica fora.
+- [x] Causa da falha de Redações identificada: `NUMERIC(4,1)` não comporta 1000,0; migration incremental e teste específico foram criados.
+- [x] Reset local completo e 12 testes SQL aprovados, incluindo `validate_redacoes_nota_mil.sql`.
+- [x] Dry-run remoto listou exclusivamente `20260820000100_redacoes_nota_mil.sql`.
+- [x] Migration aplicada com autorização explícita; pós-check confirmou schema/histórico e dry-run vazio.
+- [ ] Retestar em produção os itens marcados em `docs/teste.md`.
 
 ## Únicas tarefas ativas antes de concluir a v2
 
 - [ ] Executar integralmente `HOMOLOGATION_V2.md` em ambiente publicado e registrar commit/deploy, navegador, dispositivo e tema.
 - [ ] Corrigir e retestar somente bugs bloqueantes, falhas de segurança/dados e polimentos claramente decorrentes da homologação.
-- [ ] Confirmar desktop/mobile e temas claro/escuro antes de declarar a v2 concluída.
+- [ ] Confirmar desktop/mobile e temas claro/suave/escuro antes de declarar a v2 concluída.
 
 **Escopo após o lote:** não iniciar módulo, integração pesada ou redesign antes da homologação. As caixas não marcadas nas seções históricas abaixo representam testes consolidados pelo checklist ou evoluções movidas para `BACKLOG.md`; não são autorização para ampliar a release candidate.
 

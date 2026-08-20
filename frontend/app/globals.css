@@ -270,6 +270,8 @@
   --surface-2: var(--muted);
   --accent-wash: var(--accent);
   --accent-wash-forte: color-mix(in oklch, var(--accent) 55%, var(--accent-foreground) 20%);
+  --acao: var(--primary);
+  --acao-texto: var(--primary-foreground);
   --text: var(--foreground);
   --texto-secundario: var(--muted-foreground);
 
@@ -279,6 +281,39 @@
   --erro-forte: #f87171;
   --aviso: #fb923c;
   --texto-terciario: #444;
+}
+
+.soft {
+  color-scheme: light;
+
+  --background: oklch(0.94 0.018 104);
+  --foreground: oklch(0.235 0.012 75);
+  --card: oklch(0.97 0.012 104);
+  --card-foreground: oklch(0.235 0.012 75);
+  --popover: oklch(0.98 0.01 104);
+  --popover-foreground: oklch(0.235 0.012 75);
+  --primary: oklch(0.31 0.035 145);
+  --primary-foreground: oklch(0.985 0.004 106);
+  --secondary: oklch(0.9 0.018 104);
+  --secondary-foreground: oklch(0.27 0.015 75);
+  --muted: oklch(0.9 0.018 104);
+  --muted-foreground: oklch(0.48 0.018 75);
+  --accent: oklch(0.86 0.055 150);
+  --accent-foreground: oklch(0.27 0.06 150);
+  --success: oklch(0.7 0.13 158);
+  --success-foreground: oklch(0.27 0.07 158);
+  --success-muted: oklch(0.89 0.055 158);
+  --border: oklch(0.84 0.018 104);
+  --input: oklch(0.84 0.018 104);
+  --ring: oklch(0.58 0.11 152);
+  --sidebar: oklch(0.955 0.014 104);
+  --sidebar-foreground: oklch(0.235 0.012 75);
+  --sidebar-primary: oklch(0.31 0.035 145);
+  --sidebar-primary-foreground: oklch(0.985 0.004 106);
+  --sidebar-accent: oklch(0.86 0.055 150);
+  --sidebar-accent-foreground: oklch(0.27 0.06 150);
+  --sidebar-border: oklch(0.84 0.018 104);
+  --sidebar-ring: oklch(0.58 0.11 152);
 }
 
 .dark {
@@ -355,8 +390,8 @@ h3 {
 
 /* Botões — DESIGN.md → Componentes → Botões */
 .btn-salvar {
-  background: var(--accent);
-  color: var(--bg);
+  background: var(--acao);
+  color: var(--acao-texto);
   border: none;
   border-radius: 8px;
   font-weight: 700;

@@ -20,6 +20,18 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — v2.1 pronta tecnicamente; homologação manual pendente
 
+- **2026-08-20 (correções da primeira homologação publicadas)** —
+  Corrigidos estado de logout, contraste das ações de Treino, seleção inválida
+  de imagem, edição/exclusão de Shape, desempate do peso diário e visibilidade
+  de concluir/reabrir na Agenda. O dashboard de Treino ganhou fotos reais do
+  Shape e pontuação derivada de sessões; o sistema ganhou tema suave; TMDB e
+  Jikan passaram a preencher mais campos existentes; e o gabarito ENEM ganhou
+  modo cronometrado de 5h30/5h. A falha de Redações foi rastreada ao limite de
+  `NUMERIC(4,1)` para uma nota máxima de 1000,0. A migration incremental
+  `20260820000100_redacoes_nota_mil.sql` passou reset e 12 testes SQL; o dry-run
+  remoto listou somente esse arquivo, a aplicação foi autorizada e o pós-check
+  confirmou `NUMERIC(5,1)`, faixa 0–1000, histórico alinhado e dry-run vazio.
+
 - **2026-08-15 (melhorias documentadas v2.1)** — Agenda ganhou visão mensal;
   Revisão passou a pré-visualizar CSV/TSV e filtrar por módulo; Histórico ganhou
   resumo mensal, legenda e exportação CSV; Finanças mostra valor atual, resultado

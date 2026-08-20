@@ -14,7 +14,7 @@ Diferente da DEC-034 (só modo escuro), esta paleta tem **modo claro e
 escuro reais**, com toggle funcional no sistema inteiro (DEC-039/049).
 
 ```css
-/* Claro (:root) e escuro (.dark) — valores completos em oklch() no
+/* Claro (:root), suave (.soft) e escuro (.dark) — valores completos em oklch() no
    globals.css real. Vocabulário shadcn (--background/--card/--primary...)
    é a fonte da verdade; vocabulário antigo (--bg/--surface/--accent...)
    é alias, consumido pelos CSS Modules de Treino/Dashboard sem alteração
@@ -25,6 +25,8 @@ escuro reais**, com toggle funcional no sistema inteiro (DEC-039/049).
 --accent:  var(--accent-foreground)   /* cor legível de destaque — texto/ícone/borda ativa */
 --accent-wash: var(--accent)          /* fundo do wash — item ativo da sidebar */
 --accent-wash-forte: color-mix(in oklch, var(--accent) 55%, var(--accent-foreground) 20%)
+--acao:   var(--primary)
+--acao-texto: var(--primary-foreground)
 --text:    var(--foreground)
 --texto-secundario: var(--muted-foreground)
 ```
@@ -87,7 +89,7 @@ padding: 1–1.5rem;
 ### Botões
 | Tipo | Estilo |
 |---|---|
-| Primário | fundo `--accent`, texto `--bg`, `border-radius: 6–8px`, `font-weight: 700` |
+| Primário | fundo `--acao`, texto `--acao-texto`, `border-radius: 6–8px`, `font-weight: 700` |
 | Secundário dourado (ex: "Adicionar" no banner) | fundo `--accent-wash-forte`, texto `--accent`, sem borda |
 | Fantasma | sem fundo, borda `--border`, texto secundário, hover clareia borda |
 | Destrutivo | sem fundo, borda `#ff6b6b`, hover preenche com `rgba(255,107,107,.1)` |

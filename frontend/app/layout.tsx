@@ -18,6 +18,7 @@ const SCRIPT_ANTI_FLASH = `
     var salvo = localStorage.getItem(chave);
     var escuro = salvo ? salvo === 'escuro' : window.matchMedia('(prefers-color-scheme: dark)').matches;
     if (escuro) document.documentElement.classList.add('dark');
+    if (salvo === 'suave') document.documentElement.classList.add('soft');
   } catch (e) {}
 })();
 `;

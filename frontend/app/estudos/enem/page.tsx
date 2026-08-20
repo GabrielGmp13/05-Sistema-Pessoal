@@ -7,6 +7,7 @@ import {
   ChevronRight,
   FileCheck2,
   Plus,
+  Timer,
 } from 'lucide-react'
 import {
   listarTodasMateriasEnem,
@@ -69,7 +70,7 @@ export default function EnemPage() {
       conteudo_uuid: null,
       titulo: novaProva.titulo || (novaProva.tipo === 'enem_dia1' ? 'ENEM — Dia 1' : 'ENEM — Dia 2'),
       data: novaProva.data,
-      tempo_minutos: null,
+      tempo_minutos: novaProva.tipo === 'enem_dia1' ? 330 : 300,
       redacao_uuid: null,
       nota: null,
       feita: false,
@@ -137,15 +138,24 @@ export default function EnemPage() {
                         </span>
                         <MonoLabel>{formatDate(p.data)}</MonoLabel>
                       </div>
+                      <div className="ml-auto flex flex-wrap gap-2">
+                      <Link
+                        href={`/estudos/enem/gabarito/${p.uuid}?modo=prova`}
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-2.5 py-1.5 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/80 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/30"
+                      >
+                        <Timer className="size-3.5" />
+                        Fazer prova
+                      </Link>
                       <Link
                         href={`/estudos/enem/gabarito/${p.uuid}`}
                         className={cn(
-                          'ml-auto inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-2.5 py-1.5 text-sm font-medium text-foreground transition-all hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/30',
+                          'inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-2.5 py-1.5 text-sm font-medium text-foreground transition-all hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/30',
                         )}
                       >
                         <FileCheck2 className="size-3.5" />
                         Gabarito
                       </Link>
+                      </div>
                     </div>
                   ))}
                 </Card>

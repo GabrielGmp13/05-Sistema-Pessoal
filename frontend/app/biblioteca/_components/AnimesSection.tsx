@@ -332,6 +332,10 @@ export default function AnimesSection({
                   ano_lancamento: resultado.ano ?? atual.ano_lancamento,
                   sinopse: resultado.descricao ?? atual.sinopse,
                   estudio: resultado.autor ?? atual.estudio,
+                  produtores: resultado.produtores ?? atual.produtores,
+                  distribuidora: resultado.distribuidora ?? atual.distribuidora,
+                  classificacao_indicativa: resultado.classificacaoIndicativa ?? atual.classificacao_indicativa,
+                  ano_termino: resultado.anoTermino ?? atual.ano_termino,
                   link_mal: resultado.linkOficial ?? atual.link_mal,
                   duracao_minutos: resultado.duracaoMinutos ?? atual.duracao_minutos,
                 }))}

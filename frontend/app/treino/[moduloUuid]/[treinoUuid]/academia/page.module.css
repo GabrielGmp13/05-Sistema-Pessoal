@@ -15,7 +15,7 @@
 .inputSerie { min-width: 0; }
 .checkOff, .checkOn { width: 2.2rem; height: 2.2rem; border-radius: 6px; border: 1px solid var(--border); background: none; color: #555; cursor: pointer; }
 .checkOff, .checkOn { flex-shrink: 0; box-sizing: border-box; }
-.checkOn { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 700; }
+.checkOn { background: var(--acao); color: var(--acao-texto); border-color: var(--acao); font-weight: 700; }
 
-.btnSalvar { width: 100%; background: var(--accent); color: var(--bg); border: none; border-radius: 8px; padding: .8rem; font-weight: 700; cursor: pointer; margin-top: 1rem; }
+.btnSalvar { width: 100%; background: var(--acao); color: var(--acao-texto); border: none; border-radius: 8px; padding: .8rem; font-weight: 700; cursor: pointer; margin-top: 1rem; }
 .fim { text-align: center; font-size: 1.1rem; margin: 3rem 0 1.5rem; }
