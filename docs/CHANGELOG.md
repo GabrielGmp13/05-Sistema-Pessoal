@@ -20,6 +20,12 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — v2.1 pronta tecnicamente; homologação manual pendente
 
+- **2026-08-21 (atmosfera visual de Treino e card de Shape)** — `/treino`
+  passou a preservar a profundidade dos cinco ambientes com fundos em camadas,
+  superfícies, bordas e sombras integradas. O card de Shape ganhou foto
+  full-bleed sem faixa superior, centro livre e rodapé dedicado para balança,
+  peso, data e acesso ao histórico, sem alteração de dados ou consultas.
+
 - **2026-08-20 (refinamento da atmosfera)** — As cinco iluminações ganharam
   paletas atmosféricas com profundidade de página, superfícies, vidro, header e
   sombras coerentes. Primavera, Verão, Outono e Inverno passaram a ter formas,

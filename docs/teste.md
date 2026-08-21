@@ -304,4 +304,7 @@ continua separada em `[ ]`.
   rotativa e remover a pequena faixa sem imagem no topo do card.
 - [x] Conteúdo de evolução foi dividido em cabeçalho limpo e rodapé; fundo e
   máscara cobrem toda a área interna, inclusive a borda superior.
-- [ ] Retestar com/sem foto e peso em desktop/mobile, nos temas claro, suave e escuro.
+- [x] Rodapé visual e clipping da foto foram reforçados; `/treino` ganhou
+  profundidade própria coerente com Sol, Suave, Nublado, Estrelado e Lua.
+- [ ] Retestar com/sem foto e peso em desktop/mobile, nos ambientes Sol, Suave,
+  Nublado, Estrelado e Lua.

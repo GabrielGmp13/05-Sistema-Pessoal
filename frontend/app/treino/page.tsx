@@ -130,7 +130,7 @@ export default function TreinoHubPage() {
             {fotosShape[fotoShapeAtiva] ? <span aria-hidden="true" className={styles.shapeFundo} style={{ backgroundImage: `url(${fotosShape[fotoShapeAtiva]})` }} /> : null}
             <span aria-hidden="true" className={styles.shapeMascara} />
             <div className={styles.shapeConteudo}>
-              <div><p className={styles.eyebrow}>Evolução</p><h2>Shape</h2></div>
+              <div className={styles.shapeCabecalho}><p className={styles.eyebrow}>Evolução</p><h2>Shape</h2></div>
               <div className={styles.shapeRodape}>
                 <Scale />
                 <strong>{ultimoPeso?.peso ? `${ultimoPeso.peso} kg` : 'Sem peso registrado'}</strong>

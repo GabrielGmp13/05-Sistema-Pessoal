@@ -41,6 +41,12 @@ azul-marinho/petróleo; Lua usa carvão e grafite quentes. `--page-glow`,
 `--page-depth`, `--glass-background`, `--atmosphere-panel` e os tokens do topo
 criam profundidade sem substituir os tokens de negócio.
 
+Na entrada de Treino, o fundo e as superfícies derivam desses mesmos tokens em
+camadas discretas: métricas e modalidades recebem relevo sutil, enquanto
+Estrelado e Lua aprofundam azul-marinho/carvão sem reduzir contraste. O card de
+Shape mantém foto full-bleed com clipping arredondado, título no topo e dados
+corporais concentrados em um rodapé com overlay legível.
+
 Cores secundárias usadas em contexto (não são variáveis CSS formais, mas aparecem consistentemente):
 
 | Uso | Cor | Contexto |
