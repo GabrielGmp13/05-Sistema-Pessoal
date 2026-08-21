@@ -94,7 +94,9 @@ usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
 
 - [ ] Semana/mês anterior e seguinte, alternância de visão e retorno ao período atual funcionam no fuso local
 - [ ] Visão mensal posiciona dias corretamente e não duplica provas ou compromissos
-- [ ] CRUD de evento geral, estudo e treino preserva data, horário e duração
+- [ ] CRUD de evento geral, estudo e treino preserva data, horário, duração e prioridade
+- [ ] Prioridade inicia em normal, aceita baixa/normal/alta e reaparece após editar/recarregar
+- [ ] No mesmo dia, eventos ficam por horário; empates usam alta, normal e baixa; sem horário fica no fim
 - [ ] Provas aparecem por leitura de Estudos sem duplicação e apontam para a matéria correta
 - [ ] Concluir/reabrir e excluir atualizam Hub e Agenda após recarregar
 - [ ] Concluir/reabrir é visível por texto no card e no modal, não depende de interpretar apenas um ícone

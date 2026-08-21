@@ -142,6 +142,12 @@ SUG/BUG: não sei se ainda não foi implementado mas não tem a função fazer p
 
 ## Sessão 5 — Agenda 🔴
 
+Prioridade foi corrigida em código, validada e publicada em 2026-08-21; os
+itens abaixo continuam desmarcados até o reteste manual de Gabriel.
+
+- [ ] Criar três eventos no mesmo dia/horário com prioridades baixa, normal e alta; conferir ordem alta → normal → baixa
+- [ ] Criar evento sem horário; confirmar que aparece após os eventos com horário e mantém a prioridade após recarregar/editar
+- [ ] Confirmar que provas vindas de Estudos continuam sem prioridade editável e sem duplicação
 - [x] Criar evento geral, evento de estudo (matéria+conteúdo) e evento de treino (vinculado a treino real)
 - [x] Alternar visão semana/mês, navegar com anterior/próximo/hoje
 - [ ] Concluir e reabrir evento Não achei nada sobre concluir

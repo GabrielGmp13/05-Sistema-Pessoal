@@ -70,9 +70,10 @@ dessas duas pastas deve ser executado como migration.
 | `20260815000200` | `20260815000200_v21_hardening.sql` | ✅ Reset e onze testes SQL aprovados; aplicada em produção em 2026-08-15 após dry-run exclusivo; pós-check confirmou histórico alinhado e nenhum arquivo pendente |
 | `20260820000100` | `20260820000100_redacoes_nota_mil.sql` | ✅ Reset e 12 testes SQL aprovados; dry-run listou somente esta migration; aplicada em produção em 2026-08-20; pós-check confirmou `NUMERIC(5,1)`, constraint 0–1000, histórico e dry-run vazio |
 | `20260820000200` | `20260820000200_redacoes_tempo_execucao.sql` | ✅ Reset e 13 testes SQL aprovados; dry-run listou somente esta migration; aplicada em produção em 2026-08-20; pós-check confirmou coluna inteira opcional, constraint não negativa, histórico e dry-run vazio |
+| `20260820000300` | `20260820000300_agenda_prioridade.sql` | ✅ Reset e 14 testes SQL aprovados; aplicada em produção em 2026-08-21 após dry-run exclusivo; pós-check confirmou coluna, default, constraint, histórico e dry-run vazio |
 
-> **Estado confirmado (2026-08-20):** produção e cadeia local estão alinhadas
-> até `20260820000200_redacoes_tempo_execucao.sql`. A migration não cria tabelas;
+> **Estado confirmado (2026-08-21):** produção e cadeia local estão alinhadas
+> até `20260820000300_agenda_prioridade.sql`. A migration não cria tabelas;
 > `public` permanece com 63 tabelas.
 
 As três baselines foram adotadas no histórico remoto em 2026-08-08 por
@@ -191,6 +192,12 @@ deleted     BOOLEAN DEFAULT FALSE
 > `concluido BOOLEAN NOT NULL DEFAULT FALSE`. Ela também adiciona checks de
 > título, duração e coerência dos vínculos. O frontend `/agenda` está liberado
 > para publicação contra esse schema.
+>
+> A migration incremental `20260820000300_agenda_prioridade.sql`
+> acrescenta `prioridade TEXT NOT NULL DEFAULT 'normal'`, limitada pelo check
+> `agenda_prioridade_check` aos valores `baixa`, `normal` e `alta`. Reset local,
+> suíte com 14 testes, dry-run remoto exclusivo, aplicação e pós-check passaram
+> em 2026-08-21; o dry-run final ficou vazio.
 
 ### `revisao_espacada`
 ```sql

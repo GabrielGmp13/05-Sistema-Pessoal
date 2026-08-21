@@ -31,6 +31,7 @@ import {
   EventoAgenda,
   EventoAgendaInput,
   listarEventosAgenda,
+  PrioridadeEventoAgenda,
   TipoEventoAgenda,
 } from '@/lib/agenda'
 import { Conteudo, listarConteudosPorMateria } from '@/lib/conteudos'
@@ -42,6 +43,7 @@ import { getTodosTreinos, Treino } from '@/lib/treino'
 interface FormularioEvento {
   titulo: string
   tipo: TipoEventoAgenda
+  prioridade: PrioridadeEventoAgenda
   data: string
   horaInicio: string
   duracaoMinutos: string
@@ -54,6 +56,7 @@ interface FormularioEvento {
 const FORMULARIO_VAZIO: FormularioEvento = {
   titulo: '',
   tipo: 'geral',
+  prioridade: 'normal',
   data: hojeLocal(),
   horaInicio: '',
   duracaoMinutos: '',
@@ -67,6 +70,12 @@ const TIPO_LABEL: Record<TipoEventoAgenda, string> = {
   geral: 'Geral',
   estudo: 'Estudo',
   treino: 'Treino',
+}
+
+const PRIORIDADE_LABEL: Record<PrioridadeEventoAgenda, string> = {
+  baixa: 'Baixa',
+  normal: 'Normal',
+  alta: 'Alta',
 }
 
 function hojeLocal() {
@@ -174,16 +183,18 @@ export default function AgendaPage() {
   }, [carregar])
 
   useEffect(() => {
-    if (formulario.tipo !== 'estudo' || !formulario.materiaUuid) {
-      setConteudos([])
-      return
-    }
-
     let ativo = true
-    void listarConteudosPorMateria(formulario.materiaUuid).then((lista) => {
-      if (ativo) setConteudos(lista ?? [])
-    })
-    return () => { ativo = false }
+    const timeoutId = window.setTimeout(() => {
+      setConteudos([])
+      if (formulario.tipo !== 'estudo' || !formulario.materiaUuid) return
+      void listarConteudosPorMateria(formulario.materiaUuid).then((lista) => {
+        if (ativo) setConteudos(lista ?? [])
+      })
+    }, 0)
+    return () => {
+      ativo = false
+      window.clearTimeout(timeoutId)
+    }
   }, [formulario.materiaUuid, formulario.tipo])
 
   function abrirNovo(data = hojeLocal()) {
@@ -197,6 +208,7 @@ export default function AgendaPage() {
     setFormulario({
       titulo: evento.titulo,
       tipo: evento.tipo,
+      prioridade: evento.prioridade,
       data: evento.data,
       horaInicio: evento.hora_inicio?.slice(0, 5) ?? '',
       duracaoMinutos: evento.duracao_minutos?.toString() ?? '',
@@ -222,6 +234,7 @@ export default function AgendaPage() {
     return {
       titulo: formulario.titulo.trim(),
       tipo: formulario.tipo,
+      prioridade: formulario.prioridade,
       data: formulario.data,
       hora_inicio: formulario.horaInicio || null,
       duracao_minutos: formulario.duracaoMinutos ? Number(formulario.duracaoMinutos) : null,
@@ -359,7 +372,7 @@ export default function AgendaPage() {
         const eventosDoDia = eventos.filter((evento) => evento.data === data)
         const provasDoDia = provas.filter((prova) => prova.data === data)
         const foraDoMes = dia.getMonth() !== mesCalendario.mes
-        return <section key={data} className={`min-h-28 border-b border-r border-border p-2 ${foraDoMes ? 'bg-muted/25 text-muted-foreground' : 'bg-card'}`}><div className="flex items-center justify-between"><span className={`flex size-7 items-center justify-center rounded-full text-xs font-semibold ${data === hojeLocal() ? 'bg-primary text-primary-foreground' : ''}`}>{dia.getDate()}</span><Button type="button" size="icon-xs" variant="ghost" onClick={() => abrirNovo(data)} aria-label={`Adicionar compromisso em ${data}`}><Plus /></Button></div><div className="mt-2 space-y-1">{provasDoDia.slice(0, 2).map((prova) => <div key={prova.uuid} className="truncate rounded bg-primary/10 px-1.5 py-1 text-[11px] text-primary" title={prova.titulo || 'Prova'}>{prova.titulo || 'Prova'}</div>)}{eventosDoDia.slice(0, 3).map((evento) => <button type="button" key={evento.uuid} className={`block w-full truncate rounded px-1.5 py-1 text-left text-[11px] ${evento.concluido ? 'bg-muted line-through' : 'bg-secondary'}`} title={evento.titulo} onClick={() => abrirEdicao(evento)}>{evento.hora_inicio ? `${evento.hora_inicio.slice(0, 5)} ` : ''}{evento.titulo}</button>)}{eventosDoDia.length + provasDoDia.length > 5 ? <p className="text-[10px] text-muted-foreground">+{eventosDoDia.length + provasDoDia.length - 5} itens</p> : null}</div></section>
+        return <section key={data} className={`min-h-28 border-b border-r border-border p-2 ${foraDoMes ? 'bg-muted/25 text-muted-foreground' : 'bg-card'}`}><div className="flex items-center justify-between"><span className={`flex size-7 items-center justify-center rounded-full text-xs font-semibold ${data === hojeLocal() ? 'bg-primary text-primary-foreground' : ''}`}>{dia.getDate()}</span><Button type="button" size="icon-xs" variant="ghost" onClick={() => abrirNovo(data)} aria-label={`Adicionar compromisso em ${data}`}><Plus /></Button></div><div className="mt-2 space-y-1">{provasDoDia.slice(0, 2).map((prova) => <div key={prova.uuid} className="truncate rounded bg-primary/10 px-1.5 py-1 text-[11px] text-primary" title={prova.titulo || 'Prova'}>{prova.titulo || 'Prova'}</div>)}{eventosDoDia.slice(0, 3).map((evento) => <button type="button" key={evento.uuid} className={`flex w-full items-center gap-1 truncate rounded px-1.5 py-1 text-left text-[11px] ${evento.concluido ? 'bg-muted line-through' : 'bg-secondary'}`} title={`${PRIORIDADE_LABEL[evento.prioridade]} · ${evento.titulo}`} aria-label={`${evento.titulo}, prioridade ${PRIORIDADE_LABEL[evento.prioridade].toLowerCase()}`} onClick={() => abrirEdicao(evento)}><span aria-hidden="true" className={`size-1.5 shrink-0 rounded-full ${evento.prioridade === 'alta' ? 'bg-warning' : evento.prioridade === 'baixa' ? 'bg-primary/45' : 'bg-muted-foreground/55'}`} /><span className="truncate">{evento.hora_inicio ? `${evento.hora_inicio.slice(0, 5)} ` : ''}{evento.titulo}</span></button>)}{eventosDoDia.length + provasDoDia.length > 5 ? <p className="text-[10px] text-muted-foreground">+{eventosDoDia.length + provasDoDia.length - 5} itens</p> : null}</div></section>
       })}</div></div>}
 
       {dialogAberto ? (
@@ -405,7 +418,12 @@ function EventoCard({ evento, materia, treino, onEditar, onApagar, onAlternar }:
       <div className="flex items-start gap-2">
         <Icon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
         <div className="min-w-0 flex-1">
-          <Badge variant="outline">{TIPO_LABEL[evento.tipo]}</Badge>
+          <div className="flex flex-wrap gap-1">
+            <Badge variant="outline">{TIPO_LABEL[evento.tipo]}</Badge>
+            <Badge variant={evento.prioridade === 'alta' ? 'warning' : evento.prioridade === 'baixa' ? 'outline' : 'default'}>
+              {PRIORIDADE_LABEL[evento.prioridade]}
+            </Badge>
+          </div>
           <h3 className={`mt-2 break-words text-sm font-semibold ${evento.concluido ? 'line-through' : ''}`}>{evento.titulo}</h3>
           {evento.hora_inicio ? <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground"><Clock3 className="size-3" />{evento.hora_inicio.slice(0, 5)}{evento.duracao_minutos ? ` · ${evento.duracao_minutos} min` : ''}</p> : null}
           {materia ? <p className="mt-1 truncate text-xs text-muted-foreground">{materia.nome}</p> : null}
@@ -471,6 +489,11 @@ function EventoDialog({ formulario, editando, salvando, concluido, materias, con
           <Field label="Tipo" htmlFor="evento-tipo">
             <Select id="evento-tipo" value={formulario.tipo} onChange={(event) => onMudarTipo(event.target.value as TipoEventoAgenda)}>
               <option value="geral">Geral</option><option value="estudo">Estudo</option><option value="treino">Treino</option>
+            </Select>
+          </Field>
+          <Field label="Prioridade" htmlFor="evento-prioridade">
+            <Select id="evento-prioridade" value={formulario.prioridade} onChange={(event) => onChange((atual) => ({ ...atual, prioridade: event.target.value as PrioridadeEventoAgenda }))}>
+              <option value="baixa">Baixa</option><option value="normal">Normal</option><option value="alta">Alta</option>
             </Select>
           </Field>
           <Field label="Data" htmlFor="evento-data"><Input id="evento-data" type="date" required value={formulario.data} onChange={(event) => onChange((atual) => ({ ...atual, data: event.target.value }))} /></Field>

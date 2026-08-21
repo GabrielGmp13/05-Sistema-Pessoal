@@ -39,11 +39,11 @@ SELECT pg_temp.assert_true(
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 78
+  (SELECT count(*) = 79
    FROM pg_constraint c
    JOIN pg_namespace n ON n.oid = c.connamespace
    WHERE n.nspname = 'public' AND c.contype = 'c'),
-  'public deve conter exatamente 78 checks'
+  'public deve conter exatamente 79 checks'
 );
 
 SELECT pg_temp.assert_true(

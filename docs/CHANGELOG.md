@@ -37,6 +37,14 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
   animações respeitam movimento reduzido e não houve migration, dependência,
   operação remota ou alteração funcional de módulos.
 
+- **2026-08-21 (prioridade da Agenda publicada)** — Eventos manuais ganharam
+  prioridade baixa/normal/alta, default normal, edição, identificação compacta
+  nos cards e ordenação cronológica com prioridade como desempate; provas de
+  Estudos permanecem somente leitura e sem duplicação. A migration
+  `20260820000300_agenda_prioridade.sql` passou reset, 14 testes e dry-run
+  remoto exclusivo, foi aplicada em produção e teve coluna, constraint,
+  histórico e dry-run final vazio confirmados antes da publicação do frontend.
+
 - **2026-08-20 (topo global e reteste explícito)** — O seletor de aparência
   virou um controlador meteorológico de botão único, preservando claro/suave/
   escuro e acrescentando nublado/estrelado na preferência existente. O perfil

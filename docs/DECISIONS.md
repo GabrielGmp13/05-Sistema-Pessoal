@@ -1200,3 +1200,30 @@ pré-hidratação evita troca visual tardia. O dropdown “Atmosfera” controla
 dimensões, enquanto o resumo do perfil controla a cor. `prefers-reduced-motion`
 desativa animações; “Nenhum” remove a decoração. Não há mudança em dados de
 negócio, Supabase, uploads, rotas funcionais ou dependências.
+
+---
+
+## DEC-062 — Prioridade da Agenda é manual e desempata a ordem cronológica
+
+**Data:** 2026-08-20
+**Status:** ✅ Aceita e aplicada em produção
+
+### Decisão
+
+- Eventos manuais de `agenda` têm prioridade `baixa`, `normal` ou `alta`, com
+  `normal` como default. O banco rejeita qualquer outro valor.
+- A Agenda continua cronológica: data e horário vêm primeiro; eventos no mesmo
+  horário são desempatatados por alta, normal e baixa, depois por título/UUID.
+  Eventos sem horário ficam após os horários definidos.
+- A prioridade aparece de forma compacta nos cards e pode ser criada/editada no
+  modal. Provas continuam pertencendo a Estudos, sem receber coluna paralela,
+  edição ou cópia na Agenda.
+- Recorrência/parcelamento financeiro não entra neste lote: antes do schema é
+  necessário decidir vínculo do grupo, edição de uma parcela versus série e
+  cancelamento reversível.
+
+### Impacto
+
+`20260820000300_agenda_prioridade.sql` adiciona uma coluna e um check, mantendo
+RLS e GRANT existentes. A migration foi aplicada em 2026-08-21 após dry-run
+exclusivo e pós-check remoto vazio; o frontend foi publicado somente depois.

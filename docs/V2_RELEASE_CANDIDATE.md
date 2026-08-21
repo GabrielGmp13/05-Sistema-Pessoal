@@ -44,13 +44,14 @@ versionar `.env.local`, service role, senha, connection string ou
 
 ## Banco e migrations
 
-- A cadeia operacional ativa contém 15 migrations em
+- A cadeia operacional ativa contém 16 migrations em
   `backend/supabase/migrations/`.
 - As três baselines e as incrementais até
-  `20260820000200_redacoes_tempo_execucao.sql` estão registradas como
+  `20260820000300_agenda_prioridade.sql` estão registradas como
   aplicadas em produção.
-- O pós-check registrado em 2026-08-20 confirmou 63 tabelas, 15 versões
-  alinhadas, nota até 1000, tempo opcional de redação e nenhuma migration pendente.
+- O pós-check registrado em 2026-08-21 confirmou 63 tabelas e 16 versões
+  aplicadas, prioridade da Agenda com default/constraint corretos e nenhuma
+  migration pendente.
 
 Qualquer correção futura de schema deve sair do lote de polimento, receber uma
 nova migration timestamped e cumprir integralmente o fluxo de segurança de

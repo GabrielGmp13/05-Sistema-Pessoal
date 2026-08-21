@@ -5,11 +5,22 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 ---
 
 ## Status geral
-**Fase atual:** v2.1 — correções da segunda rodada de homologação implementadas e validadas; reteste manual em produção pendente. A v1 está aposentada (DEC-031) e `frontend/` é o único frontend ativo.
+**Fase atual:** v2.1 — prioridade manual da Agenda implementada, validada e publicada; reteste manual em produção pendente. A v1 está aposentada (DEC-031) e `frontend/` é o único frontend ativo.
 **Bloqueio:** nenhum bloqueio técnico conhecido neste lote; resta homologação manual autenticada.
-**Banco:** produção e cadeia local estão alinhadas até `20260820000200_redacoes_tempo_execucao.sql`; o pós-check de 2026-08-20 confirmou nota até 1000, duração opcional não negativa e dry-run remoto vazio.
+**Banco:** produção e cadeia local estão alinhadas até `20260820000300_agenda_prioridade.sql`; o pós-check de 2026-08-21 confirmou coluna, default, constraint, histórico e dry-run remoto vazio.
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** após o deploy deste lote, retestar em produção as correções registradas em `docs/teste.md`, especialmente Redações, Fazer Prova ENEM, card de Shape e a arquitetura de atmosfera do topo, em desktop/mobile.
+**Próxima ação:** retestar em produção a prioridade da Agenda, especialmente persistência, ordenação em empate e coexistência sem duplicação com provas de Estudos.
+
+## Prioridade manual da Agenda — lote local de 2026-08-20
+
+- [x] Escala fechada em baixa/normal/alta, com default normal e check no banco.
+- [x] Formulário cria/edita prioridade; cards semanais exibem rótulo e a visão mensal usa marcador compacto acessível.
+- [x] Ordem previsível: data, horário, prioridade alta/normal/baixa, título e UUID; eventos sem horário ficam depois dos horários definidos.
+- [x] Provas continuam lidas diretamente de Estudos, sem coluna, edição ou duplicação na Agenda.
+- [x] Reset local e os 14 testes SQL passaram, incluindo `validate_agenda_prioridade.sql`; baseline consolidada agora espera 79 checks.
+- [x] Dry-run remoto listou exclusivamente `20260820000300_agenda_prioridade.sql`.
+- [x] Autorização recebida; migration aplicada com pós-check de schema/histórico e dry-run final vazio.
+- [x] Frontend, migration, teste e documentação liberados para commit/push.
 
 ## Atmosfera visual do topo — refinamento de 2026-08-20
 

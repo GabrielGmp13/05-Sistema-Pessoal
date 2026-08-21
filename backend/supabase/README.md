@@ -44,6 +44,10 @@ O ponto inicial oficial da cadeia CLI é:
     em minutos a `redacoes`, com rejeição de valores negativos; reset e 13
     testes SQL aprovados, aplicada em produção em 2026-08-20 após dry-run
     exclusivo e confirmada por pós-check de schema, histórico e dry-run vazio.
+16. `20260820000300_agenda_prioridade.sql` — adiciona prioridade manual
+    baixa/normal/alta à Agenda, com default normal; reset e 14 testes SQL
+    aprovados, aplicada em produção em 2026-08-21 após dry-run exclusivo e
+    confirmada por pós-check de schema, histórico e dry-run vazio.
 
 As três baselines foram validadas por dois replays locais completos e por
 comparação com produção. Em 2026-08-08, `migration repair --status applied`
@@ -124,6 +128,12 @@ em produção em 2026-08-20. O pós-check confirmou `NUMERIC(5,1)`, constraint
 os 13 testes SQL passaram; o dry-run remoto listou exclusivamente esta
 migration, aplicada em produção em 2026-08-20. O pós-check confirmou a coluna,
 a constraint, a 15ª versão no histórico e dry-run final vazio.
+
+`20260820000300_agenda_prioridade.sql` acrescenta somente
+`agenda.prioridade TEXT NOT NULL DEFAULT 'normal'`, limitada a baixa, normal e
+alta. O reset e os 14 testes SQL passaram; o dry-run remoto listou
+exclusivamente esta migration, aplicada em produção em 2026-08-21. O pós-check
+confirmou coluna, default, constraint, a 16ª versão e dry-run final vazio.
 
 ## Workflow para toda mudança futura
 

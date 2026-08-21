@@ -47,6 +47,8 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
 
 ### 2. Implementado, mas ainda depende de teste manual
 
+- Prioridade baixa/normal/alta da Agenda foi implementada, validada e publicada;
+  persistência, ordenação e provas de Estudos ainda dependem de reteste manual.
 - Segunda rodada: passos de 40 e tempo de Redação, contagem de respostas em
   branco, anexo da redação no Dia 1 e novo rodapé do card de Shape.
 - Persistência e responsividade dos módulos mais recentes com dados reais,
@@ -56,11 +58,8 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
 
 ### 3. Pendente implementável sem integração externa grande
 
-- Prioridade simples na Agenda, se escala, comportamento visual e ordenação
-  forem aprovados; exige coluna/migration incremental e não foi improvisada
-  neste lote de interface global.
 - Recorrência/parcelamento financeiro manual; exige definir geração, edição e
-  cancelamento das parcelas antes do schema.
+  cancelamento das parcelas, vínculo do grupo e efeito da edição antes do schema.
 - Dashboards analíticos adicionais de Treino/Finanças e cobertura automatizada
   dos fluxos de maior risco (frontend, integração e E2E).
 - Hardening incremental restante de banco/Storage, sempre em migrations
