@@ -34,11 +34,12 @@ escuros reais**, organizados como iluminações no controlador de atmosfera
 ```
  
 Cada iluminação altera o conjunto semântico completo, não apenas o fundo:
-superfícies, bordas, textos, ações, campos, header, dropdowns e sombras seguem
-a mesma temperatura. Sol é claro quente sem branco agressivo; Suave é bege;
-Nublado é claro frio; Estrelado é azul-marinho; Lua é escuro neutro sem cinza
-inerte. `--ambient-fallback`, `--header-tint` e `--atmosphere-shadow` completam
-o vocabulário atmosférico sem substituir os tokens de negócio.
+superfícies, bordas, textos, ações, campos, header, dropdowns, vidro e sombras
+seguem a mesma temperatura. Sol usa creme dourado/marfim; Suave combina papel,
+areia e argila; Nublado usa azul acinzentado e gelo; Estrelado permanece em
+azul-marinho/petróleo; Lua usa carvão e grafite quentes. `--page-glow`,
+`--page-depth`, `--glass-background`, `--atmosphere-panel` e os tokens do topo
+criam profundidade sem substituir os tokens de negócio.
 
 Cores secundárias usadas em contexto (não são variáveis CSS formais, mas aparecem consistentemente):
 
@@ -167,8 +168,10 @@ ações.
 O controle de atmosfera pertence à área direita da navegação global,
 imediatamente ao lado de “Sair”. Um único botão abre duas dimensões independentes:
 a linha de iluminação (Sol, Suave, Nublado, Estrelado e Lua) e a linha de
-decoração (Primavera/pétalas, Verão/brilhos, Outono/folhas, Inverno/pontos,
-Noite/estrelas e Nenhum). Ambas persistem em `localStorage`; a animação CSS
+decoração (Primavera/pétalas, Verão/brilhos e raios, Outono/folhas,
+Inverno/neve e cristais, mais Nenhum). “Noite” foi removida desta dimensão por
+não ser estação do ano; `estrelado` continua como iluminação, e o valor local
+antigo `noite` migra automaticamente para `nenhum`. Ambas persistem em `localStorage`; a animação CSS
 respeita `prefers-reduced-motion`. A cor ambiente também é local, editável no
 resumo do perfil e aplicada apenas a partículas, brilhos e rastros — nunca à
 barra inteira. Na tela de login, onde não há logout, o controlador permanece

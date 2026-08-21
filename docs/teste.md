@@ -20,7 +20,8 @@ O novo topo deste lote também precisa de homologação separada nos cinco temas
 
 - [ ] Painel “Atmosfera” abre no login e no topo autenticado; iluminação e decoração persistem após recarregar.
 - [ ] Sol, Suave, Nublado, Estrelado e Lua apresentam paletas completas e mantêm contraste.
-- [ ] Primavera, Verão, Outono, Inverno e Noite mostram partículas coerentes; Nenhum deixa o topo limpo.
+- [ ] Primavera, Verão, Outono e Inverno mostram partículas coerentes e visualmente distintas; Nenhum deixa o topo limpo.
+- [ ] Preferência antiga “Noite” migra automaticamente para “Nenhum”; Estrelado continua apenas como iluminação.
 - [ ] Partículas são mais densas perto do perfil, somem à direita e ficam estáticas com redução de movimento.
 - [ ] Cor ambiente altera somente detalhes do topo, persiste localmente e pode ser restaurada ao fallback do tema.
 - [ ] Background real não sai da área do perfil nem é repetido/esticado pela barra.

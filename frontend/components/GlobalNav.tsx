@@ -28,8 +28,9 @@ const links = [
 
 const rotasDiario = ['/diario', '/saude', '/financas', '/lugares', '/receitas']
 
-const particulas = Array.from({ length: 52 }, (_, indice) => {
-  const esquerda = 7 + ((indice * 71) % 91)
+const particulas = Array.from({ length: 56 }, (_, indice) => {
+  const progresso = ((indice * 37) % 101) / 100
+  const esquerda = 3 + Math.pow(progresso, 1.7) * 94
   const proximidadeDoPerfil = 1 - esquerda / 140
 
   return {
@@ -37,7 +38,7 @@ const particulas = Array.from({ length: 52 }, (_, indice) => {
     top: `${5 + ((indice * 43) % 82)}%`,
     width: `${7 + ((indice * 11) % 13)}px`,
     height: `${4 + ((indice * 7) % 8)}px`,
-    opacity: Math.max(0.17, 0.62 * proximidadeDoPerfil),
+    opacity: Math.max(0.2, 0.78 * proximidadeDoPerfil),
     '--petala-rotacao': `${-68 + ((indice * 37) % 136)}deg`,
     '--petala-deslocamento': `${2 + (indice % 4)}px`,
     '--petala-atraso': `${-(indice % 9) * 0.31}s`,
@@ -49,7 +50,6 @@ const classesDecoracao: Record<Decoracao, string> = {
   verao: styles.verao,
   outono: styles.outono,
   inverno: styles.inverno,
-  noite: styles.noite,
   nenhum: styles.nenhum,
 }
 
@@ -159,8 +159,8 @@ export function GlobalNav() {
     '--cor-ambiente': corAmbiente || 'var(--ambient-fallback)',
   } as CSSProperties
   return (
-    <header className={styles.header}>
-      <div className={styles.barra} style={estiloAtmosfera}>
+    <header className={styles.header} style={estiloAtmosfera}>
+      <div className={styles.barra}>
         <span
           aria-hidden="true"
           className={cn(styles.perfilRastro, perfil?.backgroundUrl && styles.perfilRastroComImagem)}

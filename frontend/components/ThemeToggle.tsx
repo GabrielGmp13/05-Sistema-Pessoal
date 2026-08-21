@@ -26,7 +26,6 @@ const decoracoes: Array<{ valor: Decoracao; label: string; icon: typeof Sun }> =
   { valor: 'verao', label: 'Verão', icon: SunMedium },
   { valor: 'outono', label: 'Outono', icon: Leaf },
   { valor: 'inverno', label: 'Inverno', icon: Snowflake },
-  { valor: 'noite', label: 'Noite', icon: Sparkles },
   { valor: 'nenhum', label: 'Nenhum', icon: CircleOff },
 ]
 
@@ -133,7 +132,7 @@ export function ThemeToggle({ className, open, onOpenChange }: ThemeToggleProps)
               )
             })}
           </div>
-          <p className={styles.nota}>Movimentos decorativos respeitam a preferência de reduzir animações do dispositivo.</p>
+          <p className={styles.nota}>Animações respeitam a redução de movimento do dispositivo.</p>
         </div>
       ) : null}
     </div>

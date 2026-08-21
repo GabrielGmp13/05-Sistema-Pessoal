@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 
 export type Tema = 'claro' | 'suave' | 'nublado' | 'estrelado' | 'escuro'
-export type Decoracao = 'primavera' | 'verao' | 'outono' | 'inverno' | 'noite' | 'nenhum'
+export type Decoracao = 'primavera' | 'verao' | 'outono' | 'inverno' | 'nenhum'
 
 interface TemaContextValue {
   tema: Tema
@@ -22,7 +22,7 @@ const COR_HEX = /^#[0-9a-f]{6}$/i
 
 function isDecoracao(valor: string | null): valor is Decoracao {
   return valor === 'primavera' || valor === 'verao' || valor === 'outono' ||
-    valor === 'inverno' || valor === 'noite' || valor === 'nenhum'
+    valor === 'inverno' || valor === 'nenhum'
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
@@ -43,9 +43,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setTema(preferencia)
 
     const decoracaoSalva = localStorage.getItem(CHAVE_DECORACAO)
+    const decoracaoMigrada = decoracaoSalva === 'noite' ? 'nenhum' : decoracaoSalva
+    if (decoracaoSalva === 'noite') localStorage.setItem(CHAVE_DECORACAO, 'nenhum')
     const corSalva = localStorage.getItem(CHAVE_COR_AMBIENTE)
     // Reconcilia as preferências locais com o script anti-flash.
-    setDecoracao(isDecoracao(decoracaoSalva) ? decoracaoSalva : 'primavera')
+    setDecoracao(isDecoracao(decoracaoMigrada) ? decoracaoMigrada : 'primavera')
     setCorAmbiente(corSalva && COR_HEX.test(corSalva) ? corSalva : null)
   }, [])
 

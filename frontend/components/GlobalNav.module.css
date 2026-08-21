@@ -1,12 +1,36 @@
 .header {
+  --season-glow: color-mix(in oklch, var(--ambient-fallback) 8%, transparent);
   position: sticky;
   z-index: 40;
   top: 0;
-  border-bottom: 1px solid var(--border);
-  background: color-mix(in oklch, var(--header-tint) 92%, transparent);
+  border-bottom: 1px solid color-mix(in oklch, var(--border) 78%, transparent);
+  background:
+    radial-gradient(34rem 6rem at 8% 55%, var(--season-glow), transparent 72%),
+    linear-gradient(110deg, color-mix(in oklch, var(--header-tint) 96%, transparent), color-mix(in oklch, var(--header-depth) 88%, transparent));
   color: var(--text);
-  backdrop-filter: blur(12px);
+  box-shadow: 0 1px 0 color-mix(in oklch, var(--surface) 28%, transparent), 0 8px 26px color-mix(in oklch, var(--foreground) 5%, transparent);
+  backdrop-filter: blur(18px) saturate(1.08);
   overflow: visible;
+}
+
+:global(html[data-decoracao='primavera']) .header {
+  --season-glow: color-mix(in oklch, var(--cor-ambiente, var(--ambient-fallback)) 20%, transparent);
+}
+
+:global(html[data-decoracao='verao']) .header {
+  --season-glow: color-mix(in oklch, oklch(0.82 0.12 82) 22%, transparent);
+}
+
+:global(html[data-decoracao='outono']) .header {
+  --season-glow: color-mix(in oklch, oklch(0.62 0.12 53) 20%, transparent);
+}
+
+:global(html[data-decoracao='inverno']) .header {
+  --season-glow: color-mix(in oklch, oklch(0.82 0.075 222) 20%, transparent);
+}
+
+:global(html[data-decoracao='nenhum']) .header {
+  --season-glow: transparent;
 }
 
 .barra {
@@ -36,7 +60,7 @@
     linear-gradient(118deg, transparent 0 20%, color-mix(in oklch, var(--cor-ambiente) 20%, transparent) 20.5% 23%, transparent 23.5% 100%),
     linear-gradient(62deg, transparent 0 42%, color-mix(in oklch, var(--cor-ambiente) 28%, transparent) 42.5% 46%, transparent 46.5% 100%),
     linear-gradient(136deg, transparent 0 67%, color-mix(in oklch, var(--cor-ambiente) 14%, transparent) 67.5% 70%, transparent 70.5% 100%);
-  opacity: 0.5;
+  opacity: 0.68;
   pointer-events: none;
   -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 42%, rgb(0 0 0 / 62%) 68%, transparent 100%);
   mask-image: linear-gradient(90deg, #000 0%, #000 42%, rgb(0 0 0 / 62%) 68%, transparent 100%);
@@ -350,8 +374,8 @@
   inset: 0;
   overflow: hidden;
   pointer-events: none;
-  -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 18%, rgb(0 0 0 / 72%) 52%, rgb(0 0 0 / 20%) 84%, transparent 100%);
-  mask-image: linear-gradient(90deg, #000 0%, #000 18%, rgb(0 0 0 / 72%) 52%, rgb(0 0 0 / 20%) 84%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 16%, rgb(0 0 0 / 78%) 42%, rgb(0 0 0 / 28%) 72%, transparent 96%);
+  mask-image: linear-gradient(90deg, #000 0%, #000 16%, rgb(0 0 0 / 78%) 42%, rgb(0 0 0 / 28%) 72%, transparent 96%);
 }
 
 .fragmentos i {
@@ -385,7 +409,15 @@
 }
 
 .primavera i:nth-child(even) {
-  background: linear-gradient(145deg, color-mix(in oklch, var(--success) 46%, transparent), color-mix(in oklch, var(--cor-ambiente) 68%, transparent));
+  background: linear-gradient(145deg, color-mix(in oklch, var(--cor-ambiente) 46%, #6fa874), color-mix(in oklch, var(--cor-ambiente) 68%, transparent));
+}
+
+.primavera i:nth-child(3n + 1) {
+  background: linear-gradient(145deg, color-mix(in oklch, var(--cor-ambiente) 58%, #db7894), color-mix(in oklch, var(--cor-ambiente) 28%, #f3b6c4));
+}
+
+.primavera i:nth-child(5n) {
+  box-shadow: 0 0 0.8rem color-mix(in oklch, var(--cor-ambiente) 32%, transparent);
 }
 
 .fragmentosComImagem i {
@@ -393,16 +425,38 @@
 }
 
 .verao i {
+  width: 0.72rem;
+  height: 0.72rem;
   border-radius: 50%;
   clip-path: none;
-  background: radial-gradient(circle, color-mix(in oklch, var(--cor-ambiente) 70%, white), color-mix(in oklch, var(--cor-ambiente) 14%, transparent) 68%, transparent 72%);
-  filter: blur(0.6px);
+  background: radial-gradient(circle, color-mix(in oklch, var(--cor-ambiente) 42%, #fff2ad) 0 18%, color-mix(in oklch, var(--cor-ambiente) 22%, #f5bd5b) 28%, transparent 72%);
+  box-shadow: 0 0 1rem color-mix(in oklch, var(--cor-ambiente) 28%, #f6c45f);
+  filter: blur(0.25px);
   animation-name: brilhoFlutua;
 }
 
+.verao i:nth-child(4n) {
+  width: 1.35rem;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, color-mix(in oklch, var(--cor-ambiente) 35%, #fff0a1), transparent);
+  box-shadow: 0 0 0.75rem color-mix(in oklch, #ffd77a 45%, transparent);
+}
+
+.verao i:nth-child(5n) { transform: scale(1.45); }
+
 .outono i {
+  width: 1rem;
+  height: 0.42rem;
   border-radius: 85% 8% 78% 12%;
+  clip-path: polygon(0 48%, 42% 4%, 100% 31%, 70% 100%, 20% 82%);
   background: linear-gradient(145deg, color-mix(in oklch, var(--cor-ambiente) 58%, #b8662e), color-mix(in oklch, var(--cor-ambiente) 24%, #e5a04f));
+  box-shadow: 0 0.25rem 0.65rem color-mix(in oklch, #7e4726 18%, transparent);
+  animation-name: folhaFlutua;
+}
+
+.outono i:nth-child(3n) {
+  background: linear-gradient(145deg, #a85d32, color-mix(in oklch, var(--cor-ambiente) 28%, #7d8440));
 }
 
 .inverno i {
@@ -410,17 +464,17 @@
   height: min(var(--particula-tamanho, 7px), 8px) !important;
   border-radius: 50%;
   clip-path: none;
-  background: color-mix(in oklch, white 80%, var(--cor-ambiente));
-  box-shadow: 0 0 0.55rem color-mix(in oklch, white 42%, transparent);
+  background: color-mix(in oklch, #f7fbff 78%, var(--cor-ambiente));
+  box-shadow: 0 0 0.65rem color-mix(in oklch, #d8efff 52%, transparent);
+  animation-name: neveFlutua;
 }
 
-.noite i {
-  width: 7px !important;
-  height: 7px !important;
+.inverno i:nth-child(5n) {
+  width: 9px !important;
+  height: 9px !important;
   border-radius: 0;
   clip-path: polygon(50% 0, 61% 38%, 100% 50%, 61% 62%, 50% 100%, 39% 62%, 0 50%, 39% 38%);
-  background: color-mix(in oklch, var(--cor-ambiente) 38%, #fff2b5);
-  box-shadow: 0 0 0.65rem color-mix(in oklch, var(--cor-ambiente) 52%, transparent);
+  background: color-mix(in oklch, #f7fbff 84%, var(--cor-ambiente));
 }
 
 .nenhum {
@@ -441,14 +495,24 @@
   50% { opacity: 0.82; transform: scale(1.16); }
 }
 
+@keyframes folhaFlutua {
+  0%, 100% { transform: translate3d(-2px, 0, 0) rotate(var(--petala-rotacao)); }
+  50% { transform: translate3d(7px, -1px, 0) rotate(calc(var(--petala-rotacao) + 14deg)); }
+}
+
+@keyframes neveFlutua {
+  0%, 100% { transform: translate3d(0, -2px, 0); opacity: 0.48; }
+  50% { transform: translate3d(2px, 3px, 0); opacity: 0.88; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .fragmentos i {
     animation: none;
   }
 }
 
-:global(.dark) .fragmentos i {
-  filter: saturate(1.08) brightness(1.32);
+:global(.dark) .fragmentos {
+  filter: saturate(1.08) brightness(1.2);
 }
 
 :global(.dark) .perfilRastro {
@@ -466,11 +530,11 @@
   min-width: 0;
   gap: 0.125rem;
   padding: 0.22rem;
-  border: 1px solid color-mix(in oklch, var(--border) 76%, transparent);
+  border: 1px solid var(--glass-border);
   border-radius: 999px;
-  background: color-mix(in oklch, var(--surface) 78%, transparent);
+  background: var(--glass-background);
   box-shadow: var(--atmosphere-shadow);
-  backdrop-filter: blur(14px) saturate(1.1);
+  backdrop-filter: blur(18px) saturate(1.16);
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -624,7 +688,7 @@
     justify-content: flex-start;
   }
 
-  .fragmentos i:nth-child(n + 35) {
+  .fragmentos i:nth-child(n + 34) {
     display: none;
   }
 
@@ -634,6 +698,10 @@
 }
 
 @media (max-width: 520px) {
+  .fragmentos i:nth-child(n + 25) {
+    display: none;
+  }
+
   .perfilArea {
     width: min(100%, 10.5rem);
   }

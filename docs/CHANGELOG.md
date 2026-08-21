@@ -20,10 +20,18 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — v2.1 pronta tecnicamente; homologação manual pendente
 
+- **2026-08-20 (refinamento da atmosfera)** — As cinco iluminações ganharam
+  paletas atmosféricas com profundidade de página, superfícies, vidro, header e
+  sombras coerentes. Primavera, Verão, Outono e Inverno passaram a ter formas,
+  cores e movimentos claramente distintos; “Noite” foi removida por não ser
+  estação, com migração local automática para “Nenhum”. O topo integra perfil,
+  partículas dissipadas e cápsula sem repetir a imagem real. Sem migration,
+  dependência, Supabase remoto ou mudança de lógica funcional.
+
 - **2026-08-20 (arquitetura de atmosfera)** — Os cinco temas foram consolidados
   como iluminações Sol, Suave, Nublado, Estrelado e Lua. O painel “Atmosfera”
-  ganhou decoração independente com Primavera, Verão, Outono, Inverno, Noite e
-  Nenhum; o resumo do perfil ganhou cor ambiente local. O topo agora combina
+  ganhou decoração independente, posteriormente refinada para as quatro
+  estações e Nenhum; o resumo do perfil ganhou cor ambiente local. O topo agora combina
   base temática, imagem real confinada ao perfil, partículas CSS dissipadas e
   cápsula translúcida de navegação. Preferências têm aplicação anti-flash,
   animações respeitam movimento reduzido e não houve migration, dependência,

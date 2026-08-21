@@ -22,7 +22,11 @@ const SCRIPT_ANTI_FLASH = `
     if (salvo === 'nublado') document.documentElement.classList.add('cloudy');
     if (salvo === 'estrelado') document.documentElement.classList.add('starry');
     var decoracao = localStorage.getItem('sistema-pessoal:decoracao');
-    var decoracoes = ['primavera', 'verao', 'outono', 'inverno', 'noite', 'nenhum'];
+    if (decoracao === 'noite') {
+      decoracao = 'nenhum';
+      localStorage.setItem('sistema-pessoal:decoracao', decoracao);
+    }
+    var decoracoes = ['primavera', 'verao', 'outono', 'inverno', 'nenhum'];
     document.documentElement.dataset.decoracao = decoracoes.indexOf(decoracao) >= 0 ? decoracao : 'primavera';
     var corAmbiente = localStorage.getItem('sistema-pessoal:cor-ambiente');
     if (/^#[0-9a-f]{6}$/i.test(corAmbiente || '')) document.documentElement.style.setProperty('--ambient-color', corAmbiente);

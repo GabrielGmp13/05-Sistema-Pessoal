@@ -11,13 +11,14 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
 **Próxima ação:** após o deploy deste lote, retestar em produção as correções registradas em `docs/teste.md`, especialmente Redações, Fazer Prova ENEM, card de Shape e a arquitetura de atmosfera do topo, em desktop/mobile.
 
-## Atmosfera visual do topo — 2026-08-20
+## Atmosfera visual do topo — refinamento de 2026-08-20
 
 - [x] Os cinco temas passam a representar iluminação: Sol, Suave, Nublado, Estrelado e Lua, com tokens próprios para fundo, superfícies, bordas, textos, ações, campos, header e sombras.
-- [x] A decoração é independente da iluminação e oferece Primavera, Verão, Outono, Inverno, Noite e Nenhum no mesmo painel “Atmosfera”.
+- [x] A decoração é independente da iluminação e oferece apenas as quatro estações — Primavera, Verão, Outono e Inverno — mais Nenhum; o valor local antigo `noite` migra para `nenhum`.
 - [x] Iluminação, decoração e cor ambiente têm persistência local e aplicação pré-hidratação; nenhum dado visual novo depende de schema ou Supabase.
 - [x] A imagem real continua restrita ao perfil; partículas CSS usam a decoração e a cor ambiente, concentram-se à esquerda e desaparecem à direita sob uma navegação translúcida.
 - [x] O resumo do perfil ganhou controle de cor ambiente e restauração do fallback temático.
+- [x] Paletas deixaram de ser cores literais: cada iluminação ganhou profundidade de página, superfícies, vidro, header e sombras coerentes; as quatro estações ganharam formas, cores e movimentos próprios.
 - [ ] Retestar as combinações por amostragem representativa, incluindo “Nenhum”, cor personalizada, recarga, 360 px e desktop.
 
 ## Topo global e documentação de reteste — 2026-08-20 (base anterior)

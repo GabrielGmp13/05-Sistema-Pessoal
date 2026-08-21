@@ -1180,13 +1180,18 @@ temas, desktop e mobile, continua obrigatória antes de encerrar a homologação
 - Os valores existentes de tema continuam compatíveis, mas são apresentados
   como iluminações: `claro`/Sol, `suave`, `nublado`, `estrelado` e `escuro`/Lua.
 - A decoração é uma preferência local independente: Primavera, Verão, Outono,
-  Inverno, Noite ou Nenhum. Ela troca apenas a linguagem das partículas CSS.
+  Inverno ou Nenhum. “Noite” foi removida porque não é estação do ano;
+  `estrelado` continua pertencendo somente à iluminação. O valor local legado
+  `noite` migra automaticamente para `nenhum`.
 - A cor ambiente é persistida em `localStorage`, não em `user_metadata`. Isso
   evita escrita remota para uma preferência puramente visual e mantém o lote
   sem schema, API ou sincronização de conta.
 - A imagem real de `background_url` permanece restrita ao bloco do perfil. O
   restante do topo recebe somente cor, brilho e partículas abstratas, com maior
   densidade à esquerda e dissipação progressiva para proteger a navegação.
+- As iluminações não são fundos literais: cada uma define profundidade da
+  página, cards, vidro, bordas, texto, header e sombras. As estações alteram
+  forma, cor e movimento das partículas sem entrar nos módulos funcionais.
 
 ### Impacto
 
