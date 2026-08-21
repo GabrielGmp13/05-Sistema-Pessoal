@@ -1,5 +1,27 @@
 # Checklist de Teste Manual — Sistema Pessoal v2.1
 
+## Reteste pendente — commit d5a8b7e
+
+O lote está publicado, mas os itens abaixo **ainda não foram confirmados por Gabriel em produção**. Marcar somente após o teste manual, preservando os relatos históricos deste documento.
+
+- [ ] Redação com C1–C5 = 200 e total 1000.
+- [ ] Rejeitar competência 20, negativa e acima de 200.
+- [ ] Tempo de redação: 00:00, 01:30, minuto 60, edição e recarga.
+- [ ] Prova ENEM finalizada em branco: 0 respondidas, 90 em branco.
+- [ ] Prova ENEM com algumas e todas respondidas.
+- [ ] Dia 1: anexar imagem válida da redação.
+- [ ] Dia 1: rejeitar imagem inválida e maior que 10 MB.
+- [ ] Redação vinculada aparece depois em `/estudos/redacoes`.
+- [ ] Card de Shape com foto, sem foto, peso/data/botão no rodapé.
+- [ ] Card de Shape nos temas claro, suave e escuro.
+- [ ] Desktop e mobile.
+
+O novo topo deste lote também precisa de homologação separada nos cinco temas:
+
+- [ ] Controlador de clima abre no login e no topo autenticado; seleção persiste após recarregar.
+- [ ] Nublado e estrelado mantêm contraste em Hub, Biblioteca e Treino.
+- [ ] Dropdown de perfil mostra os dados disponíveis, fecha por clique externo/Escape/troca de rota e abre “Editar perfil”.
+
 Baseado no roteiro gerado pelo Codex (commits `740ada1`/`3b4cbd6`). Este é o
 formato de execução: sessões curtas, marcáveis, com prioridade. O roteiro
 completo continua sendo a referência pra "Não É Bug Se" quando alguma coisa

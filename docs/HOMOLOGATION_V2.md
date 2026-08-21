@@ -12,7 +12,7 @@ usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
 
 - [ ] Anotar data, commit/deploy testado e URL do ambiente
 - [ ] Anotar navegador, sistema, dispositivo e largura aproximada da tela
-- [ ] Executar uma passagem nos temas claro, suave e escuro
+- [ ] Executar uma passagem nos temas claro, suave, nublado, estrelado e escuro
 - [ ] Registrar evidência e passos de reprodução para cada falha
 - [ ] Recarregar a página depois dos CRUDs principais para confirmar persistência
 
@@ -21,6 +21,8 @@ usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
 - [ ] Login inválido exibe erro sem revelar detalhes sensíveis; login válido abre o Hub
 - [ ] Acesso direto a uma rota protegida sem sessão redireciona para `/login`
 - [ ] Nome, descrição, avatar e background salvam, aparecem no topo e persistem após recarregar
+- [ ] Avatar/nome abre o resumo sem navegar; capa, descrição e e-mail aparecem quando disponíveis
+- [ ] “Editar perfil” abre `/configuracoes`; clique externo, Escape e troca de rota fecham o resumo
 - [ ] URLs vazias mantêm o fallback do tema; URLs inválidas não quebram o layout
 - [ ] Logout encerra a sessão; voltar no navegador não reabre conteúdo protegido
 - [ ] Depois de entrar novamente, o botão de logout mostra “Sair” sem exigir F5
@@ -160,9 +162,10 @@ usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
 - [ ] Modais, painéis, menus e formulários cabem na viewport e mantêm foco/teclado utilizáveis
 - [ ] Tabelas, grids, cards com textos longos e estados vazios não sobrepõem controles
 
-## Temas claro, suave e escuro
+## Temas claro, suave, nublado, estrelado e escuro
 
-- [ ] Seleção claro/suave/escuro funciona no login e em todas as rotas autenticadas e persiste após recarregar
+- [ ] Um único botão abre o controlador; a linha contínua indica claramente a opção selecionada
+- [ ] Seleção claro/suave/nublado/estrelado/escuro funciona no login e em todas as rotas autenticadas e persiste após recarregar
 - [ ] Texto, bordas, inputs, foco, alertas, favoritos, estrelas e ações destrutivas têm contraste suficiente
 - [ ] Imagens, placeholders, signed URLs e background do perfil não ocultam conteúdo
 - [ ] Animações respeitam `prefers-reduced-motion`

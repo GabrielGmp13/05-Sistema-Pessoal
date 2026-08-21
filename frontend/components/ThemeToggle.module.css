@@ -1,0 +1,151 @@
+.raiz {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.gatilho {
+  display: inline-flex;
+  height: 2.25rem;
+  align-items: center;
+  gap: 0.42rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0 0.58rem;
+  background: color-mix(in oklch, var(--surface) 90%, transparent);
+  color: var(--texto-secundario);
+  font-size: 0.8rem;
+  font-weight: 600;
+  outline: none;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.gatilho:hover {
+  border-color: var(--accent-foreground);
+  color: var(--text);
+}
+
+.gatilho:focus-visible,
+.opcao:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--accent) 30%, transparent);
+}
+
+.gatilhoIcone { width: 1rem; height: 1rem; }
+
+.seta {
+  width: 0.8rem;
+  height: 0.8rem;
+  transition: transform 0.18s ease;
+}
+
+.setaAberta { transform: rotate(180deg); }
+
+.painel {
+  position: absolute;
+  z-index: 70;
+  top: calc(100% + 0.65rem);
+  right: 0;
+  width: min(28rem, calc(100vw - 2rem));
+  overflow: hidden;
+  border: 1px solid color-mix(in oklch, var(--border) 88%, transparent);
+  border-radius: 14px;
+  padding: 0.9rem;
+  background: radial-gradient(circle at 82% -20%, color-mix(in oklch, var(--accent-wash-forte) 42%, transparent), transparent 45%), color-mix(in oklch, var(--surface) 97%, transparent);
+  box-shadow: 0 18px 46px color-mix(in oklch, var(--foreground) 18%, transparent);
+  color: var(--text);
+  backdrop-filter: blur(18px) saturate(1.12);
+}
+
+.cabecalho {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0 0.15rem 0.75rem;
+  color: var(--texto-secundario);
+  font-size: 0.76rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.cabecalho strong { color: var(--text); font-size: 0.72rem; }
+
+.linha {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.2rem;
+}
+
+.linha::before {
+  position: absolute;
+  z-index: 0;
+  top: 1.3rem;
+  right: 9%;
+  left: 9%;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #f8d77f, #b8d8ec 50%, #33466f 76%, #111827);
+  content: '';
+  opacity: 0.72;
+}
+
+.opcao {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.42rem;
+  border-radius: 10px;
+  padding: 0.25rem 0.08rem 0.4rem;
+  color: var(--texto-secundario);
+  font-size: 0.68rem;
+  outline: none;
+  transition: color 0.15s, background 0.15s;
+}
+
+.opcao:hover { background: color-mix(in oklch, var(--surface-2) 62%, transparent); color: var(--text); }
+
+.iconeCirculo {
+  display: flex;
+  width: 2.55rem;
+  height: 2.55rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: 0 3px 10px color-mix(in oklch, var(--foreground) 9%, transparent);
+  transition: border-color 0.15s, background 0.15s, transform 0.15s;
+}
+
+.iconeCirculo svg { width: 1.1rem; height: 1.1rem; }
+
+.opcaoSelecionada { color: var(--text); font-weight: 700; }
+
+.opcaoSelecionada .iconeCirculo {
+  border-color: var(--accent-foreground);
+  background: var(--accent-wash);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--accent) 22%, transparent);
+  transform: translateY(-2px);
+}
+
+.nota {
+  margin: 0.75rem 0 0;
+  border-top: 1px solid color-mix(in oklch, var(--border) 70%, transparent);
+  padding: 0.7rem 0.15rem 0;
+  color: var(--texto-secundario);
+  font-size: 0.7rem;
+  line-height: 1.35;
+}
+
+@media (max-width: 520px) {
+  .gatilhoTexto { display: none; }
+  .painel { position: fixed; top: 4.25rem; right: 1rem; left: 1rem; width: auto; }
+  .opcao { font-size: 0.62rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .seta, .iconeCirculo { transition: none; }
+}

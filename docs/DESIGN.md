@@ -10,11 +10,12 @@ Referência visual para qualquer IA ou dev gerar páginas novas sem quebrar a co
 padrão de todos os módulos, incluindo Biblioteca. A antiga exceção dourada
 da Biblioteca foi removida após o teste manual final.
 
-Diferente da DEC-034 (só modo escuro), esta paleta tem **modo claro e
-escuro reais**, com toggle funcional no sistema inteiro (DEC-039/049).
+Diferente da DEC-034 (só modo escuro), esta paleta tem **modos claros e
+escuros reais**, com controlador funcional no sistema inteiro (DEC-039/049/060).
 
 ```css
-/* Claro (:root), suave (.soft) e escuro (.dark) — valores completos em oklch() no
+/* Claro (:root), suave (.soft), nublado (.cloudy), estrelado (.starry) e
+   escuro (.dark) — valores completos em oklch() no
    globals.css real. Vocabulário shadcn (--background/--card/--primary...)
    é a fonte da verdade; vocabulário antigo (--bg/--surface/--accent...)
    é alias, consumido pelos CSS Modules de Treino/Dashboard sem alteração
@@ -147,8 +148,10 @@ fragmentos abstratos em forma de pétalas/lascas. Com um background de perfil
 configurado, eles usam uma paleta rosada suave inspirada na imagem; no fallback,
 derivam dos tokens do tema. A densidade é maior perto do perfil, mas continua
 visível atrás da navegação sem cobrir os links. A sidebar da Biblioteca não
-duplica perfil. O próprio perfil é o acesso a `/configuracoes`, com hover e
-foco visíveis; não existe engrenagem ou atalho separado. Fragmentos pequenos e
+duplica perfil. O próprio perfil abre um dropdown de resumo, com hover e foco
+visíveis; a ação “Editar perfil” dentro dele é o acesso a `/configuracoes`, sem
+engrenagem ou atalho separado. O dropdown mostra somente metadados reais
+disponíveis e fecha por clique externo, Escape ou troca de rota. Fragmentos pequenos e
 orgânicos nunca repetem ou esticam `background_url`, formam faixa sólida ou
 prejudicam a leitura. Os links ficam sobre uma cápsula translúcida com blur,
 borda e item ativo próprio, separando conteúdo e decoração.
@@ -157,9 +160,13 @@ de 960px; entre 960px e 1319px usa ícones com `aria-label`/tooltip, e a partir
 de 1320px volta a exibir os rótulos completos para evitar colisão com perfil e
 ações.
 
-O toggle de tema pertence à área direita da navegação global, imediatamente ao
-lado de “Sair”. Ele não deve voltar a flutuar sobre o conteúdo das páginas; na
-tela de login, onde não há logout, permanece como ação isolada no topo direito.
+O controle de tema pertence à área direita da navegação global, imediatamente
+ao lado de “Sair”. Um único botão abre o controlador meteorológico horizontal
+com claro, suave, nublado, estrelado e escuro; as opções formam uma linha
+contínua, mostram ícone/rótulo/seleção e reservam apenas uma nota discreta para
+acessibilidade futura. Ele não deve voltar a flutuar sobre o conteúdo das
+páginas; na tela de login, onde não há logout, permanece como ação isolada no
+topo direito.
 
 Item ativo: pill com fundo derivado de `--success-muted`, contraste por
 `--success-foreground` e marcador interno sutil. A sidebar é um painel

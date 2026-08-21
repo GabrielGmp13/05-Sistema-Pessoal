@@ -35,7 +35,7 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
 
 ### 1. Implementado e publicado
 
-- Núcleo autenticado, Hub, navegação global e temas claro/suave/escuro.
+- Núcleo autenticado, Hub, navegação global, dropdown de perfil e temas claro/suave/nublado/estrelado/escuro.
 - Treino/Shape, Biblioteca com oito categorias e metadados, Estudos/Curso,
   Revisão, Agenda, Diário, Projetos/Programação, Receitas, Saúde, Finanças,
   Lugares, Idiomas e Histórico.
@@ -56,15 +56,17 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
 
 ### 3. Pendente implementável sem integração externa grande
 
-- Prioridade simples na Agenda, se o comportamento e a ordenação desejados
-  forem aprovados; exige migration incremental, mas não serviço externo.
+- Prioridade simples na Agenda, se escala, comportamento visual e ordenação
+  forem aprovados; exige coluna/migration incremental e não foi improvisada
+  neste lote de interface global.
 - Recorrência/parcelamento financeiro manual; exige definir geração, edição e
   cancelamento das parcelas antes do schema.
 - Dashboards analíticos adicionais de Treino/Finanças e cobertura automatizada
   dos fluxos de maior risco (frontend, integração e E2E).
 - Hardening incremental restante de banco/Storage, sempre em migrations
   pequenas e testadas. Upload de capa da Biblioteca pode aproveitar o bucket
-  `capas` após revisão do fluxo; banner ainda não tem destino inequívoco.
+  `capas` após revisão de path, substituição e remoção; banner ainda não tem
+  destino inequívoco. Nenhum upload sem contrato foi incluído neste lote.
 
 ### 4. Pós-v2 por integração externa ou decisão maior
 
@@ -108,7 +110,7 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
 - [ ] Modo múltiplos usuários (RLS já suporta — bastaria criar contas; não é objetivo do projeto por princípio, ver PROJECT_PRINCIPLES.md)
 - [x] Navegação global entre módulos e botão de logout visível — implementado em 2026-08-09 com hub `/`, navegação para Treino/Biblioteca/Estudos e logout via Supabase Auth.
 - [ ] Corrigir o corte residual da letra “g” em “Agenda” na navegação em uma combinação específica de largura/zoom; o usuário decidiu não bloquear o teste atual por isso (2026-08-12).
-- [ ] Evoluir a área global de perfil para um painel pessoal/social. Nesta etapa ela exibe somente avatar, nome e background vindos de `user_metadata`, sem rota própria.
+- [x] Área global de perfil evoluída para dropdown de resumo com avatar, nome, descrição, background, e-mail e link para `/configuracoes`, sem criar rota ou domínio social.
 
 ## Estudos
 

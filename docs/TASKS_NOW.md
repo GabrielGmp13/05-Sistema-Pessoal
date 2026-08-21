@@ -9,7 +9,15 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 **Bloqueio:** nenhum bloqueio técnico conhecido neste lote; resta homologação manual autenticada.
 **Banco:** produção e cadeia local estão alinhadas até `20260820000200_redacoes_tempo_execucao.sql`; o pós-check de 2026-08-20 confirmou nota até 1000, duração opcional não negativa e dry-run remoto vazio.
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** retestar em produção as correções registradas em `docs/teste.md`, especialmente Redações, Fazer Prova ENEM e o card de Shape, nos três temas e em desktop/mobile.
+**Próxima ação:** após o deploy deste lote, retestar em produção as correções registradas em `docs/teste.md`, especialmente Redações, Fazer Prova ENEM, card de Shape, seletor de cinco temas e dropdown de perfil, em desktop/mobile.
+
+## Topo global e documentação de reteste — 2026-08-20
+
+- [x] Os três controles separados viraram um botão único com dropdown meteorológico e linha contínua para claro, suave, nublado, estrelado e escuro.
+- [x] A preferência continua na chave existente e os cinco temas são aplicados antes da hidratação para evitar flash visual.
+- [x] O perfil no topo abre um resumo com avatar, capa, nome, descrição, e-mail e ação “Editar perfil”; clique externo, Escape e troca de rota fecham o painel.
+- [x] Auditoria manteve prioridade da Agenda, capa/banner da Biblioteca, dashboards analíticos e hardening adicional no backlog por dependerem de migration, contrato de Storage ou decisão de produto.
+- [ ] Retestar este lote e o commit `d5a8b7e` na versão publicada; implementação local não marca homologação manual como concluída.
 
 ## Correções da segunda rodada de homologação — 2026-08-20
 
@@ -19,7 +27,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] Dia 1 permite vincular tema e imagem da redação durante a prova; o registro reaparece em `/estudos/redacoes` para completar e corrigir.
 - [x] Card de Shape mantém foto rotativa, deixa o topo livre e move balança, peso, data e ação para o rodapé; o fundo cobre a faixa superior.
 - [x] Migration `20260820000200_redacoes_tempo_execucao.sql` passou reset, 13 testes SQL, dry-run remoto exclusivo, aplicação, pós-check de schema/histórico e dry-run final vazio.
-- [ ] Retestar os cinco fluxos acima após o deploy, nos temas claro/suave/escuro e em desktop/mobile.
+- [ ] Retestar os cinco fluxos acima após o deploy, nos temas claro/suave/nublado/estrelado/escuro e em desktop/mobile.
 
 ## Correções da homologação v2.1 — publicadas em 2026-08-20
 
@@ -42,7 +50,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 
 - [ ] Executar integralmente `HOMOLOGATION_V2.md` em ambiente publicado e registrar commit/deploy, navegador, dispositivo e tema.
 - [ ] Corrigir e retestar somente bugs bloqueantes, falhas de segurança/dados e polimentos claramente decorrentes da homologação.
-- [ ] Confirmar desktop/mobile e temas claro/suave/escuro antes de declarar a v2 concluída.
+- [ ] Confirmar desktop/mobile e temas claro/suave/nublado/estrelado/escuro antes de declarar a v2 concluída.
 
 **Escopo após o lote:** não iniciar módulo, integração pesada ou redesign antes da homologação. As caixas não marcadas nas seções históricas abaixo representam testes consolidados pelo checklist ou evoluções movidas para `BACKLOG.md`; não são autorização para ampliar a release candidate.
 
@@ -55,7 +63,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] Busca de metadados da Biblioteca ganhou origem, prévia mais informativa e orientação para limite/indisponibilidade das APIs.
 - [x] Treino ganhou upload privado de imagem/GIF de exercício, signed URL e rollback do arquivo quando o registro falha.
 - [x] Migration `20260815000200_v21_hardening.sql` alinhou `materias.tipo`, cascade de usuário e policies de `exercicios`/`redacoes`; reset, onze testes, dry-run exclusivo, aplicação e pós-check aprovados.
-- [ ] Homologar manualmente os fluxos v2.1 com dados reais em desktop/mobile e temas claro/escuro.
+- [ ] Homologar manualmente os fluxos v2.1 com dados reais em desktop/mobile e nos cinco temas.
 
 ---
 

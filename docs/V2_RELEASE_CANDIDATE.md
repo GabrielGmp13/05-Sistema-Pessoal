@@ -23,7 +23,7 @@ decorrentes dos testes. Feature nova permanece em `BACKLOG.md`.
 - Projetos e Programação
 - Receitas, Saúde, Finanças e Lugares
 - Idiomas e Histórico
-- Navegação responsiva e temas claro/suave/escuro
+- Navegação responsiva, dropdown de perfil e temas claro/suave/nublado/estrelado/escuro
 
 ## Variáveis de ambiente
 
@@ -63,7 +63,7 @@ ser declarada concluída quando:
 
 - o commit/deploy, ambiente, navegador, dispositivo e tema testados estiverem registrados;
 - os módulos principais tiverem persistência confirmada após recarregar;
-- desktop/mobile e temas claro/suave/escuro estiverem aprovados;
+- desktop/mobile e os cinco temas estiverem aprovados;
 - os controles básicos de Auth, dados privados, Storage e segredos passarem;
 - todos os bloqueadores estiverem corrigidos e retestados.
 

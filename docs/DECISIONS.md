@@ -1139,3 +1139,31 @@ aplicada com autorização explícita em 2026-08-20. O pós-check confirmou
 `20260820000200_redacoes_tempo_execucao.sql` passou reset local e 13 testes
 SQL. O dry-run remoto listou somente essa migration; a aplicação foi autorizada
 e o pós-check confirmou coluna, constraint, histórico e dry-run final vazio.
+
+---
+
+## DEC-060 — Aparência global usa controlador meteorológico e perfil abre resumo
+
+**Data:** 2026-08-20
+**Status:** ✅ Implementada localmente; homologação visual pendente
+
+### Decisão
+
+- A preferência global mantém a mesma chave de `localStorage` e os valores
+  anteriores `claro`, `suave` e `escuro`; `nublado` acrescenta uma paleta clara
+  azulada e `estrelado` uma paleta escura azul-marinho.
+- O topo exibe um único botão de aparência. Seu dropdown organiza os cinco
+  estados numa linha meteorológica contínua e reserva apenas texto informativo
+  para ajustes futuros, sem simular funcionalidade inexistente.
+- Clicar em avatar/nome abre um resumo baseado em `user_metadata` e na sessão
+  existente. Somente “Editar perfil” navega para `/configuracoes`; clique
+  externo, Escape e troca de rota fecham o painel.
+- Não há schema, bucket, API ou dependência nova. Prioridade da Agenda e uploads
+  da Biblioteca permanecem adiados até terem contrato de produto/Storage.
+
+### Impacto
+
+`ThemeProvider`, aplicação pré-hidratação e tokens semânticos passam a aceitar
+cinco temas. O `GlobalNav` centraliza os dois dropdowns e impede que perfil e
+aparência permaneçam abertos simultaneamente. A validação manual nos cinco
+temas, desktop e mobile, continua obrigatória antes de encerrar a homologação.

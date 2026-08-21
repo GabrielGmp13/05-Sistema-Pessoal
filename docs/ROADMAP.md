@@ -156,7 +156,7 @@ frontend ativo. Revisão Espaçada e Agenda ganharam páginas dedicadas em
 - [x] Typecheck, build e auditoria local final aprovados
 - [ ] Checklist `HOMOLOGATION_V2.md` concluído pelo usuário
 - [ ] Bloqueadores e polimentos decorrentes da homologação corrigidos e retestados
-- [ ] Aprovação final em desktop/mobile e temas claro/suave/escuro
+- [ ] Aprovação final em desktop/mobile e temas claro/suave/nublado/estrelado/escuro
 
 ### Módulo: Projetos
 

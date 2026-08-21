@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 
-export type Tema = 'claro' | 'suave' | 'escuro'
+export type Tema = 'claro' | 'suave' | 'nublado' | 'estrelado' | 'escuro'
 
 interface TemaContextValue {
   tema: Tema
@@ -17,17 +17,22 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const valorSalvo = localStorage.getItem(CHAVE_STORAGE)
-    const salvo = valorSalvo === 'claro' || valorSalvo === 'suave' || valorSalvo === 'escuro'
+    const salvo = valorSalvo === 'claro' || valorSalvo === 'suave' ||
+      valorSalvo === 'nublado' || valorSalvo === 'estrelado' || valorSalvo === 'escuro'
       ? valorSalvo
       : null
     const preferencia =
       salvo ?? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'escuro' : 'claro')
+    // Reconcilia o estado React com a classe aplicada pelo script anti-flash.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setTema(preferencia)
   }, [])
 
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', tema === 'escuro')
+    document.documentElement.classList.toggle('dark', tema === 'escuro' || tema === 'estrelado')
     document.documentElement.classList.toggle('soft', tema === 'suave')
+    document.documentElement.classList.toggle('cloudy', tema === 'nublado')
+    document.documentElement.classList.toggle('starry', tema === 'estrelado')
   }, [tema])
 
   function definirTema(proximo: Tema) {

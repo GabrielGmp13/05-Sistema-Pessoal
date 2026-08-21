@@ -2,8 +2,8 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { BookOpen, Brain, CalendarDays, CalendarRange, Code2, Dumbbell, FolderKanban, GraduationCap, Home, Languages, LogOut, NotebookTabs } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { BookOpen, Brain, CalendarDays, CalendarRange, ChevronDown, Code2, Dumbbell, FolderKanban, GraduationCap, Home, Languages, LogOut, Mail, NotebookTabs, Pencil } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 
 import { getSession, sb } from '@/lib/supabase'
@@ -56,8 +56,13 @@ export function GlobalNav() {
   const router = useRouter()
   const ocultarNavegacao = pathname === '/login'
   const [saindo, setSaindo] = useState(false)
+  const [painelAberto, setPainelAberto] = useState<'perfil' | 'tema' | null>(null)
+  const perfilAreaRef = useRef<HTMLDivElement>(null)
+  const perfilBotaoRef = useRef<HTMLButtonElement>(null)
   const [perfil, setPerfil] = useState<{
     nome: string
+    descricao: string | null
+    email: string | null
     avatarUrl: string | null
     backgroundUrl: string | null
   } | null>(null)
@@ -72,6 +77,8 @@ export function GlobalNav() {
       const meta = session?.user.user_metadata
       setPerfil({
         nome: meta?.full_name || meta?.name || session?.user.email?.split('@')[0] || 'Usuário',
+        descricao: meta?.subtitle || null,
+        email: session?.user.email || null,
         avatarUrl: meta?.avatar_url || null,
         backgroundUrl: meta?.background_url || null,
       })
@@ -85,6 +92,32 @@ export function GlobalNav() {
       window.removeEventListener('perfil-atualizado', carregarPerfil)
     }
   }, [ocultarNavegacao])
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => setPainelAberto(null), 0)
+    return () => window.clearTimeout(timeout)
+  }, [pathname])
+
+  useEffect(() => {
+    if (painelAberto !== 'perfil') return
+
+    function fecharAoClicarFora(event: PointerEvent) {
+      if (!perfilAreaRef.current?.contains(event.target as Node)) setPainelAberto(null)
+    }
+
+    function fecharComEscape(event: KeyboardEvent) {
+      if (event.key !== 'Escape') return
+      setPainelAberto(null)
+      perfilBotaoRef.current?.focus()
+    }
+
+    document.addEventListener('pointerdown', fecharAoClicarFora)
+    document.addEventListener('keydown', fecharComEscape)
+    return () => {
+      document.removeEventListener('pointerdown', fecharAoClicarFora)
+      document.removeEventListener('keydown', fecharComEscape)
+    }
+  }, [painelAberto])
 
   if (ocultarNavegacao) {
     return (
@@ -124,29 +157,55 @@ export function GlobalNav() {
         >
           {petalas.map((style, indice) => <i key={indice} style={style} />)}
         </span>
-        <Link
-          href="/configuracoes"
-          className={styles.perfil}
-          aria-label={`Abrir configurações do perfil de ${perfil?.nome || 'usuário'}`}
-          title="Configurações do perfil"
-        >
-          <span aria-hidden="true" className={styles.perfilFundo} />
-          {perfil?.backgroundUrl ? (
-            <span
-              aria-hidden="true"
-              className={styles.perfilImagem}
-              style={{ backgroundImage: `url(${perfil.backgroundUrl})` }}
-            />
+        <div ref={perfilAreaRef} className={styles.perfilArea}>
+          <button
+            ref={perfilBotaoRef}
+            type="button"
+            className={styles.perfil}
+            aria-label={`Abrir resumo do perfil de ${perfil?.nome || 'usuário'}`}
+            aria-expanded={painelAberto === 'perfil'}
+            aria-haspopup="dialog"
+            onClick={() => setPainelAberto((atual) => atual === 'perfil' ? null : 'perfil')}
+          >
+            <span aria-hidden="true" className={styles.perfilFundo} />
+            {perfil?.backgroundUrl ? (
+              <span
+                aria-hidden="true"
+                className={styles.perfilImagem}
+                style={{ backgroundImage: `url(${perfil.backgroundUrl})` }}
+              />
+            ) : null}
+            <span className={styles.avatar}>
+              {perfil?.avatarUrl ? (
+                <img src={perfil.avatarUrl} alt="" className={styles.avatarImagem} />
+              ) : (
+                <span aria-hidden="true">{inicial}</span>
+              )}
+            </span>
+            <span className={styles.perfilNome}>{perfil?.nome || 'Perfil'}</span>
+            <ChevronDown aria-hidden="true" className={cn(styles.perfilSeta, painelAberto === 'perfil' && styles.perfilSetaAberta)} />
+          </button>
+
+          {painelAberto === 'perfil' ? (
+            <div role="dialog" aria-label="Resumo do perfil" className={styles.perfilPainel}>
+              <div className={styles.perfilCapa}>
+                {perfil?.backgroundUrl ? <span aria-hidden="true" style={{ backgroundImage: `url(${perfil.backgroundUrl})` }} /> : null}
+              </div>
+              <div className={styles.perfilPainelCorpo}>
+                <span className={cn(styles.avatar, styles.avatarPainel)}>
+                  {perfil?.avatarUrl ? <img src={perfil.avatarUrl} alt="" className={styles.avatarImagem} /> : <span aria-hidden="true">{inicial}</span>}
+                </span>
+                <strong>{perfil?.nome || 'Perfil'}</strong>
+                {perfil?.descricao ? <p>{perfil.descricao}</p> : null}
+                {perfil?.email ? <span className={styles.perfilEmail}><Mail aria-hidden="true" />{perfil.email}</span> : null}
+                <Link href="/configuracoes" className={styles.editarPerfil} onClick={() => setPainelAberto(null)}>
+                  <Pencil aria-hidden="true" />
+                  Editar perfil
+                </Link>
+              </div>
+            </div>
           ) : null}
-          <span className={styles.avatar}>
-            {perfil?.avatarUrl ? (
-              <img src={perfil.avatarUrl} alt="" className={styles.avatarImagem} />
-            ) : (
-              <span aria-hidden="true">{inicial}</span>
-            )}
-          </span>
-          <span className={styles.perfilNome}>{perfil?.nome || 'Perfil'}</span>
-        </Link>
+        </div>
 
         <nav
           aria-label="Navegação principal"
@@ -176,7 +235,11 @@ export function GlobalNav() {
         </nav>
 
         <div className={styles.acoes}>
-          <ThemeToggle className={styles.tema} />
+          <ThemeToggle
+            className={styles.tema}
+            open={painelAberto === 'tema'}
+            onOpenChange={(open) => setPainelAberto(open ? 'tema' : null)}
+          />
           <button
             type="button"
             onClick={handleLogout}

@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: 'Gestão pessoal — treino, estudos, biblioteca, revisão espaçada e agenda',
 };
 
-// Script anti-flash: aplica a classe `.dark` antes da hidratação, lendo a
+// Script anti-flash: aplica a classe do tema antes da hidratação, lendo a
 // preferência salva (ou o tema do SO na primeira visita). Sem isso, a tela
 // pisca no tema errado por uma fração de segundo a cada carregamento.
 const SCRIPT_ANTI_FLASH = `
@@ -16,9 +16,11 @@ const SCRIPT_ANTI_FLASH = `
   try {
     var chave = 'sistema-pessoal:tema';
     var salvo = localStorage.getItem(chave);
-    var escuro = salvo ? salvo === 'escuro' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var escuro = salvo ? salvo === 'escuro' || salvo === 'estrelado' : window.matchMedia('(prefers-color-scheme: dark)').matches;
     if (escuro) document.documentElement.classList.add('dark');
     if (salvo === 'suave') document.documentElement.classList.add('soft');
+    if (salvo === 'nublado') document.documentElement.classList.add('cloudy');
+    if (salvo === 'estrelado') document.documentElement.classList.add('starry');
   } catch (e) {}
 })();
 `;

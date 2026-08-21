@@ -55,7 +55,7 @@ operacional.
 **Schema:** baseline confirmada via dump real em 2026-08 com 44 tabelas; produção e ambiente local estão em 63 tabelas após as migrations incrementais aplicadas até `20260820000200_redacoes_tempo_execucao.sql` (ver `DATABASE.md`).
 **Histórico CLI:** adotado em produção em 2026-08-08 — as três baselines e as migrations incrementais até `20260820000200_redacoes_tempo_execucao.sql` estão registradas como `applied`. A migration mais recente passou reset e 13 testes SQL, foi aplicada após dry-run exclusivo e teve coluna, constraint, histórico e dry-run vazio confirmados em 2026-08-20.
 **Reprodutibilidade:** Node.js `24.15.0`, npm `12.0.1`, `npm ci`, typecheck e build validados; CI mínima ativa. Lint mantém 51 achados conhecidos e informativos (27 erros e 24 warnings) na medição de 2026-08-15.
-**Próxima tarefa imediata:** executar a homologação manual autenticada completa de `HOMOLOGATION_V2.md`, cobrindo módulos, temas, responsividade e segurança básica; o handoff operacional está em `V2_RELEASE_CANDIDATE.md` e as únicas tarefas ativas estão em `TASKS_NOW.md`.
+**Próxima tarefa imediata:** após publicar o lote do controlador de cinco temas e dropdown de perfil, executar a homologação manual autenticada completa de `HOMOLOGATION_V2.md`, cobrindo módulos, temas, responsividade e segurança básica; o handoff operacional está em `V2_RELEASE_CANDIDATE.md` e as únicas tarefas ativas estão em `TASKS_NOW.md`.
 
 ---
 

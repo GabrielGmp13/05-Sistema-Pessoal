@@ -20,6 +20,13 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — v2.1 pronta tecnicamente; homologação manual pendente
 
+- **2026-08-20 (topo global e reteste explícito)** — O seletor de aparência
+  virou um controlador meteorológico de botão único, preservando claro/suave/
+  escuro e acrescentando nublado/estrelado na preferência existente. O perfil
+  passou a abrir um resumo acessível com seus metadados e ação de edição. O
+  reteste manual do commit `d5a8b7e` continua explicitamente pendente; nenhuma
+  migration ou integração foi criada neste lote.
+
 - **2026-08-20 (segunda rodada da homologação)** — Redações passaram a aceitar
   apenas os passos reais 0/40/80/120/160/200 por competência e ganharam tempo
   opcional informado em horas/minutos. O modo “Fazer prova ENEM” agora separa
