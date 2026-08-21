@@ -13,6 +13,10 @@ usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
 - [ ] Anotar data, commit/deploy testado e URL do ambiente
 - [ ] Anotar navegador, sistema, dispositivo e largura aproximada da tela
 - [ ] Executar uma passagem nos temas claro, suave, nublado, estrelado e escuro
+- [ ] No painel “Atmosfera”, alternar Sol/Suave/Nublado/Estrelado/Lua e confirmar persistência após recarregar
+- [ ] Alternar Primavera/Verão/Outono/Inverno/Noite/Nenhum; confirmar formas corretas, dissipação à direita e leitura dos links
+- [ ] Definir e restaurar a cor ambiente no resumo do perfil; confirmar que ela afeta detalhes, mas nunca pinta a barra inteira
+- [ ] Com redução de movimento ativa no sistema, confirmar que partículas ficam estáticas
 - [ ] Registrar evidência e passos de reprodução para cada falha
 - [ ] Recarregar a página depois dos CRUDs principais para confirmar persistência
 
@@ -23,6 +27,7 @@ usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
 - [ ] Nome, descrição, avatar e background salvam, aparecem no topo e persistem após recarregar
 - [ ] Avatar/nome abre o resumo sem navegar; capa, descrição e e-mail aparecem quando disponíveis
 - [ ] “Editar perfil” abre `/configuracoes`; clique externo, Escape e troca de rota fecham o resumo
+- [ ] O resumo permite escolher cor ambiente local e conserva avatar, capa, descrição e e-mail legíveis
 - [ ] URLs vazias mantêm o fallback do tema; URLs inválidas não quebram o layout
 - [ ] Logout encerra a sessão; voltar no navegador não reabre conteúdo protegido
 - [ ] Depois de entrar novamente, o botão de logout mostra “Sair” sem exigir F5

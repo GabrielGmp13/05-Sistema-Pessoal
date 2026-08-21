@@ -25,7 +25,8 @@
 }
 
 .gatilho:focus-visible,
-.opcao:focus-visible {
+.opcao:focus-visible,
+.decoracao:focus-visible {
   box-shadow: 0 0 0 3px color-mix(in oklch, var(--accent) 30%, transparent);
 }
 
@@ -44,7 +45,7 @@
   z-index: 70;
   top: calc(100% + 0.65rem);
   right: 0;
-  width: min(28rem, calc(100vw - 2rem));
+  width: min(31rem, calc(100vw - 2rem));
   overflow: hidden;
   border: 1px solid color-mix(in oklch, var(--border) 88%, transparent);
   border-radius: 14px;
@@ -68,6 +69,16 @@
 }
 
 .cabecalho strong { color: var(--text); font-size: 0.72rem; }
+
+.rotulo {
+  display: block;
+  margin: 0.1rem 0.15rem 0.55rem;
+  color: var(--texto-secundario);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
 
 .linha {
   position: relative;
@@ -131,6 +142,42 @@
   transform: translateY(-2px);
 }
 
+.decoracoes {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.3rem;
+  margin-bottom: 0.15rem;
+}
+
+.decoracao {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  padding: 0.48rem 0.12rem;
+  color: var(--texto-secundario);
+  font-size: 0.62rem;
+  outline: none;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.decoracao svg { width: 1rem; height: 1rem; }
+
+.decoracao:hover {
+  background: color-mix(in oklch, var(--surface-2) 72%, transparent);
+  color: var(--text);
+}
+
+.decoracaoSelecionada {
+  border-color: color-mix(in oklch, var(--accent-foreground) 54%, var(--border));
+  background: var(--accent-wash);
+  color: var(--text);
+  font-weight: 700;
+}
+
 .nota {
   margin: 0.75rem 0 0;
   border-top: 1px solid color-mix(in oklch, var(--border) 70%, transparent);
@@ -144,6 +191,7 @@
   .gatilhoTexto { display: none; }
   .painel { position: fixed; top: 4.25rem; right: 1rem; left: 1rem; width: auto; }
   .opcao { font-size: 0.62rem; }
+  .decoracoes { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -3,7 +3,7 @@
   z-index: 40;
   top: 0;
   border-bottom: 1px solid var(--border);
-  background: color-mix(in oklch, var(--surface) 94%, transparent);
+  background: color-mix(in oklch, var(--header-tint) 92%, transparent);
   color: var(--text);
   backdrop-filter: blur(12px);
   overflow: visible;
@@ -33,9 +33,9 @@
   inset: 0 auto 0 0;
   width: min(34rem, 46%);
   background:
-    linear-gradient(118deg, transparent 0 20%, color-mix(in oklch, var(--accent) 20%, transparent) 20.5% 23%, transparent 23.5% 100%),
-    linear-gradient(62deg, transparent 0 42%, color-mix(in oklch, var(--accent-wash-forte) 28%, transparent) 42.5% 46%, transparent 46.5% 100%),
-    linear-gradient(136deg, transparent 0 67%, color-mix(in oklch, var(--accent) 14%, transparent) 67.5% 70%, transparent 70.5% 100%);
+    linear-gradient(118deg, transparent 0 20%, color-mix(in oklch, var(--cor-ambiente) 20%, transparent) 20.5% 23%, transparent 23.5% 100%),
+    linear-gradient(62deg, transparent 0 42%, color-mix(in oklch, var(--cor-ambiente) 28%, transparent) 42.5% 46%, transparent 46.5% 100%),
+    linear-gradient(136deg, transparent 0 67%, color-mix(in oklch, var(--cor-ambiente) 14%, transparent) 67.5% 70%, transparent 70.5% 100%);
   opacity: 0.5;
   pointer-events: none;
   -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 42%, rgb(0 0 0 / 62%) 68%, transparent 100%);
@@ -44,9 +44,9 @@
 
 .perfilRastroComImagem {
   background:
-    linear-gradient(112deg, transparent 0 18%, rgb(251 113 133 / 13%) 18.5% 21%, transparent 21.5% 100%),
-    linear-gradient(64deg, transparent 0 39%, rgb(244 63 94 / 10%) 39.5% 43%, transparent 43.5% 100%),
-    linear-gradient(137deg, transparent 0 62%, rgb(253 164 175 / 10%) 62.5% 66%, transparent 66.5% 100%);
+    linear-gradient(112deg, transparent 0 18%, color-mix(in oklch, var(--cor-ambiente) 18%, transparent) 18.5% 21%, transparent 21.5% 100%),
+    linear-gradient(64deg, transparent 0 39%, color-mix(in oklch, var(--cor-ambiente) 14%, transparent) 39.5% 43%, transparent 43.5% 100%),
+    linear-gradient(137deg, transparent 0 62%, color-mix(in oklch, var(--cor-ambiente) 16%, transparent) 62.5% 66%, transparent 66.5% 100%);
 }
 
 .perfilArea {
@@ -106,7 +106,7 @@
 .perfilImagem {
   background-position: center;
   background-size: cover;
-  opacity: 0.44;
+  opacity: 0.52;
   -webkit-mask-image: linear-gradient(
     90deg,
     transparent 0%,
@@ -262,6 +262,61 @@
   flex-shrink: 0;
 }
 
+.corAmbiente {
+  width: 100%;
+  margin-top: 0.85rem;
+  border-top: 1px solid var(--border);
+  padding-top: 0.75rem;
+}
+
+.corAmbiente label {
+  display: block;
+  margin-bottom: 0.45rem;
+  color: var(--text);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.corAmbiente > div {
+  display: flex;
+  min-height: 2rem;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.corAmbiente input {
+  width: 2.3rem;
+  height: 2rem;
+  flex: 0 0 auto;
+  padding: 0.15rem;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.corAmbiente span {
+  flex: 1;
+  color: var(--texto-secundario);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+}
+
+.corAmbiente button {
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 0.35rem 0.5rem;
+  color: var(--texto-secundario);
+  font-size: 0.68rem;
+}
+
+.corAmbiente button:hover { border-color: var(--accent-foreground); color: var(--text); }
+
+.corAmbiente small {
+  display: block;
+  margin-top: 0.4rem;
+  color: var(--texto-secundario);
+  font-size: 0.65rem;
+}
+
 .editarPerfil {
   display: inline-flex;
   width: 100%;
@@ -295,6 +350,8 @@
   inset: 0;
   overflow: hidden;
   pointer-events: none;
+  -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 18%, rgb(0 0 0 / 72%) 52%, rgb(0 0 0 / 20%) 84%, transparent 100%);
+  mask-image: linear-gradient(90deg, #000 0%, #000 18%, rgb(0 0 0 / 72%) 52%, rgb(0 0 0 / 20%) 84%, transparent 100%);
 }
 
 .fragmentos i {
@@ -306,8 +363,8 @@
   height: 0.45rem;
   background: linear-gradient(
     135deg,
-    color-mix(in oklch, var(--accent-wash-forte) 88%, transparent),
-    color-mix(in oklch, var(--accent) 42%, transparent)
+    color-mix(in oklch, var(--cor-ambiente) 76%, transparent),
+    color-mix(in oklch, var(--cor-ambiente) 38%, var(--surface))
   );
   box-shadow: 0 0 0.65rem color-mix(in oklch, var(--accent-wash-forte) 20%, transparent);
   border-radius: 100% 8% 85% 12%;
@@ -327,21 +384,47 @@
   clip-path: polygon(0 38%, 28% 0, 94% 24%, 76% 100%, 16% 82%);
 }
 
-.fragmentos i:nth-child(even) {
-  background: linear-gradient(145deg, color-mix(in oklch, var(--success) 46%, transparent), color-mix(in oklch, var(--accent-wash-forte) 78%, transparent));
+.primavera i:nth-child(even) {
+  background: linear-gradient(145deg, color-mix(in oklch, var(--success) 46%, transparent), color-mix(in oklch, var(--cor-ambiente) 68%, transparent));
 }
 
 .fragmentosComImagem i {
-  background: linear-gradient(145deg, rgb(244 63 94 / 70%), rgb(253 164 175 / 42%));
-  box-shadow: 0 0 0.7rem rgb(244 63 94 / 16%);
+  filter: saturate(1.24) contrast(1.04);
 }
 
-.fragmentosComImagem i:nth-child(3n) {
-  background: linear-gradient(135deg, rgb(251 113 133 / 68%), rgb(254 205 211 / 40%));
+.verao i {
+  border-radius: 50%;
+  clip-path: none;
+  background: radial-gradient(circle, color-mix(in oklch, var(--cor-ambiente) 70%, white), color-mix(in oklch, var(--cor-ambiente) 14%, transparent) 68%, transparent 72%);
+  filter: blur(0.6px);
+  animation-name: brilhoFlutua;
 }
 
-.fragmentosComImagem i:nth-child(5n) {
-  background: linear-gradient(150deg, rgb(225 29 72 / 58%), color-mix(in oklch, var(--accent-wash-forte) 42%, transparent));
+.outono i {
+  border-radius: 85% 8% 78% 12%;
+  background: linear-gradient(145deg, color-mix(in oklch, var(--cor-ambiente) 58%, #b8662e), color-mix(in oklch, var(--cor-ambiente) 24%, #e5a04f));
+}
+
+.inverno i {
+  width: min(var(--particula-tamanho, 7px), 8px) !important;
+  height: min(var(--particula-tamanho, 7px), 8px) !important;
+  border-radius: 50%;
+  clip-path: none;
+  background: color-mix(in oklch, white 80%, var(--cor-ambiente));
+  box-shadow: 0 0 0.55rem color-mix(in oklch, white 42%, transparent);
+}
+
+.noite i {
+  width: 7px !important;
+  height: 7px !important;
+  border-radius: 0;
+  clip-path: polygon(50% 0, 61% 38%, 100% 50%, 61% 62%, 50% 100%, 39% 62%, 0 50%, 39% 38%);
+  background: color-mix(in oklch, var(--cor-ambiente) 38%, #fff2b5);
+  box-shadow: 0 0 0.65rem color-mix(in oklch, var(--cor-ambiente) 52%, transparent);
+}
+
+.nenhum {
+  display: none;
 }
 
 @keyframes petalaFlutua {
@@ -351,6 +434,11 @@
   50% {
     transform: translate3d(var(--petala-deslocamento), -2px, 0) rotate(calc(var(--petala-rotacao) + 8deg));
   }
+}
+
+@keyframes brilhoFlutua {
+  0%, 100% { opacity: 0.38; transform: scale(0.82); }
+  50% { opacity: 0.82; transform: scale(1.16); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -381,7 +469,7 @@
   border: 1px solid color-mix(in oklch, var(--border) 76%, transparent);
   border-radius: 999px;
   background: color-mix(in oklch, var(--surface) 78%, transparent);
-  box-shadow: 0 5px 18px color-mix(in oklch, var(--foreground) 7%, transparent);
+  box-shadow: var(--atmosphere-shadow);
   backdrop-filter: blur(14px) saturate(1.1);
   overflow-x: auto;
   scrollbar-width: none;

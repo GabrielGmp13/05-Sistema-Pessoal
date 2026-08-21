@@ -9,9 +9,18 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 **Bloqueio:** nenhum bloqueio técnico conhecido neste lote; resta homologação manual autenticada.
 **Banco:** produção e cadeia local estão alinhadas até `20260820000200_redacoes_tempo_execucao.sql`; o pós-check de 2026-08-20 confirmou nota até 1000, duração opcional não negativa e dry-run remoto vazio.
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** após o deploy deste lote, retestar em produção as correções registradas em `docs/teste.md`, especialmente Redações, Fazer Prova ENEM, card de Shape, seletor de cinco temas e dropdown de perfil, em desktop/mobile.
+**Próxima ação:** após o deploy deste lote, retestar em produção as correções registradas em `docs/teste.md`, especialmente Redações, Fazer Prova ENEM, card de Shape e a arquitetura de atmosfera do topo, em desktop/mobile.
 
-## Topo global e documentação de reteste — 2026-08-20
+## Atmosfera visual do topo — 2026-08-20
+
+- [x] Os cinco temas passam a representar iluminação: Sol, Suave, Nublado, Estrelado e Lua, com tokens próprios para fundo, superfícies, bordas, textos, ações, campos, header e sombras.
+- [x] A decoração é independente da iluminação e oferece Primavera, Verão, Outono, Inverno, Noite e Nenhum no mesmo painel “Atmosfera”.
+- [x] Iluminação, decoração e cor ambiente têm persistência local e aplicação pré-hidratação; nenhum dado visual novo depende de schema ou Supabase.
+- [x] A imagem real continua restrita ao perfil; partículas CSS usam a decoração e a cor ambiente, concentram-se à esquerda e desaparecem à direita sob uma navegação translúcida.
+- [x] O resumo do perfil ganhou controle de cor ambiente e restauração do fallback temático.
+- [ ] Retestar as combinações por amostragem representativa, incluindo “Nenhum”, cor personalizada, recarga, 360 px e desktop.
+
+## Topo global e documentação de reteste — 2026-08-20 (base anterior)
 
 - [x] Os três controles separados viraram um botão único com dropdown meteorológico e linha contínua para claro, suave, nublado, estrelado e escuro.
 - [x] A preferência continua na chave existente e os cinco temas são aplicados antes da hidratação para evitar flash visual.

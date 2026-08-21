@@ -9,6 +9,7 @@ import type { CSSProperties } from 'react'
 import { getSession, sb } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
 import { ThemeToggle } from './ThemeToggle'
+import { useTema, type Decoracao } from './ThemeProvider'
 import styles from './GlobalNav.module.css'
 
 const links = [
@@ -27,7 +28,7 @@ const links = [
 
 const rotasDiario = ['/diario', '/saude', '/financas', '/lugares', '/receitas']
 
-const petalas = Array.from({ length: 52 }, (_, indice) => {
+const particulas = Array.from({ length: 52 }, (_, indice) => {
   const esquerda = 7 + ((indice * 71) % 91)
   const proximidadeDoPerfil = 1 - esquerda / 140
 
@@ -43,6 +44,15 @@ const petalas = Array.from({ length: 52 }, (_, indice) => {
   } as CSSProperties
 })
 
+const classesDecoracao: Record<Decoracao, string> = {
+  primavera: styles.primavera,
+  verao: styles.verao,
+  outono: styles.outono,
+  inverno: styles.inverno,
+  noite: styles.noite,
+  nenhum: styles.nenhum,
+}
+
 function isActive(pathname: string, href: string) {
   if (href === '/') return pathname === '/'
   if (href === '/diario') {
@@ -52,6 +62,7 @@ function isActive(pathname: string, href: string) {
 }
 
 export function GlobalNav() {
+  const { decoracao, corAmbiente, definirCorAmbiente } = useTema()
   const pathname = usePathname()
   const router = useRouter()
   const ocultarNavegacao = pathname === '/login'
@@ -144,18 +155,21 @@ export function GlobalNav() {
   }
 
   const inicial = perfil?.nome.charAt(0).toUpperCase() || 'U'
+  const estiloAtmosfera = {
+    '--cor-ambiente': corAmbiente || 'var(--ambient-fallback)',
+  } as CSSProperties
   return (
     <header className={styles.header}>
-      <div className={styles.barra}>
+      <div className={styles.barra} style={estiloAtmosfera}>
         <span
           aria-hidden="true"
           className={cn(styles.perfilRastro, perfil?.backgroundUrl && styles.perfilRastroComImagem)}
         />
         <span
           aria-hidden="true"
-          className={cn(styles.fragmentos, perfil?.backgroundUrl && styles.fragmentosComImagem)}
+          className={cn(styles.fragmentos, classesDecoracao[decoracao], perfil?.backgroundUrl && styles.fragmentosComImagem)}
         >
-          {petalas.map((style, indice) => <i key={indice} style={style} />)}
+          {particulas.map((style, indice) => <i key={indice} style={style} />)}
         </span>
         <div ref={perfilAreaRef} className={styles.perfilArea}>
           <button
@@ -198,6 +212,23 @@ export function GlobalNav() {
                 <strong>{perfil?.nome || 'Perfil'}</strong>
                 {perfil?.descricao ? <p>{perfil.descricao}</p> : null}
                 {perfil?.email ? <span className={styles.perfilEmail}><Mail aria-hidden="true" />{perfil.email}</span> : null}
+                <div className={styles.corAmbiente}>
+                  <label htmlFor="cor-ambiente">Cor ambiente</label>
+                  <div>
+                    <input
+                      id="cor-ambiente"
+                      type="color"
+                      value={corAmbiente || '#78927b'}
+                      onChange={(event) => definirCorAmbiente(event.target.value)}
+                      aria-label="Escolher cor dos detalhes decorativos"
+                    />
+                    <span>{corAmbiente ? corAmbiente.toUpperCase() : 'Cor do tema'}</span>
+                    {corAmbiente ? (
+                      <button type="button" onClick={() => definirCorAmbiente(null)}>Restaurar</button>
+                    ) : null}
+                  </div>
+                  <small>Usada apenas nos detalhes e partículas do topo.</small>
+                </div>
                 <Link href="/configuracoes" className={styles.editarPerfil} onClick={() => setPainelAberto(null)}>
                   <Pencil aria-hidden="true" />
                   Editar perfil

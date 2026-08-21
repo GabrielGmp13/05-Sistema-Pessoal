@@ -11,7 +11,8 @@ padrão de todos os módulos, incluindo Biblioteca. A antiga exceção dourada
 da Biblioteca foi removida após o teste manual final.
 
 Diferente da DEC-034 (só modo escuro), esta paleta tem **modos claros e
-escuros reais**, com controlador funcional no sistema inteiro (DEC-039/049/060).
+escuros reais**, organizados como iluminações no controlador de atmosfera
+(DEC-039/049/060/061): Sol, Suave, Nublado, Estrelado e Lua.
 
 ```css
 /* Claro (:root), suave (.soft), nublado (.cloudy), estrelado (.starry) e
@@ -32,10 +33,12 @@ escuros reais**, com controlador funcional no sistema inteiro (DEC-039/049/060).
 --texto-secundario: var(--muted-foreground)
 ```
  
-**Nota de comportamento:** no modo escuro dessa paleta, a maior parte da UI
-é monocromática (cinza/branco) — cor só aparece em estados semânticos
-específicos (badge de sucesso, item ativo). No modo claro, o verde aparece
-com mais presença. Isso é intencional do design aprovado, não bug.
+Cada iluminação altera o conjunto semântico completo, não apenas o fundo:
+superfícies, bordas, textos, ações, campos, header, dropdowns e sombras seguem
+a mesma temperatura. Sol é claro quente sem branco agressivo; Suave é bege;
+Nublado é claro frio; Estrelado é azul-marinho; Lua é escuro neutro sem cinza
+inerte. `--ambient-fallback`, `--header-tint` e `--atmosphere-shadow` completam
+o vocabulário atmosférico sem substituir os tokens de negócio.
 
 Cores secundárias usadas em contexto (não são variáveis CSS formais, mas aparecem consistentemente):
 
@@ -145,8 +148,9 @@ efeito principal do perfil fica contido na célula esquerda. A imagem real de
 background nunca é aplicada ao restante da barra: ela desaparece dentro do
 perfil por máscara. Fora dele, a continuidade visual usa apenas manchas e
 fragmentos abstratos em forma de pétalas/lascas. Com um background de perfil
-configurado, eles usam uma paleta rosada suave inspirada na imagem; no fallback,
-derivam dos tokens do tema. A densidade é maior perto do perfil, mas continua
+configurado, ele ganha apenas um pouco mais de presença dentro do próprio
+bloco. Fora dele, as partículas usam a cor ambiente configurável ou o fallback
+da iluminação. A densidade é maior perto do perfil, mas continua
 visível atrás da navegação sem cobrir os links. A sidebar da Biblioteca não
 duplica perfil. O próprio perfil abre um dropdown de resumo, com hover e foco
 visíveis; a ação “Editar perfil” dentro dele é o acesso a `/configuracoes`, sem
@@ -160,13 +164,15 @@ de 960px; entre 960px e 1319px usa ícones com `aria-label`/tooltip, e a partir
 de 1320px volta a exibir os rótulos completos para evitar colisão com perfil e
 ações.
 
-O controle de tema pertence à área direita da navegação global, imediatamente
-ao lado de “Sair”. Um único botão abre o controlador meteorológico horizontal
-com claro, suave, nublado, estrelado e escuro; as opções formam uma linha
-contínua, mostram ícone/rótulo/seleção e reservam apenas uma nota discreta para
-acessibilidade futura. Ele não deve voltar a flutuar sobre o conteúdo das
-páginas; na tela de login, onde não há logout, permanece como ação isolada no
-topo direito.
+O controle de atmosfera pertence à área direita da navegação global,
+imediatamente ao lado de “Sair”. Um único botão abre duas dimensões independentes:
+a linha de iluminação (Sol, Suave, Nublado, Estrelado e Lua) e a linha de
+decoração (Primavera/pétalas, Verão/brilhos, Outono/folhas, Inverno/pontos,
+Noite/estrelas e Nenhum). Ambas persistem em `localStorage`; a animação CSS
+respeita `prefers-reduced-motion`. A cor ambiente também é local, editável no
+resumo do perfil e aplicada apenas a partículas, brilhos e rastros — nunca à
+barra inteira. Na tela de login, onde não há logout, o controlador permanece
+como ação isolada no topo direito.
 
 Item ativo: pill com fundo derivado de `--success-muted`, contraste por
 `--success-foreground` e marcador interno sutil. A sidebar é um painel

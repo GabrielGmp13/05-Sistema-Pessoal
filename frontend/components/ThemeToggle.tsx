@@ -1,10 +1,10 @@
 'use client'
 
-import { ChevronDown, Cloud, CloudSun, Moon, Sparkles, Sun } from 'lucide-react'
+import { ChevronDown, CircleOff, Cloud, CloudSun, Flower2, Leaf, Moon, Snowflake, Sparkles, Sun, SunMedium } from 'lucide-react'
 import { useEffect, useId, useRef, useState } from 'react'
 
 import { cn } from '@/lib/utils'
-import { useTema, type Tema } from './ThemeProvider'
+import { useTema, type Decoracao, type Tema } from './ThemeProvider'
 import styles from './ThemeToggle.module.css'
 
 interface ThemeToggleProps {
@@ -14,21 +14,31 @@ interface ThemeToggleProps {
 }
 
 const temas: Array<{ valor: Tema; label: string; icon: typeof Sun }> = [
-  { valor: 'claro', label: 'Claro', icon: Sun },
+  { valor: 'claro', label: 'Sol', icon: Sun },
   { valor: 'suave', label: 'Suave', icon: CloudSun },
   { valor: 'nublado', label: 'Nublado', icon: Cloud },
   { valor: 'estrelado', label: 'Estrelado', icon: Sparkles },
-  { valor: 'escuro', label: 'Escuro', icon: Moon },
+  { valor: 'escuro', label: 'Lua', icon: Moon },
+]
+
+const decoracoes: Array<{ valor: Decoracao; label: string; icon: typeof Sun }> = [
+  { valor: 'primavera', label: 'Primavera', icon: Flower2 },
+  { valor: 'verao', label: 'Verão', icon: SunMedium },
+  { valor: 'outono', label: 'Outono', icon: Leaf },
+  { valor: 'inverno', label: 'Inverno', icon: Snowflake },
+  { valor: 'noite', label: 'Noite', icon: Sparkles },
+  { valor: 'nenhum', label: 'Nenhum', icon: CircleOff },
 ]
 
 export function ThemeToggle({ className, open, onOpenChange }: ThemeToggleProps) {
-  const { tema, definirTema } = useTema()
+  const { tema, definirTema, decoracao, definirDecoracao } = useTema()
   const [abertoInterno, setAbertoInterno] = useState(false)
   const raizRef = useRef<HTMLDivElement>(null)
   const gatilhoRef = useRef<HTMLButtonElement>(null)
   const painelId = useId()
   const aberto = open ?? abertoInterno
   const temaAtual = temas.find((opcao) => opcao.valor === tema) ?? temas[0]
+  const decoracaoAtual = decoracoes.find((opcao) => opcao.valor === decoracao) ?? decoracoes[0]
   const IconeAtual = temaAtual.icon
 
   function alterarAberto(proximo: boolean) {
@@ -68,7 +78,7 @@ export function ThemeToggle({ className, open, onOpenChange }: ThemeToggleProps)
         ref={gatilhoRef}
         type="button"
         className={styles.gatilho}
-        aria-label={`Tema ${temaAtual.label}. Abrir seletor de aparência`}
+        aria-label={`Iluminação ${temaAtual.label}, decoração ${decoracaoAtual.label}. Abrir atmosfera`}
         aria-expanded={aberto}
         aria-haspopup="dialog"
         aria-controls={painelId}
@@ -80,12 +90,13 @@ export function ThemeToggle({ className, open, onOpenChange }: ThemeToggleProps)
       </button>
 
       {aberto ? (
-        <div id={painelId} role="dialog" aria-label="Escolher aparência" className={styles.painel}>
+        <div id={painelId} role="dialog" aria-label="Escolher atmosfera" className={styles.painel}>
           <div className={styles.cabecalho}>
-            <span>Aparência</span>
-            <strong>{temaAtual.label}</strong>
+            <span>Atmosfera</span>
+            <strong>{temaAtual.label} · {decoracaoAtual.label}</strong>
           </div>
-          <div className={styles.linha} role="radiogroup" aria-label="Temas disponíveis">
+          <span className={styles.rotulo}>Iluminação</span>
+          <div className={styles.linha} role="radiogroup" aria-label="Iluminações disponíveis">
             {temas.map(({ valor, label, icon: Icon }) => {
               const selecionado = tema === valor
               return (
@@ -103,7 +114,26 @@ export function ThemeToggle({ className, open, onOpenChange }: ThemeToggleProps)
               )
             })}
           </div>
-          <p className={styles.nota}>Acessibilidade e ajustes finos serão adicionados aqui.</p>
+          <span className={styles.rotulo}>Estação / decoração</span>
+          <div className={styles.decoracoes} role="radiogroup" aria-label="Decorações disponíveis">
+            {decoracoes.map(({ valor, label, icon: Icon }) => {
+              const selecionado = decoracao === valor
+              return (
+                <button
+                  key={valor}
+                  type="button"
+                  role="radio"
+                  aria-checked={selecionado}
+                  className={cn(styles.decoracao, selecionado && styles.decoracaoSelecionada)}
+                  onClick={() => definirDecoracao(valor)}
+                >
+                  <Icon aria-hidden="true" />
+                  <span>{label}</span>
+                </button>
+              )
+            })}
+          </div>
+          <p className={styles.nota}>Movimentos decorativos respeitam a preferência de reduzir animações do dispositivo.</p>
         </div>
       ) : null}
     </div>

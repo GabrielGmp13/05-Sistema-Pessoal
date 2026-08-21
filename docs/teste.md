@@ -18,9 +18,14 @@ O lote está publicado, mas os itens abaixo **ainda não foram confirmados por G
 
 O novo topo deste lote também precisa de homologação separada nos cinco temas:
 
-- [ ] Controlador de clima abre no login e no topo autenticado; seleção persiste após recarregar.
+- [ ] Painel “Atmosfera” abre no login e no topo autenticado; iluminação e decoração persistem após recarregar.
+- [ ] Sol, Suave, Nublado, Estrelado e Lua apresentam paletas completas e mantêm contraste.
+- [ ] Primavera, Verão, Outono, Inverno e Noite mostram partículas coerentes; Nenhum deixa o topo limpo.
+- [ ] Partículas são mais densas perto do perfil, somem à direita e ficam estáticas com redução de movimento.
+- [ ] Cor ambiente altera somente detalhes do topo, persiste localmente e pode ser restaurada ao fallback do tema.
+- [ ] Background real não sai da área do perfil nem é repetido/esticado pela barra.
 - [ ] Nublado e estrelado mantêm contraste em Hub, Biblioteca e Treino.
-- [ ] Dropdown de perfil mostra os dados disponíveis, fecha por clique externo/Escape/troca de rota e abre “Editar perfil”.
+- [ ] Dropdown de perfil mostra dados e cor ambiente, fecha por clique externo/Escape/troca de rota e abre “Editar perfil”.
 
 Baseado no roteiro gerado pelo Codex (commits `740ada1`/`3b4cbd6`). Este é o
 formato de execução: sessões curtas, marcáveis, com prioridade. O roteiro

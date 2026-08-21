@@ -1167,3 +1167,31 @@ e o pós-check confirmou coluna, constraint, histórico e dry-run final vazio.
 cinco temas. O `GlobalNav` centraliza os dois dropdowns e impede que perfil e
 aparência permaneçam abertos simultaneamente. A validação manual nos cinco
 temas, desktop e mobile, continua obrigatória antes de encerrar a homologação.
+
+---
+
+## DEC-061 — Atmosfera separa iluminação, decoração e cor ambiente
+
+**Data:** 2026-08-20
+**Status:** ✅ Implementada localmente; homologação visual pendente
+
+### Decisão
+
+- Os valores existentes de tema continuam compatíveis, mas são apresentados
+  como iluminações: `claro`/Sol, `suave`, `nublado`, `estrelado` e `escuro`/Lua.
+- A decoração é uma preferência local independente: Primavera, Verão, Outono,
+  Inverno, Noite ou Nenhum. Ela troca apenas a linguagem das partículas CSS.
+- A cor ambiente é persistida em `localStorage`, não em `user_metadata`. Isso
+  evita escrita remota para uma preferência puramente visual e mantém o lote
+  sem schema, API ou sincronização de conta.
+- A imagem real de `background_url` permanece restrita ao bloco do perfil. O
+  restante do topo recebe somente cor, brilho e partículas abstratas, com maior
+  densidade à esquerda e dissipação progressiva para proteger a navegação.
+
+### Impacto
+
+O `ThemeProvider` passa a coordenar três preferências locais e o script
+pré-hidratação evita troca visual tardia. O dropdown “Atmosfera” controla duas
+dimensões, enquanto o resumo do perfil controla a cor. `prefers-reduced-motion`
+desativa animações; “Nenhum” remove a decoração. Não há mudança em dados de
+negócio, Supabase, uploads, rotas funcionais ou dependências.

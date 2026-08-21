@@ -20,6 +20,15 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — v2.1 pronta tecnicamente; homologação manual pendente
 
+- **2026-08-20 (arquitetura de atmosfera)** — Os cinco temas foram consolidados
+  como iluminações Sol, Suave, Nublado, Estrelado e Lua. O painel “Atmosfera”
+  ganhou decoração independente com Primavera, Verão, Outono, Inverno, Noite e
+  Nenhum; o resumo do perfil ganhou cor ambiente local. O topo agora combina
+  base temática, imagem real confinada ao perfil, partículas CSS dissipadas e
+  cápsula translúcida de navegação. Preferências têm aplicação anti-flash,
+  animações respeitam movimento reduzido e não houve migration, dependência,
+  operação remota ou alteração funcional de módulos.
+
 - **2026-08-20 (topo global e reteste explícito)** — O seletor de aparência
   virou um controlador meteorológico de botão único, preservando claro/suave/
   escuro e acrescentando nublado/estrelado na preferência existente. O perfil

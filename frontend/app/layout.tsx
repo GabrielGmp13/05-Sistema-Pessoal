@@ -21,6 +21,11 @@ const SCRIPT_ANTI_FLASH = `
     if (salvo === 'suave') document.documentElement.classList.add('soft');
     if (salvo === 'nublado') document.documentElement.classList.add('cloudy');
     if (salvo === 'estrelado') document.documentElement.classList.add('starry');
+    var decoracao = localStorage.getItem('sistema-pessoal:decoracao');
+    var decoracoes = ['primavera', 'verao', 'outono', 'inverno', 'noite', 'nenhum'];
+    document.documentElement.dataset.decoracao = decoracoes.indexOf(decoracao) >= 0 ? decoracao : 'primavera';
+    var corAmbiente = localStorage.getItem('sistema-pessoal:cor-ambiente');
+    if (/^#[0-9a-f]{6}$/i.test(corAmbiente || '')) document.documentElement.style.setProperty('--ambient-color', corAmbiente);
   } catch (e) {}
 })();
 `;
