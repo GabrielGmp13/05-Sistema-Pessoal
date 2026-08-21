@@ -198,7 +198,7 @@
 .shapeFundo,
 .shapeMascara {
   position: absolute;
-  inset: 0;
+  inset: -1px;
   z-index: -2;
 }
 
@@ -210,7 +210,7 @@
 
 .shapeMascara {
   z-index: -1;
-  background: linear-gradient(180deg, color-mix(in oklch, var(--surface) 50%, transparent), color-mix(in oklch, var(--surface) 94%, transparent) 72%);
+  background: linear-gradient(180deg, color-mix(in oklch, var(--surface) 34%, transparent), color-mix(in oklch, var(--surface) 92%, transparent) 72%);
   backdrop-filter: blur(1px);
 }
 
@@ -223,15 +223,34 @@
   justify-content: space-between;
 }
 
-.shapeConteudo > svg {
+.shapeRodape {
+  display: grid;
+  width: 100%;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.3rem 0.65rem;
+  padding-top: 1.5rem;
+}
+
+.shapeRodape > svg {
+  grid-row: 1 / span 2;
   width: 2rem;
   height: 2rem;
   color: var(--accent-foreground);
 }
 
-.shapeConteudo > strong {
+.shapeRodape > strong {
   font-family: var(--font-mono);
   font-size: 1.35rem;
+}
+
+.shapeRodape > span,
+.shapeRodape > a {
+  grid-column: 2;
+}
+
+.shapeRodape > a {
+  margin-top: 0.35rem;
 }
 
 .shape a {

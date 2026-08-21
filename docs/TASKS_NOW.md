@@ -5,11 +5,21 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 ---
 
 ## Status geral
-**Fase atual:** v2.1 — correções da primeira rodada de homologação publicadas; reteste manual em produção pendente. A v1 está aposentada (DEC-031) e `frontend/` é o único frontend ativo.
+**Fase atual:** v2.1 — correções da segunda rodada de homologação implementadas e validadas; reteste manual em produção pendente. A v1 está aposentada (DEC-031) e `frontend/` é o único frontend ativo.
 **Bloqueio:** nenhum bloqueio técnico conhecido neste lote; resta homologação manual autenticada.
-**Banco:** produção e cadeia local estão alinhadas até `20260820000100_redacoes_nota_mil.sql`; o pós-check de 2026-08-20 confirmou `redacoes.nota NUMERIC(5,1)`, faixa 0–1000 e dry-run remoto vazio.
+**Banco:** produção e cadeia local estão alinhadas até `20260820000200_redacoes_tempo_execucao.sql`; o pós-check de 2026-08-20 confirmou nota até 1000, duração opcional não negativa e dry-run remoto vazio.
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** retestar em produção as correções registradas em `docs/teste.md`, nos três temas e em desktop/mobile.
+**Próxima ação:** retestar em produção as correções registradas em `docs/teste.md`, especialmente Redações, Fazer Prova ENEM e o card de Shape, nos três temas e em desktop/mobile.
+
+## Correções da segunda rodada de homologação — 2026-08-20
+
+- [x] Competências C1–C5 de Redações usam somente 0, 40, 80, 120, 160 e 200; valores manuais fora da sequência são rejeitados.
+- [x] Redações registram e editam tempo em horas/minutos, persistido como total opcional em minutos.
+- [x] Resumo do modo “Fazer prova ENEM” separa respondidas, em branco, acertos, erros e total sem chamar 90 respostas nulas de lançadas.
+- [x] Dia 1 permite vincular tema e imagem da redação durante a prova; o registro reaparece em `/estudos/redacoes` para completar e corrigir.
+- [x] Card de Shape mantém foto rotativa, deixa o topo livre e move balança, peso, data e ação para o rodapé; o fundo cobre a faixa superior.
+- [x] Migration `20260820000200_redacoes_tempo_execucao.sql` passou reset, 13 testes SQL, dry-run remoto exclusivo, aplicação, pós-check de schema/histórico e dry-run final vazio.
+- [ ] Retestar os cinco fluxos acima após o deploy, nos temas claro/suave/escuro e em desktop/mobile.
 
 ## Correções da homologação v2.1 — publicadas em 2026-08-20
 
@@ -21,7 +31,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] Agenda tornou concluir/reabrir visível no card e no modal de edição.
 - [x] Tema suave foi adicionado sem remover claro/escuro e usa a mesma preferência persistida.
 - [x] TMDB e Jikan preenchem campos adicionais já existentes no schema; demais fontes preservam seus contratos atuais.
-- [x] Base do modo “Fazer prova ENEM” usa o gabarito existente, cronômetro de 5h30/5h e persistência local do prazo; redação fica fora.
+- [x] Base do modo “Fazer prova ENEM” usa o gabarito existente, cronômetro de 5h30/5h e persistência local do prazo; o segundo lote integrou o anexo da redação do Dia 1.
 - [x] Causa da falha de Redações identificada: `NUMERIC(4,1)` não comporta 1000,0; migration incremental e teste específico foram criados.
 - [x] Reset local completo e 12 testes SQL aprovados, incluindo `validate_redacoes_nota_mil.sql`.
 - [x] Dry-run remoto listou exclusivamente `20260820000100_redacoes_nota_mil.sql`.

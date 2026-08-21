@@ -13,6 +13,7 @@ export interface Redacao {
   competencia_3: number | null;
   competencia_4: number | null;
   competencia_5: number | null;
+  tempo_execucao_minutos: number | null;
   imagem_path: string | null; // path no bucket 'redacoes', formato {user_id}/arquivo.ext
   updated_at: string;
   deleted: boolean;
@@ -121,4 +122,20 @@ export async function removerImagemRedacao(uuid: string, path: string): Promise<
 
   const atualizado = await atualizarRedacao(uuid, { imagem_path: null });
   return !!atualizado;
+}
+
+export async function buscarRedacao(uuid: string): Promise<Redacao | null> {
+  const userId = await getUserId();
+  if (!userId) return null;
+
+  const { data, error } = await sb
+    .from('redacoes')
+    .select('*')
+    .eq('uuid', uuid)
+    .eq('user_id', userId)
+    .eq('deleted', false)
+    .single();
+
+  if (error) return sbErr(error, 'buscarRedacao');
+  return data;
 }

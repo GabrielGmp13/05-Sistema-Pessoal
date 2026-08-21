@@ -40,6 +40,10 @@ O ponto inicial oficial da cadeia CLI é:
     `NUMERIC(5,1)` e limita o valor a 0–1000; reset e 12 testes SQL aprovados,
     aplicada em produção em 2026-08-20 após dry-run exclusivo e confirmada por
     pós-check de schema, histórico e dry-run vazio.
+15. `20260820000200_redacoes_tempo_execucao.sql` — adiciona duração opcional
+    em minutos a `redacoes`, com rejeição de valores negativos; reset e 13
+    testes SQL aprovados, aplicada em produção em 2026-08-20 após dry-run
+    exclusivo e confirmada por pós-check de schema, histórico e dry-run vazio.
 
 As três baselines foram validadas por dois replays locais completos e por
 comparação com produção. Em 2026-08-08, `migration repair --status applied`
@@ -114,6 +118,12 @@ dry-run vazio.
 testes SQL passaram; o dry-run remoto listou somente esta migration, aplicada
 em produção em 2026-08-20. O pós-check confirmou `NUMERIC(5,1)`, constraint
 0–1000, a 14ª versão no histórico e dry-run vazio.
+
+`20260820000200_redacoes_tempo_execucao.sql` acrescenta somente
+`redacoes.tempo_execucao_minutos INTEGER`, opcional e não negativo. O reset e
+os 13 testes SQL passaram; o dry-run remoto listou exclusivamente esta
+migration, aplicada em produção em 2026-08-20. O pós-check confirmou a coluna,
+a constraint, a 15ª versão no histórico e dry-run final vazio.
 
 ## Workflow para toda mudança futura
 

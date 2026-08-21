@@ -131,10 +131,12 @@ export default function TreinoHubPage() {
             <span aria-hidden="true" className={styles.shapeMascara} />
             <div className={styles.shapeConteudo}>
               <div><p className={styles.eyebrow}>Evolução</p><h2>Shape</h2></div>
-              <Scale />
-              <strong>{ultimoPeso?.peso ? `${ultimoPeso.peso} kg` : 'Sem peso registrado'}</strong>
-              <span>{ultimoPeso ? formatarData(ultimoPeso.data) : 'Fotos e histórico corporal'}</span>
-              <Link href="/treino/shape">Abrir Shape <ArrowRight /></Link>
+              <div className={styles.shapeRodape}>
+                <Scale />
+                <strong>{ultimoPeso?.peso ? `${ultimoPeso.peso} kg` : 'Sem peso registrado'}</strong>
+                <span>{ultimoPeso ? formatarData(ultimoPeso.data) : 'Fotos e histórico corporal'}</span>
+                <Link href="/treino/shape">Abrir Shape <ArrowRight /></Link>
+              </div>
             </div>
           </aside>
         </div>

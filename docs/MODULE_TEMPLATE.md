@@ -194,8 +194,8 @@ Nenhuma.
   `window.prompt` no frontend.
 - O acesso principal a Estudos passou no smoke de produção em 2026-08-09; o
   teste profundo das 9 rotas internas ainda pode ser feito em etapa própria.
-- Modo "fazer prova" com cronômetro/upload de PDF — não desenhado, ver
-  BACKLOG.md e DEC-041.
+- Modo "fazer prova" com cronômetro, gabarito e anexo da redação do Dia 1 está
+  implementado; upload/abertura do PDF da prova permanece no `BACKLOG.md`.
 **Melhorias futuras**
 Ver `BACKLOG.md` para Anki, modo prova e demais evoluções de maior porte.
 Olimpíadas/Vestibulares/Outros e Idiomas foram implementados em 2026-08-15

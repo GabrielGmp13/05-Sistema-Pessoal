@@ -152,11 +152,11 @@ frontend ativo. Revisão Espaçada e Agenda ganharam páginas dedicadas em
 ### Critério de encerramento da v2 expandida
 
 - [x] Implementação planejada concluída e congelada como release candidate
-- [x] Cadeia local e produção registradas sem migration pendente até `20260820000100`
+- [x] Cadeia local e produção registradas sem migration pendente até `20260820000200`
 - [x] Typecheck, build e auditoria local final aprovados
 - [ ] Checklist `HOMOLOGATION_V2.md` concluído pelo usuário
 - [ ] Bloqueadores e polimentos decorrentes da homologação corrigidos e retestados
-- [ ] Aprovação final em desktop/mobile e temas claro/escuro
+- [ ] Aprovação final em desktop/mobile e temas claro/suave/escuro
 
 ### Módulo: Projetos
 

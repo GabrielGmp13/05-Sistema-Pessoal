@@ -1111,3 +1111,31 @@ O frontend passou em typecheck e build. A migration passou reset e 12 testes
 SQL; o dry-run remoto listou somente `20260820000100_redacoes_nota_mil.sql`,
 aplicada com autorização explícita em 2026-08-20. O pós-check confirmou
 `NUMERIC(5,1)`, faixa 0–1000, histórico alinhado e nenhuma migration pendente.
+
+---
+
+## DEC-059 — Redação cronometrada reutiliza o domínio e o Storage existentes
+
+**Data:** 2026-08-20
+**Status:** ✅ Implementada; migration aplicada em produção
+
+### Decisão
+
+- O tempo de execução pertence à própria `redacoes` e é persistido como total
+  opcional em minutos. A interface recebe horas/minutos separados; não nasce
+  tipo intervalar, cronômetro paralelo nem tabela de sessões de redação.
+- As competências do ENEM são controladas na interface em passos de 40, com
+  domínio 0–200 por competência e total derivado 0–1000.
+- O modo “Fazer prova” continua gravando as 90 posições para preservar o
+  cartão-resposta, mas o resumo conta como respondida somente a linha com
+  `letra_marcada` preenchida e mostra os brancos separadamente.
+- A redação do Dia 1 reutiliza `provas.redacao_uuid`, a tabela `redacoes` e o
+  bucket privado `redacoes`. Tema e imagem podem ser salvos durante a prova;
+  texto, competências, comentário e nota permanecem completáveis depois.
+- Não foi criado bucket, tabela, API externa ou fluxo de correção automática.
+
+### Estado operacional
+
+`20260820000200_redacoes_tempo_execucao.sql` passou reset local e 13 testes
+SQL. O dry-run remoto listou somente essa migration; a aplicação foi autorizada
+e o pós-check confirmou coluna, constraint, histórico e dry-run final vazio.

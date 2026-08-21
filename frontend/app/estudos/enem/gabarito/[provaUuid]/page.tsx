@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { Clock3, Loader2, PenLine, Save } from 'lucide-react'
+import { Clock3, ImagePlus, Loader2, PenLine, Save } from 'lucide-react'
 import {
   listarTodasMateriasEnem,
   Materia,
@@ -14,7 +14,13 @@ import {
   areaEnemDoNumero,
   Prova,
 } from '../../../../../lib/provas'
-import { criarRedacao } from '../../../../../lib/redacoes'
+import {
+  buscarRedacao,
+  criarRedacao,
+  deletarRedacao,
+  uploadImagemRedacao,
+  Redacao,
+} from '../../../../../lib/redacoes'
 import {
   lancarRespostasGabarito,
   corrigirGabaritoEmLote,
@@ -85,6 +91,8 @@ export default function GabaritoProvaPage() {
 
   // Bloco de redação (só dia 1)
   const [temaRedacao, setTemaRedacao] = useState('')
+  const [imagemRedacao, setImagemRedacao] = useState<File | null>(null)
+  const [redacaoVinculada, setRedacaoVinculada] = useState<Redacao | null>(null)
   const [criandoRedacao, setCriandoRedacao] = useState(false)
 
   async function carregar() {
@@ -93,9 +101,11 @@ export default function GabaritoProvaPage() {
       listarTodasMateriasEnem(),
       buscarGabaritoProva(provaUuid),
     ])
+    const redacao = p?.redacao_uuid ? await buscarRedacao(p.redacao_uuid) : null
     setProva(p)
     setMateriasEnem(m ?? [])
     setGabarito(g ?? [])
+    setRedacaoVinculada(redacao)
     setCarregando(false)
   }
 
@@ -157,11 +167,15 @@ export default function GabaritoProvaPage() {
   )
 
   const resumo = useMemo(() => {
+    const respondidasPersistidas = gabarito.filter((q) => q.letra_marcada !== null).length
+    const respondidasSelecionadas = Object.keys(letrasSelecionadas)
+      .map(Number)
+      .filter((numero) => !numerosJaLancados.has(numero)).length
+    const respondidas = respondidasPersistidas + respondidasSelecionadas
     const acertos = corrigidas.filter((q) => q.acertou === true).length
     const erros = corrigidas.filter((q) => q.acertou === false).length
-    const perdidas = corrigidas.filter((q) => q.acertou === null).length
-    return { acertos, erros, perdidas, corrigidas: corrigidas.length, total: gabarito.length }
-  }, [corrigidas, gabarito.length])
+    return { respondidas, emBranco: 90 - respondidas, acertos, erros, total: 90 }
+  }, [corrigidas, gabarito, letrasSelecionadas, numerosJaLancados])
 
   function toggleLetra(numero: number, letra: Letra) {
     setLetrasSelecionadas((prev) => {
@@ -200,6 +214,11 @@ export default function GabaritoProvaPage() {
   async function finalizarModoProva() {
     if (!prova || finalizandoTempo || salvandoLancamento) return
     setFinalizandoTempo(true)
+    const redacaoSalva = await salvarRedacaoDaProva()
+    if (!redacaoSalva) {
+      setFinalizandoTempo(false)
+      return
+    }
     const salvo = await handleSalvarLancamento()
     if (!salvo) {
       setFinalizandoTempo(false)
@@ -292,28 +311,87 @@ export default function GabaritoProvaPage() {
     await carregar()
   }
 
-  async function handleCriarRedacao() {
-    if (!prova || !temaRedacao.trim()) return
-    setCriandoRedacao(true)
-    const nova = await criarRedacao({
-      tema: temaRedacao.trim(),
-      texto: null,
-      nota: null,
-      comentario: null,
-      data: prova.data,
-      competencia_1: null,
-      competencia_2: null,
-      competencia_3: null,
-      competencia_4: null,
-      competencia_5: null,
-      imagem_path: null,
-    })
-    if (nova) {
-      await atualizarProva(provaUuid, { redacao_uuid: nova.uuid })
+  function selecionarImagemRedacao(e: React.ChangeEvent<HTMLInputElement>) {
+    const arquivo = e.target.files?.[0] ?? null
+    e.target.value = ''
+    if (!arquivo) return
+    if (!arquivo.type.startsWith('image/')) {
+      setImagemRedacao(null)
+      setErro('Selecione uma imagem válida para a redação.')
+      return
     }
-    setCriandoRedacao(false)
+    if (arquivo.size > 10 * 1024 * 1024) {
+      setImagemRedacao(null)
+      setErro('A imagem da redação deve ter no máximo 10 MB.')
+      return
+    }
+    setErro('')
+    setImagemRedacao(arquivo)
+  }
+
+  async function salvarRedacaoDaProva(): Promise<boolean> {
+    if (!prova || (prova.tipo !== 'enem_dia1' && !prova.redacao_uuid)) return true
+    if (!prova.redacao_uuid && !temaRedacao.trim() && !imagemRedacao) return true
+    if (prova.redacao_uuid && !imagemRedacao) return true
+    if (prova.redacao_uuid && !redacaoVinculada) {
+      setErro('A redação vinculada não pôde ser carregada. Recarregue a página antes de enviar a imagem.')
+      return false
+    }
+
+    let redacao = redacaoVinculada
+    if (!redacao) {
+      const nova = await criarRedacao({
+        tema: temaRedacao.trim() || prova.titulo?.trim() || 'Redação do ENEM',
+        texto: null,
+        nota: null,
+        comentario: null,
+        data: prova.data,
+        competencia_1: null,
+        competencia_2: null,
+        competencia_3: null,
+        competencia_4: null,
+        competencia_5: null,
+        tempo_execucao_minutos: null,
+        imagem_path: null,
+      })
+      if (!nova) {
+        setErro('Não foi possível criar a redação desta prova.')
+        return false
+      }
+
+      const provaAtualizada = await atualizarProva(provaUuid, { redacao_uuid: nova.uuid })
+      if (!provaAtualizada) {
+        await deletarRedacao(nova.uuid)
+        setErro('Não foi possível vincular a redação à prova.')
+        return false
+      }
+      redacao = nova
+      setProva(provaAtualizada)
+      setRedacaoVinculada(nova)
+    }
+
+    if (imagemRedacao) {
+      const caminho = await uploadImagemRedacao(redacao.uuid, imagemRedacao, redacao.imagem_path)
+      if (!caminho) {
+        setErro('A redação foi vinculada, mas a imagem não pôde ser enviada. Tente novamente antes de finalizar.')
+        return false
+      }
+      redacao = { ...redacao, imagem_path: caminho }
+      setRedacaoVinculada(redacao)
+      setImagemRedacao(null)
+    }
+
     setTemaRedacao('')
-    await carregar()
+    setErro('')
+    return true
+  }
+
+  async function handleCriarRedacao() {
+    if (!prova || (prova.redacao_uuid ? !imagemRedacao : !temaRedacao.trim() && !imagemRedacao)) return
+    setCriandoRedacao(true)
+    const salva = await salvarRedacaoDaProva()
+    setCriandoRedacao(false)
+    if (salva) await carregar()
   }
 
   if (carregando) {
@@ -357,7 +435,9 @@ export default function GabaritoProvaPage() {
         <Card className="sticky top-2 z-30 mt-6 flex flex-wrap items-center gap-3 border-primary/35 bg-card/95 p-4 shadow-lg backdrop-blur">
           <Clock3 className="size-5 text-primary" />
           <div><MonoLabel>Tempo restante</MonoLabel><strong className="font-mono text-2xl tabular-nums">{formatarCronometro(segundosRestantes)}</strong></div>
-          <p className="min-w-48 flex-1 text-xs text-muted-foreground">Dia {prova.tipo === 'enem_dia1' ? '1 · 5h30' : '2 · 5h'} · redação fora deste fluxo</p>
+          <p className="min-w-48 flex-1 text-xs text-muted-foreground">
+            Dia {prova.tipo === 'enem_dia1' ? '1 · 5h30 · anexo da redação disponível abaixo' : '2 · 5h'}
+          </p>
           <Button type="button" onClick={() => void finalizarModoProva()} disabled={finalizandoTempo || salvandoLancamento}>{finalizandoTempo || salvandoLancamento ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}Finalizar prova</Button>
         </Card>
       ) : null}
@@ -369,10 +449,14 @@ export default function GabaritoProvaPage() {
       ) : null}
 
       {/* Resumo */}
-      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:max-w-2xl">
+      <div className="mt-6 grid grid-cols-2 gap-3 sm:max-w-4xl sm:grid-cols-5">
         <Card className="p-4">
-          <MonoLabel>Lançadas</MonoLabel>
-          <p className="mt-1 text-2xl font-semibold tabular-nums">{resumo.total}/90</p>
+          <MonoLabel>Respondidas</MonoLabel>
+          <p className="mt-1 text-2xl font-semibold tabular-nums">{resumo.respondidas}</p>
+        </Card>
+        <Card className="p-4">
+          <MonoLabel>Em branco</MonoLabel>
+          <p className="mt-1 text-2xl font-semibold tabular-nums text-muted-foreground">{resumo.emBranco}</p>
         </Card>
         <Card className="p-4">
           <MonoLabel>Acertos</MonoLabel>
@@ -383,31 +467,28 @@ export default function GabaritoProvaPage() {
           <p className="mt-1 text-2xl font-semibold tabular-nums text-destructive">{resumo.erros}</p>
         </Card>
         <Card className="p-4">
-          <MonoLabel>Perdidas</MonoLabel>
-          <p className="mt-1 text-2xl font-semibold tabular-nums text-muted-foreground">{resumo.perdidas}</p>
+          <MonoLabel>Total</MonoLabel>
+          <p className="mt-1 text-2xl font-semibold tabular-nums">{resumo.total}</p>
         </Card>
       </div>
 
       {/* Redação — só dia 1 */}
-      {prova.tipo === 'enem_dia1' && !modoProva && (
+      {(prova.tipo === 'enem_dia1' || prova.redacao_uuid) && (
         <Card className="mt-6 p-5">
           <div className="flex items-center gap-2">
             <PenLine className="size-4 text-muted-foreground" />
-            <h2 className="text-sm font-semibold">Redação do dia</h2>
+            <h2 className="text-sm font-semibold">{modoProva ? 'Redação durante a prova' : 'Redação do dia'}</h2>
           </div>
-          {prova.redacao_uuid ? (
-            <p className="mt-2 text-sm text-muted-foreground">
-              Redação já vinculada. Preencha o texto, a foto e a nota na página{' '}
-              <a href="/estudos/redacoes" className="underline underline-offset-4">
-                Redações
-              </a>{' '}
-              quando quiser — não precisa ser agora.
-            </p>
-          ) : (
-            <form
-              onSubmit={(e) => { e.preventDefault(); handleCriarRedacao(); }}
-              className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end"
-            >
+          <p className="mt-2 text-sm text-muted-foreground">
+            {prova.redacao_uuid
+              ? 'A redação já está vinculada a esta prova. Você pode anexar ou substituir a foto agora.'
+              : 'Informe o tema e, se quiser, anexe a foto da folha. Ao finalizar, ela ficará disponível em Redações para correção.'}
+          </p>
+          <form
+            onSubmit={(e) => { e.preventDefault(); void handleCriarRedacao() }}
+            className="mt-4 flex flex-col gap-3"
+          >
+            {!prova.redacao_uuid ? (
               <Field label="Tema da redação" className="sm:flex-1">
                 <Input
                   value={temaRedacao}
@@ -415,12 +496,36 @@ export default function GabaritoProvaPage() {
                   placeholder="Ex: Desafios da educação no Brasil"
                 />
               </Field>
-              <Button type="submit" disabled={criandoRedacao || !temaRedacao.trim()}>
+            ) : (
+              <p className="text-sm font-medium">{redacaoVinculada?.tema ?? 'Redação vinculada'}</p>
+            )}
+            <div className="flex flex-wrap items-center gap-3">
+              <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-border px-3 py-2 text-sm text-muted-foreground hover:border-foreground/30 hover:text-foreground">
+                <ImagePlus className="size-4" />
+                {imagemRedacao?.name ?? (redacaoVinculada?.imagem_path ? 'Substituir imagem' : 'Anexar imagem')}
+                <input type="file" accept="image/*" className="hidden" onChange={selecionarImagemRedacao} />
+              </label>
+              <Button
+                type="submit"
+                variant={modoProva ? 'outline' : 'default'}
+                disabled={criandoRedacao || (prova.redacao_uuid ? !imagemRedacao : !temaRedacao.trim() && !imagemRedacao)}
+              >
                 {criandoRedacao ? <Loader2 className="size-4 animate-spin" /> : <PenLine className="size-4" />}
-                Vincular redação
+                {prova.redacao_uuid ? 'Salvar anexo' : 'Vincular redação'}
               </Button>
-            </form>
-          )}
+              {redacaoVinculada?.imagem_path && !imagemRedacao ? (
+                <Badge variant="success">Imagem anexada</Badge>
+              ) : null}
+            </div>
+            {modoProva ? (
+              <p className="text-xs text-muted-foreground">O botão “Finalizar prova” também salva o tema e a imagem selecionados.</p>
+            ) : null}
+          </form>
+          {prova.redacao_uuid ? (
+            <a href="/estudos/redacoes" className="mt-3 inline-block text-sm underline underline-offset-4">
+              Abrir em Redações para completar ou corrigir
+            </a>
+          ) : null}
         </Card>
       )}
 

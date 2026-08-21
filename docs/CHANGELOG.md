@@ -20,6 +20,15 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — v2.1 pronta tecnicamente; homologação manual pendente
 
+- **2026-08-20 (segunda rodada da homologação)** — Redações passaram a aceitar
+  apenas os passos reais 0/40/80/120/160/200 por competência e ganharam tempo
+  opcional informado em horas/minutos. O modo “Fazer prova ENEM” agora separa
+  respondidas, em branco, acertos, erros e total, além de permitir tema e upload
+  privado da redação do Dia 1, vinculada à prova para correção posterior. O card
+  de Shape moveu peso/data/ação para o rodapé e eliminou a faixa sem imagem no
+  topo. `20260820000200_redacoes_tempo_execucao.sql` passou reset, 13 testes,
+  dry-run exclusivo, aplicação e pós-check remoto com dry-run final vazio.
+
 - **2026-08-20 (correções da primeira homologação publicadas)** —
   Corrigidos estado de logout, contraste das ações de Treino, seleção inválida
   de imagem, edição/exclusão de Shape, desempate do peso diário e visibilidade

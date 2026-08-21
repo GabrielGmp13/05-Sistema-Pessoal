@@ -12,7 +12,7 @@ usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
 
 - [ ] Anotar data, commit/deploy testado e URL do ambiente
 - [ ] Anotar navegador, sistema, dispositivo e largura aproximada da tela
-- [ ] Executar uma passagem em tema claro e outra em tema escuro
+- [ ] Executar uma passagem nos temas claro, suave e escuro
 - [ ] Registrar evidência e passos de reprodução para cada falha
 - [ ] Recarregar a página depois dos CRUDs principais para confirmar persistência
 
@@ -42,7 +42,8 @@ usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
 - [ ] Arquivo inválido ou falha de upload em Shape exibe erro e não cria registro incompleto
 - [ ] Arquivo inválido de exercício pode ser removido/substituído e bloqueia o envio enquanto inválido
 - [ ] Clicar num Shape permite editar/excluir; dois registros no mesmo dia usam o mais atualizado em Saúde/Treino
-- [ ] Card de Shape alterna fotos reais discretamente e a pontuação por modalidade corresponde às sessões concluídas
+- [ ] Card de Shape alterna fotos reais discretamente, não deixa faixa vazia no topo e mantém balança/peso/data/ação no rodapé em desktop/mobile
+- [ ] Pontuação por modalidade corresponde às sessões concluídas
 
 ## Biblioteca
 
@@ -64,8 +65,13 @@ usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
 - [ ] Curso cria módulos/aulas, conclui/reabre e exibe vídeo vinculado da Biblioteca
 - [ ] Gabarito ENEM valida letra/classificação, calcula resultados e conclui a prova quando completo
 - [ ] “Fazer prova ENEM” inicia 5h30/5h, mantém o prazo após recarregar e salva o cartão ao finalizar
+- [ ] Finalizar sem marcar respostas mostra 0 respondidas, 90 em branco, 0 acertos, 0 erros e total 90
+- [ ] Resumo continua separando respondidas/em branco/acertos/erros/total após marcar algumas respostas e após corrigir
+- [ ] No Dia 1, tema e imagem da redação podem ser salvos durante a prova; o vínculo reaparece em `/estudos/redacoes`
 - [ ] Redação salva texto/notas/competências e foto privada; substituir/remover imagem mantém consistência
 - [ ] Redação com C1–C5 em 200 salva nota total 1000 após a migration deste lote
+- [ ] Controles C1–C5 avançam de 40 em 40 e rejeitam valores como 20, 201 ou negativos
+- [ ] Tempo da redação aceita horas e minutos 0–59, rejeita tempo inválido e persiste após recarregar/editar
 
 ## Revisão
 

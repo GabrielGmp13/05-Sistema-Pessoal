@@ -35,6 +35,8 @@ const COMP_LABELS = [
   'Proposta de intervenção',
 ]
 
+const NOTAS_COMPETENCIA_ENEM = new Set([0, 40, 80, 120, 160, 200])
+
 function formatDate(iso: string) {
   const d = new Date(iso + 'T00:00:00')
   return d.toLocaleDateString('pt-BR', {
@@ -42,6 +44,30 @@ function formatDate(iso: string) {
     month: 'short',
     year: 'numeric',
   })
+}
+
+function competenciaValida(valor: string) {
+  return valor.trim() === '' || NOTAS_COMPETENCIA_ENEM.has(Number(valor))
+}
+
+function tempoEmMinutos(horas: string, minutos: string): number | null | undefined {
+  if (!horas.trim() && !minutos.trim()) return null
+
+  const horasNumero = horas.trim() ? Number(horas) : 0
+  const minutosNumero = minutos.trim() ? Number(minutos) : 0
+  if (
+    !Number.isInteger(horasNumero) || horasNumero < 0 ||
+    !Number.isInteger(minutosNumero) || minutosNumero < 0 || minutosNumero > 59
+  ) return undefined
+
+  return horasNumero * 60 + minutosNumero
+}
+
+function formatarTempo(minutos: number) {
+  const horas = Math.floor(minutos / 60)
+  const restante = minutos % 60
+  if (!horas) return `${restante} min`
+  return restante ? `${horas}h ${restante}min` : `${horas}h`
 }
 
 export default function RedacoesPage() {
@@ -59,6 +85,8 @@ export default function RedacoesPage() {
     c3: '',
     c4: '',
     c5: '',
+    tempoHoras: '',
+    tempoMinutos: '',
   })
 
   async function carregar() {
@@ -91,11 +119,14 @@ export default function RedacoesPage() {
     // registrar a redação na hora da prova e completar depois com foto/texto).
     if (!form.tema.trim() || !form.data) return
 
-    const valoresCompetencias = [form.c1, form.c2, form.c3, form.c4, form.c5]
-      .filter(Boolean)
-      .map(Number)
-    if (valoresCompetencias.some((valor) => !Number.isFinite(valor) || valor < 0 || valor > 200)) {
-      setErro('Cada competência deve ficar entre 0 e 200 pontos.')
+    if ([form.c1, form.c2, form.c3, form.c4, form.c5].some((valor) => !competenciaValida(valor))) {
+      setErro('Cada competência deve usar um passo válido do ENEM: 0, 40, 80, 120, 160 ou 200.')
+      return
+    }
+
+    const tempoExecucaoMinutos = tempoEmMinutos(form.tempoHoras, form.tempoMinutos)
+    if (tempoExecucaoMinutos === undefined) {
+      setErro('Informe um tempo válido: horas não negativas e minutos entre 0 e 59.')
       return
     }
 
@@ -116,6 +147,7 @@ export default function RedacoesPage() {
       nota: notaCalculada,
       comentario: null,
       imagem_path: null,
+      tempo_execucao_minutos: tempoExecucaoMinutos,
       ...competencias,
     })
 
@@ -125,7 +157,7 @@ export default function RedacoesPage() {
     }
 
     setErro('')
-    setForm({ tema: '', texto: '', data: '', c1: '', c2: '', c3: '', c4: '', c5: '' })
+    setForm({ tema: '', texto: '', data: '', c1: '', c2: '', c3: '', c4: '', c5: '', tempoHoras: '', tempoMinutos: '' })
     await carregar()
   }
 
@@ -197,7 +229,36 @@ export default function RedacoesPage() {
               </Field>
 
               <div>
-                <MonoLabel>Competências (0 a 200) — opcional, preencha quando tiver a correção</MonoLabel>
+                <MonoLabel>Tempo de execução — opcional</MonoLabel>
+                <div className="mt-3 grid max-w-sm grid-cols-2 gap-3">
+                  <Field label="Horas">
+                    <Input
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={form.tempoHoras}
+                      onChange={(e) => updateField('tempoHoras', e.target.value)}
+                      placeholder="0"
+                      inputMode="numeric"
+                    />
+                  </Field>
+                  <Field label="Minutos">
+                    <Input
+                      type="number"
+                      min="0"
+                      max="59"
+                      step="1"
+                      value={form.tempoMinutos}
+                      onChange={(e) => updateField('tempoMinutos', e.target.value)}
+                      placeholder="00"
+                      inputMode="numeric"
+                    />
+                  </Field>
+                </div>
+              </div>
+
+              <div>
+                <MonoLabel>Competências (0 a 200, de 40 em 40) — opcional, preencha quando tiver a correção</MonoLabel>
                 <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-5">
                   {(['c1', 'c2', 'c3', 'c4', 'c5'] as const).map((campo, i) => (
                     <Field key={campo} label={`C${i + 1}`}>
@@ -205,7 +266,7 @@ export default function RedacoesPage() {
                         type="number"
                         min="0"
                         max="200"
-                        step="1"
+                        step="40"
                         value={form[campo]}
                         onChange={(e) => updateField(campo, e.target.value)}
                         placeholder="0"
@@ -292,6 +353,10 @@ function RedacaoCard({
     c4: r.competencia_4?.toString() ?? '',
     c5: r.competencia_5?.toString() ?? '',
   })
+  const [tempoEdit, setTempoEdit] = useState({
+    horas: r.tempo_execucao_minutos != null ? String(Math.floor(r.tempo_execucao_minutos / 60)) : '',
+    minutos: r.tempo_execucao_minutos != null ? String(r.tempo_execucao_minutos % 60) : '',
+  })
 
   useEffect(() => {
     if (r.imagem_path) {
@@ -339,9 +404,13 @@ function RedacaoCard({
   }
 
   async function handleSalvarEdicao() {
-    const valoresCompetencias = Object.values(compsEdit).filter(Boolean).map(Number)
-    if (valoresCompetencias.some((valor) => !Number.isFinite(valor) || valor < 0 || valor > 200)) {
-      setErro('Cada competência deve ficar entre 0 e 200 pontos.')
+    if (Object.values(compsEdit).some((valor) => !competenciaValida(valor))) {
+      setErro('Cada competência deve usar um passo válido do ENEM: 0, 40, 80, 120, 160 ou 200.')
+      return
+    }
+    const tempoExecucaoMinutos = tempoEmMinutos(tempoEdit.horas, tempoEdit.minutos)
+    if (tempoExecucaoMinutos === undefined) {
+      setErro('Informe um tempo válido: horas não negativas e minutos entre 0 e 59.')
       return
     }
 
@@ -357,6 +426,7 @@ function RedacaoCard({
       texto: textoEdit || null,
       comentario: comentarioEdit || null,
       nota: somaCompetencias(competencias),
+      tempo_execucao_minutos: tempoExecucaoMinutos,
       ...competencias,
     })
     setSalvando(false)
@@ -379,7 +449,10 @@ function RedacaoCard({
       <div className="flex flex-wrap items-start gap-3">
         <div className="flex min-w-0 flex-col">
           <span className="text-pretty font-medium">{r.tema}</span>
-          <MonoLabel>{formatDate(r.data)}</MonoLabel>
+          <MonoLabel>
+            {formatDate(r.data)}
+            {r.tempo_execucao_minutos != null ? ` · ${formatarTempo(r.tempo_execucao_minutos)}` : ''}
+          </MonoLabel>
         </div>
         <div className="ml-auto flex items-center gap-2">
           {score != null ? (
@@ -480,7 +553,35 @@ function RedacaoCard({
             />
           </Field>
           <div>
-            <MonoLabel>Competências (0 a 200)</MonoLabel>
+            <MonoLabel>Tempo de execução</MonoLabel>
+            <div className="mt-2 grid max-w-sm grid-cols-2 gap-3">
+              <Field label="Horas">
+                <Input
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={tempoEdit.horas}
+                  onChange={(e) => setTempoEdit((s) => ({ ...s, horas: e.target.value }))}
+                  placeholder="0"
+                  inputMode="numeric"
+                />
+              </Field>
+              <Field label="Minutos">
+                <Input
+                  type="number"
+                  min="0"
+                  max="59"
+                  step="1"
+                  value={tempoEdit.minutos}
+                  onChange={(e) => setTempoEdit((s) => ({ ...s, minutos: e.target.value }))}
+                  placeholder="00"
+                  inputMode="numeric"
+                />
+              </Field>
+            </div>
+          </div>
+          <div>
+            <MonoLabel>Competências (0 a 200, de 40 em 40)</MonoLabel>
             <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-5">
               {(['c1', 'c2', 'c3', 'c4', 'c5'] as const).map((campo, i) => (
                 <Field key={campo} label={`C${i + 1}`}>
@@ -488,7 +589,7 @@ function RedacaoCard({
                     type="number"
                     min="0"
                     max="200"
-                    step="1"
+                    step="40"
                     value={compsEdit[campo]}
                     onChange={(e) => setCompsEdit((s) => ({ ...s, [campo]: e.target.value }))}
                     placeholder="0"

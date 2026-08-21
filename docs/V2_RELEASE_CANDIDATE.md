@@ -23,7 +23,7 @@ decorrentes dos testes. Feature nova permanece em `BACKLOG.md`.
 - Projetos e Programação
 - Receitas, Saúde, Finanças e Lugares
 - Idiomas e Histórico
-- Navegação responsiva e temas claro/escuro
+- Navegação responsiva e temas claro/suave/escuro
 
 ## Variáveis de ambiente
 
@@ -44,13 +44,13 @@ versionar `.env.local`, service role, senha, connection string ou
 
 ## Banco e migrations
 
-- A cadeia operacional ativa contém 14 migrations em
+- A cadeia operacional ativa contém 15 migrations em
   `backend/supabase/migrations/`.
 - As três baselines e as incrementais até
-  `20260820000100_redacoes_nota_mil.sql` estão registradas como
+  `20260820000200_redacoes_tempo_execucao.sql` estão registradas como
   aplicadas em produção.
-- O pós-check registrado em 2026-08-20 confirmou 63 tabelas, 14 versões
-  alinhadas, `redacoes.nota NUMERIC(5,1)` e nenhuma migration pendente.
+- O pós-check registrado em 2026-08-20 confirmou 63 tabelas, 15 versões
+  alinhadas, nota até 1000, tempo opcional de redação e nenhuma migration pendente.
 
 Qualquer correção futura de schema deve sair do lote de polimento, receber uma
 nova migration timestamped e cumprir integralmente o fluxo de segurança de
@@ -63,7 +63,7 @@ ser declarada concluída quando:
 
 - o commit/deploy, ambiente, navegador, dispositivo e tema testados estiverem registrados;
 - os módulos principais tiverem persistência confirmada após recarregar;
-- desktop/mobile e temas claro/escuro estiverem aprovados;
+- desktop/mobile e temas claro/suave/escuro estiverem aprovados;
 - os controles básicos de Auth, dados privados, Storage e segredos passarem;
 - todos os bloqueadores estiverem corrigidos e retestados.
 

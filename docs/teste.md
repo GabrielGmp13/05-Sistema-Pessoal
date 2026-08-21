@@ -230,3 +230,44 @@ mais chance de esconder bug real primeiro:
 7. Sessão 9 (Histórico) — depende de dado das outras, rodar quase por último
 8. Sessões 1, 2, 4 (Perfil/Nav, Treino, Estudos/Revisão) — módulos mais maduros, teste mais rápido
 9. Sessões 10 e 11 (Uploads/Segurança/Persistência) — fechamento
+
+---
+
+## Segunda rodada de homologação — relato e tratamento em 2026-08-20
+
+Os relatos abaixo foram acrescentados sem alterar os registros anteriores.
+`[x]` significa **corrigido em código**; a confirmação na versão publicada
+continua separada em `[ ]`.
+
+### Redações
+
+- Relato: competências C1–C5 precisavam seguir os passos reais do ENEM
+  (`0`, `40`, `80`, `120`, `160`, `200`) e a redação precisava registrar o
+  tempo em horas/minutos.
+- [x] Inputs e validação rejeitam notas fora da sequência; a soma permanece 0–1000.
+- [x] Tempo opcional foi adicionado ao formulário, à edição e ao resumo do card;
+  minutos fora de 0–59 e tempo negativo são rejeitados.
+- [x] Migration de duração passou validação local e foi aplicada em produção com pós-check vazio.
+- [ ] Retestar criação e edição com C1–C5 em 200 e tempos `00:00`, `01:30`,
+  minuto `60`, valor `20` em competência e recarga da página.
+
+### Fazer prova ENEM
+
+- Relato: finalizar sem responder mostrava `90/90 lançadas`; no Dia 1 também
+  faltava anexar a redação feita durante a prova.
+- [x] O resumo separa respondidas, em branco, acertos, erros e total, contando
+  `letra_marcada = NULL` como branco.
+- [x] Dia 1 permite informar tema, anexar/substituir imagem e salvar o vínculo
+  existente `provas.redacao_uuid`; a redação fica disponível para completar em
+  `/estudos/redacoes`.
+- [ ] Retestar finalização com 0, algumas e 90 respostas, antes/depois da correção.
+- [ ] Retestar upload válido, arquivo inválido/maior que 10 MB, recarga e abertura
+  posterior da redação vinculada.
+
+### Card de Shape no dashboard de Treino
+
+- Relato: mover balança, peso, data e “Abrir Shape” para baixo, preservar a foto
+  rotativa e remover a pequena faixa sem imagem no topo do card.
+- [x] Conteúdo de evolução foi dividido em cabeçalho limpo e rodapé; fundo e
+  máscara cobrem toda a área interna, inclusive a borda superior.
+- [ ] Retestar com/sem foto e peso em desktop/mobile, nos temas claro, suave e escuro.

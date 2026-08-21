@@ -31,6 +31,58 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
 
 ---
 
+## Auditoria de fechamento do brainstorm/v2 — 2026-08-20
+
+### 1. Implementado e publicado
+
+- Núcleo autenticado, Hub, navegação global e temas claro/suave/escuro.
+- Treino/Shape, Biblioteca com oito categorias e metadados, Estudos/Curso,
+  Revisão, Agenda, Diário, Projetos/Programação, Receitas, Saúde, Finanças,
+  Lugares, Idiomas e Histórico.
+- Vídeo → Curso, favoritos e duração da Biblioteca, CSV/TSV de flashcards,
+  heatmap retrospectivo, BRAPI opcional sob demanda e uploads privados de
+  Shape, exercícios, materiais e Redações.
+- Primeira rodada de correções da homologação e migrations até
+  `20260820000100_redacoes_nota_mil.sql`.
+
+### 2. Implementado, mas ainda depende de teste manual
+
+- Segunda rodada: passos de 40 e tempo de Redação, contagem de respostas em
+  branco, anexo da redação no Dia 1 e novo rodapé do card de Shape.
+- Persistência e responsividade dos módulos mais recentes com dados reais,
+  incluindo Programação, Investimentos, Idiomas, Histórico e Agenda mensal.
+- APIs opcionais atuais (TMDB, YouTube e BRAPI) com chaves reais e seus
+  fallbacks sem chave; upload/substituição/recarga nos buckets já adotados.
+
+### 3. Pendente implementável sem integração externa grande
+
+- Prioridade simples na Agenda, se o comportamento e a ordenação desejados
+  forem aprovados; exige migration incremental, mas não serviço externo.
+- Recorrência/parcelamento financeiro manual; exige definir geração, edição e
+  cancelamento das parcelas antes do schema.
+- Dashboards analíticos adicionais de Treino/Finanças e cobertura automatizada
+  dos fluxos de maior risco (frontend, integração e E2E).
+- Hardening incremental restante de banco/Storage, sempre em migrations
+  pequenas e testadas. Upload de capa da Biblioteca pode aproveitar o bucket
+  `capas` após revisão do fluxo; banner ainda não tem destino inequívoco.
+
+### 4. Pós-v2 por integração externa ou decisão maior
+
+- YouTube playlists/conta do usuário, Google Calendar e Google Photos: OAuth,
+  consentimento, sincronização e tratamento de revogação.
+- BRAPI avançada: histórico/cache/análises; a consulta atual permanece
+  pontual e não persistida.
+- Importação avançada de artigos, scraping e extensão Edge/Chrome: segurança,
+  limites de origem, manutenção e política de captura ainda precisam de decisão.
+- Anki `.apkg`: pacote ZIP/SQLite/mídia e reconciliação de modelos; CSV/TSV é
+  o limite implementado.
+- Uploads binários de Perfil, Receitas, Lugares e provas/simulados, além de
+  banners da Biblioteca: faltam contrato completo de coluna, bucket e policy
+  por domínio; as URLs e uploads já existentes continuam sendo o comportamento
+  esperado, não bug.
+
+---
+
 ## Treino
 
 - [ ] Notificações push (Service Worker Push API) — lembrete de treino — **depende de M2, fora de escopo v1**
@@ -79,7 +131,8 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
 - [x] Base do modo "fazer prova na hora" publicada no fechamento da primeira
       rodada de homologação: botão por prova, contagem regressiva (Dia 1 5h30,
       Dia 2 5h), prazo persistido no navegador, gabarito de 90 questões e
-      salvamento ao finalizar; redação permanece fora (DEC-058).
+      salvamento ao finalizar. A segunda rodada integrou tema/imagem da redação
+      do Dia 1 e contagem explícita de respostas em branco (DEC-059).
 - [ ] Evolução do modo de prova: upload/abertura do PDF e visual alternativo de
       "relógio de sala de aplicador" em blocos de 30 minutos. Exige contrato de
       upload próprio; não bloqueia a base cronometrada já entregue.
