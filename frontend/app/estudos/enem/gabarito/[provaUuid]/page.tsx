@@ -38,7 +38,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
+import { PrivateDocumentAction } from '@/components/PrivateDocumentAction'
 import { cn } from '@/lib/utils'
+import { resumirGabaritoEnem } from '@/lib/enem-gabarito'
 
 const LETRAS: Letra[] = ['A', 'B', 'C', 'D', 'E']
 const TAMANHO_BLOCO = 15 // 6 blocos de 15 = 90, igual ao cartão-resposta oficial
@@ -161,21 +163,9 @@ export default function GabaritoProvaPage() {
     [gabarito]
   )
 
-  const corrigidas = useMemo(
-    () => gabarito.filter((q) => q.letra_correta !== null),
-    [gabarito]
-  )
-
   const resumo = useMemo(() => {
-    const respondidasPersistidas = gabarito.filter((q) => q.letra_marcada !== null).length
-    const respondidasSelecionadas = Object.keys(letrasSelecionadas)
-      .map(Number)
-      .filter((numero) => !numerosJaLancados.has(numero)).length
-    const respondidas = respondidasPersistidas + respondidasSelecionadas
-    const acertos = corrigidas.filter((q) => q.acertou === true).length
-    const erros = corrigidas.filter((q) => q.acertou === false).length
-    return { respondidas, emBranco: 90 - respondidas, acertos, erros, total: 90 }
-  }, [corrigidas, gabarito, letrasSelecionadas, numerosJaLancados])
+    return resumirGabaritoEnem(gabarito, letrasSelecionadas)
+  }, [gabarito, letrasSelecionadas])
 
   function toggleLetra(numero: number, letra: Letra) {
     setLetrasSelecionadas((prev) => {
@@ -394,6 +384,13 @@ export default function GabaritoProvaPage() {
     if (salva) await carregar()
   }
 
+  async function handleArquivoProva(arquivoPath: string) {
+    const atualizada = await atualizarProva(provaUuid, { arquivo_path: arquivoPath })
+    if (!atualizada) return false
+    setProva(atualizada)
+    return true
+  }
+
   if (carregando) {
     return (
       <PageShell>
@@ -430,6 +427,11 @@ export default function GabaritoProvaPage() {
         title={modoProva ? 'Fazer prova ENEM' : 'Gabarito digital'}
         description={modoProva ? 'O cronômetro usa a duração oficial do dia. Marque as respostas; questões sem letra serão salvas em branco ao finalizar.' : 'Marque a letra de cada questão, igual ao cartão-resposta oficial. Quem ficar sem clique é contado como em branco quando você salvar.'}
       />
+
+      <Card className="mt-4 flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div><p className="text-sm font-medium">Arquivo da prova</p><p className="text-xs text-muted-foreground">PDF ou imagem do caderno/gabarito, armazenado de forma privada.</p></div>
+        <PrivateDocumentAction path={prova.arquivo_path} scope={`provas/${prova.uuid}`} onPersist={handleArquivoProva} />
+      </Card>
 
       {modoProva && segundosRestantes !== null ? (
         <Card className="sticky top-2 z-30 mt-6 flex flex-wrap items-center gap-3 border-primary/35 bg-card/95 p-4 shadow-lg backdrop-blur">

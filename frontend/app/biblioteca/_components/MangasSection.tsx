@@ -24,7 +24,7 @@ import type { Genero } from '@/lib/generos';
 import { ordenarItensBiblioteca, type OrdenacaoBiblioteca } from '@/lib/biblioteca-ordenacao';
 import styles from './BibliotecaSection.module.css';
 import CapaUploadField from './CapaUploadField';
-import { persistirComCapa } from '@/lib/biblioteca-capas';
+import { persistirComCapaEBanner, removerArquivosBiblioteca } from '@/lib/biblioteca-capas';
 
 const STATUS_LABEL: Record<string, string> = {
   quero_ler: 'Quero ler',
@@ -75,6 +75,7 @@ export default function MangasSection({
   const [editandoUuid, setEditandoUuid] = useState<string | null>(null);
   const [form, setForm] = useState<MangaInput>(FORM_VAZIO);
   const [arquivoCapa, setArquivoCapa] = useState<File | null>(null);
+  const [arquivoBanner, setArquivoBanner] = useState<File | null>(null);
   const [salvando, setSalvando] = useState(false);
 
   const [menuAbertoUuid, setMenuAbertoUuid] = useState<string | null>(null);
@@ -131,12 +132,14 @@ export default function MangasSection({
     setEditandoUuid(null);
     setForm(FORM_VAZIO);
     setArquivoCapa(null);
+    setArquivoBanner(null);
     setGenerosSelecionados([]);
     setModalAberto(true);
   }
 
   function abrirEdicao(manga: Manga) {
     setArquivoCapa(null);
+    setArquivoBanner(null);
     setEditandoUuid(manga.uuid);
     setForm({
       titulo: manga.titulo,
@@ -168,8 +171,8 @@ export default function MangasSection({
 
     setSalvando(true);
     const atual = editandoUuid ? mangas.find((manga) => manga.uuid === editandoUuid) : null;
-    const persistencia = await persistirComCapa({ categoria: 'mangas', arquivo: arquivoCapa, capaPathAtual: atual?.capa_path, persistir: (capaPath) => {
-      const dados = capaPath ? { ...form, capa_path: capaPath } : form;
+    const persistencia = await persistirComCapaEBanner({ categoria: 'mangas', arquivoCapa, arquivoBanner, capaPathAtual: atual?.capa_path, bannerPathAtual: atual?.banner_path, persistir: ({ capaPath, bannerPath }) => {
+      const dados = { ...form, ...(capaPath ? { capa_path: capaPath } : {}), ...(bannerPath ? { banner_path: bannerPath } : {}) };
       return editandoUuid ? atualizarManga(editandoUuid, dados) : criarManga(dados);
     }});
     const resultado = persistencia.resultado;
@@ -190,10 +193,12 @@ export default function MangasSection({
 
   async function confirmarExclusao() {
     if (!mangaParaApagar) return;
+    const removido = mangas.find((item) => item.uuid === mangaParaApagar);
     const ok = await apagarManga(mangaParaApagar);
     if (!ok) {
       setErro('Não foi possível apagar o mangá.');
     } else {
+      if (removido) await removerArquivosBiblioteca([removido.capa_path, removido.banner_path]);
       await carregar();
     }
   }
@@ -339,6 +344,7 @@ export default function MangasSection({
                 }))}
               />
               <CapaUploadField arquivo={arquivoCapa} onChange={setArquivoCapa} />
+              <CapaUploadField arquivo={arquivoBanner} onChange={setArquivoBanner} label="Banner do dispositivo" />
               <label>
                 Título traduzido
                 <input
@@ -514,7 +520,9 @@ export default function MangasSection({
           onFechar={() => setPainelManga(null)}
           titulo={painelManga.titulo_traduzido || painelManga.titulo}
           bannerUrl={painelManga.banner_url}
+          bannerPath={painelManga.banner_path}
           capaUrl={painelManga.capa_url}
+          capaPath={painelManga.capa_path}
           infoGeral={montarInfoGeral(painelManga)}
          />
       )} 

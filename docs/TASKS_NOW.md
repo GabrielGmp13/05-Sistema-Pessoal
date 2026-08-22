@@ -5,11 +5,34 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 ---
 
 ## Status geral
-**Fase atual:** v2.1 — fechamento funcional publicado e refinamento final da atmosfera/extensão concluído em código; homologação manual em produção pendente. A v1 está aposentada (DEC-031) e `frontend/` é o único frontend ativo.
-**Bloqueio:** nenhum bloqueio técnico conhecido neste lote; resta homologação manual autenticada.
-**Banco:** produção e cadeia local estão alinhadas até `20260821000100_biblioteca_capas_storage.sql`; o pós-check de 2026-08-21 confirmou colunas, bucket privado, limite, MIME types, policies, histórico e dry-run remoto vazio.
+**Fase atual:** v2.1 — fechamento técnico completo; publicação deste lote e homologação manual em produção são as únicas etapas restantes. A v1 está aposentada (DEC-031) e `frontend/` é o único frontend ativo.
+**Bloqueio:** apenas configuração de credenciais externas e homologação autenticada pelo Gabriel.
+**Banco:** produção e cadeia local estão alinhadas até `20260821000200_integracoes_google_midias.sql`; o pós-check de 2026-08-21 confirmou cofre server-only, idempotência Calendar, paths, bucket privado, policies, histórico e dry-run remoto vazio.
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** executar `docs/teste.md` e `docs/HOMOLOGATION_V2.md` no deploy, com atenção ao controlador de atmosfera, extensão, capas, parcelamento/recorrência e fallbacks das APIs opcionais.
+**Próxima ação:** configurar as variáveis externas documentadas, conectar a conta Google e executar `docs/teste.md`/`docs/HOMOLOGATION_V2.md` no deploy.
+
+## Fechamento técnico de integrações e uploads — 2026-08-21
+
+- [x] OAuth Google server-side com state, PKCE, tokens cifrados, refresh,
+      revogação local/provedor e UI conectado/desconectado.
+- [x] YouTube lista playlists/vídeos com paginação e importa seleção para a
+      Biblioteca sem duplicar `youtube_id`.
+- [x] Agenda exporta compromisso manual individual ao Calendar de forma
+      idempotente, em `America/Recife`; provas de Estudos permanecem fora.
+- [x] Supabase Storage substitui Google Photos como contrato durável para
+      Perfil, Receitas, Lugares, provas/simulados e banners da Biblioteca.
+- [x] Revisão aceita `.apkg` real com ZIP/SQLite, seleção de deck, prévia,
+      limites, cards básicos/cloze e deduplicação; CSV/TSV foi preservado.
+- [x] Open Graph/SSRF, extensão, BRAPI e séries financeiras foram revalidados;
+      parsers e cálculos de alto valor ganharam 18 testes Node.
+- [x] Next.js e eslint-config-next atualizados para 16.3.2; `npm audit` sem
+      vulnerabilidades conhecidas após a atualização.
+- [x] Migration `20260821000200_integracoes_google_midias.sql`: reset local,
+      16 testes SQL, dry-run remoto exclusivo, aplicação, pós-check e dry-run
+      final vazio aprovados.
+- [ ] PENDENTE AÇÃO DO GABRIEL: cadastrar OAuth no Google Cloud, configurar
+      variáveis server-side na Vercel, fazer novo deploy, conectar a conta,
+      recarregar a extensão e executar a bateria manual.
 
 ## Fechamento visual e operacional — 2026-08-21
 
@@ -17,7 +40,8 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] Lua refinado como dark mode neutro em carvão, grafite e ardósia; Estrelado permanece azul noturno.
 - [x] Primavera, Verão, Outono e Inverno passaram a influenciar discretamente acentos, superfícies secundárias, bordas e glow por tokens compartilhados; Nenhum preserva a paleta-base limpa.
 - [x] Extensão local ganhou estado de configuração, feedback de envio e README operacional para Chrome/Edge, sem segredo ou autenticação própria.
-- [x] Auditoria final reconciliada no `BACKLOG.md`; integrações OAuth/schema e evoluções pesadas permanecem fora da homologação.
+- [x] Auditoria daquele lote foi reconciliada; a classificação de OAuth foi
+      superada pelo fechamento técnico de 2026-08-21 acima.
 - [ ] Retestar este lote no deploy em desktop/mobile e por combinações representativas de iluminação + estação.
 
 ## Prioridade manual da Agenda — lote local de 2026-08-20
@@ -334,4 +358,5 @@ Ver `BACKLOG.md` — upload de capa/banner, edição de itens em listas aninhada
 - [x] Seis testes Node cobrem séries financeiras e parser CSV/TSV.
 - [x] `20260821000100_biblioteca_capas_storage.sql` aplicada após dry-run remoto exclusivo; pós-check de schema/Storage/histórico e dry-run final vazio aprovados.
 - [ ] Homologar os fluxos novos em produção conforme `docs/teste.md`.
-- [ ] OAuth de YouTube/Calendar/Photos permanece bloqueado até existir cofre server-side de refresh tokens; ver `INTEGRACOES_EXTERNAS.md`.
+- [x] Cofre cifrado e OAuth de YouTube/Calendar implementados. Google Photos
+      foi substituído pelo contrato privado de Storage; ver `INTEGRACOES_EXTERNAS.md`.

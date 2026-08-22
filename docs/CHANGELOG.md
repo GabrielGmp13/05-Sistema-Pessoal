@@ -20,6 +20,18 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — v2.1 pronta tecnicamente; homologação manual pendente
 
+- **2026-08-21 (fechamento técnico de integrações e uploads)** — OAuth Google
+  ganhou state/PKCE, cofre AES-256-GCM server-only, UI de conexão/revogação,
+  importação paginada de playlists do YouTube e exportação idempotente da
+  Agenda para o Calendar. Perfil, Receitas, Lugares, provas/simulados e banners
+  da Biblioteca passaram a usar Storage privado. Revisão ganhou `.apkg` com
+  ZIP/SQLite, deck, prévia, limites e deduplicação. Foram adicionados testes de
+  Agenda, ENEM, Redação, Anki, Open Graph e BRAPI (18 testes Node no total),
+  além do 16º script SQL. Next/eslint-config-next subiram para 16.3.2 e
+  `npm audit` ficou zerado. A migration
+  `20260821000200_integracoes_google_midias.sql` foi aplicada após reset, dry-run
+  exclusivo e pós-check remoto, com dry-run final vazio.
+
 - **2026-08-21 (fechamento visual e operacional)** — Corrigido o fundo
   retangular externo do botão de atmosfera, preservando foco arredondado e
   acessível também em “Sair”. Lua virou o dark mode neutro em

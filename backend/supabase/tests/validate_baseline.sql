@@ -15,27 +15,27 @@ $$;
 
 -- Estrutura do schema public.
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 63
+  (SELECT count(*) = 64
    FROM pg_class c
    JOIN pg_namespace n ON n.oid = c.relnamespace
    WHERE n.nspname = 'public' AND c.relkind = 'r'),
-  'public deve conter exatamente 63 tabelas'
+  'public deve conter exatamente 64 tabelas'
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 63
+  (SELECT count(*) = 64
    FROM pg_constraint c
    JOIN pg_namespace n ON n.oid = c.connamespace
    WHERE n.nspname = 'public' AND c.contype = 'p'),
-  'public deve conter exatamente 63 PKs'
+  'public deve conter exatamente 64 PKs'
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 120
+  (SELECT count(*) = 121
    FROM pg_constraint c
    JOIN pg_namespace n ON n.oid = c.connamespace
    WHERE n.nspname = 'public' AND c.contype = 'f'),
-  'public deve conter exatamente 120 FKs'
+  'public deve conter exatamente 121 FKs'
 );
 
 SELECT pg_temp.assert_true(
@@ -47,7 +47,7 @@ SELECT pg_temp.assert_true(
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 65
+  (SELECT count(*) = 66
    FROM pg_index i
    JOIN pg_class t ON t.oid = i.indrelid
    JOIN pg_namespace n ON n.oid = t.relnamespace
@@ -55,17 +55,17 @@ SELECT pg_temp.assert_true(
    WHERE n.nspname = 'public'
      AND t.relkind = 'r'
      AND con.oid IS NULL),
-  'public deve conter exatamente 65 indices explicitos'
+  'public deve conter exatamente 66 indices explicitos'
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 63
+  (SELECT count(*) = 64
    FROM pg_class c
    JOIN pg_namespace n ON n.oid = c.relnamespace
    WHERE n.nspname = 'public'
      AND c.relkind = 'r'
      AND c.relrowsecurity),
-  'as 63 tabelas public devem ter RLS habilitada'
+  'as 64 tabelas public devem ter RLS habilitada'
 );
 
 SELECT pg_temp.assert_true(
@@ -254,21 +254,23 @@ SELECT pg_temp.assert_true(
        ARRAY['application/pdf','application/epub+zip','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.ms-excel','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/vnd.ms-powerpoint','application/vnd.openxmlformats-officedocument.presentationml.presentation','text/plain','application/json']::text[], false),
       ('exercicios', 'exercicios', 'STANDARD', false, 5242880::bigint,
        ARRAY['image/jpeg','image/png','image/webp','image/gif']::text[], false),
+      ('midias-pessoais', 'midias-pessoais', 'STANDARD', false, 15728640::bigint,
+       ARRAY['image/jpeg','image/png','image/webp','application/pdf']::text[], false),
       ('redacoes', 'redacoes', 'STANDARD', false, 10485760::bigint, NULL::text[], false),
       ('shape', 'shape', 'STANDARD', false, 10485760::bigint,
        ARRAY['image/jpeg','image/png','image/webp']::text[], false)
     )
   )
-  AND (SELECT count(*) = 5 FROM storage.buckets),
-  'os cinco buckets devem preservar a configuracao remota, exceto timestamps'
+  AND (SELECT count(*) = 6 FROM storage.buckets),
+  'os seis buckets devem preservar a configuracao remota, exceto timestamps'
 );
 
--- Definições literais das 14 policies de storage.objects.
+-- Definições literais das 18 policies de storage.objects.
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 14
+  (SELECT count(*) = 18
    FROM pg_policies
    WHERE schemaname = 'storage' AND tablename = 'objects'),
-  'storage.objects deve conter exatamente 14 policies'
+  'storage.objects deve conter exatamente 18 policies'
 );
 
 -- A comparação exata usa a representação normalizada exposta por pg_policies.
@@ -282,6 +284,10 @@ WITH expected(name, command, roles, using_expr, check_expr) AS (
     ('docs_insert','INSERT',ARRAY['authenticated']::name[], NULL,'((bucket_id = ''documentos''::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))'),
     ('docs_select','SELECT',ARRAY['authenticated']::name[], '((bucket_id = ''documentos''::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))',NULL),
     ('docs_update','UPDATE',ARRAY['authenticated']::name[], '((bucket_id = ''documentos''::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))',NULL),
+    ('midias_pessoais_delete_own','DELETE',ARRAY['authenticated']::name[], '((bucket_id = ''midias-pessoais''::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))',NULL),
+    ('midias_pessoais_insert_own','INSERT',ARRAY['authenticated']::name[], NULL,'((bucket_id = ''midias-pessoais''::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))'),
+    ('midias_pessoais_select_own','SELECT',ARRAY['authenticated']::name[], '((bucket_id = ''midias-pessoais''::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))',NULL),
+    ('midias_pessoais_update_own','UPDATE',ARRAY['authenticated']::name[], '((bucket_id = ''midias-pessoais''::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))','((bucket_id = ''midias-pessoais''::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))'),
     ('redacoes_isolamento_usuario','ALL',ARRAY['authenticated']::name[], '((bucket_id = ''redacoes''::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))','((bucket_id = ''redacoes''::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))'),
     ('shape_delete','DELETE',ARRAY['authenticated']::name[], '((bucket_id = ''shape''::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))',NULL),
     ('shape_insert','INSERT',ARRAY['authenticated']::name[], NULL,'((bucket_id = ''shape''::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))'),
@@ -296,7 +302,7 @@ WITH expected(name, command, roles, using_expr, check_expr) AS (
 SELECT pg_temp.assert_true(
   NOT EXISTS ((SELECT * FROM actual) EXCEPT (SELECT * FROM expected))
   AND NOT EXISTS ((SELECT * FROM expected) EXCEPT (SELECT * FROM actual)),
-  'as 14 policies de storage.objects devem ser literalmente equivalentes'
+  'as 18 policies de storage.objects devem ser literalmente equivalentes'
 );
 
 -- Isolamento real de primeira pasta para redacoes e exercicios.

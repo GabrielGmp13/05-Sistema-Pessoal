@@ -6,7 +6,7 @@ import { BookOpen, Brain, CalendarDays, CalendarRange, ChevronDown, Code2, Dumbb
 import { useEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 
-import { getSession, sb } from '@/lib/supabase'
+import { getSignedUrl, getSession, sb } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
 import { ThemeToggle } from './ThemeToggle'
 import { useTema, type Decoracao } from './ThemeProvider'
@@ -84,14 +84,18 @@ export function GlobalNav() {
     let ativo = true
     async function carregarPerfil() {
       const session = await getSession()
-      if (!ativo) return
       const meta = session?.user.user_metadata
+      const [avatarSigned, backgroundSigned] = await Promise.all([
+        meta?.avatar_path ? getSignedUrl('midias-pessoais', meta.avatar_path) : null,
+        meta?.background_path ? getSignedUrl('midias-pessoais', meta.background_path) : null,
+      ])
+      if (!ativo) return
       setPerfil({
         nome: meta?.full_name || meta?.name || session?.user.email?.split('@')[0] || 'Usuário',
         descricao: meta?.subtitle || null,
         email: session?.user.email || null,
-        avatarUrl: meta?.avatar_url || null,
-        backgroundUrl: meta?.background_url || null,
+        avatarUrl: avatarSigned || meta?.avatar_url || null,
+        backgroundUrl: backgroundSigned || meta?.background_url || null,
       })
     }
     void carregarPerfil()

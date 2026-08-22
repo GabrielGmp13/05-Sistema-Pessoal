@@ -8,6 +8,7 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
+  CloudUpload,
   Clock3,
   Dumbbell,
   Edit3,
@@ -132,6 +133,9 @@ export default function AgendaPage() {
   const [carregando, setCarregando] = useState(true)
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState('')
+  const [mensagem, setMensagem] = useState('')
+  const [googleConectado, setGoogleConectado] = useState(false)
+  const [exportandoUuid, setExportandoUuid] = useState<string | null>(null)
 
   const semana = useMemo(() => {
     const inicio = inicioDaSemana(dataReferencia)
@@ -181,6 +185,13 @@ export default function AgendaPage() {
     const timeoutId = window.setTimeout(() => void carregar(), 0)
     return () => window.clearTimeout(timeoutId)
   }, [carregar])
+
+  useEffect(() => {
+    void fetch('/api/integracoes/google/status', { cache: 'no-store' })
+      .then((response) => response.ok ? response.json() : null)
+      .then((status: { conectado?: boolean } | null) => setGoogleConectado(Boolean(status?.conectado)))
+      .catch(() => setGoogleConectado(false))
+  }, [])
 
   useEffect(() => {
     let ativo = true
@@ -279,6 +290,27 @@ export default function AgendaPage() {
     setDialogAberto(false)
   }
 
+  async function exportarGoogleCalendar(evento: EventoAgenda) {
+    setExportandoUuid(evento.uuid)
+    setErro('')
+    setMensagem('')
+    try {
+      const response = await fetch('/api/integracoes/google/calendar/export', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ agendaUuid: evento.uuid }),
+      })
+      const body = await response.json() as { atualizado?: boolean; erro?: string }
+      if (!response.ok) throw new Error(body.erro || 'Não foi possível exportar o compromisso.')
+      setMensagem(body.atualizado ? 'Evento atualizado no Google Calendar.' : 'Evento criado no Google Calendar.')
+      await carregar()
+    } catch (error) {
+      setErro(error instanceof Error ? error.message : 'Não foi possível exportar o compromisso.')
+    } finally {
+      setExportandoUuid(null)
+    }
+  }
+
   async function apagarEvento() {
     if (!eventoParaApagar) return
     const apagado = await deletarEventoAgenda(eventoParaApagar.uuid)
@@ -326,6 +358,7 @@ export default function AgendaPage() {
       </div>
 
       {erro ? <p role="alert" className="mt-5 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">{erro}</p> : null}
+      {mensagem ? <p role="status" className="mt-5 rounded-lg border border-success/30 bg-success-muted px-3 py-2 text-sm text-success-foreground">{mensagem}</p> : null}
 
       {visualizacao === 'semana' ? <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-7">
         {semana.dias.map((dia) => {
@@ -361,6 +394,8 @@ export default function AgendaPage() {
                     onEditar={() => abrirEdicao(evento)}
                     onApagar={() => setEventoParaApagar(evento)}
                     onAlternar={() => void alternarConcluido(evento)}
+                    onExportar={googleConectado ? () => void exportarGoogleCalendar(evento) : undefined}
+                    exportando={exportandoUuid === evento.uuid}
                   />
                 ))}
               </div>
@@ -404,13 +439,15 @@ export default function AgendaPage() {
   )
 }
 
-function EventoCard({ evento, materia, treino, onEditar, onApagar, onAlternar }: {
+function EventoCard({ evento, materia, treino, onEditar, onApagar, onAlternar, onExportar, exportando }: {
   evento: EventoAgenda
   materia?: Materia
   treino?: Treino
   onEditar: () => void
   onApagar: () => void
   onAlternar: () => void
+  onExportar?: () => void
+  exportando: boolean
 }) {
   const Icon = evento.tipo === 'estudo' ? BookOpenCheck : evento.tipo === 'treino' ? Dumbbell : CalendarDays
   return (
@@ -432,6 +469,7 @@ function EventoCard({ evento, materia, treino, onEditar, onApagar, onAlternar }:
         </div>
       </div>
       <div className="mt-3 flex justify-end gap-1 border-t border-border pt-2">
+        {onExportar ? <Button type="button" variant="ghost" size="icon-xs" disabled={exportando} onClick={onExportar} aria-label={evento.google_calendar_event_id ? 'Atualizar no Google Calendar' : 'Exportar para Google Calendar'} title={evento.google_calendar_event_id ? 'Atualizar no Google Calendar' : 'Exportar para Google Calendar'}><CloudUpload className={exportando ? 'animate-pulse' : ''} /></Button> : null}
         <Button type="button" variant="outline" size="sm" onClick={onAlternar} aria-label={evento.concluido ? 'Reabrir compromisso' : 'Concluir compromisso'}><Check />{evento.concluido ? 'Reabrir' : 'Concluir'}</Button>
         <Button type="button" variant="ghost" size="icon-xs" onClick={onEditar} aria-label="Editar compromisso"><Edit3 /></Button>
         <Button type="button" variant="ghost" size="icon-xs" onClick={onApagar} aria-label="Apagar compromisso"><Trash2 /></Button>

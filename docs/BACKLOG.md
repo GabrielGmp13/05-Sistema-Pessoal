@@ -10,20 +10,26 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 
 ---
 
-## Pós-v2 — escopo oficialmente adiado
+## Pós-v2 — estado vigente após o fechamento técnico de 2026-08-21
 
-A v2.1 absorveu apenas melhorias documentadas de baixo risco. Os itens abaixo
-continuam posteriores à homologação ou dependem de contrato, integração ou
-decisão maior.
+A infraestrutura segura possível no repositório foi concluída. Permanecem
+somente evoluções que ampliam o contrato já entregue ou exigem custo, política
+de conflito/publicação ou comportamento não definido.
 
-- [ ] Google Calendar com OAuth e sincronização externa.
-- [ ] Google Photos e evolução de fotos de Lugares.
-- [ ] Importação completa do Anki em formato `.apkg`.
-- [ ] BRAPI/cotações avançadas: histórico, cache, análises e automações; a v2 mantém apenas consulta opcional sob demanda.
-- [ ] Uploads adicionais por domínio, sempre com bucket e policy definidos; imagem/GIF de exercício já foi entregue na v2.1.
+- [ ] Google Calendar bidirecional/importação, conflitos e propagação de
+      exclusões. OAuth e exportação unilateral idempotente já estão entregues.
+- [ ] Google Photos Picker opcional. Uploads duráveis de Perfil, Receitas,
+      Lugares, Biblioteca e provas/simulados já usam Supabase Storage privado.
+- [ ] Anki avançado: mídias embutidas e templates/JavaScript complexos. `.apkg`
+      básico/cloze, deck, prévia e deduplicação já estão entregues.
+- [ ] BRAPI/cotações avançadas: histórico persistido, análises, alertas e
+      automações; consulta opcional sob demanda e cache de 60 s já existem.
+- [ ] Uploads adicionais somente quando surgir novo domínio/contrato; não há
+      upload conhecido da v2.1 sem destino.
 - [ ] Publicação da extensão em loja ou captura avançada/autenticada; a versão local Manifest V3 para Artigo/Vídeo já foi entregue.
 - [ ] Scraping e importações avançadas/em lote.
-- [ ] Testes automatizados de frontend, integração e E2E guiados por casos de alto valor.
+- [ ] Testes de integração/E2E autenticados. A base Node agora cobre 18 casos
+      de parser/cálculo/ordenação e a suíte SQL cobre 16 scripts.
 - [ ] Hardening incremental restante do banco e do Storage, sem editar baselines aplicadas.
 - [ ] Polimentos visuais identificados na homologação, sem redesign amplo.
 
@@ -97,18 +103,14 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
 ## Geral
 
 - [ ] Exportação geral de dados CSV/JSON via Supabase; o Histórico já exporta o recorte visível em CSV.
-- [ ] Google Calendar OAuth via Supabase Edge Function (ver DEC-009 — decisão de não fazer isso no MVP)
+- [x] Google Calendar OAuth server-side e exportação unilateral idempotente
+      implementados por API Routes; bidirecional permanece no topo deste arquivo.
 - [ ] Dashboard analytics avançado
 - [x] Heatmap retrospectivo transversal implementado em `/historico` sem tabela
       agregada: conta registros por fonte/dia, permite filtro por área e evita
       comparar duração, valor financeiro ou nota como se fossem a mesma métrica.
-- [ ] Uploads adicionais permanecem evoluções por domínio: capas/banners da
-      Biblioteca, provas/simulados e fotos de Lugares.
-      Cada fluxo deve reutilizar bucket privado adequado ou ganhar decisão de
-      Storage/policy própria; não tratar como upload genérico irrestrito.
-      Auditoria de 2026-08-15 manteve Perfil, Receitas e Lugares em URL (não há
-      bucket dedicado); `banner_path` segue sem destino definido. Imagem/GIF de
-      exercício foi entregue na v2.1 após hardening incremental do bucket.
+- [x] Uploads de capas/banners, provas/simulados, Perfil, Receitas e Lugares
+      concluídos com buckets privados, paths por usuário e signed URLs.
 - [ ] Modo múltiplos usuários (RLS já suporta — bastaria criar contas; não é objetivo do projeto por princípio, ver PROJECT_PRINCIPLES.md)
 - [x] Navegação global entre módulos e botão de logout visível — implementado em 2026-08-09 com hub `/`, navegação para Treino/Biblioteca/Estudos e logout via Supabase Auth.
 - [ ] Corrigir o corte residual da letra “g” em “Agenda” na navegação em uma combinação específica de largura/zoom; o usuário decidiu não bloquear o teste atual por isso (2026-08-12).
@@ -186,7 +188,8 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
 - [x] Seletor de gênero integrado de ponta a ponta nas 6 categorias originais:
       leitura em lote, seleção no formulário, persistência ao criar/editar,
       seed seguro e acesso ao gerenciamento pela sidebar (2026-08-12).
-- [ ] Upload de capa/banner — o bucket privado `capas` e suas policies estão versionados em `001_schema_inicial.sql`, mas não existe UI de upload; `banner_path` não tem bucket definido. Hoje a interface usa apenas `capa_url`/`banner_url` (link externo)
+- [x] Upload de capa/banner usa o bucket privado `capas`, com UI, substituição,
+      rollback e signed URL; links externos permanecem fallback.
 - [x] Busca externa integrada aos formulários de Filmes, Séries, Animes,
       Mangás, Livros e Podcasts via TMDB, Jikan, Google Books e iTunes Search.
       TMDB usa `TMDB_API_KEY` server-only; as fontes públicas mantêm fallback
@@ -212,10 +215,10 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
       implementadas sem cache nem persistência da cotação; token fica somente
       no servidor e a UI funciona sem ele. A v2.1 adicionou valor atual,
       resultado e cobertura das cotações disponíveis.
-- [ ] Finanças: recorrência, importação bancária, histórico de cotação,
-      proventos e análise avançada continuam futuros e exigem contratos próprios.
-- [ ] Lugares: upload de fotos, Maps/Places API e Google Photos permanecem
-      futuros; a versão inicial usa capa por URL e link externo para Maps.
+- [ ] Finanças: importação bancária, histórico de cotação, proventos e análise
+      avançada continuam futuros. Recorrência finita já está implementada.
+- [ ] Lugares: Maps/Places API e Google Photos Picker permanecem opcionais;
+      upload privado de capa e link externo para Maps já estão entregues.
 
 ## Treino v2
 
@@ -246,15 +249,19 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
 ## Reclassificação após o lote de 2026-08-21
 
 - [x] Parcelamento e recorrência financeira manual, finitos e sem cron.
-- [x] Upload privado de capa nas oito categorias; banners permanecem por URL/path já existentes e não ganharam segundo fluxo neste lote.
+- [x] Upload privado de capa nas oito categorias e banner nas seis categorias
+      cujo schema possui `banner_path`.
 - [x] Importação mínima e segura de metadados Open Graph para Artigos.
 - [x] Extensão Edge/Chrome Manifest V3 para abrir Artigo/Vídeo pré-preenchido.
-- [x] Testes automatizados iniciais de funções puras e hardening MIME do bucket `capas`.
-- [ ] YouTube playlists, Google Calendar e Google Photos — PÓS-V2 até OAuth server-side e cofre cifrado de refresh token.
-- [ ] Anki `.apkg` — PÓS-V2 por ZIP/SQLite/modelos/mídia; CSV/TSV é o contrato suportado.
+- [x] Testes automatizados de funções puras e hardening MIME dos buckets.
+- [x] YouTube playlists e exportação unilateral do Calendar com OAuth server-side,
+      PKCE, cofre AES-256-GCM e revogação.
+- [x] Alternativa completa ao Google Photos via Supabase Storage privado.
+- [x] Anki `.apkg` com ZIP/SQLite, deck, prévia, limite e deduplicação; CSV/TSV preservado.
 - [ ] BRAPI avançada com histórico/análises — PÓS-V2; cache curto e consulta sob demanda já existem.
 - [ ] Scraping em lote/agressivo — PÓS-V2; somente Open Graph limitado foi adotado.
-- [ ] Uploads de Perfil, Receitas, Lugares e provas/simulados — PENDENTE DECISÃO de coluna, bucket e UX por domínio.
+- [x] Uploads de Perfil, Receitas, Lugares e provas/simulados com coluna,
+      bucket privado, signed URL, validação e rollback.
 - [ ] Testes de integração/E2E e hardening incremental restante continuam evoluções pós-homologação.
 
 ## Auditoria final — fechamento v2.1 em 2026-08-21
@@ -265,9 +272,9 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
   Biblioteca com oito categorias, Estudos/Revisão, Diário e módulos derivados.
 - Parcelamento e recorrência finitos, capas privadas nas oito categorias,
   Open Graph limitado de Artigos, cache BRAPI de 60 s, extensão local Manifest
-  V3 e seis testes Node de funções puras.
+  V3, OAuth Google, `.apkg`, uploads privados restantes e 18 testes Node.
 - Migrations e Storage alinhados até
-  `20260821000100_biblioteca_capas_storage.sql`, sem migration deste lote visual.
+  `20260821000200_integracoes_google_midias.sql`, com pós-check remoto e dry-run vazio.
 
 ### 2. Precisa apenas de teste manual
 
@@ -275,24 +282,25 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
 - Cinco iluminações, cinco opções de estação, foco arredondado do controlador,
   Lua neutro e combinações sazonais representativas.
 - Extensão com Artigo/YouTube, capas privadas, Open Graph, parcelamento,
-  recorrência e BRAPI com os estados reais do deploy.
+  recorrência, `.apkg`, uploads, Google e BRAPI com os estados reais do deploy.
 
 ### 3. Precisa de credencial ou configuração externa
 
 - `TMDB_API_KEY`, `YOUTUBE_API_KEY` e `BRAPI_TOKEN` são opcionais e server-only;
   sem eles, os respectivos fallbacks manuais devem continuar funcionando.
+- Google requer as cinco variáveis server-side documentadas e autorização da
+  conta; sem elas, o estado “não configurado” é o comportamento esperado.
 - Extensão local exige carregar a pasta em modo desenvolvedor e configurar a
   origem HTTPS publicada; isso não é autenticação própria.
 
-### 4. Precisa de decisão grande, OAuth ou schema
+### 4. Integrações ampliadas ainda pós-v2
 
-- Playlists privadas do YouTube, Google Calendar e Google Photos precisam de
-  OAuth server-side, cofre cifrado e contrato de revogação/sincronização.
-- Uploads de Perfil, Receitas, Lugares, provas/simulados e banners adicionais
-  precisam de contrato por domínio (coluna, bucket, policy e UX).
+- Calendar bidirecional, Google Photos Picker e publicação da extensão em loja
+  exigem políticas/custos externos; as bases unilaterais e os uploads duráveis
+  já estão implementados.
 
 ### 5. Pós-v2
 
-- Anki `.apkg`, scraping/importação em lote, BRAPI histórica/analítica,
-  publicação da extensão em loja ou captura avançada, testes de integração/E2E,
+- Mídias/templates complexos do Anki, scraping/importação em lote, BRAPI
+  histórica/analítica, publicação da extensão em loja, testes E2E autenticados,
   dashboards adicionais e hardening incremental de banco/Storage.

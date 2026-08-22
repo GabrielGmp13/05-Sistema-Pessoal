@@ -184,8 +184,9 @@ usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
 
 ## Segurança básica
 
-- [ ] Páginas e as duas API Routes recusam acesso sem usuário validado
-- [ ] Dados continuam isolados por `user_id`/RLS e nenhuma operação usa `service_role`
+- [ ] Páginas e todas as API Routes recusam acesso sem usuário validado
+- [ ] Dados continuam isolados por `user_id`/RLS; `service_role` aparece somente
+      nas rotas server-side Google e nunca no bundle/cliente
 - [ ] Buckets permanecem privados; arquivos abrem por signed URL e paths começam pelo usuário
 - [ ] Arquivos fora de tipo/tamanho são rejeitados antes ou pelo contrato do bucket com mensagem visível
 - [ ] Chaves YouTube, TMDB e BRAPI não aparecem em HTML, console, resposta ou bundle do cliente
@@ -201,6 +202,29 @@ usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
 - [ ] Artigos: colar URL pública, conferir título/site/autor/imagem/tempo sugeridos e cadastrar manualmente quando o site bloquear.
 - [ ] Extensão: instalar/recarregar a pasta `browser-extension`, confirmar aviso antes de configurar, salvar a origem HTTPS e enviar uma página comum e um vídeo YouTube; o popup só fecha após abrir a Biblioteca.
 - [ ] BRAPI: repetir consulta no intervalo curto sem quebrar fallback sem token/quota.
-- [x] Testes automatizados locais: 6/6; reset Supabase e 15/15 testes SQL.
-- [ ] YouTube playlists, Google Calendar e Google Photos: `PENDENTE CREDENCIAL` e `PENDENTE DECISÃO` de cofre de token; não registrar ausência como bug.
-- [ ] Anki `.apkg`: `PÓS-V2`; CSV/TSV continua sendo o formato suportado.
+- [x] Testes automatizados locais: 18/18; reset Supabase e 16/16 scripts SQL.
+- [ ] PENDENTE CREDENCIAL: configurar Google Cloud/Vercel e conectar a conta;
+      então testar playlists e Calendar. Ausência sem variável não é bug.
+- [ ] Testar `.apkg` real com deck básico/cloze e manter CSV/TSV como fallback;
+      mídia/template complexo não suportado não bloqueia a v2.1.
+
+## Fechamento técnico de 2026-08-21
+
+- [ ] Configurar as cinco variáveis Google server-side descritas em
+      `INTEGRACOES_EXTERNAS.md`, fazer deploy e conectar/desconectar a conta.
+- [ ] Listar mais de uma página de playlists/vídeos, importar seleção, recarregar
+      Biblioteca e confirmar que repetir a importação gera apenas duplicados.
+- [ ] Exportar evento manual com e sem hora; reexportar após editar e conferir
+      que o Calendar atualiza o mesmo evento. Prova de Estudos não deve ter ação.
+- [ ] Perfil: enviar/substituir/remover avatar e background; recarregar e conferir
+      topo global. Repetir upload privado em Receitas e Lugares.
+- [ ] Provas/simulados: anexar PDF e imagem válidos, abrir por signed URL,
+      substituir e rejeitar arquivo maior que 15 MB ou MIME não permitido.
+- [ ] Biblioteca: além das oito capas, enviar banner em Filmes, Séries, Animes,
+      Mangás, Livros e Podcasts e conferir prioridade sobre URL externa.
+- [ ] Revisão: importar `.apkg` de até 25 MB, selecionar deck, revisar prévia,
+      gravar, recarregar e confirmar deduplicação. Testar também pacote inválido.
+- [ ] Confirmar em Network/bundle que client secret, service role, refresh token,
+      chave AES e URL do banco não aparecem.
+- [x] Reset local, suíte SQL, typecheck, 18 testes Node, build, audit de
+      dependências, dry-run exclusivo, aplicação, pós-check e dry-run vazio.

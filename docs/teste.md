@@ -347,11 +347,88 @@ continua separada em `[ ]`.
 
 ### Extensão e integrações
 - [ ] Instalar extensão Edge/Chrome em modo desenvolvedor, configurar URL publicada e enviar artigo/vídeo.
-- PENDENTE CREDENCIAL: playlists YouTube, Google Calendar e Google Photos.
-- PENDENTE DECISÃO: armazenamento cifrado/rotação/revogação de refresh token e idempotência Calendar.
-- PÓS-V2: Anki `.apkg`, scraping agressivo, sincronização Google bidirecional e uploads adicionais sem contrato.
+- PENDENTE CREDENCIAL: cadastrar Google OAuth na Vercel e autorizar a conta;
+  playlists/Calendar já estão implementados em código.
+- [x] Armazenamento cifrado, revogação e idempotência Calendar implementados.
+- PÓS-V2 REAL: Google Calendar bidirecional, Google Photos Picker opcional,
+  mídia/template Anki complexo, scraping agressivo e BRAPI histórica.
 
 ### Automação
-- [x] `npm test`: 6/6 (séries financeiras e CSV/TSV).
+- [x] `npm test`: 18/18 (finanças, CSV/TSV, Anki, Agenda, ENEM, Redação,
+  Open Graph e BRAPI).
 - [x] Reset local Supabase e 15 testes SQL, incluindo `validate_biblioteca_capas_storage.sql`.
-- [x] Typecheck, 6 testes Node, build, reset local, 15 testes SQL, dry-run exclusivo, aplicação e pós-check remoto concluídos antes da publicação.
+- [x] Typecheck, 18 testes Node, build, reset local, 16 scripts SQL, dry-run
+  exclusivo, aplicação e pós-check remoto concluídos antes da publicação.
+
+## Bateria final pós-implementação — 2026-08-21
+
+Legenda: `[ ]` testar manualmente; `[x]` validado automaticamente;
+`PENDENTE AÇÃO DO GABRIEL`; `PENDENTE CREDENCIAL`; `PÓS-V2 REAL`.
+
+### Preparação externa
+
+- [ ] PENDENTE AÇÃO DO GABRIEL: no Google Cloud, habilitar YouTube Data API v3
+  e Google Calendar API, configurar consentimento e criar OAuth Web.
+- [ ] PENDENTE AÇÃO DO GABRIEL: registrar exatamente
+  `https://SEU-DOMINIO/api/integracoes/google/callback` como redirect URI.
+- [ ] PENDENTE CREDENCIAL: configurar na Vercel `SUPABASE_SERVICE_ROLE_KEY`,
+  `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI` e
+  `GOOGLE_TOKEN_ENCRYPTION_KEY`, todas server-side; fazer novo deploy.
+- [ ] PENDENTE CREDENCIAL: manter `YOUTUBE_API_KEY`, `TMDB_API_KEY` e
+  `BRAPI_TOKEN` somente se quiser os fallbacks/serviços opcionais correspondentes.
+
+### Google / YouTube / Calendar
+
+- [ ] Em Configurações, conferir estado não conectado, conectar, validar e-mail
+  e depois desconectar/reconectar sem token ou detalhe sensível em Network.
+- [ ] Listar playlists; usar “carregar mais” quando disponível, abrir uma
+  playlist, selecionar vídeos e importar. Repetir e esperar duplicados ignorados.
+- [ ] Conferir na Biblioteca título, canal, thumbnail, duração, URL e cadastro
+  manual preservado.
+- [ ] Na Agenda, exportar compromisso com horário/duração e um de dia inteiro.
+  Editar e reexportar: o mesmo evento deve ser atualizado, não duplicado.
+- [ ] Confirmar que provas lidas de Estudos não exibem botão do Calendar.
+
+### Uploads privados
+
+- [ ] Perfil: enviar JPG/PNG/WebP de avatar e background, recarregar, substituir
+  e remover; o topo deve refletir a signed URL sem tornar o bucket público.
+- [ ] Receitas e Lugares: criar com foto/capa, recarregar, abrir, substituir,
+  remover e excluir; erro de persistência não pode deixar arquivo órfão novo.
+- [ ] Prova escolar, prova ENEM e simulado: anexar PDF e imagem, abrir em nova
+  aba por signed URL e substituir. Rejeitar MIME inválido e arquivo > 15 MB.
+- [ ] Biblioteca: testar capa nas oito categorias e banner nas seis que possuem
+  `banner_path`; aceitar JPG/PNG/WebP até 3 MB e rejeitar demais.
+
+### Anki e demais importações
+
+- [x] Parsers CSV/TSV, básico/cloze do Anki e Open Graph têm testes Node.
+- [ ] Em Revisão, selecionar `.apkg` de até 25 MB, escolher deck, conferir
+  prévia, importar e repetir para validar deduplicação. Testar pacote inválido.
+- [ ] Repetir CSV/TSV para confirmar que o fallback anterior continua igual.
+- [ ] Em Artigos, colar URL pública e conferir título, autor, site, imagem e
+  tempo; página bloqueada/privada deve dar erro claro e permitir preenchimento manual.
+
+### Extensão, Finanças e BRAPI
+
+- [ ] PENDENTE AÇÃO DO GABRIEL: recarregar `browser-extension/` em modo
+  desenvolvedor, configurar origem HTTPS e enviar Artigo/YouTube pelo popup e menu.
+- [ ] Parcelar R$ 100 em três e conferir soma/meses; criar recorrência finita,
+  recarregar e confirmar que não duplicou. Edição/exclusão afeta só um lançamento.
+- [ ] Sem `BRAPI_TOKEN`, conferir fallback. Com token, consultar ticker válido,
+  repetir em menos de 60 s, testar ativo ausente/quota e conferir resultado/cobertura.
+
+### Segurança e aprovação
+
+- [x] Migration aplica RLS sem policy de cliente ao cofre, bucket privado com
+  quatro policies e índice Calendar; baseline e teste específico passaram.
+- [x] `npm audit --omit=dev` retornou zero vulnerabilidades após Next 16.3.2.
+- [ ] Em sessão anônima, todas as novas API Routes devem retornar 401/redirecionar.
+- [ ] Inspecionar bundle/Network: nenhum service role, client secret, refresh
+  token, chave AES, token BRAPI/TMDB/YouTube ou URL de banco pode aparecer.
+- [ ] Testar desktop/mobile e cinco iluminações; aprovar somente após recarga dos
+  registros, erros visíveis e ausência de regressão nos módulos anteriores.
+
+PÓS-V2 REAL: Calendar bidirecional/conflitos/exclusões remotas; Google Photos
+Picker; mídia e templates complexos de `.apkg`; scraping em lote; histórico e
+alertas BRAPI; publicação da extensão em loja; E2E autenticado amplo.

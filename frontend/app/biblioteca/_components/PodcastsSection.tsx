@@ -23,7 +23,7 @@ import type { Genero } from '@/lib/generos';
 import { ordenarItensBiblioteca, type OrdenacaoBiblioteca } from '@/lib/biblioteca-ordenacao';
 import styles from './BibliotecaSection.module.css';
 import CapaUploadField from './CapaUploadField';
-import { persistirComCapa } from '@/lib/biblioteca-capas';
+import { persistirComCapaEBanner, removerArquivosBiblioteca } from '@/lib/biblioteca-capas';
 
 const STATUS_LABEL: Record<string, string> = {
   quero_ouvir: 'Quero ouvir',
@@ -64,6 +64,7 @@ export default function PodcastsSection({
   const [editandoUuid, setEditandoUuid] = useState<string | null>(null);
   const [form, setForm] = useState<PodcastInput>(FORM_VAZIO);
   const [arquivoCapa, setArquivoCapa] = useState<File | null>(null);
+  const [arquivoBanner, setArquivoBanner] = useState<File | null>(null);
   const [salvando, setSalvando] = useState(false);
 
   const [menuAbertoUuid, setMenuAbertoUuid] = useState<string | null>(null);
@@ -120,12 +121,14 @@ export default function PodcastsSection({
     setEditandoUuid(null);
     setForm(FORM_VAZIO);
     setArquivoCapa(null);
+    setArquivoBanner(null);
     setGenerosSelecionados([]);
     setModalAberto(true);
   }
 
   function abrirEdicao(podcast: Podcast) {
     setArquivoCapa(null);
+    setArquivoBanner(null);
     setEditandoUuid(podcast.uuid);
     setForm({
       titulo: podcast.titulo,
@@ -152,8 +155,8 @@ export default function PodcastsSection({
 
     setSalvando(true);
     const atual = editandoUuid ? podcasts.find((podcast) => podcast.uuid === editandoUuid) : null;
-    const persistencia = await persistirComCapa({ categoria: 'podcasts', arquivo: arquivoCapa, capaPathAtual: atual?.capa_path, persistir: (capaPath) => {
-      const dados = capaPath ? { ...form, capa_path: capaPath } : form;
+    const persistencia = await persistirComCapaEBanner({ categoria: 'podcasts', arquivoCapa, arquivoBanner, capaPathAtual: atual?.capa_path, bannerPathAtual: atual?.banner_path, persistir: ({ capaPath, bannerPath }) => {
+      const dados = { ...form, ...(capaPath ? { capa_path: capaPath } : {}), ...(bannerPath ? { banner_path: bannerPath } : {}) };
       return editandoUuid ? atualizarPodcast(editandoUuid, dados) : criarPodcast(dados);
     }});
     const resultado = persistencia.resultado;
@@ -174,10 +177,12 @@ export default function PodcastsSection({
 
   async function confirmarExclusao() {
     if (!podcastParaApagar) return;
+    const removido = podcasts.find((item) => item.uuid === podcastParaApagar);
     const ok = await apagarPodcast(podcastParaApagar);
     if (!ok) {
       setErro('Não foi possível apagar o podcast.');
     } else {
+      if (removido) await removerArquivosBiblioteca([removido.capa_path, removido.banner_path]);
       await carregar();
     }
   }
@@ -305,6 +310,7 @@ export default function PodcastsSection({
                 }))}
               />
               <CapaUploadField arquivo={arquivoCapa} onChange={setArquivoCapa} />
+              <CapaUploadField arquivo={arquivoBanner} onChange={setArquivoBanner} label="Banner do dispositivo" />
               <label>
                 Produtora
                 <input
@@ -413,7 +419,9 @@ export default function PodcastsSection({
           onFechar={() => setPainelPodcast(null)}
           titulo={painelPodcast.titulo}
           bannerUrl={painelPodcast.banner_url}
+          bannerPath={painelPodcast.banner_path}
           capaUrl={painelPodcast.capa_url}
+          capaPath={painelPodcast.capa_path}
           infoGeral={montarInfoGeral(painelPodcast)}
         />
       )}  

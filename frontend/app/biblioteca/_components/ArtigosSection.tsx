@@ -18,7 +18,7 @@ import { ordenarItensBiblioteca, type OrdenacaoBiblioteca } from '@/lib/bibliote
 import styles from './BibliotecaSection.module.css';
 import BuscaMetadados from './BuscaMetadados';
 import CapaUploadField from './CapaUploadField';
-import { persistirComCapa } from '@/lib/biblioteca-capas';
+import { persistirComCapa, removerArquivosBiblioteca } from '@/lib/biblioteca-capas';
 
 const FORM_VAZIO: ArtigoInput = {
   titulo: '',
@@ -129,9 +129,13 @@ export default function ArtigosSection({
 
   async function confirmarExclusao() {
     if (!artigoParaApagar) return;
+    const removido = artigos.find((item) => item.uuid === artigoParaApagar);
     const ok = await apagarArtigo(artigoParaApagar);
     if (!ok) setErro('Não foi possível apagar o artigo.');
-    else await carregar();
+    else {
+      if (removido) await removerArquivosBiblioteca([removido.capa_path]);
+      await carregar();
+    }
   }
 
   async function alternarFavorito(artigo: Artigo) {

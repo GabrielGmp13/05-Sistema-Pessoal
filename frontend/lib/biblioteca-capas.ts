@@ -31,3 +31,48 @@ export async function persistirComCapa<T>(opcoes: {
   if (opcoes.capaPathAtual && opcoes.capaPathAtual !== novoPath) await deleteFile('capas', opcoes.capaPathAtual)
   return { resultado }
 }
+
+async function uploadImagemBiblioteca(categoria: string, papel: 'capa' | 'banner', arquivo: File) {
+  const userId = await getUserId()
+  if (!userId) return null
+  const extensao = arquivo.type === 'image/png' ? 'png' : arquivo.type === 'image/webp' ? 'webp' : 'jpg'
+  const path = `${userId}/biblioteca/${categoria}/${papel}/${crypto.randomUUID()}.${extensao}`
+  return await uploadFile('capas', path, arquivo) ? path : null
+}
+
+export async function persistirComCapaEBanner<T>(opcoes: {
+  categoria: string
+  arquivoCapa: File | null
+  arquivoBanner: File | null
+  capaPathAtual?: string | null
+  bannerPathAtual?: string | null
+  persistir: (paths: { capaPath?: string; bannerPath?: string }) => Promise<T | null>
+}): Promise<{ resultado: T | null; erro?: string }> {
+  for (const arquivo of [opcoes.arquivoCapa, opcoes.arquivoBanner]) {
+    const erro = arquivo ? validarArquivoCapa(arquivo) : null
+    if (erro) return { resultado: null, erro }
+  }
+  const novaCapa = opcoes.arquivoCapa ? await uploadImagemBiblioteca(opcoes.categoria, 'capa', opcoes.arquivoCapa) : null
+  if (opcoes.arquivoCapa && !novaCapa) return { resultado: null, erro: 'Não foi possível enviar a capa.' }
+  const novoBanner = opcoes.arquivoBanner ? await uploadImagemBiblioteca(opcoes.categoria, 'banner', opcoes.arquivoBanner) : null
+  if (opcoes.arquivoBanner && !novoBanner) {
+    if (novaCapa) await deleteFile('capas', novaCapa)
+    return { resultado: null, erro: 'Não foi possível enviar o banner.' }
+  }
+  const resultado = await opcoes.persistir({
+    capaPath: novaCapa ?? undefined,
+    bannerPath: novoBanner ?? undefined,
+  })
+  if (!resultado) {
+    if (novaCapa) await deleteFile('capas', novaCapa)
+    if (novoBanner) await deleteFile('capas', novoBanner)
+    return { resultado: null, erro: 'A obra não foi salva; os arquivos enviados foram removidos.' }
+  }
+  if (novaCapa && opcoes.capaPathAtual && opcoes.capaPathAtual !== novaCapa) await deleteFile('capas', opcoes.capaPathAtual)
+  if (novoBanner && opcoes.bannerPathAtual && opcoes.bannerPathAtual !== novoBanner) await deleteFile('capas', opcoes.bannerPathAtual)
+  return { resultado }
+}
+
+export async function removerArquivosBiblioteca(paths: Array<string | null | undefined>) {
+  await Promise.all(paths.filter((path): path is string => Boolean(path)).map((path) => deleteFile('capas', path)))
+}

@@ -1,4 +1,7 @@
 import { getUserId, sb, sbErr, softDelete } from './supabase'
+import { compararEventosAgenda } from './agenda-order'
+
+export { compararEventosAgenda } from './agenda-order'
 
 export type TipoEventoAgenda = 'geral' | 'estudo' | 'treino'
 export type PrioridadeEventoAgenda = 'baixa' | 'normal' | 'alta'
@@ -17,31 +20,14 @@ export interface EventoAgenda {
   materia_uuid: string | null
   conteudo_uuid: string | null
   concluido: boolean
+  google_calendar_event_id: string | null
+  google_calendar_synced_at: string | null
   updated_at: string
   deleted: boolean
 }
 
-export type EventoAgendaInput = Omit<EventoAgenda, 'uuid' | 'user_id' | 'updated_at' | 'deleted'>
+export type EventoAgendaInput = Omit<EventoAgenda, 'uuid' | 'user_id' | 'google_calendar_event_id' | 'google_calendar_synced_at' | 'updated_at' | 'deleted'>
 export type EventoAgendaUpdate = Partial<EventoAgendaInput>
-
-const ORDEM_PRIORIDADE: Record<PrioridadeEventoAgenda, number> = {
-  alta: 0,
-  normal: 1,
-  baixa: 2,
-}
-
-export function compararEventosAgenda(a: EventoAgenda, b: EventoAgenda) {
-  const porData = a.data.localeCompare(b.data)
-  if (porData !== 0) return porData
-
-  const porHora = (a.hora_inicio ?? '99:99').localeCompare(b.hora_inicio ?? '99:99')
-  if (porHora !== 0) return porHora
-
-  const porPrioridade = ORDEM_PRIORIDADE[a.prioridade] - ORDEM_PRIORIDADE[b.prioridade]
-  if (porPrioridade !== 0) return porPrioridade
-
-  return a.titulo.localeCompare(b.titulo, 'pt-BR') || a.uuid.localeCompare(b.uuid)
-}
 
 export async function listarEventosAgenda(inicio: string, fim: string): Promise<EventoAgenda[] | null> {
   const userId = await getUserId()

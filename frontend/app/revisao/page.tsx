@@ -49,6 +49,12 @@ const RESULTADOS: { label: string; qualidade: Qualidade }[] = [
   { label: 'Fácil', qualidade: 5 },
 ]
 
+interface AnkiDeck {
+  id: string
+  nome: string
+  quantidade: number
+}
+
 function formatarData(data: string) {
   return new Date(`${data}T00:00:00`).toLocaleDateString('pt-BR', {
     day: '2-digit',
@@ -72,6 +78,9 @@ export default function RevisaoPage() {
   const [previewImportacao, setPreviewImportacao] = useState<FlashcardImportado[]>([])
   const [moduloPadrao, setModuloPadrao] = useState('manual')
   const [filtroModulo, setFiltroModulo] = useState('todos')
+  const [arquivoAnki, setArquivoAnki] = useState<File | null>(null)
+  const [decksAnki, setDecksAnki] = useState<AnkiDeck[]>([])
+  const [deckAnki, setDeckAnki] = useState('')
 
   const carregar = useCallback(async () => {
     const [atuais, suspensos] = await Promise.all([
@@ -131,18 +140,66 @@ export default function RevisaoPage() {
     const arquivo = event.target.files?.[0]
     event.target.value = ''
     if (!arquivo) return
-    if (!/\.(csv|tsv)$/i.test(arquivo.name)) {
-      setErro('Selecione um arquivo .csv ou .tsv.')
+    if (!/\.(csv|tsv|apkg)$/i.test(arquivo.name)) {
+      setErro('Selecione um arquivo .csv, .tsv ou .apkg.')
       return
     }
 
     setErro('')
     setResultadoImportacao('')
+    if (/\.apkg$/i.test(arquivo.name)) {
+      setArquivoAnki(arquivo)
+      setImportando(true)
+      try {
+        const form = new FormData()
+        form.set('arquivo', arquivo)
+        const response = await fetch('/api/importacao/anki', { method: 'POST', body: form })
+        const body = await response.json() as { decks?: AnkiDeck[]; cards?: FlashcardImportado[]; erro?: string }
+        if (!response.ok) throw new Error(body.erro || 'Não foi possível ler o .apkg.')
+        setDecksAnki(body.decks ?? [])
+        setDeckAnki('')
+        setPreviewImportacao(body.cards ?? [])
+      } catch (error) {
+        setArquivoAnki(null)
+        setDecksAnki([])
+        setPreviewImportacao([])
+        setErro(error instanceof Error ? error.message : 'Não foi possível ler o .apkg.')
+      } finally {
+        setImportando(false)
+      }
+      return
+    }
+    setArquivoAnki(null)
+    setDecksAnki([])
+    setDeckAnki('')
     try {
       setPreviewImportacao(analisarFlashcards(await arquivo.text(), arquivo.size))
     } catch (error) {
       setPreviewImportacao([])
       setErro(error instanceof Error ? error.message : 'Não foi possível ler o arquivo.')
+    }
+  }
+
+  async function selecionarDeckAnki(deckId: string) {
+    setDeckAnki(deckId)
+    if (!arquivoAnki || !deckId) return
+    setImportando(true)
+    setErro('')
+    try {
+      const form = new FormData()
+      form.set('arquivo', arquivoAnki)
+      form.set('deckId', deckId)
+      const response = await fetch('/api/importacao/anki', { method: 'POST', body: form })
+      const body = await response.json() as { cards?: FlashcardImportado[]; erro?: string }
+      if (!response.ok) throw new Error(body.erro || 'Não foi possível ler o deck.')
+      setPreviewImportacao(body.cards ?? [])
+      const deck = decksAnki.find((item) => item.id === deckId)
+      if (deck) setModuloPadrao(`anki:${deck.nome}`)
+    } catch (error) {
+      setPreviewImportacao([])
+      setErro(error instanceof Error ? error.message : 'Não foi possível ler o deck.')
+    } finally {
+      setImportando(false)
     }
   }
 
@@ -157,6 +214,9 @@ export default function RevisaoPage() {
       if (!resultado) throw new Error('Não foi possível salvar os cards importados.')
       setResultadoImportacao(`${resultado.criados} card${resultado.criados === 1 ? '' : 's'} criado${resultado.criados === 1 ? '' : 's'} · ${resultado.duplicados} duplicado${resultado.duplicados === 1 ? '' : 's'} ignorado${resultado.duplicados === 1 ? '' : 's'}.`)
       setPreviewImportacao([])
+      setArquivoAnki(null)
+      setDecksAnki([])
+      setDeckAnki('')
       await carregar()
     } catch (error) {
       setErro(error instanceof Error ? error.message : 'Não foi possível importar o arquivo.')
@@ -337,11 +397,12 @@ export default function RevisaoPage() {
           </Card>
         </Section>
 
-        <Section label="Lote" title="Importar CSV ou TSV">
+        <Section label="Lote" title="Importar CSV, TSV ou Anki .apkg">
           <Card className="p-4">
-            <div className="flex flex-wrap items-center justify-between gap-4"><div className="min-w-0"><p className="text-sm font-medium">Importação leve de flashcards</p><p className="mt-1 text-xs text-muted-foreground">Use cabeçalhos <code>pergunta</code>, <code>resposta</code> e, opcionalmente, <code>modulo</code>. Limite de 1 MB ou 500 cards.</p>{resultadoImportacao ? <p role="status" className="mt-2 text-xs text-success">{resultadoImportacao}</p> : null}</div>
-            <label className={buttonVariants({ variant: 'outline', size: 'sm', className: importando ? 'pointer-events-none opacity-60' : 'cursor-pointer' })}><FileUp className="size-3.5" />Selecionar arquivo<input type="file" accept=".csv,.tsv,text/csv,text/tab-separated-values" className="sr-only" onChange={(event) => void handleSelecionarImportacao(event)} disabled={importando} /></label></div>
-            {previewImportacao.length > 0 ? <div className="mt-4 border-t border-border pt-4"><div className="flex flex-wrap items-end justify-between gap-3"><Field label="Módulo padrão" htmlFor="modulo-padrao" optional><Select id="modulo-padrao" value={moduloPadrao} onChange={(event) => setModuloPadrao(event.target.value)} className="w-44"><option value="manual">Manual</option><option value="estudos">Estudos</option><option value="idiomas">Idiomas</option><option value="treino">Treino</option></Select></Field><p className="text-xs text-muted-foreground">Aplicado somente às linhas sem <code>modulo</code>.</p></div><div className="mt-3 overflow-x-auto"><table className="w-full min-w-[34rem] text-left text-xs"><thead className="text-muted-foreground"><tr><th className="pb-2 pr-3">Pergunta</th><th className="pb-2 pr-3">Resposta</th><th className="pb-2">Módulo</th></tr></thead><tbody>{previewImportacao.slice(0, 10).map((card, indice) => <tr key={`${card.pergunta}-${indice}`} className="border-t border-border"><td className="max-w-56 truncate py-2 pr-3">{card.pergunta}</td><td className="max-w-56 truncate py-2 pr-3">{card.resposta || '—'}</td><td className="py-2">{card.modulo || moduloPadrao}</td></tr>)}</tbody></table></div>{previewImportacao.length > 10 ? <p className="mt-2 text-xs text-muted-foreground">Mostrando 10 de {previewImportacao.length} cards.</p> : null}<div className="mt-4 flex gap-2"><Button type="button" size="sm" disabled={importando} onClick={() => void confirmarImportacao()}>{importando ? 'Importando...' : `Importar ${previewImportacao.length} cards`}</Button><Button type="button" size="sm" variant="outline" disabled={importando} onClick={() => setPreviewImportacao([])}>Cancelar</Button></div></div> : null}
+            <div className="flex flex-wrap items-center justify-between gap-4"><div className="min-w-0"><p className="text-sm font-medium">Importação com prévia e deduplicação</p><p className="mt-1 text-xs text-muted-foreground">CSV/TSV: 1 MB. Anki: .apkg de até 25 MB, seleção de deck e até 500 cards por importação. Mídias do pacote não são copiadas.</p>{resultadoImportacao ? <p role="status" className="mt-2 text-xs text-success">{resultadoImportacao}</p> : null}</div>
+            <label className={buttonVariants({ variant: 'outline', size: 'sm', className: importando ? 'pointer-events-none opacity-60' : 'cursor-pointer' })}><FileUp className="size-3.5" />Selecionar arquivo<input type="file" accept=".csv,.tsv,.apkg,text/csv,text/tab-separated-values,application/zip" className="sr-only" onChange={(event) => void handleSelecionarImportacao(event)} disabled={importando} /></label></div>
+            {decksAnki.length > 0 ? <div className="mt-4"><Field label="Deck do Anki" htmlFor="deck-anki"><Select id="deck-anki" value={deckAnki} onChange={(event) => void selecionarDeckAnki(event.target.value)}><option value="">Selecione um deck</option>{decksAnki.map((deck) => <option key={deck.id} value={deck.id}>{deck.nome} ({deck.quantidade})</option>)}</Select></Field></div> : null}
+            {previewImportacao.length > 0 ? <div className="mt-4 border-t border-border pt-4"><div className="flex flex-wrap items-end justify-between gap-3"><Field label="Módulo padrão" htmlFor="modulo-padrao" optional><Select id="modulo-padrao" value={moduloPadrao} onChange={(event) => setModuloPadrao(event.target.value)} className="w-44"><option value="manual">Manual</option><option value="estudos">Estudos</option><option value="idiomas">Idiomas</option><option value="treino">Treino</option></Select></Field><p className="text-xs text-muted-foreground">Aplicado somente às linhas sem <code>modulo</code>.</p></div><div className="mt-3 overflow-x-auto"><table className="w-full min-w-[34rem] text-left text-xs"><thead className="text-muted-foreground"><tr><th className="pb-2 pr-3">Pergunta</th><th className="pb-2 pr-3">Resposta</th><th className="pb-2">Módulo</th></tr></thead><tbody>{previewImportacao.slice(0, 10).map((card, indice) => <tr key={`${card.pergunta}-${indice}`} className="border-t border-border"><td className="max-w-56 truncate py-2 pr-3">{card.pergunta}</td><td className="max-w-56 truncate py-2 pr-3">{card.resposta || '—'}</td><td className="py-2">{card.modulo || moduloPadrao}</td></tr>)}</tbody></table></div>{previewImportacao.length > 10 ? <p className="mt-2 text-xs text-muted-foreground">Mostrando 10 de {previewImportacao.length} cards.</p> : null}<div className="mt-4 flex gap-2"><Button type="button" size="sm" disabled={importando || (decksAnki.length > 0 && !deckAnki)} onClick={() => void confirmarImportacao()}>{importando ? 'Importando...' : `Importar ${previewImportacao.length} cards`}</Button><Button type="button" size="sm" variant="outline" disabled={importando} onClick={() => { setPreviewImportacao([]); setArquivoAnki(null); setDecksAnki([]); setDeckAnki('') }}>Cancelar</Button></div></div> : null}
           </Card>
         </Section>
       </div>

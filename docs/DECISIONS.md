@@ -1241,3 +1241,44 @@ Parcelamento divide o valor total em centavos sem perder soma; recorrência repe
 **Status:** ✅ Migration aplicada em produção; homologação manual pendente
 
 As oito categorias usam o bucket privado `capas`, paths iniciados por `auth.uid()`, signed URL, JPG/PNG/WebP até 3 MB, rollback e limpeza na substituição. URL externa de metadados continua fallback. YouTube/Calendar/Photos não exibem estado conectado antes de existir OAuth server-side com refresh token cifrado e revogável; a arquitetura está em `INTEGRACOES_EXTERNAS.md`.
+
+## DEC-065 — OAuth Google fica em API Routes com cofre cifrado
+
+**Data:** 2026-08-21
+**Status:** ✅ Implementada e migration aplicada; credenciais/deploy pendem do Gabriel
+
+### Decisão
+
+- OAuth usa `state` HttpOnly, PKCE, callback server-side e escopos mínimos de
+  identidade/e-mail, YouTube somente leitura e eventos do Calendar.
+- Access/refresh tokens são cifrados integralmente por AES-256-GCM. A chave de
+  32 bytes e `service_role` vivem somente no ambiente do servidor.
+- `integracoes_google` tem RLS ativa e nenhuma policy de cliente; apenas API
+  Routes que primeiro validam o usuário podem usar o service role.
+- Calendar é unilateral e individual na v2.1. O ID remoto gravado em `agenda`
+  torna reexportação uma atualização; provas de Estudos não entram nesse fluxo.
+- A decisão DEC-009 continua histórica para o MVP e foi superada pela
+  autorização explícita deste fechamento da v2.1.
+
+### Impacto
+
+Sem as variáveis, a UI permanece funcional em estado “não configurado”. A
+produção não quebra nem simula conexão. Bidirecional, conflitos e exclusões
+remotas continuam pós-v2.
+
+## DEC-066 — Storage privado substitui Photos e `.apkg` tem contrato limitado
+
+**Data:** 2026-08-21
+**Status:** ✅ Implementada; homologação manual pendente
+
+### Decisão
+
+- `midias-pessoais` concentra imagens de Perfil/Receitas/Lugares e documentos
+  de provas/simulados, mantendo subpastas por domínio abaixo de `auth.uid()`.
+- O bucket `capas` também é o destino oficial de `banner_path`. Google Photos
+  Picker não é fonte permanente e não entra no fluxo obrigatório da v2.1.
+- `.apkg` é lido no servidor com `fflate` + `sql.js`, somente das collections
+  reconhecidas, com limites de arquivo/base, deck, prévia e até 500 cards.
+  Mídia e templates complexos não são interpretados; CSV/TSV continua fallback.
+- Next.js e o pacote ESLint correspondente ficam em 16.3.2 para remover os
+  avisos de segurança conhecidos encontrados no fechamento.

@@ -34,7 +34,7 @@ Chaves estrangeiras seguem `<tabela_singular>_uuid` (ex: `treino_uuid`, `materia
 
 **GRANT é obrigatório em toda migration, não opcional.** Projetos Supabase criados a partir de 2026-05-30 não recebem GRANT automático em nenhuma tabela nova, mesmo com RLS e policy corretos — sem o GRANT explícito para `authenticated`, a tabela fica inacessível via Data API (badge "API DISABLED" no dashboard) e o `supabase-js` recebe erro 42501 mesmo com policies válidas. RLS e GRANT são camadas independentes: GRANT decide se o papel alcança a tabela; RLS decide quais linhas ele vê dentro dela.
 
-**Confirmado no banco real (2026-08):** a baseline tinha 44 tabelas em `public`, todas com RLS, policy `user_own_data` e GRANT para `authenticated`. As migrations incrementais aplicadas adicionaram 19 tabelas; produção e ambiente local possuem agora 63 tabelas. `anon` continua sem `SELECT`/`INSERT` sobre dados da aplicação.
+**Confirmado no banco real (2026-08):** a baseline tinha 44 tabelas em `public`, todas com RLS, policy `user_own_data` e GRANT para `authenticated`. As migrations incrementais aplicadas adicionaram 20 tabelas; produção e ambiente local possuem agora 64 tabelas. `anon` continua sem `SELECT`/`INSERT` sobre dados da aplicação.
 
 Índices parciais `WHERE NOT deleted` existem nas tabelas principais para acelerar as queries que sempre filtram registros ativos — confirmados no dump para praticamente todas as tabelas de alto volume (ver lista completa na seção Índices, ao final).
 
@@ -72,10 +72,11 @@ dessas duas pastas deve ser executado como migration.
 | `20260820000200` | `20260820000200_redacoes_tempo_execucao.sql` | ✅ Reset e 13 testes SQL aprovados; dry-run listou somente esta migration; aplicada em produção em 2026-08-20; pós-check confirmou coluna inteira opcional, constraint não negativa, histórico e dry-run vazio |
 | `20260820000300` | `20260820000300_agenda_prioridade.sql` | ✅ Reset e 14 testes SQL aprovados; aplicada em produção em 2026-08-21 após dry-run exclusivo; pós-check confirmou coluna, default, constraint, histórico e dry-run vazio |
 | `20260821000100` | `20260821000100_biblioteca_capas_storage.sql` | ✅ Reset e 15 testes SQL aprovados; aplicada em produção em 2026-08-21 após dry-run exclusivo; pós-check confirmou colunas, bucket privado, limite, MIME types, quatro policies, histórico e dry-run vazio |
+| `20260821000200` | `20260821000200_integracoes_google_midias.sql` | ✅ Reset e 16 testes SQL aprovados; aplicada em produção em 2026-08-21 após dry-run exclusivo; pós-check confirmou tabela server-only, idempotência Calendar, quatro paths, bucket privado, policies, histórico e dry-run vazio |
 
 > **Estado confirmado (2026-08-21):** produção e cadeia local estão alinhadas
-> até `20260821000100_biblioteca_capas_storage.sql`. A migration não cria tabelas;
-> `public` permanece com 63 tabelas.
+> até `20260821000200_integracoes_google_midias.sql`. `public` possui 64
+> tabelas, seis buckets privados e 18 policies em `storage.objects`.
 
 As três baselines foram adotadas no histórico remoto em 2026-08-08 por
 `migration repair --status applied`, depois de recaptura somente leitura de
@@ -199,6 +200,11 @@ deleted     BOOLEAN DEFAULT FALSE
 > `agenda_prioridade_check` aos valores `baixa`, `normal` e `alta`. Reset local,
 > suíte com 14 testes, dry-run remoto exclusivo, aplicação e pós-check passaram
 > em 2026-08-21; o dry-run final ficou vazio.
+>
+> `20260821000200_integracoes_google_midias.sql` acrescenta
+> `google_calendar_event_id TEXT` e `google_calendar_synced_at TIMESTAMPTZ`.
+> O índice único parcial `(user_id, google_calendar_event_id)` garante que a
+> exportação unilateral atualize o mesmo evento em vez de duplicá-lo.
 
 ### `revisao_espacada`
 ```sql
@@ -821,6 +827,7 @@ data_entrega  DATE,
 feita         BOOLEAN DEFAULT FALSE,
 entregue      BOOLEAN DEFAULT FALSE,
 observacoes   TEXT,
+arquivo_path  TEXT, -- bucket privado midias-pessoais
 updated_at    TIMESTAMPTZ DEFAULT NOW(),
 deleted       BOOLEAN DEFAULT FALSE
 ```
@@ -934,6 +941,7 @@ updated_at      TIMESTAMPTZ DEFAULT NOW(),
 deleted         BOOLEAN DEFAULT FALSE,
 conteudo_uuid   TEXT REFERENCES conteudos(uuid),  -- preenchido = dispara SM-2
 redacao_uuid    TEXT REFERENCES redacoes(uuid)    -- só simulado do dia 1 do ENEM
+arquivo_path    TEXT                                -- bucket privado midias-pessoais
 ```
 > **Regra de negócio:** só `simulados` alimenta `revisao_espacada`/SM-2.
 > `provas` (evento oficial) nunca dispara SM-2, mesmo com `conteudo_uuid`
@@ -1043,10 +1051,12 @@ nota                    NUMERIC(3,1), -- 0 a 10
 favorito                 BOOLEAN NOT NULL DEFAULT FALSE,
 fez                      BOOLEAN NOT NULL DEFAULT FALSE,
 foto_url                 TEXT,
+foto_path                TEXT, -- bucket privado midias-pessoais
 updated_at               TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 deleted                  BOOLEAN NOT NULL DEFAULT FALSE
 ```
-> A foto permanece uma URL externa. O módulo não cria bucket nem integra API.
+> `foto_path` tem prioridade visual sobre a URL externa. O frontend valida,
+> substitui com rollback e abre a imagem por signed URL.
 
 ### Saúde
 
@@ -1138,11 +1148,26 @@ uuid TEXT PRIMARY KEY, user_id UUID NOT NULL REFERENCES auth.users(id),
 nome TEXT NOT NULL, tipo TEXT, cidade TEXT, pais TEXT,
 latitude NUMERIC(9,6), longitude NUMERIC(9,6),
 data_inicio DATE, data_fim DATE, custo NUMERIC(12,2), nota NUMERIC(3,1),
-favorito BOOLEAN NOT NULL DEFAULT FALSE, texto TEXT, capa_url TEXT,
+favorito BOOLEAN NOT NULL DEFAULT FALSE, texto TEXT, capa_url TEXT, capa_path TEXT,
 updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), deleted BOOLEAN NOT NULL DEFAULT FALSE
 ```
 > O link para Google Maps é montado no cliente a partir das coordenadas ou do
-> nome/local. Não há Maps API, scraping, upload ou segredo nesse módulo.
+> nome/local. Não há Maps API; `capa_path` usa upload privado e signed URL.
+
+### `integracoes_google`
+```sql
+user_id              UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+credenciais_cifradas TEXT NOT NULL,
+token_expira_em      TIMESTAMPTZ,
+scopes               TEXT[] NOT NULL DEFAULT '{}',
+email_google         TEXT,
+created_at           TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+updated_at           TIMESTAMPTZ NOT NULL DEFAULT NOW()
+```
+> Tabela server-only. RLS está ativa e não existe policy para cliente; portanto,
+> o GRANT explícito não torna linhas acessíveis via chave anon/authenticated.
+> Somente API Routes autenticadas usam `service_role`. O campo cifrado contém
+> access/refresh token em AES-256-GCM; a chave vive apenas no ambiente do servidor.
 
 ### Tabelas descontinuadas de Estudos v1
 `assuntos`, `anotacoes`, `documentos_estudo`, `sessoes_questoes` — confirmadas ausentes no dump. Ver DEC-035.
@@ -1151,8 +1176,9 @@ updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), deleted BOOLEAN NOT NULL DEFAULT 
 
 ## Storage
 
-Captura direta de produção em 2026-08-07 confirmou exatamente cinco buckets
-privados: `shape`, `documentos`, `capas`, `exercicios` e `redacoes`, com 14
+Captura direta de produção em 2026-08-07 confirmou os cinco buckets históricos.
+Após `20260821000200`, produção possui seis buckets privados: `shape`,
+`documentos`, `capas`, `exercicios`, `redacoes` e `midias-pessoais`, com 18
 policies em `storage.objects`. Configuração literal, limites, MIME types,
 roles, `USING` e `WITH CHECK` estão preservados em
 `backend/supabase/snapshots/2026-08-07-production/critical_storage_metadata.json`
@@ -1163,7 +1189,11 @@ Desde `20260815000200_v21_hardening.sql`, as policies de `redacoes` e
 para a primeira pasta `{user_id}`. A decisão permanente continua sendo manter
 buckets privados e usar signed URLs/path `{user_id}/arquivo.ext` (DEC-010).
 
-> ⚠️ **Pendência:** `banner_path` (existente desde `006_biblioteca_v2_base.sql`) não tem bucket de Storage definido — só `banner_url` (link externo) funciona hoje. Ver `BACKLOG.md`.
+`capas` também é o contrato de `banner_path`: JPG/PNG/WebP até 3 MB, path
+`{user_id}/biblioteca/{categoria}/banner/{uuid}.{ext}` e signed URL.
+`midias-pessoais` aceita JPG/PNG/WebP/PDF até 15 MB no bucket; a UI limita
+imagens a 8 MB e documentos a 15 MB. As quatro policies isolam a primeira
+pasta por `auth.uid()` com `USING`/`WITH CHECK` conforme a operação.
 
 ---
 

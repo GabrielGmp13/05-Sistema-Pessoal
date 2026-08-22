@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { getSignedUrl } from '@/lib/supabase';
 import styles from './PainelDetalheObra.module.css';
 import type { CampoInfo } from './PainelDetalheObra';
 
@@ -9,7 +10,9 @@ interface PainelSimplesProps {
   onFechar: () => void;
   titulo: string;
   bannerUrl?: string | null;
+  bannerPath?: string | null;
   capaUrl?: string | null;
+  capaPath?: string | null;
   infoGeral: CampoInfo[];
   linkUrl?: string;
   linkLabel?: string;
@@ -24,12 +27,16 @@ export default function PainelSimples({
   onFechar,
   titulo,
   bannerUrl,
+  bannerPath,
   capaUrl,
+  capaPath,
   infoGeral,
   linkUrl,
   linkLabel = 'Abrir link',
   children,
 }: PainelSimplesProps) {
+  const [bannerPrivado, setBannerPrivado] = useState<string | null>(null);
+  const [capaPrivada, setCapaPrivada] = useState<string | null>(null);
   useEffect(() => {
     function aoTeclar(e: KeyboardEvent) {
       if (e.key === 'Escape') onFechar();
@@ -37,10 +44,17 @@ export default function PainelSimples({
     if (aberto) document.addEventListener('keydown', aoTeclar);
     return () => document.removeEventListener('keydown', aoTeclar);
   }, [aberto, onFechar]);
+  useEffect(() => {
+    let ativo = true;
+    void Promise.all([
+      bannerPath ? getSignedUrl('capas', bannerPath) : null,
+      capaPath ? getSignedUrl('capas', capaPath) : null,
+    ]).then(([banner, capa]) => { if (ativo) { setBannerPrivado(banner); setCapaPrivada(capa); } });
+    return () => { ativo = false; };
+  }, [bannerPath, capaPath]);
 
   if (!aberto) return null;
-
-  const imagemTopo = bannerUrl || capaUrl || null;
+  const imagemTopo = bannerPrivado || bannerUrl || capaPrivada || capaUrl || null;
 
   return (
     <div className={styles.overlay} onClick={onFechar}>

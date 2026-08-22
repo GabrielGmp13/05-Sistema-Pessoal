@@ -13,6 +13,7 @@ export interface Receita {
   favorito: boolean
   fez: boolean
   foto_url: string | null
+  foto_path: string | null
   updated_at: string
   deleted: boolean
 }

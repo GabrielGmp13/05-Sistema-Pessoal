@@ -24,7 +24,7 @@ import type { Genero } from '@/lib/generos';
 import { ordenarItensBiblioteca, type OrdenacaoBiblioteca } from '@/lib/biblioteca-ordenacao';
 import styles from './BibliotecaSection.module.css';
 import CapaUploadField from './CapaUploadField';
-import { persistirComCapa } from '@/lib/biblioteca-capas';
+import { persistirComCapaEBanner, removerArquivosBiblioteca } from '@/lib/biblioteca-capas';
 
 const STATUS_LABEL: Record<string, string> = {
   quero_ver: 'Quero ver',
@@ -67,6 +67,7 @@ export default function FilmesSection({
   const [editandoUuid, setEditandoUuid] = useState<string | null>(null);
   const [form, setForm] = useState<FilmeInput>(FORM_VAZIO);
   const [arquivoCapa, setArquivoCapa] = useState<File | null>(null);
+  const [arquivoBanner, setArquivoBanner] = useState<File | null>(null);
   const [salvando, setSalvando] = useState(false);
 
   const [menuAbertoUuid, setMenuAbertoUuid] = useState<string | null>(null);
@@ -123,12 +124,14 @@ export default function FilmesSection({
     setEditandoUuid(null);
     setForm(FORM_VAZIO);
     setArquivoCapa(null);
+    setArquivoBanner(null);
     setGenerosSelecionados([]);
     setModalAberto(true);
   }
 
   function abrirEdicao(filme: Filme) {
     setArquivoCapa(null);
+    setArquivoBanner(null);
     setEditandoUuid(filme.uuid);
     setForm({
       titulo: filme.titulo,
@@ -161,8 +164,8 @@ export default function FilmesSection({
 
     setSalvando(true);
     const atual = editandoUuid ? filmes.find((filme) => filme.uuid === editandoUuid) : null;
-    const persistencia = await persistirComCapa({ categoria: 'filmes', arquivo: arquivoCapa, capaPathAtual: atual?.capa_path, persistir: (capaPath) => {
-      const dados = capaPath ? { ...form, capa_path: capaPath } : form;
+    const persistencia = await persistirComCapaEBanner({ categoria: 'filmes', arquivoCapa, arquivoBanner, capaPathAtual: atual?.capa_path, bannerPathAtual: atual?.banner_path, persistir: ({ capaPath, bannerPath }) => {
+      const dados = { ...form, ...(capaPath ? { capa_path: capaPath } : {}), ...(bannerPath ? { banner_path: bannerPath } : {}) };
       return editandoUuid ? atualizarFilme(editandoUuid, dados) : criarFilme(dados);
     }});
     const resultado = persistencia.resultado;
@@ -200,10 +203,12 @@ export default function FilmesSection({
 
   async function confirmarExclusao() {
     if (!filmeParaApagar) return;
+    const removido = filmes.find((item) => item.uuid === filmeParaApagar);
     const ok = await apagarFilme(filmeParaApagar);
     if (!ok) {
       setErro('Não foi possível apagar o filme.');
     } else {
+      if (removido) await removerArquivosBiblioteca([removido.capa_path, removido.banner_path]);
       await carregar();
     }
   }
@@ -323,6 +328,7 @@ export default function FilmesSection({
                 }))}
               />
               <CapaUploadField arquivo={arquivoCapa} onChange={setArquivoCapa} />
+              <CapaUploadField arquivo={arquivoBanner} onChange={setArquivoBanner} label="Banner do dispositivo" />
               <label>
                 Diretor
                 <input
@@ -498,7 +504,9 @@ export default function FilmesSection({
           obraUuid={painelFilme.uuid}
           titulo={painelFilme.titulo}
           bannerUrl={painelFilme.banner_url}
+          bannerPath={painelFilme.banner_path}
           capaUrl={painelFilme.capa_url}
+          capaPath={painelFilme.capa_path}
           infoGeral={montarInfoGeral(painelFilme)}
         />
       )}

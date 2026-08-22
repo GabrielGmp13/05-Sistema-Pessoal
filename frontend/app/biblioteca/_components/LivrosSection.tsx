@@ -24,7 +24,7 @@ import type { Genero } from '@/lib/generos';
 import { ordenarItensBiblioteca, type OrdenacaoBiblioteca } from '@/lib/biblioteca-ordenacao';
 import styles from './BibliotecaSection.module.css';
 import CapaUploadField from './CapaUploadField';
-import { persistirComCapa } from '@/lib/biblioteca-capas';
+import { persistirComCapaEBanner, removerArquivosBiblioteca } from '@/lib/biblioteca-capas';
 
 const STATUS_LABEL: Record<string, string> = {
   quero_ler: 'Quero ler',
@@ -74,6 +74,7 @@ export default function LivrosSection({
   const [editandoUuid, setEditandoUuid] = useState<string | null>(null);
   const [form, setForm] = useState<LivroInput>(FORM_VAZIO);
   const [arquivoCapa, setArquivoCapa] = useState<File | null>(null);
+  const [arquivoBanner, setArquivoBanner] = useState<File | null>(null);
   const [salvando, setSalvando] = useState(false);
 
   const [menuAbertoUuid, setMenuAbertoUuid] = useState<string | null>(null);
@@ -130,12 +131,14 @@ export default function LivrosSection({
     setEditandoUuid(null);
     setForm(FORM_VAZIO);
     setArquivoCapa(null);
+    setArquivoBanner(null);
     setGenerosSelecionados([]);
     setModalAberto(true);
   }
 
   function abrirEdicao(livro: Livro) {
     setArquivoCapa(null);
+    setArquivoBanner(null);
     setEditandoUuid(livro.uuid);
     setForm({
       titulo: livro.titulo,
@@ -167,8 +170,8 @@ export default function LivrosSection({
 
     setSalvando(true);
     const atual = editandoUuid ? livros.find((livro) => livro.uuid === editandoUuid) : null;
-    const persistencia = await persistirComCapa({ categoria: 'livros', arquivo: arquivoCapa, capaPathAtual: atual?.capa_path, persistir: (capaPath) => {
-      const dados = capaPath ? { ...form, capa_path: capaPath } : form;
+    const persistencia = await persistirComCapaEBanner({ categoria: 'livros', arquivoCapa, arquivoBanner, capaPathAtual: atual?.capa_path, bannerPathAtual: atual?.banner_path, persistir: ({ capaPath, bannerPath }) => {
+      const dados = { ...form, ...(capaPath ? { capa_path: capaPath } : {}), ...(bannerPath ? { banner_path: bannerPath } : {}) };
       return editandoUuid ? atualizarLivro(editandoUuid, dados) : criarLivro(dados);
     }});
     const resultado = persistencia.resultado;
@@ -189,10 +192,12 @@ export default function LivrosSection({
 
   async function confirmarExclusao() {
     if (!livroParaApagar) return;
+    const removido = livros.find((item) => item.uuid === livroParaApagar);
     const ok = await apagarLivro(livroParaApagar);
     if (!ok) {
       setErro('Não foi possível apagar o livro.');
     } else {
+      if (removido) await removerArquivosBiblioteca([removido.capa_path, removido.banner_path]);
       await carregar();
     }
   }
@@ -335,6 +340,7 @@ export default function LivrosSection({
                 }))}
               />
               <CapaUploadField arquivo={arquivoCapa} onChange={setArquivoCapa} />
+              <CapaUploadField arquivo={arquivoBanner} onChange={setArquivoBanner} label="Banner do dispositivo" />
               <label>
                 Autor
                 <input
@@ -506,7 +512,9 @@ export default function LivrosSection({
           onFechar={() => setPainelLivro(null)}
           titulo={painelLivro.titulo}
           bannerUrl={painelLivro.banner_url}
+          bannerPath={painelLivro.banner_path}
           capaUrl={painelLivro.capa_url}
+          capaPath={painelLivro.capa_path}
           infoGeral={montarInfoGeral(painelLivro)}
         />
       )}

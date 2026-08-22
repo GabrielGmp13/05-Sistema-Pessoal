@@ -12,11 +12,12 @@ export interface Simulado {
   observacoes: string | null;
   conteudo_uuid: string | null;
   redacao_uuid: string | null;
+  arquivo_path: string | null;
   updated_at: string;
   deleted: boolean;
 }
 
-export type SimuladoInput = Omit<Simulado, 'uuid' | 'user_id' | 'updated_at' | 'deleted'>;
+export type SimuladoInput = Omit<Simulado, 'uuid' | 'user_id' | 'arquivo_path' | 'updated_at' | 'deleted'> & { arquivo_path?: string | null };
 
 /**
  * Registra um simulado. Se `conteudo_uuid` estiver preenchido, dispara o
@@ -91,5 +92,16 @@ export async function listarUltimosSimulados(limite = 5): Promise<Simulado[] | n
     .limit(limite);
 
   if (error) return sbErr(error, 'listarUltimosSimulados');
+  return data;
+}
+
+export async function atualizarArquivoSimulado(uuid: string, arquivoPath: string): Promise<Simulado | null> {
+  const { data, error } = await sb
+    .from('simulados')
+    .update({ arquivo_path: arquivoPath, updated_at: new Date().toISOString() })
+    .eq('uuid', uuid)
+    .select()
+    .single();
+  if (error) return sbErr(error, 'atualizarArquivoSimulado');
   return data;
 }

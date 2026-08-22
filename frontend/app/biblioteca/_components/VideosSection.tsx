@@ -29,7 +29,7 @@ import BibliotecaCard from './BibliotecaCard';
 import { ordenarItensBiblioteca, type OrdenacaoBiblioteca } from '@/lib/biblioteca-ordenacao';
 import styles from './BibliotecaSection.module.css';
 import CapaUploadField from './CapaUploadField';
-import { persistirComCapa } from '@/lib/biblioteca-capas';
+import { persistirComCapa, removerArquivosBiblioteca } from '@/lib/biblioteca-capas';
 
 const FORM_VAZIO: VideoInput = {
   titulo: '',
@@ -241,9 +241,13 @@ export default function VideosSection({
 
   async function confirmarExclusao() {
     if (!videoParaApagar) return;
+    const removido = videos.find((item) => item.uuid === videoParaApagar);
     const ok = await apagarVideo(videoParaApagar);
     if (!ok) setErro('Não foi possível apagar o vídeo.');
-    else await carregar();
+    else {
+      if (removido) await removerArquivosBiblioteca([removido.capa_path]);
+      await carregar();
+    }
   }
 
   async function alternarFavorito(video: Video) {

@@ -8,7 +8,10 @@ import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
+import { PrivateMediaField } from '@/components/PrivateMediaField'
+import { apagarMidiaPessoal, uploadMidiaPessoal, urlMidiaPessoal, validarImagemPessoal } from '@/lib/midias-pessoais'
 import { getSession, sb } from '@/lib/supabase'
+import { GoogleConnections } from './GoogleConnections'
 
 interface PerfilForm {
   nome: string
@@ -41,6 +44,14 @@ export default function ConfiguracoesPage() {
   const [salvando, setSalvando] = useState(false)
   const [mensagem, setMensagem] = useState('')
   const [erro, setErro] = useState('')
+  const [avatarPath, setAvatarPath] = useState<string | null>(null)
+  const [backgroundPath, setBackgroundPath] = useState<string | null>(null)
+  const [avatarPrivadoUrl, setAvatarPrivadoUrl] = useState<string | null>(null)
+  const [backgroundPrivadoUrl, setBackgroundPrivadoUrl] = useState<string | null>(null)
+  const [avatarFile, setAvatarFile] = useState<File | null>(null)
+  const [backgroundFile, setBackgroundFile] = useState<File | null>(null)
+  const [removerAvatar, setRemoverAvatar] = useState(false)
+  const [removerBackground, setRemoverBackground] = useState(false)
 
   useEffect(() => {
     let ativo = true
@@ -55,6 +66,17 @@ export default function ConfiguracoesPage() {
         avatarUrl: meta?.avatar_url || '',
         backgroundUrl: meta?.background_url || '',
       })
+      const nextAvatarPath = meta?.avatar_path || null
+      const nextBackgroundPath = meta?.background_path || null
+      setAvatarPath(nextAvatarPath)
+      setBackgroundPath(nextBackgroundPath)
+      const [avatarSigned, backgroundSigned] = await Promise.all([
+        nextAvatarPath ? urlMidiaPessoal(nextAvatarPath) : null,
+        nextBackgroundPath ? urlMidiaPessoal(nextBackgroundPath) : null,
+      ])
+      if (!ativo) return
+      setAvatarPrivadoUrl(avatarSigned)
+      setBackgroundPrivadoUrl(backgroundSigned)
       setCarregando(false)
     }
     void carregar()
@@ -80,10 +102,30 @@ export default function ConfiguracoesPage() {
       setErro('As imagens precisam usar uma URL iniciada por http:// ou https://.')
       return
     }
+    const arquivoInvalido = [avatarFile, backgroundFile].find((file) => file && validarImagemPessoal(file))
+    if (arquivoInvalido) {
+      setErro(validarImagemPessoal(arquivoInvalido) || 'Imagem inválida.')
+      return
+    }
 
     setSalvando(true)
     const session = await getSession()
     const metadataAtual = session?.user.user_metadata ?? {}
+    let novoAvatarPath = removerAvatar ? null : avatarPath
+    let novoBackgroundPath = removerBackground ? null : backgroundPath
+    if (avatarFile) novoAvatarPath = await uploadMidiaPessoal('perfil/avatar', avatarFile)
+    if (avatarFile && !novoAvatarPath) {
+      setSalvando(false)
+      setErro('Não foi possível enviar o avatar.')
+      return
+    }
+    if (backgroundFile) novoBackgroundPath = await uploadMidiaPessoal('perfil/background', backgroundFile)
+    if (backgroundFile && !novoBackgroundPath) {
+      if (novoAvatarPath && novoAvatarPath !== avatarPath) await apagarMidiaPessoal(novoAvatarPath)
+      setSalvando(false)
+      setErro('Não foi possível enviar o background.')
+      return
+    }
     const { error } = await sb.auth.updateUser({
       data: {
         ...metadataAtual,
@@ -92,14 +134,29 @@ export default function ConfiguracoesPage() {
         subtitle: form.subtitulo.trim() || null,
         avatar_url: form.avatarUrl.trim() || null,
         background_url: form.backgroundUrl.trim() || null,
+        avatar_path: novoAvatarPath,
+        background_path: novoBackgroundPath,
       },
     })
     setSalvando(false)
 
     if (error) {
+      if (novoAvatarPath && novoAvatarPath !== avatarPath) await apagarMidiaPessoal(novoAvatarPath)
+      if (novoBackgroundPath && novoBackgroundPath !== backgroundPath) await apagarMidiaPessoal(novoBackgroundPath)
       setErro('Não foi possível atualizar o perfil.')
       return
     }
+
+    if (avatarPath && avatarPath !== novoAvatarPath) await apagarMidiaPessoal(avatarPath)
+    if (backgroundPath && backgroundPath !== novoBackgroundPath) await apagarMidiaPessoal(backgroundPath)
+    setAvatarPath(novoAvatarPath)
+    setBackgroundPath(novoBackgroundPath)
+    setAvatarPrivadoUrl(novoAvatarPath ? await urlMidiaPessoal(novoAvatarPath) : null)
+    setBackgroundPrivadoUrl(novoBackgroundPath ? await urlMidiaPessoal(novoBackgroundPath) : null)
+    setAvatarFile(null)
+    setBackgroundFile(null)
+    setRemoverAvatar(false)
+    setRemoverBackground(false)
 
     setMensagem('Perfil atualizado.')
     window.dispatchEvent(new Event('perfil-atualizado'))
@@ -129,6 +186,10 @@ export default function ConfiguracoesPage() {
                   <Label htmlFor="perfil-nome">Nome exibido</Label>
                   <Input id="perfil-nome" value={form.nome} onChange={(e) => atualizar('nome', e.target.value)} maxLength={80} />
                 </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="rounded-lg border border-border p-3"><PrivateMediaField file={avatarFile} onChange={(file) => { setAvatarFile(file); if (file) setRemoverAvatar(false) }} label="Avatar privado" />{avatarPath && !avatarFile ? <label className="mt-3 flex items-center gap-2 text-xs text-muted-foreground"><input type="checkbox" checked={removerAvatar} onChange={(event) => setRemoverAvatar(event.target.checked)} />Remover avatar privado</label> : null}</div>
+                  <div className="rounded-lg border border-border p-3"><PrivateMediaField file={backgroundFile} onChange={(file) => { setBackgroundFile(file); if (file) setRemoverBackground(false) }} label="Background privado" />{backgroundPath && !backgroundFile ? <label className="mt-3 flex items-center gap-2 text-xs text-muted-foreground"><input type="checkbox" checked={removerBackground} onChange={(event) => setRemoverBackground(event.target.checked)} />Remover background privado</label> : null}</div>
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="perfil-subtitulo">Descrição curta</Label>
                   <Input id="perfil-subtitulo" value={form.subtitulo} onChange={(e) => atualizar('subtitulo', e.target.value)} maxLength={120} placeholder="Opcional" />
@@ -155,11 +216,11 @@ export default function ConfiguracoesPage() {
             <aside className="space-y-3">
               <div
                 className="relative flex min-h-40 flex-col justify-end overflow-hidden rounded-lg border border-border bg-secondary p-4"
-                style={form.backgroundUrl ? { backgroundImage: `linear-gradient(to top, var(--background), transparent), url(${form.backgroundUrl})`, backgroundPosition: 'center', backgroundSize: 'cover' } : undefined}
+                style={backgroundPrivadoUrl || form.backgroundUrl ? { backgroundImage: `linear-gradient(to top, var(--background), transparent), url(${backgroundPrivadoUrl || form.backgroundUrl})`, backgroundPosition: 'center', backgroundSize: 'cover' } : undefined}
               >
                 <div className="flex items-center gap-3">
                   <span className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-background bg-secondary font-semibold">
-                    {form.avatarUrl ? <img src={form.avatarUrl} alt="Prévia do avatar" className="size-full object-cover" /> : <span>{inicial}</span>}
+                    {avatarPrivadoUrl || form.avatarUrl ? <img src={avatarPrivadoUrl || form.avatarUrl} alt="Prévia do avatar" className="size-full object-cover" /> : <span>{inicial}</span>}
                   </span>
                   <div className="min-w-0">
                     <strong className="block truncate">{form.nome || 'Seu nome'}</strong>
@@ -168,7 +229,7 @@ export default function ConfiguracoesPage() {
                 </div>
               </div>
               <p className="flex items-start gap-2 text-xs leading-relaxed text-muted-foreground">
-                <Image className="mt-0.5 size-3.5 shrink-0" /> Use imagens hospedadas por URL. Campos vazios mantêm o fallback do tema.
+                <Image className="mt-0.5 size-3.5 shrink-0" /> Envie uma imagem privada ou use URL externa. O upload privado tem prioridade e usa link assinado.
               </p>
               <p className="flex items-start gap-2 text-xs leading-relaxed text-muted-foreground">
                 <UserRound className="mt-0.5 size-3.5 shrink-0" /> {email}
@@ -176,6 +237,7 @@ export default function ConfiguracoesPage() {
             </aside>
           </div>
         )}
+        <GoogleConnections />
       </div>
     </main>
   )

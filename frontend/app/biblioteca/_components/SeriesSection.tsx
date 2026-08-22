@@ -25,7 +25,7 @@ import type { Genero } from '@/lib/generos';
 import { ordenarItensBiblioteca, type OrdenacaoBiblioteca } from '@/lib/biblioteca-ordenacao';
 import styles from './BibliotecaSection.module.css';
 import CapaUploadField from './CapaUploadField';
-import { persistirComCapa } from '@/lib/biblioteca-capas';
+import { persistirComCapaEBanner, removerArquivosBiblioteca } from '@/lib/biblioteca-capas';
 
 const STATUS_LABEL: Record<string, string> = {
   quero_ver: 'Quero ver',
@@ -70,6 +70,7 @@ export default function SeriesSection({
   const [editandoUuid, setEditandoUuid] = useState<string | null>(null);
   const [form, setForm] = useState<SerieInput>(FORM_VAZIO);
   const [arquivoCapa, setArquivoCapa] = useState<File | null>(null);
+  const [arquivoBanner, setArquivoBanner] = useState<File | null>(null);
   const [salvando, setSalvando] = useState(false);
 
   const [menuAbertoUuid, setMenuAbertoUuid] = useState<string | null>(null);
@@ -126,12 +127,14 @@ export default function SeriesSection({
     setEditandoUuid(null);
     setForm(FORM_VAZIO);
     setArquivoCapa(null);
+    setArquivoBanner(null);
     setGenerosSelecionados([]);
     setModalAberto(true);
   }
 
   function abrirEdicao(serie: Serie) {
     setArquivoCapa(null);
+    setArquivoBanner(null);
     setEditandoUuid(serie.uuid);
     setForm({
       titulo: serie.titulo,
@@ -165,8 +168,8 @@ export default function SeriesSection({
 
     setSalvando(true);
     const atual = editandoUuid ? series.find((serie) => serie.uuid === editandoUuid) : null;
-    const persistencia = await persistirComCapa({ categoria: 'series', arquivo: arquivoCapa, capaPathAtual: atual?.capa_path, persistir: (capaPath) => {
-      const dados = capaPath ? { ...form, capa_path: capaPath } : form;
+    const persistencia = await persistirComCapaEBanner({ categoria: 'series', arquivoCapa, arquivoBanner, capaPathAtual: atual?.capa_path, bannerPathAtual: atual?.banner_path, persistir: ({ capaPath, bannerPath }) => {
+      const dados = { ...form, ...(capaPath ? { capa_path: capaPath } : {}), ...(bannerPath ? { banner_path: bannerPath } : {}) };
       return editandoUuid ? atualizarSerie(editandoUuid, dados) : criarSerie(dados);
     }});
     const resultado = persistencia.resultado;
@@ -213,10 +216,12 @@ export default function SeriesSection({
 
   async function confirmarExclusao() {
     if (!serieParaApagar) return;
+    const removida = series.find((item) => item.uuid === serieParaApagar);
     const ok = await apagarSerie(serieParaApagar);
     if (!ok) {
       setErro('Não foi possível apagar a série.');
     } else {
+      if (removida) await removerArquivosBiblioteca([removida.capa_path, removida.banner_path]);
       await carregar();
     }
   }
@@ -336,6 +341,7 @@ export default function SeriesSection({
                 }))}
               />
               <CapaUploadField arquivo={arquivoCapa} onChange={setArquivoCapa} />
+              <CapaUploadField arquivo={arquivoBanner} onChange={setArquivoBanner} label="Banner do dispositivo" />
               <label>
                 Criação
                 <input
@@ -524,7 +530,9 @@ export default function SeriesSection({
           obraUuid={painelSerie.uuid}
           titulo={painelSerie.titulo}
           bannerUrl={painelSerie.banner_url}
+          bannerPath={painelSerie.banner_path}
           capaUrl={painelSerie.capa_url}
+          capaPath={painelSerie.capa_path}
           infoGeral={montarInfoGeral(painelSerie)}
         />
       )}  

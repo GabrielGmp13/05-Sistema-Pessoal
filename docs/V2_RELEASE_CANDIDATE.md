@@ -37,6 +37,9 @@ Opcionais e exclusivas do servidor:
 - `YOUTUBE_API_KEY` — metadados de vídeos
 - `TMDB_API_KEY` — metadados de filmes e séries
 - `BRAPI_TOKEN` — cotação sob demanda em Finanças
+- `SUPABASE_SERVICE_ROLE_KEY` — somente API Routes Google
+- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI` e
+  `GOOGLE_TOKEN_ENCRYPTION_KEY` — conexão Google server-side
 
 Sem as chaves opcionais, os respectivos fluxos mantêm fallback manual. Nunca
 versionar `.env.local`, service role, senha, connection string ou
@@ -44,14 +47,14 @@ versionar `.env.local`, service role, senha, connection string ou
 
 ## Banco e migrations
 
-- A cadeia operacional ativa contém 16 migrations em
+- A cadeia operacional ativa contém 18 migrations em
   `backend/supabase/migrations/`.
 - As três baselines e as incrementais até
-  `20260820000300_agenda_prioridade.sql` estão registradas como
+  `20260821000200_integracoes_google_midias.sql` estão registradas como
   aplicadas em produção.
-- O pós-check registrado em 2026-08-21 confirmou 63 tabelas e 16 versões
-  aplicadas, prioridade da Agenda com default/constraint corretos e nenhuma
-  migration pendente.
+- O pós-check registrado em 2026-08-21 confirmou 64 tabelas e 18 versões
+  aplicadas, cofre Google, idempotência Calendar, bucket/policies de mídia e
+  nenhuma migration pendente.
 
 Qualquer correção futura de schema deve sair do lote de polimento, receber uma
 nova migration timestamped e cumprir integralmente o fluxo de segurança de
@@ -70,14 +73,14 @@ ser declarada concluída quando:
 
 ## Escopo oficial pós-v2
 
-- Google Calendar/OAuth
-- Google Photos
-- Anki `.apkg`
+- Google Calendar bidirecional/conflitos/exclusões remotas
+- Google Photos Picker opcional (Storage privado já cobre imagens)
+- mídias e templates complexos do Anki `.apkg`
 - BRAPI/cotações avançadas
-- uploads adicionais além de imagem/GIF de exercício
-- extensão de navegador
+- uploads somente de futuros domínios ainda não definidos
+- publicação da extensão em loja/captura avançada
 - scraping e importações avançadas
-- testes automatizados
+- testes E2E autenticados amplos
 - hardening restante do banco e do Storage
 - polimentos visuais encontrados na homologação
 

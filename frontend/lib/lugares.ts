@@ -16,6 +16,7 @@ export interface Lugar {
   favorito: boolean
   texto: string | null
   capa_url: string | null
+  capa_path: string | null
   updated_at: string
   deleted: boolean
 }

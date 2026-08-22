@@ -1,18 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-
-interface BrapiQuoteResponse {
-  results?: Array<{
-    symbol?: string
-    shortName?: string
-    currency?: string
-    regularMarketPrice?: number
-    regularMarketChangePercent?: number
-  }>
-}
+import { BrapiQuoteResponse, extrairCotacaoBrapi, normalizarTickerBrapi } from '@/lib/brapi'
 
 export async function GET(request: NextRequest) {
-  const ticker = request.nextUrl.searchParams.get('ticker')?.trim().toUpperCase() ?? ''
-  if (!/^[A-Z0-9.^-]{2,15}$/.test(ticker)) {
+  const ticker = normalizarTickerBrapi(request.nextUrl.searchParams.get('ticker'))
+  if (!ticker) {
     return NextResponse.json({ erro: 'Ticker inválido.' }, { status: 400 })
   }
 
@@ -39,22 +30,14 @@ export async function GET(request: NextRequest) {
     }
 
     const data = await response.json() as BrapiQuoteResponse
-    const resultado = data.results?.[0]
-    if (!resultado?.symbol || typeof resultado.regularMarketPrice !== 'number') {
+    const cotacao = extrairCotacaoBrapi(data)
+    if (!cotacao) {
       return NextResponse.json({ erro: 'Cotação não encontrada.' }, { status: 404 })
     }
 
     return NextResponse.json({
       disponivel: true,
-      cotacao: {
-        ticker: resultado.symbol,
-        nome: resultado.shortName ?? resultado.symbol,
-        moeda: resultado.currency ?? 'BRL',
-        preco: resultado.regularMarketPrice,
-        variacao_percentual: typeof resultado.regularMarketChangePercent === 'number'
-          ? resultado.regularMarketChangePercent
-          : null,
-      },
+      cotacao,
     })
   } catch {
     return NextResponse.json({ erro: 'Serviço de cotações temporariamente indisponível.' }, { status: 502 })

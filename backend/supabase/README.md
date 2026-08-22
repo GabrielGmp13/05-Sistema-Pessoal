@@ -48,6 +48,13 @@ O ponto inicial oficial da cadeia CLI é:
     baixa/normal/alta à Agenda, com default normal; reset e 14 testes SQL
     aprovados, aplicada em produção em 2026-08-21 após dry-run exclusivo e
     confirmada por pós-check de schema, histórico e dry-run vazio.
+17. `20260821000100_biblioteca_capas_storage.sql` — completa paths de capas
+    para Vídeos/Artigos e restringe MIME do bucket `capas`; aplicada após
+    validação local e dry-run remoto exclusivo.
+18. `20260821000200_integracoes_google_midias.sql` — cria cofre Google
+    server-only, idempotência Calendar, paths de uploads restantes e bucket
+    privado `midias-pessoais`; reset e 16 testes SQL aprovados, aplicada em
+    produção após dry-run exclusivo e pós-check final vazio.
 
 As três baselines foram validadas por dois replays locais completos e por
 comparação com produção. Em 2026-08-08, `migration repair --status applied`

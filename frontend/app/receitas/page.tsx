@@ -11,6 +11,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
+import { PrivateMediaField } from '@/components/PrivateMediaField'
+import { apagarMidiaPessoal, persistirComMidia, urlMidiaPessoal } from '@/lib/midias-pessoais'
 import { atualizarReceita, criarReceita, deletarReceita, listarReceitas, Receita, ReceitaInput } from '@/lib/receitas'
 import { cn } from '@/lib/utils'
 
@@ -46,7 +48,7 @@ function paraForm(receita: Receita): ReceitaForm {
   }
 }
 
-function paraInput(form: ReceitaForm): ReceitaInput | null {
+function paraInput(form: ReceitaForm, fotoPath: string | null): ReceitaInput | null {
   const tempo = form.tempo_preparo_minutos ? Number(form.tempo_preparo_minutos) : null
   const porcoes = form.porcoes ? Number(form.porcoes) : null
   const nota = form.nota ? Number(form.nota) : null
@@ -65,6 +67,7 @@ function paraInput(form: ReceitaForm): ReceitaInput | null {
     favorito: form.favorito,
     fez: form.fez,
     foto_url: form.foto_url.trim() || null,
+    foto_path: fotoPath,
   }
 }
 
@@ -77,6 +80,9 @@ export default function ReceitasPage() {
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState('')
   const [confirmarExclusao, setConfirmarExclusao] = useState(false)
+  const [arquivoFoto, setArquivoFoto] = useState<File | null>(null)
+  const [removerFoto, setRemoverFoto] = useState(false)
+  const [urlsPrivadas, setUrlsPrivadas] = useState<Record<string, string>>({})
 
   const selecionada = useMemo(() => receitas.find((receita) => receita.uuid === selecionadaUuid) ?? null, [receitas, selecionadaUuid])
 
@@ -88,6 +94,8 @@ export default function ReceitasPage() {
       return
     }
     setReceitas(atuais)
+    const assinadas = await Promise.all(atuais.filter((item) => item.foto_path).map(async (item) => [item.uuid, await urlMidiaPessoal(item.foto_path!)] as const))
+    setUrlsPrivadas(Object.fromEntries(assinadas.filter((item): item is readonly [string, string] => Boolean(item[1]))))
     setSelecionadaUuid((atual) => {
       const candidato = preferirUuid ?? atual
       return atuais.some((item) => item.uuid === candidato) ? candidato : atuais[0]?.uuid ?? null
@@ -100,6 +108,8 @@ export default function ReceitasPage() {
   useEffect(() => {
     if (criando) return
     setForm(selecionada ? paraForm(selecionada) : FORM_VAZIO)
+    setArquivoFoto(null)
+    setRemoverFoto(false)
   }, [criando, selecionada])
 
   function atualizar<K extends keyof ReceitaForm>(campo: K, valor: ReceitaForm[K]) {
@@ -110,25 +120,34 @@ export default function ReceitasPage() {
     setCriando(true)
     setSelecionadaUuid(null)
     setForm(FORM_VAZIO)
+    setArquivoFoto(null)
+    setRemoverFoto(false)
     setErro('')
   }
 
   async function salvar(event: React.FormEvent) {
     event.preventDefault()
-    const input = paraInput(form)
+    const fotoPathAtual = removerFoto ? null : selecionada?.foto_path ?? null
+    const input = paraInput(form, fotoPathAtual)
     if (!input) {
       setErro('Preencha título, ingredientes e preparo; revise também os campos numéricos.')
       return
     }
     setSalvando(true)
-    const salva = criando || !selecionada
-      ? await criarReceita(input)
-      : await atualizarReceita(selecionada.uuid, input)
+    const { result: salva, error: erroMidia } = await persistirComMidia({
+      scope: 'receitas',
+      file: arquivoFoto,
+      currentPath: fotoPathAtual,
+      persist: (fotoPath) => criando || !selecionada
+        ? criarReceita({ ...input, foto_path: fotoPath })
+        : atualizarReceita(selecionada.uuid, { ...input, foto_path: fotoPath }),
+    })
     setSalvando(false)
     if (!salva) {
-      setErro('Não foi possível salvar a receita.')
+      setErro(erroMidia || 'Não foi possível salvar a receita.')
       return
     }
+    if (removerFoto && selecionada?.foto_path) await apagarMidiaPessoal(selecionada.foto_path)
     setErro('')
     setCriando(false)
     await carregar(salva.uuid)
@@ -147,6 +166,7 @@ export default function ReceitasPage() {
   async function excluir() {
     if (!selecionada) return
     if (await deletarReceita(selecionada.uuid)) {
+      if (selecionada.foto_path) await apagarMidiaPessoal(selecionada.foto_path)
       setConfirmarExclusao(false)
       await carregar()
     } else {
@@ -173,7 +193,7 @@ export default function ReceitasPage() {
             <aside className="grid auto-rows-max grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-1">
               {receitas.map((receita) => (
                 <button key={receita.uuid} type="button" onClick={() => { setCriando(false); setSelecionadaUuid(receita.uuid) }} className={cn('overflow-hidden rounded-lg border text-left outline-none transition-all hover:border-foreground/30 focus-visible:ring-[3px] focus-visible:ring-ring/30', selecionadaUuid === receita.uuid && !criando ? 'border-foreground/30 bg-accent' : 'border-border bg-card')}>
-                  {receita.foto_url ? <img src={receita.foto_url} alt="" className="h-24 w-full object-cover" /> : null}
+                  {urlsPrivadas[receita.uuid] || receita.foto_url ? <img src={urlsPrivadas[receita.uuid] || receita.foto_url || ''} alt="" className="h-24 w-full object-cover" /> : null}
                   <div className="p-3"><div className="flex items-start gap-2"><strong className="min-w-0 flex-1 truncate text-sm">{receita.titulo}</strong>{receita.favorito ? <Star className="size-4 fill-current text-warning-foreground" /> : null}</div><div className="mt-2 flex flex-wrap gap-2">{receita.categoria ? <Badge variant="outline">{receita.categoria}</Badge> : null}{receita.fez ? <Badge variant="success">Feita</Badge> : null}{receita.nota !== null ? <Badge variant="outline">{receita.nota}/10</Badge> : null}</div></div>
                 </button>
               ))}
@@ -196,6 +216,7 @@ export default function ReceitasPage() {
                       <div className="space-y-2"><Label htmlFor="receita-categoria">Categoria</Label><Input id="receita-categoria" value={form.categoria} onChange={(e) => atualizar('categoria', e.target.value)} placeholder="Ex: Almoço" /></div>
                     </div>
                     <div className="space-y-2"><Label htmlFor="receita-foto">URL da foto</Label><Input id="receita-foto" type="url" value={form.foto_url} onChange={(e) => atualizar('foto_url', e.target.value)} placeholder="https://" /></div>
+                    <div className="rounded-lg border border-border p-3"><PrivateMediaField file={arquivoFoto} onChange={(file) => { setArquivoFoto(file); if (file) setRemoverFoto(false) }} label="Foto privada" />{selecionada?.foto_path && !arquivoFoto ? <label className="mt-3 flex items-center gap-2 text-xs text-muted-foreground"><input type="checkbox" checked={removerFoto} onChange={(event) => setRemoverFoto(event.target.checked)} />Remover foto privada ao salvar</label> : null}</div>
                     <div className="grid gap-4 sm:grid-cols-3">
                       <div className="space-y-2"><Label htmlFor="receita-tempo">Tempo (min)</Label><Input id="receita-tempo" type="number" min="1" step="1" value={form.tempo_preparo_minutos} onChange={(e) => atualizar('tempo_preparo_minutos', e.target.value)} /></div>
                       <div className="space-y-2"><Label htmlFor="receita-porcoes">Porções</Label><Input id="receita-porcoes" type="number" min="1" step="1" value={form.porcoes} onChange={(e) => atualizar('porcoes', e.target.value)} /></div>

@@ -27,7 +27,7 @@ import type { Genero } from '@/lib/generos';
 import { ordenarItensBiblioteca, type OrdenacaoBiblioteca } from '@/lib/biblioteca-ordenacao';
 import styles from './BibliotecaSection.module.css';
 import CapaUploadField from './CapaUploadField';
-import { persistirComCapa } from '@/lib/biblioteca-capas';
+import { persistirComCapaEBanner, removerArquivosBiblioteca } from '@/lib/biblioteca-capas';
 
 const STATUS_LABEL: Record<string, string> = {
   quero_ver: 'Quero ver',
@@ -77,6 +77,7 @@ export default function AnimesSection({
   const [editandoUuid, setEditandoUuid] = useState<string | null>(null);
   const [form, setForm] = useState<AnimeInput>(FORM_VAZIO);
   const [arquivoCapa, setArquivoCapa] = useState<File | null>(null);
+  const [arquivoBanner, setArquivoBanner] = useState<File | null>(null);
   const [salvando, setSalvando] = useState(false);
 
   const [menuAbertoUuid, setMenuAbertoUuid] = useState<string | null>(null);
@@ -133,12 +134,14 @@ export default function AnimesSection({
     setEditandoUuid(null);
     setForm(FORM_VAZIO);
     setArquivoCapa(null);
+    setArquivoBanner(null);
     setGenerosSelecionados([]);
     setModalAberto(true);
   }
 
   function abrirEdicao(anime: Anime) {
     setArquivoCapa(null);
+    setArquivoBanner(null);
     setEditandoUuid(anime.uuid);
     setForm({
       nome_original: anime.nome_original,
@@ -175,8 +178,8 @@ export default function AnimesSection({
 
     setSalvando(true);
     const atual = editandoUuid ? animes.find((anime) => anime.uuid === editandoUuid) : null;
-    const persistencia = await persistirComCapa({ categoria: 'animes', arquivo: arquivoCapa, capaPathAtual: atual?.capa_path, persistir: (capaPath) => {
-      const dados = capaPath ? { ...form, capa_path: capaPath } : form;
+    const persistencia = await persistirComCapaEBanner({ categoria: 'animes', arquivoCapa, arquivoBanner, capaPathAtual: atual?.capa_path, bannerPathAtual: atual?.banner_path, persistir: ({ capaPath, bannerPath }) => {
+      const dados = { ...form, ...(capaPath ? { capa_path: capaPath } : {}), ...(bannerPath ? { banner_path: bannerPath } : {}) };
       return editandoUuid ? atualizarAnime(editandoUuid, dados) : criarAnime(dados);
     }});
     const resultado = persistencia.resultado;
@@ -197,10 +200,12 @@ export default function AnimesSection({
 
   async function confirmarExclusao() {
     if (!animeParaApagar) return;
+    const removido = animes.find((item) => item.uuid === animeParaApagar);
     const ok = await apagarAnime(animeParaApagar);
     if (!ok) {
       setErro('Não foi possível apagar o anime.');
     } else {
+      if (removido) await removerArquivosBiblioteca([removido.capa_path, removido.banner_path]);
       await carregar();
     }
   }
@@ -350,6 +355,7 @@ export default function AnimesSection({
                 }))}
               />
               <CapaUploadField arquivo={arquivoCapa} onChange={setArquivoCapa} />
+              <CapaUploadField arquivo={arquivoBanner} onChange={setArquivoBanner} label="Banner do dispositivo" />
               <label>
                 Nome traduzido
                 <input
@@ -554,7 +560,9 @@ export default function AnimesSection({
           obraUuid={painelAnime.uuid}
           titulo={painelAnime.nome_traduzido || painelAnime.nome_original}
           bannerUrl={painelAnime.banner_url}
+          bannerPath={painelAnime.banner_path}
           capaUrl={painelAnime.capa_url}
+          capaPath={painelAnime.capa_path}
           infoGeral={montarInfoGeral(painelAnime)}
          />
       )}

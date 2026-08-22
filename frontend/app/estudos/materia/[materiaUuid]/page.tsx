@@ -29,7 +29,9 @@ import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { PrivateDocumentAction } from '@/components/PrivateDocumentAction'
 import { dataLocalIso } from '@/lib/date'
+import { apagarMidiaPessoal } from '@/lib/midias-pessoais'
 
 import { buscarMateria, listarMaterias, Materia } from '../../../../lib/materias'
 import {
@@ -61,6 +63,7 @@ import {
 import {
   listarSimuladosPorMateria,
   registrarSimulado,
+  atualizarArquivoSimulado,
   Simulado,
 } from '../../../../lib/simulados'
 import {
@@ -262,7 +265,8 @@ export default function MateriaDetalhePage() {
       description: `A prova "${prova.titulo || 'sem título'}" será removida da lista desta matéria.`,
       confirmLabel: 'Apagar',
       action: async () => {
-        await deletarProva(prova.uuid)
+        const removida = await deletarProva(prova.uuid)
+        if (removida && prova.arquivo_path) await apagarMidiaPessoal(prova.arquivo_path)
         await carregar()
       },
     })
@@ -271,6 +275,20 @@ export default function MateriaDetalhePage() {
   async function handleToggleProva(prova: Prova) {
     await atualizarProva(prova.uuid, { feita: !prova.feita })
     await carregar()
+  }
+
+  async function handleArquivoProva(prova: Prova, arquivoPath: string) {
+    const atualizada = await atualizarProva(prova.uuid, { arquivo_path: arquivoPath })
+    if (!atualizada) return false
+    setProvas((atuais) => atuais.map((item) => item.uuid === prova.uuid ? atualizada : item))
+    return true
+  }
+
+  async function handleArquivoSimulado(simulado: Simulado, arquivoPath: string) {
+    const atualizado = await atualizarArquivoSimulado(simulado.uuid, arquivoPath)
+    if (!atualizado) return false
+    setSimulados((atuais) => atuais.map((item) => item.uuid === simulado.uuid ? atualizado : item))
+    return true
   }
 
   async function handleCriarAtividade(e: React.FormEvent) {
@@ -528,7 +546,8 @@ export default function MateriaDetalhePage() {
                 ) : (
                   <ul className="flex flex-col divide-y divide-border rounded-lg border border-border">
                     {provas.map((p) => (
-                      <li key={p.uuid} className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center">
+                      <li key={p.uuid} className="flex flex-col gap-3 px-4 py-3">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                         <div className="flex min-w-0 flex-col">
                           <span className="truncate text-sm font-medium">{p.titulo}</span>
                           <MonoLabel>{formatDate(p.data)}</MonoLabel>
@@ -557,6 +576,8 @@ export default function MateriaDetalhePage() {
                             <Trash2 className="size-3.5" />
                           </Button>
                         </div>
+                        </div>
+                        <PrivateDocumentAction path={p.arquivo_path} scope={`provas/${p.uuid}`} onPersist={(path) => handleArquivoProva(p, path)} />
                       </li>
                     ))}
                   </ul>
@@ -710,11 +731,12 @@ export default function MateriaDetalhePage() {
               ) : (
                 <ul className="flex flex-col divide-y divide-border rounded-lg border border-border">
                   {simulados.map((s) => (
-                    <li key={s.uuid} className="flex items-center gap-3 px-4 py-3">
-                      <MonoLabel>{formatDate(s.data)}</MonoLabel>
+                    <li key={s.uuid} className="flex flex-col gap-2 px-4 py-3">
+                      <div className="flex items-center gap-3"><MonoLabel>{formatDate(s.data)}</MonoLabel>
                       <span className="ml-auto font-mono text-sm tabular-nums">
                         {s.total_acertos}/{s.total_questoes}
-                      </span>
+                      </span></div>
+                      <PrivateDocumentAction path={s.arquivo_path} scope={`simulados/${s.uuid}`} onPersist={(path) => handleArquivoSimulado(s, path)} />
                     </li>
                   ))}
                 </ul>

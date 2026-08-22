@@ -17,11 +17,12 @@ export interface Prova {
   nota: number | null;
   feita: boolean;
   observacoes: string | null;
+  arquivo_path: string | null;
   updated_at: string;
   deleted: boolean;
 }
 
-export type ProvaInput = Omit<Prova, 'uuid' | 'user_id' | 'updated_at' | 'deleted'>;
+export type ProvaInput = Omit<Prova, 'uuid' | 'user_id' | 'arquivo_path' | 'updated_at' | 'deleted'> & { arquivo_path?: string | null };
 export type ProvaUpdate = Partial<ProvaInput>;
 
 /** Busca uma prova específica por uuid — usado pelo gabarito pra saber o dia (tipo). */

@@ -6,6 +6,7 @@ import { listarTrilhaSonora, TrilhaSonoraItem } from '@/lib/trilha-sonora';
 import { listarTemporadas, SerieTemporada } from '@/lib/series-temporadas';
 import { listarTemporadasAnime, AnimeTemporada } from '@/lib/animes-temporadas';
 import { listarOpeningsEndings, OpeningEnding } from '@/lib/openings-endings';
+import { getSignedUrl } from '@/lib/supabase';
 import styles from './PainelDetalheObra.module.css';
 
 export interface CampoInfo {
@@ -20,7 +21,9 @@ interface PainelDetalheObraProps {
   obraUuid: string;
   titulo: string;
   bannerUrl?: string | null;
+  bannerPath?: string | null;
   capaUrl?: string | null;
+  capaPath?: string | null;
   infoGeral: CampoInfo[];
 }
 
@@ -33,7 +36,9 @@ export default function PainelDetalheObra({
   obraUuid,
   titulo,
   bannerUrl,
+  bannerPath,
   capaUrl,
+  capaPath,
   infoGeral,
 }: PainelDetalheObraProps) {
   const [elenco, setElenco] = useState<ElencoItem[]>([]);
@@ -42,6 +47,8 @@ export default function PainelDetalheObra({
   const [temporadasAnime, setTemporadasAnime] = useState<AnimeTemporada[]>([]);
   const [openingsEndings, setOpeningsEndings] = useState<OpeningEnding[]>([]);
   const [carregando, setCarregando] = useState(true);
+  const [bannerPrivado, setBannerPrivado] = useState<string | null>(null);
+  const [capaPrivada, setCapaPrivada] = useState<string | null>(null);
 
   useEffect(() => {
     if (!aberto) return;
@@ -91,9 +98,17 @@ export default function PainelDetalheObra({
     return () => document.removeEventListener('keydown', aoTeclar);
   }, [aberto, onFechar]);
 
-  if (!aberto) return null;
+  useEffect(() => {
+    let ativo = true;
+    void Promise.all([
+      bannerPath ? getSignedUrl('capas', bannerPath) : null,
+      capaPath ? getSignedUrl('capas', capaPath) : null,
+    ]).then(([banner, capa]) => { if (ativo) { setBannerPrivado(banner); setCapaPrivada(capa); } });
+    return () => { ativo = false; };
+  }, [bannerPath, capaPath]);
 
-  const imagemTopo = bannerUrl || capaUrl || null;
+  if (!aberto) return null;
+  const imagemTopo = bannerPrivado || bannerUrl || capaPrivada || capaUrl || null;
   const temporadas = tipoObra === 'anime' ? temporadasAnime : temporadasSerie;
 
   return (

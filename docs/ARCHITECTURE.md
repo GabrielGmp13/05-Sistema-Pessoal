@@ -27,7 +27,9 @@ Vercel — frontend/                  Supabase                Supabase
 **Status de implementação real (2026-08):**
 - Schema PostgreSQL ✅ executado — 44 tabelas em `public` confirmadas via dump real do banco (ver `DATABASE.md`).
 - Auth ✅ funcionando (email + senha).
-- Storage ✅ cinco buckets privados e 14 policies confirmados por captura direta de produção em 2026-08-07 e reproduzidos pela baseline ativa. Ver a seção abaixo, `DATABASE.md` e `backend/supabase/snapshots/`.
+- Storage ✅ cinco buckets/14 policies históricos reproduzidos pela baseline;
+  produção atual possui seis buckets privados e 18 policies após a migration
+  incremental de mídias. Ver `DATABASE.md` e os snapshots.
 - Deploy no Vercel ✅ feito (`frontend/` como Root Directory) desde 2026-07-13.
 - Realtime 🔄 não implementado.
 - Service Worker 🔄 não implementado.
@@ -63,7 +65,10 @@ Banco de dados relacional. Schema completo executado e confirmado via dump real 
 | `exercicios` | Imagens/GIFs de exercícios | 5 MiB | 4 MIME types de imagem | Confirmado no snapshot; origem histórica era configuração manual |
 | `redacoes` | Foto da folha manuscrita | 10 MiB | sem restrição MIME no estado capturado | Confirmado no snapshot; origem histórica era configuração manual |
 
-Convenção de path obrigatória: `{user_id}/nome-do-arquivo.ext`. Produção possui 14 policies de `storage.objects`: 12 policies separadas de CRUD para `shape`, `documentos` e `capas`, além das policies atuais de `redacoes` e `exercicios`. As definições literais estão em `critical_storage_metadata.json`; eventuais hardenings devem ser migrations futuras separadas, nunca edição retroativa da baseline.
+Convenção de path obrigatória: `{user_id}/nome-do-arquivo.ext`. A baseline
+preserva as 14 policies históricas; produção possui mais quatro policies CRUD
+de `midias-pessoais`, totalizando 18. As definições históricas estão no
+snapshot; hardenings permanecem migrations incrementais, nunca edição da baseline.
 
 ### Supabase Realtime
 - Subscrições a `postgres_changes` por tabela
@@ -99,14 +104,16 @@ runtime nem de desenvolvimento instalada permanentemente.
 A CI em `.github/workflows/validate.yml` usa placeholders públicos e inertes
 para as duas variáveis Supabase do cliente; não acessa produção nem faz deploy.
 `npm ci`, typecheck e build são bloqueantes. O lint é informativo enquanto os
-51 achados catalogados em `BACKLOG.md` permanecerem. Não existe suíte de testes
-do frontend; a suíte automatizada atual é a validação SQL local da baseline em
-`backend/supabase/tests/`.
+51 achados catalogados em `BACKLOG.md` permanecerem. A suíte leve do frontend
+usa `node:test` para parsers/cálculos de alto valor; o banco mantém os scripts
+SQL locais em `backend/supabase/tests/`.
 
 ### Rotas confirmadas pelo build
 
-O inventário de 2026-08-15 confirmou 31 páginas da aplicação e 2 API Routes,
-além do `_not-found` gerado pelo Next.js:
+O build de 2026-08-21 confirmou 37 entradas no inventário do App Router,
+incluindo 11 API Routes e o `_not-found` gerado pelo Next.js. A lista de
+páginas abaixo permanece o inventário funcional; as novas API Routes cobrem Anki e Google
+OAuth/YouTube/Calendar:
 
 - base e portais (7): `/`, `/login`, `/configuracoes`, `/agenda`, `/revisao`,
   `/diario` e `/historico`;

@@ -26,6 +26,7 @@ import {
   removerImagemRedacao,
   Redacao,
 } from '../../../lib/redacoes'
+import { competenciaEnemValida } from '../../../lib/redacoes-validacao'
 
 const COMP_LABELS = [
   'Domínio da norma culta',
@@ -34,8 +35,6 @@ const COMP_LABELS = [
   'Mecanismos linguísticos',
   'Proposta de intervenção',
 ]
-
-const NOTAS_COMPETENCIA_ENEM = new Set([0, 40, 80, 120, 160, 200])
 
 function formatDate(iso: string) {
   const d = new Date(iso + 'T00:00:00')
@@ -47,7 +46,7 @@ function formatDate(iso: string) {
 }
 
 function competenciaValida(valor: string) {
-  return valor.trim() === '' || NOTAS_COMPETENCIA_ENEM.has(Number(valor))
+  return competenciaEnemValida(valor)
 }
 
 function tempoEmMinutos(horas: string, minutos: string): number | null | undefined {

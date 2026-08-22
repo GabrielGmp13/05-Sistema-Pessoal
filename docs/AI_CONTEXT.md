@@ -49,11 +49,11 @@ operacional.
 
 ## Estado atual (2026-08)
 
-**Fase:** v2.1 — melhorias documentadas de baixo risco implementadas sobre a release candidate da v2 expandida. Permanecem para homologação manual os fluxos novos e a release como um todo; integrações pesadas e decisões de produto continuam no backlog. A v2 é o único frontend ativo (v1 removida em 2026-07-19, DEC-031).
+**Fase:** v2.1 — fechamento técnico completo. Permanecem configuração de credenciais externas pelo Gabriel e homologação manual; ampliações bidirecionais/analíticas estão no backlog. A v2 é o único frontend ativo (v1 removida em 2026-07-19, DEC-031).
 **Decisão-chave:** DEC-018 (reabre DEC-006) — frontend migrou de HTML puro para Next.js/React
 **Deploy:** ✅ em produção no Vercel desde 2026-07-13 (não "pendente" — ver `ARCHITECTURE.md`)
-**Schema:** baseline confirmada via dump real em 2026-08 com 44 tabelas; produção e ambiente local estão em 63 tabelas após as migrations incrementais aplicadas até `20260821000100_biblioteca_capas_storage.sql` (ver `DATABASE.md`).
-**Histórico CLI:** adotado em produção em 2026-08-08 — as três baselines e as migrations incrementais até `20260821000100_biblioteca_capas_storage.sql` estão registradas como `applied`. A migration mais recente passou reset e 15 testes SQL, foi aplicada após dry-run exclusivo e teve schema, Storage, histórico e dry-run vazio confirmados em 2026-08-21.
+**Schema:** baseline confirmada via dump real em 2026-08 com 44 tabelas; produção e ambiente local estão em 64 tabelas após as migrations incrementais aplicadas até `20260821000200_integracoes_google_midias.sql` (ver `DATABASE.md`).
+**Histórico CLI:** as três baselines e incrementais até `20260821000200_integracoes_google_midias.sql` estão `applied`. A última migration passou reset e 16 scripts SQL, dry-run exclusivo, aplicação, pós-check de cofre/colunas/bucket/policies/histórico e dry-run final vazio em 2026-08-21.
 **Reprodutibilidade:** Node.js `24.15.0`, npm `12.0.1`, `npm ci`, typecheck e build validados; CI mínima ativa. Lint mantém 51 achados conhecidos e informativos (27 erros e 24 warnings) na medição de 2026-08-15.
 **Próxima tarefa imediata:** executar a homologação manual autenticada completa de `HOMOLOGATION_V2.md`, incluindo o controlador de atmosfera, a extensão local, os fluxos do fechamento funcional, responsividade e segurança básica.
 
@@ -63,16 +63,16 @@ operacional.
 
 | Camada | Tecnologia |
 |---|---|
-| Banco de dados | PostgreSQL via Supabase (63 tabelas em `public`, alinhadas entre produção e cadeia local) |
+| Banco de dados | PostgreSQL via Supabase (64 tabelas em `public`, alinhadas entre produção e cadeia local) |
 | Auth | Supabase Auth (email+senha) |
-| Storage | Supabase Storage — 5 buckets privados e 14 policies confirmados por captura remota versionada em `backend/supabase/snapshots/` |
-| Frontend | Next.js 16 (React 19) + TypeScript — pasta `frontend/`, único frontend do projeto |
+| Storage | Supabase Storage — 6 buckets privados e 18 policies; o sexto foi confirmado por pós-check remoto |
+| Frontend | Next.js 16.3.2 (React 19) + TypeScript — pasta `frontend/`, único frontend do projeto |
 | Estilização | CSS Modules (Treino/Biblioteca/Dashboard) + Tailwind v4/shadcn (Estudos) — stack mista intencional, DEC-038 |
-| Backend leve | 2 API Routes (Next.js, serverless no Vercel): metadados da Biblioteca e cotação opcional de Finanças, ambas protegendo chaves server-only |
+| Backend leve | 11 API Routes (Next.js/Vercel): metadados, BRAPI, Anki e Google OAuth/YouTube/Calendar, com credenciais server-only |
 | Offline | Service Worker — fora de escopo por ora (Fase M2, ver `ROADMAP.md`) |
 | Hosting | Vercel — **em produção desde 2026-07-13** |
 | Toolchain | Node.js 24.15.0 + npm 12.0.1; versões fixadas no repositório |
-| CI/testes | GitHub Actions: `npm ci`, typecheck e build bloqueantes; lint informativo. Testes existentes: suíte SQL local e 6 testes Node de funções puras |
+| CI/testes | GitHub Actions: `npm ci`, typecheck e build bloqueantes; lint informativo. Testes existentes: 16 scripts SQL e 18 testes Node |
 
 ---
 
