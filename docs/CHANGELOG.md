@@ -20,6 +20,18 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — v2.1 pronta tecnicamente; homologação manual pendente
 
+- **2026-08-22 (lote local de playlists e beta privado)** — Biblioteca > Vídeos
+  ganhou importação por link com prévia/seleção pela API oficial e agrupamentos
+  persistentes que reutilizam vídeos normais, preservando Vídeo → Curso. O Hub
+  passou a rotacionar mais itens reais e considerar compromissos/provas de hoje;
+  metadados e BRAPI ganharam autenticação direta como defesa adicional. YPT foi
+  mantido manual por ausência de API/export oficial verificável, sem credenciais
+  ou scraping. O checklist operacional de beta privado foi documentado. A
+  migration `20260822000300_biblioteca_playlists.sql` passou reset, 17 scripts
+  SQL, dry-run remoto exclusivo, aplicação e pós-check de histórico, 66 tabelas,
+  RLS, policies, GRANTs, índices e FKs compostas; o dry-run final ficou vazio.
+  A publicação do frontend segue condicionada às validações e ao commit deste lote.
+
 - **2026-08-22 (contas Google separadas)** — YouTube e Calendar passaram a ter
   autorizações, credenciais cifradas, status e desconexão independentes por
   `(user_id, servico)`, permitindo contas Google diferentes. OAuth força escolha

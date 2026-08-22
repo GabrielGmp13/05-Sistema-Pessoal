@@ -34,7 +34,7 @@ Chaves estrangeiras seguem `<tabela_singular>_uuid` (ex: `treino_uuid`, `materia
 
 **GRANT é obrigatório em toda migration, não opcional.** Projetos Supabase criados a partir de 2026-05-30 não recebem GRANT automático em nenhuma tabela nova, mesmo com RLS e policy corretos — sem o GRANT explícito para `authenticated`, a tabela fica inacessível via Data API (badge "API DISABLED" no dashboard) e o `supabase-js` recebe erro 42501 mesmo com policies válidas. Tabelas server-only também precisam conceder explicitamente ao `service_role` as operações usadas. RLS/BYPASSRLS e GRANT são camadas independentes: GRANT decide se o papel alcança a tabela; RLS decide quais linhas ele vê dentro dela.
 
-**Confirmado no banco real (2026-08):** a baseline tinha 44 tabelas em `public`, todas com RLS, policy `user_own_data` e GRANT para `authenticated`. As migrations incrementais aplicadas adicionaram 20 tabelas; produção e ambiente local possuem agora 64 tabelas. `anon` continua sem `SELECT`/`INSERT` sobre dados da aplicação.
+**Confirmado no banco real (2026-08):** a baseline tinha 44 tabelas em `public`, todas com RLS, policy `user_own_data` e GRANT para `authenticated`. As migrations incrementais aplicadas adicionaram 22 tabelas; produção e cadeia local possuem 66 tabelas. `anon` continua sem `SELECT`/`INSERT` sobre dados da aplicação.
 
 Índices parciais `WHERE NOT deleted` existem nas tabelas principais para acelerar as queries que sempre filtram registros ativos — confirmados no dump para praticamente todas as tabelas de alto volume (ver lista completa na seção Índices, ao final).
 
@@ -75,10 +75,11 @@ dessas duas pastas deve ser executado como migration.
 | `20260821000200` | `20260821000200_integracoes_google_midias.sql` | ✅ Reset e 16 testes SQL aprovados; aplicada em produção em 2026-08-21 após dry-run exclusivo; pós-check confirmou tabela server-only, idempotência Calendar, quatro paths, bucket privado, policies, histórico e dry-run vazio |
 | `20260822000100` | `20260822000100_integracoes_google_service_role_grant.sql` | ✅ Reset e 16 testes SQL aprovados; aplicada em produção em 2026-08-22 após dry-run exclusivo; pós-check confirmou CRUD do `service_role`, RLS ativa, zero policies de cliente, histórico e dry-run vazio |
 | `20260822000200` | `20260822000200_integracoes_google_servicos.sql` | ✅ Reset e 16 testes SQL aprovados; aplicada em produção em 2026-08-22 após dry-run exclusivo; pós-check confirmou `servico`, domínio, PK composta, GRANT/RLS/policies, histórico e dry-run vazio |
+| `20260822000300` | `20260822000300_biblioteca_playlists.sql` | ✅ Reset local e 17 scripts SQL aprovados; aplicada em produção em 2026-08-22 após dry-run exclusivo; pós-check confirmou histórico, 66 tabelas, RLS, policies, GRANTs, índices e FKs compostas; dry-run final vazio |
 
 > **Estado confirmado (2026-08-22):** produção e cadeia local estão alinhadas
-> até `20260822000200_integracoes_google_servicos.sql`. `public`
-> possui 64 tabelas, seis buckets privados e 18 policies em `storage.objects`.
+> até `20260822000300_biblioteca_playlists.sql`, com 66 tabelas, seis buckets
+> privados, 18 policies em `storage.objects` e dry-run remoto vazio.
 
 As três baselines foram adotadas no histórico remoto em 2026-08-08 por
 `migration repair --status applied`, depois de recaptura somente leitura de
@@ -282,6 +283,42 @@ deleted           BOOLEAN DEFAULT FALSE
 > Checks garantem título/URL não vazios, duração positiva e nota entre 0 e 5
 > em passos de 0.5. A UI extrai `youtube_id` e thumbnail apenas de URLs
 > reconhecidas, sem API.
+
+### `videos_playlists` e `videos_playlist_itens` (migration `20260822000300`, aplicada)
+
+```sql
+-- videos_playlists
+uuid                 TEXT PRIMARY KEY,
+user_id              UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+youtube_playlist_id  TEXT NOT NULL,
+nome                 TEXT NOT NULL,
+origem               TEXT NOT NULL, -- youtube_conta | youtube_link
+origem_url           TEXT NOT NULL,
+importada_em         TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+updated_at           TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+deleted              BOOLEAN NOT NULL DEFAULT FALSE,
+UNIQUE (user_id, youtube_playlist_id),
+UNIQUE (user_id, uuid)
+
+-- videos_playlist_itens
+uuid            TEXT PRIMARY KEY,
+user_id         UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+playlist_uuid   TEXT NOT NULL,
+video_uuid      TEXT NOT NULL,
+ordem           INTEGER NOT NULL DEFAULT 0,
+updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+deleted         BOOLEAN NOT NULL DEFAULT FALSE,
+FOREIGN KEY (user_id, playlist_uuid)
+  REFERENCES videos_playlists(user_id, uuid) ON DELETE CASCADE,
+FOREIGN KEY (user_id, video_uuid)
+  REFERENCES videos(user_id, uuid) ON DELETE CASCADE,
+UNIQUE (playlist_uuid, video_uuid)
+```
+
+> Os vídeos continuam registros normais em `videos`; a segunda tabela guarda
+> apenas ordem e associação. As FKs compostas impedem associação entre usuários.
+> As duas tabelas usam RLS `user_own_data`, CRUD explícito para `authenticated`
+> e `service_role`, checks de origem/ID/ordem e índices parciais por ativos.
 
 ### `artigos` (migration `20260811000200`, aplicada em produção)
 ```sql

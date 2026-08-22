@@ -366,10 +366,10 @@ continua separada em `[ ]`.
   mídia/template Anki complexo, scraping agressivo e BRAPI histórica.
 
 ### Automação
-- [x] `npm test`: 23/23 (finanças, CSV/TSV, Anki, Agenda, ENEM, Redação,
-  Open Graph, BRAPI, diagnóstico seguro do Supabase e serviços Google).
-- [x] Reset local Supabase e 16 testes SQL.
-- [x] Typecheck, 23 testes Node, build, reset local, 16 scripts SQL, dry-run
+- [x] `npm test`: 26/26 (finanças, CSV/TSV, Anki, Agenda, ENEM, Redação,
+  Open Graph, BRAPI, Supabase, serviços Google e links de playlists).
+- [x] Reset local Supabase e 17 testes SQL.
+- [x] Typecheck, 26 testes Node, build, reset local, 17 scripts SQL, dry-run
   exclusivo, aplicação e pós-check remoto concluídos antes da publicação.
 
 ## Bateria final pós-implementação — 2026-08-21
@@ -463,3 +463,33 @@ Legenda: `[ ]` testar manualmente; `[x]` validado automaticamente;
 PÓS-V2 REAL: Calendar bidirecional/conflitos/exclusões remotas; Google Photos
 Picker; mídia e templates complexos de `.apkg`; scraping em lote; histórico e
 alertas BRAPI; publicação da extensão em loja; E2E autenticado amplo.
+
+## Segurança / Privacidade / Beta privado
+
+- [ ] Testar como visitante anônimo: páginas protegidas redirecionam ao login e
+      cada API autenticada retorna 401 sem revelar detalhe interno.
+- [ ] Criar dois usuários de teste por convite; cada um só enxerga, altera e
+      remove seus próprios registros e arquivos.
+- [ ] Confirmar RLS ativa nas tabelas novas, policies por `auth.uid()` e GRANTs
+      mínimos; o vínculo playlist/vídeo não aceita `user_id` cruzado.
+- [ ] Confirmar seis buckets privados, tipos/tamanhos permitidos, paths iniciados
+      pelo usuário e signed URLs temporárias.
+- [ ] Inspecionar HTML, bundle, Network, logs e diff: nenhuma service role,
+      client secret, refresh/access token, chave AES, cookie, URL/senha de banco
+      ou variável server-side pode aparecer.
+- [ ] Validar login, logout, expiração/revogação de sessão, troca de usuário e
+      recarga direta de rota sem reaproveitar dados da sessão anterior.
+- [ ] Conferir Site URL, Redirect URLs de Auth, callbacks OAuth e domínio final;
+      nenhum redirect deve aceitar origem inesperada.
+- [ ] Em Vercel, confirmar proteção dos previews. Se o domínio de produção não
+      estiver coberto pelo plano, registrar que Auth/RLS são o portão efetivo.
+- [ ] Convidar no máximo dez pessoas pelo Supabase Dashboard, sem cadastro
+      público, senha compartilhada ou UI administrativa improvisada.
+- [ ] Antes do convite, apresentar aviso curto com finalidade, dados guardados,
+      serviços externos, contato, retenção e procedimento de exclusão/exportação.
+- [ ] Não excluir usuário sem confirmação e backup/exportação: `ON DELETE
+      CASCADE` remove seus dados. Registrar convite, remoção e incidentes.
+- [ ] Bugs do beta devem incluir módulo, passos, esperado, obtido, tema,
+      dispositivo e print sem dados pessoais ou credenciais.
+- [ ] Seguir integralmente `docs/BETA_PRIVADO.md` antes de usar dados reais de
+      terceiros; gestão admin, E2E amplo e revisão jurídica permanecem fora.

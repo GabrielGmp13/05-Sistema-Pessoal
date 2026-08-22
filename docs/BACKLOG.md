@@ -256,6 +256,8 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
 - [x] Testes automatizados de funções puras e hardening MIME dos buckets.
 - [x] YouTube playlists e exportação unilateral do Calendar com OAuth server-side,
       PKCE, cofre AES-256-GCM e revogação.
+- [x] Importação de playlist do YouTube por link, prévia/seleção e persistência
+      do agrupamento na Biblioteca — lote local depende de migration/publicação.
 - [x] Alternativa completa ao Google Photos via Supabase Storage privado.
 - [x] Anki `.apkg` com ZIP/SQLite, deck, prévia, limite e deduplicação; CSV/TSV preservado.
 - [ ] BRAPI avançada com histórico/análises — PÓS-V2; cache curto e consulta sob demanda já existem.
@@ -263,6 +265,9 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
 - [x] Uploads de Perfil, Receitas, Lugares e provas/simulados com coluna,
       bucket privado, signed URL, validação e rollback.
 - [ ] Testes de integração/E2E e hardening incremental restante continuam evoluções pós-homologação.
+- [ ] YPT/Yeolpumta: somente se surgir API pública documentada ou o Gabriel
+      fornecer um arquivo exportado real e anonimizado com formato estável.
+      Não solicitar senha/cookie/token, não fazer scraping e não inventar parser.
 
 ## Auditoria final — fechamento v2.1 em 2026-08-21
 
@@ -272,10 +277,10 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
   Biblioteca com oito categorias, Estudos/Revisão, Diário e módulos derivados.
 - Parcelamento e recorrência finitos, capas privadas nas oito categorias,
   Open Graph limitado de Artigos, cache BRAPI de 60 s, extensão local Manifest
-  V3, OAuth Google separado para YouTube/Calendar, `.apkg`, uploads privados
-  restantes e 23 testes Node.
+  V3, OAuth Google separado para YouTube/Calendar, `.apkg`, uploads privados,
+  playlists persistentes e 26 testes Node.
 - Migrations e Storage alinhados até
-  `20260822000200_integracoes_google_servicos.sql`, com pós-check remoto e dry-run vazio.
+  `20260822000300_biblioteca_playlists.sql`, com pós-check remoto e dry-run vazio.
 
 ### 2. Precisa apenas de teste manual
 
@@ -299,9 +304,12 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
 - Calendar bidirecional, Google Photos Picker e publicação da extensão em loja
   exigem políticas/custos externos; as bases unilaterais e os uploads duráveis
   já estão implementados.
+- Importação YPT continua bloqueada por ausência de API/export oficial
+  verificável; registro manual de sessões não é bug.
 
 ### 5. Pós-v2
 
 - Mídias/templates complexos do Anki, scraping/importação em lote, BRAPI
   histórica/analítica, publicação da extensão em loja, testes E2E autenticados,
-  dashboards adicionais e hardening incremental de banco/Storage.
+  dashboards adicionais, gestão administrativa de beta e hardening incremental
+  de banco/Storage.

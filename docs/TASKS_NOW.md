@@ -5,11 +5,35 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 ---
 
 ## Status geral
-**Fase atual:** v2.1 — fechamento técnico completo; publicação deste lote e homologação manual em produção são as únicas etapas restantes. A v1 está aposentada (DEC-031) e `frontend/` é o único frontend ativo.
-**Bloqueio:** apenas homologação autenticada pelo Gabriel.
-**Banco:** produção e cadeia local estão alinhadas até `20260822000200_integracoes_google_servicos.sql`; o pós-check confirmou serviço obrigatório, domínio, PK composta, CRUD do `service_role`, RLS ativa, zero policies de cliente, histórico e dry-run vazio.
+**Fase atual:** v2.1 — lote local de playlists/Hub/beta em validação; homologação manual continua obrigatória. A v1 está aposentada (DEC-031) e `frontend/` é o único frontend ativo.
+**Bloqueio:** somente commit/deploy e homologação manual do lote de playlists/Hub/beta.
+**Banco:** produção e cadeia local estão alinhadas até `20260822000300_biblioteca_playlists.sql`; reset/17 scripts SQL, dry-run exclusivo, aplicação, pós-check e dry-run final vazio passaram.
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** após o deploy, conectar separadamente Calendar e YouTube com as contas desejadas e executar `docs/teste.md`/`docs/HOMOLOGATION_V2.md`.
+**Próxima ação:** concluir validações finais, commit/push e homologar playlists, Hub e checklist de beta no deploy.
+
+## Playlists, Hub e beta privado — lote local de 2026-08-22
+
+- [x] Importação por link usa a API oficial, prévia selecionável, paginação e
+      mensagem explícita para `WL`/Assistir mais tarde.
+- [x] Playlists importadas por conta ou link persistem em Biblioteca > Vídeos;
+      vídeos continuam entidades normais e preservam Vídeo → Curso.
+- [x] Schema local usa unicidade de reimportação, ordem e FKs compostas por
+      usuário; RLS/GRANT e teste SQL específico foram adicionados.
+- [x] Hub amplia a rotação com até dois itens reais por categoria e inclui
+      compromissos/provas do próprio dia, sem placeholder inventado.
+- [x] Rotas de metadados e BRAPI ganharam autenticação direta além do proxy.
+- [x] YPT foi mantido manual: não há API/export oficial verificável e nenhum
+      login, cookie, token ou scraping será solicitado.
+- [x] Operação de beta privado por convite e checklist de privacidade/segurança
+      foram documentados sem criar cadastro público ou painel admin.
+- [x] Daemon Docker recuperado; reset completo e 17/17 scripts SQL passaram.
+- [x] 26/26 testes Node, typecheck, build, `diff --check`, buscas e auditoria de
+      segredo passaram. Lint direcionado apontou somente dois erros/um aviso já
+      existentes nos `useEffect` iniciais de `VideosSection`.
+- [x] Dry-run remoto listou exclusivamente `20260822000300`.
+- [x] Autorização recebida; aplicação, pós-check de schema/histórico e dry-run
+      final vazio passaram sem migration adicional.
+- [ ] Após as validações finais, commitar/publicar e homologar no deploy.
 
 ## Contas Google separadas por serviço — 2026-08-22
 

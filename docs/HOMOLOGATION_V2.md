@@ -202,7 +202,7 @@ usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
 - [ ] Artigos: colar URL pública, conferir título/site/autor/imagem/tempo sugeridos e cadastrar manualmente quando o site bloquear.
 - [ ] Extensão: instalar/recarregar a pasta `browser-extension`, confirmar aviso antes de configurar, salvar a origem HTTPS e enviar uma página comum e um vídeo YouTube; o popup só fecha após abrir a Biblioteca.
 - [ ] BRAPI: repetir consulta no intervalo curto sem quebrar fallback sem token/quota.
-- [x] Testes automatizados locais: 23/23; reset Supabase e 16/16 scripts SQL.
+- [x] Testes automatizados locais: 26/26; reset Supabase e 17/17 scripts SQL.
 - [ ] Após o deploy, conectar Calendar e YouTube com as contas desejadas e
       conferir os dois e-mails separadamente.
 - [x] Grant server-only do cofre Google aplicado após diagnóstico `42501`;
@@ -216,6 +216,11 @@ usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
       uma ação não deve alterar o estado exibido do outro serviço.
 - [ ] Listar mais de uma página de playlists/vídeos, importar seleção, recarregar
       Biblioteca e confirmar que repetir a importação gera apenas duplicados.
+- [ ] Em Biblioteca > Vídeos, colar link público de playlist, revisar a prévia,
+      desmarcar parte dos vídeos, importar e recarregar; o agrupamento deve
+      persistir e abrir os vídeos normais na ordem, preservando Vídeo → Curso.
+- [ ] Reimportar a mesma playlist e confirmar ausência de obra/associação
+      duplicada. Link privado/inválido e `WL` devem retornar mensagem clara.
 - [ ] Exportar evento manual com e sem hora; reexportar após editar e conferir
       que o Calendar atualiza o mesmo evento. Prova de Estudos não deve ter ação.
 - [ ] Perfil: enviar/substituir/remover avatar e background; recarregar e conferir
@@ -228,5 +233,7 @@ usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
       gravar, recarregar e confirmar deduplicação. Testar também pacote inválido.
 - [ ] Confirmar em Network/bundle que client secret, service role, refresh token,
       chave AES e URL do banco não aparecem.
-- [x] Reset local, suíte SQL, typecheck, 23 testes Node, build, audit de
+- [ ] Antes de convidar terceiros, cumprir `BETA_PRIVADO.md`, testar sessão
+      anônima e isolamento entre dois usuários reais sem compartilhar login.
+- [x] Reset local, suíte SQL, typecheck, 26 testes Node, build, audit de
       dependências, dry-run exclusivo, aplicação, pós-check e dry-run vazio.

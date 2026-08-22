@@ -490,19 +490,21 @@ function montarInsights(dados: DadosHub, hoje: string): InsightPessoal[] {
   const itens: InsightPessoal[] = []
   const biblioteca = dados.insights
 
-  function adicionarConsumo(
+  function adicionarConsumos(
     id: string,
     prefixo: string,
-    item: { titulo: string } | undefined,
+    candidatos: Array<{ titulo: string }>,
   ) {
-    if (item) itens.push({ id, texto: `${prefixo} ${item.titulo}`, detalhe: 'Biblioteca', href: '/biblioteca' })
+    candidatos.slice(0, 2).forEach((item, indice) => {
+      itens.push({ id: `${id}-${indice}`, texto: `${prefixo}: ${item.titulo}`, detalhe: 'Biblioteca', href: '/biblioteca' })
+    })
   }
 
-  adicionarConsumo('livro', 'Lendo', biblioteca?.livros.find((item) => item.status === 'lendo'))
-  adicionarConsumo('manga', 'Lendo', biblioteca?.mangas.find((item) => item.status === 'lendo'))
-  adicionarConsumo('serie', 'Assistindo', biblioteca?.series.find((item) => item.status === 'assistindo'))
-  adicionarConsumo('anime', 'Assistindo', biblioteca?.animes.find((item) => item.status === 'assistindo'))
-  adicionarConsumo('podcast', 'Ouvindo', biblioteca?.podcasts.find((item) => item.status === 'ouvindo'))
+  adicionarConsumos('livro', 'Lendo agora', biblioteca?.livros.filter((item) => item.status === 'lendo') ?? [])
+  adicionarConsumos('manga', 'Lendo agora', biblioteca?.mangas.filter((item) => item.status === 'lendo') ?? [])
+  adicionarConsumos('serie', 'Assistindo agora', biblioteca?.series.filter((item) => item.status === 'assistindo') ?? [])
+  adicionarConsumos('anime', 'Assistindo agora', biblioteca?.animes.filter((item) => item.status === 'assistindo') ?? [])
+  adicionarConsumos('podcast', 'Ouvindo agora', biblioteca?.podcasts.filter((item) => item.status === 'ouvindo') ?? [])
 
   const videoPendente = biblioteca?.videos.find((item) => !item.assistido)
   if (videoPendente) itens.push({ id: 'video', texto: `Vídeo ainda não assistido: ${videoPendente.titulo}`, detalhe: 'Biblioteca', href: '/biblioteca' })
@@ -522,10 +524,11 @@ function montarInsights(dados: DadosHub, hoje: string): InsightPessoal[] {
     if (curso) itens.push({ id: 'curso', texto: `Curso em andamento: ${curso.nome}`, detalhe: 'Estudos', href: '/estudos/curso' })
   }
 
-  const proximaProva = dados.proximasProvas?.find((prova) => prova.data > hoje)
+  const proximaProva = dados.proximasProvas?.find((prova) => prova.data >= hoje)
   if (proximaProva) {
     const dias = diferencaDias(hoje, proximaProva.data)
-    itens.push({ id: 'prova', texto: `Faltam ${dias} ${dias === 1 ? 'dia' : 'dias'} para ${proximaProva.titulo || 'a próxima prova'}`, detalhe: 'Estudos', href: '/estudos' })
+    const textoData = dias === 0 ? 'é hoje' : dias === 1 ? 'é amanhã' : `acontece em ${dias} dias`
+    itens.push({ id: 'prova', texto: `${proximaProva.titulo || 'A próxima prova'} ${textoData}`, detalhe: 'Estudos', href: '/estudos' })
   }
 
   if (dados.tempo?.hojeMinutos) itens.push({ id: 'tempo-hoje', texto: `Você estudou ${formatarDuracao(dados.tempo.hojeMinutos)} hoje`, detalhe: 'Tempo registrado', href: '/estudos' })
@@ -554,10 +557,11 @@ function montarInsights(dados: DadosHub, hoje: string): InsightPessoal[] {
   const receitaRecente = dados.receitas ? [...dados.receitas].sort((a, b) => b.updated_at.localeCompare(a.updated_at))[0] : undefined
   if (receitaRecente && receitaRecente.uuid !== receitaFavorita?.uuid) itens.push({ id: 'receita-recente', texto: `Receita adicionada recentemente: ${receitaRecente.titulo}`, detalhe: 'Receitas', href: '/receitas' })
 
-  const compromisso = dados.proximosEventos?.find((evento) => !evento.concluido && evento.data > hoje)
+  const compromisso = dados.proximosEventos?.find((evento) => !evento.concluido && evento.data >= hoje)
   if (compromisso) {
     const dias = diferencaDias(hoje, compromisso.data)
-    itens.push({ id: 'compromisso', texto: `${compromisso.titulo} ${dias === 1 ? 'é amanhã' : `acontece em ${dias} dias`}`, detalhe: 'Próximo compromisso', href: '/agenda' })
+    const textoData = dias === 0 ? 'é hoje' : dias === 1 ? 'é amanhã' : `acontece em ${dias} dias`
+    itens.push({ id: 'compromisso', texto: `${compromisso.titulo} ${textoData}`, detalhe: 'Próximo compromisso', href: '/agenda' })
   }
 
   const humorRecente = dados.humor?.[0]

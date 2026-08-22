@@ -30,6 +30,27 @@ import { ordenarItensBiblioteca, type OrdenacaoBiblioteca } from '@/lib/bibliote
 import styles from './BibliotecaSection.module.css';
 import CapaUploadField from './CapaUploadField';
 import { persistirComCapa, removerArquivosBiblioteca } from '@/lib/biblioteca-capas';
+import {
+  listarPlaylistsVideos,
+  listarVideosDaPlaylist,
+  type VideoPlaylist,
+} from '@/lib/videos-playlists';
+
+interface PlaylistPreview {
+  id: string;
+  titulo: string;
+  descricao: string;
+  capaUrl: string | null;
+  quantidade: number;
+  origemUrl: string;
+}
+
+interface PlaylistPreviewVideo {
+  youtubeId: string;
+  titulo: string;
+  canal: string | null;
+  capaUrl: string | null;
+}
 
 const FORM_VAZIO: VideoInput = {
   titulo: '',
@@ -88,14 +109,27 @@ export default function VideosSection({
   const [vinculando, setVinculando] = useState(false);
   const [erroVinculo, setErroVinculo] = useState<string | null>(null);
   const [mensagem, setMensagem] = useState<string | null>(null);
+  const [playlists, setPlaylists] = useState<VideoPlaylist[]>([]);
+  const [playlistAberta, setPlaylistAberta] = useState<VideoPlaylist | null>(null);
+  const [videosPlaylist, setVideosPlaylist] = useState<Video[]>([]);
+  const [carregandoPlaylist, setCarregandoPlaylist] = useState(false);
+  const [modalPlaylistAberto, setModalPlaylistAberto] = useState(false);
+  const [linkPlaylist, setLinkPlaylist] = useState('');
+  const [previewPlaylist, setPreviewPlaylist] = useState<PlaylistPreview | null>(null);
+  const [previewVideos, setPreviewVideos] = useState<PlaylistPreviewVideo[]>([]);
+  const [selecionadosPlaylist, setSelecionadosPlaylist] = useState<Set<string>>(new Set());
+  const [proximaPaginaPlaylist, setProximaPaginaPlaylist] = useState<string | null>(null);
+  const [processandoPlaylist, setProcessandoPlaylist] = useState(false);
+  const [erroPlaylist, setErroPlaylist] = useState<string | null>(null);
 
   async function carregar() {
     setCarregando(true);
     setErro(null);
-    const resultado = await listarVideos();
-    if (resultado === null) setErro('Não foi possível carregar os vídeos.');
+    const [resultado, playlistsResultado] = await Promise.all([listarVideos(), listarPlaylistsVideos()]);
+    if (resultado === null || playlistsResultado === null) setErro('Não foi possível carregar os vídeos ou playlists.');
     else {
       setVideos(resultado);
+      setPlaylists(playlistsResultado);
       onTotalCarregado?.(resultado.length);
     }
     setCarregando(false);
@@ -133,6 +167,128 @@ export default function VideosSection({
   function fecharModal() {
     setModalAberto(false);
     setEditandoUuid(null);
+  }
+
+  function abrirImportacaoPlaylist() {
+    setLinkPlaylist('');
+    setPreviewPlaylist(null);
+    setPreviewVideos([]);
+    setSelecionadosPlaylist(new Set());
+    setProximaPaginaPlaylist(null);
+    setErroPlaylist(null);
+    setModalPlaylistAberto(true);
+  }
+
+  function fecharImportacaoPlaylist() {
+    if (processandoPlaylist) return;
+    setModalPlaylistAberto(false);
+  }
+
+  async function buscarPlaylistPorLink(event: React.FormEvent) {
+    event.preventDefault();
+    if (!linkPlaylist.trim()) return;
+    setProcessandoPlaylist(true);
+    setErroPlaylist(null);
+    setPreviewPlaylist(null);
+    setPreviewVideos([]);
+    setSelecionadosPlaylist(new Set());
+    try {
+      const query = new URLSearchParams({ url: linkPlaylist.trim() });
+      const response = await fetch(`/api/integracoes/google/youtube/playlist-link?${query}`, { cache: 'no-store' });
+      const body = await response.json() as {
+        playlist?: PlaylistPreview;
+        videos?: PlaylistPreviewVideo[];
+        proximaPagina?: string | null;
+        erro?: string;
+      };
+      if (!response.ok || !body.playlist) throw new Error(body.erro || 'Não foi possível consultar a playlist.');
+      setPreviewPlaylist(body.playlist);
+      setPreviewVideos(body.videos ?? []);
+      setSelecionadosPlaylist(new Set((body.videos ?? []).map((video) => video.youtubeId)));
+      setProximaPaginaPlaylist(body.proximaPagina ?? null);
+    } catch (error) {
+      setErroPlaylist(error instanceof Error ? error.message : 'Não foi possível consultar a playlist.');
+    } finally {
+      setProcessandoPlaylist(false);
+    }
+  }
+
+  async function carregarMaisDaPlaylist() {
+    if (!previewPlaylist || !proximaPaginaPlaylist) return;
+    setProcessandoPlaylist(true);
+    setErroPlaylist(null);
+    try {
+      const query = new URLSearchParams({ playlistId: previewPlaylist.id, pageToken: proximaPaginaPlaylist });
+      const response = await fetch(`/api/integracoes/google/youtube/playlist-videos?${query}`, { cache: 'no-store' });
+      const body = await response.json() as { videos?: PlaylistPreviewVideo[]; proximaPagina?: string | null; erro?: string };
+      if (!response.ok) throw new Error(body.erro || 'Não foi possível carregar mais vídeos.');
+      const novos = body.videos ?? [];
+      setPreviewVideos((atuais) => [...atuais, ...novos]);
+      setSelecionadosPlaylist((atuais) => new Set([...atuais, ...novos.map((video) => video.youtubeId)]));
+      setProximaPaginaPlaylist(body.proximaPagina ?? null);
+    } catch (error) {
+      setErroPlaylist(error instanceof Error ? error.message : 'Não foi possível carregar mais vídeos.');
+    } finally {
+      setProcessandoPlaylist(false);
+    }
+  }
+
+  function alternarVideoPlaylist(youtubeId: string) {
+    setSelecionadosPlaylist((atuais) => {
+      const proximo = new Set(atuais);
+      if (proximo.has(youtubeId)) proximo.delete(youtubeId);
+      else proximo.add(youtubeId);
+      return proximo;
+    });
+  }
+
+  async function importarPlaylist() {
+    if (!previewPlaylist || selecionadosPlaylist.size === 0) return;
+    setProcessandoPlaylist(true);
+    setErroPlaylist(null);
+    let criados = 0;
+    let duplicados = 0;
+    let indisponiveis = 0;
+    try {
+      const ids = [...selecionadosPlaylist];
+      for (let inicio = 0; inicio < ids.length; inicio += 50) {
+        const response = await fetch('/api/integracoes/google/youtube/import', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            youtubeIds: ids.slice(inicio, inicio + 50),
+            playlist: {
+              youtubePlaylistId: previewPlaylist.id,
+              nome: previewPlaylist.titulo,
+              origem: 'youtube_link',
+              origemUrl: previewPlaylist.origemUrl,
+            },
+          }),
+        });
+        const body = await response.json() as { criados?: number; duplicados?: number; indisponiveis?: number; erro?: string };
+        if (!response.ok) throw new Error(body.erro || 'Não foi possível importar a playlist.');
+        criados += body.criados ?? 0;
+        duplicados += body.duplicados ?? 0;
+        indisponiveis += body.indisponiveis ?? 0;
+      }
+      setMensagem(`${criados} vídeo(s) novo(s), ${duplicados} duplicado(s) vinculados e ${indisponiveis} indisponível(is).`);
+      setModalPlaylistAberto(false);
+      await carregar();
+    } catch (error) {
+      setErroPlaylist(error instanceof Error ? error.message : 'Não foi possível importar a playlist.');
+    } finally {
+      setProcessandoPlaylist(false);
+    }
+  }
+
+  async function abrirPlaylist(playlist: VideoPlaylist) {
+    setPlaylistAberta(playlist);
+    setVideosPlaylist([]);
+    setCarregandoPlaylist(true);
+    const resultado = await listarVideosDaPlaylist(playlist.uuid);
+    if (resultado === null) setErro('Não foi possível abrir a playlist.');
+    else setVideosPlaylist(resultado);
+    setCarregandoPlaylist(false);
   }
 
   async function abrirVinculoCurso(video: Video) {
@@ -300,6 +456,23 @@ export default function VideosSection({
       <div className={styles.container}>
         {erro && <p className={styles.erro}>{erro}</p>}
         {mensagem && <p className={styles.sucesso}>{mensagem}</p>}
+        <section className={styles.playlistsSection} aria-labelledby="videos-playlists-title">
+          <div className={styles.playlistsHeader}>
+            <div>
+              <h2 id="videos-playlists-title">Playlists importadas</h2>
+              <p>Organize vídeos importados sem retirar os itens da Biblioteca.</p>
+            </div>
+            <button type="button" className={styles.btnPrimario} onClick={abrirImportacaoPlaylist}>Importar playlist por link</button>
+          </div>
+          {playlists.length > 0 ? <div className={styles.playlistsGrid}>{playlists.map((playlist) => (
+            <button type="button" key={playlist.uuid} className={styles.playlistCard} onClick={() => void abrirPlaylist(playlist)}>
+              <strong>{playlist.nome}</strong>
+              <span>{playlist.origem === 'youtube_link' ? 'Link do YouTube' : 'Conta conectada'} · {playlist.quantidade_videos} vídeo(s)</span>
+              <small>Atualizada em {new Date(playlist.updated_at).toLocaleDateString('pt-BR')}</small>
+            </button>
+          ))}</div> : <p className={styles.playlistsVazio}>Nenhuma playlist importada ainda.</p>}
+          <p className={styles.playlistLimitacao}>“Assistir mais tarde” pode não ser acessível pela API oficial do YouTube; isso não é falha do Sistema Pessoal.</p>
+        </section>
         {carregando ? <p className={styles.vazio}>Carregando...</p> : ordenados.length === 0 ? (
           <div className={styles.vazio}>
             <p>{busca ? 'Nenhum vídeo encontrado para esta busca.' : 'Nenhum vídeo cadastrado ainda.'}</p>
@@ -331,6 +504,59 @@ export default function VideosSection({
           </div>
         )}
       </div>
+
+      {modalPlaylistAberto && (
+        <div className={styles.modalOverlay} onClick={fecharImportacaoPlaylist}>
+          <div className={`${styles.modal} ${styles.modalPlaylist}`} onClick={(event) => event.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2>Importar playlist por link</h2>
+              <button type="button" className={styles.btnIcon} onClick={fecharImportacaoPlaylist}>×</button>
+            </div>
+            <div className={styles.modalBody}>
+              <form onSubmit={buscarPlaylistPorLink} className={styles.playlistBusca}>
+                <label>Link da playlist<input type="url" required placeholder="https://www.youtube.com/playlist?list=..." value={linkPlaylist} onChange={(event) => setLinkPlaylist(event.target.value)} /></label>
+                <button type="submit" className={styles.btnPrimario} disabled={processandoPlaylist}>{processandoPlaylist ? 'Consultando...' : 'Buscar playlist'}</button>
+              </form>
+              {erroPlaylist && <p className={styles.erro}>{erroPlaylist}</p>}
+              {previewPlaylist && <div className={styles.playlistPreview}>
+                <div>
+                  <strong>{previewPlaylist.titulo}</strong>
+                  <span>{previewPlaylist.quantidade} vídeo(s) informados pelo YouTube</span>
+                </div>
+                {previewVideos.length > 0 ? <div className={styles.playlistVideosPreview}>{previewVideos.map((video) => (
+                  <label key={video.youtubeId} className={styles.playlistVideoOpcao}>
+                    <input type="checkbox" checked={selecionadosPlaylist.has(video.youtubeId)} onChange={() => alternarVideoPlaylist(video.youtubeId)} />
+                    <span><strong>{video.titulo}</strong><small>{video.canal ?? video.youtubeId}</small></span>
+                  </label>
+                ))}</div> : <p className={styles.playlistsVazio}>Nenhum vídeo importável foi retornado.</p>}
+                <div className={styles.modalFooter}>
+                  {proximaPaginaPlaylist && <button type="button" className={styles.btnGhost} disabled={processandoPlaylist} onClick={() => void carregarMaisDaPlaylist()}>Carregar mais</button>}
+                  <button type="button" className={styles.btnPrimario} disabled={processandoPlaylist || selecionadosPlaylist.size === 0} onClick={() => void importarPlaylist()}>Importar {selecionadosPlaylist.size} vídeo(s)</button>
+                </div>
+              </div>}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {playlistAberta && (
+        <div className={styles.modalOverlay} onClick={() => setPlaylistAberta(null)}>
+          <div className={`${styles.modal} ${styles.modalPlaylist}`} onClick={(event) => event.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <div><h2>{playlistAberta.nome}</h2><p className={styles.modalDescricao}>{playlistAberta.quantidade_videos} vídeo(s) · {playlistAberta.origem === 'youtube_link' ? 'Link do YouTube' : 'Conta conectada'}</p></div>
+              <button type="button" className={styles.btnIcon} onClick={() => setPlaylistAberta(null)}>×</button>
+            </div>
+            <div className={styles.modalBody}>
+              {carregandoPlaylist ? <p className={styles.playlistsVazio}>Carregando...</p> : videosPlaylist.length > 0 ? <div className={styles.playlistVideosPreview}>{videosPlaylist.map((video) => (
+                <button type="button" key={video.uuid} className={styles.playlistVideoLink} onClick={() => { setPlaylistAberta(null); setPainelVideo(video); }}>
+                  <strong>{video.titulo}</strong><small>{video.canal ?? 'Vídeo da Biblioteca'}</small>
+                </button>
+              ))}</div> : <p className={styles.playlistsVazio}>Nenhum vídeo vinculado está disponível.</p>}
+              <a className={styles.playlistOrigemLink} href={playlistAberta.origem_url} target="_blank" rel="noreferrer">Abrir playlist no YouTube</a>
+            </div>
+          </div>
+        </div>
+      )}
 
       {modalAberto && (
         <div className={styles.modalOverlay} onClick={fecharModal}>

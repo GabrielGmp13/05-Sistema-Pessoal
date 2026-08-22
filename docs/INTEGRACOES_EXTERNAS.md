@@ -48,13 +48,28 @@ provedor não responder, a remoção local continua sendo obrigatória.
 ## YouTube playlists
 
 - A conexão lista playlists do usuário e pagina listas maiores que 50 itens.
+- A Biblioteca também aceita um link público de playlist. O ID é validado no
+  servidor, a prévia vem da API oficial e o usuário escolhe o que importar.
 - Ao abrir uma playlist, os vídeos podem ser selecionados e importados em lotes
   de até 50 por chamada; a UI divide seleções maiores automaticamente.
-- `youtube_id` já existente é ignorado; o cadastro manual e a busca por
-  `YOUTUBE_API_KEY` continuam disponíveis.
+- A playlist importada fica persistida em Biblioteca > Vídeos; seus itens
+  apontam para vídeos normais da Biblioteca, portanto o fluxo Vídeo → Curso é
+  preservado. Reimportar reaproveita vídeos com o mesmo `youtube_id` e atualiza
+  os vínculos, sem duplicar a obra.
+- O cadastro manual e a busca por `YOUTUBE_API_KEY` continuam disponíveis.
 - Título, canal, thumbnail e duração retornados pelo YouTube são persistidos.
-- Vídeos privados/removidos são omitidos. “Assistir mais tarde” continua sujeito
-  às limitações próprias da YouTube Data API e pode não aparecer como playlist.
+- Vídeos privados/removidos são omitidos e aparecem no resumo como
+  indisponíveis. A playlist especial “Assistir mais tarde” (`WL`) não pode ser
+  lida por esse endpoint oficial e recebe uma mensagem explícita, sem simulação.
+
+## YPT / Yeolpumta
+
+Não foi localizada API pública documentada nem contrato oficial verificável de
+exportação CSV/JSON. Por segurança, o sistema não recebe login, senha, cookie
+ou token do YPT e não usa scraping. O registro manual de sessão continua sendo
+o caminho suportado. Uma importação somente poderá ser desenhada a partir de
+um arquivo exportado real, fornecido sem dados sensíveis, com formato estável,
+prévia e deduplicação definidas; não existe parser especulativo nesta versão.
 
 ## Google Calendar
 

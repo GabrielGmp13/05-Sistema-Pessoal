@@ -7,6 +7,7 @@ import { Button, buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import type { GoogleService } from '@/lib/google-service'
 import { cn } from '@/lib/utils'
+import { urlCanonicaPlaylist } from '@/lib/youtube-playlists'
 
 interface GoogleConnectionStatus {
   conectado: boolean
@@ -134,17 +135,29 @@ export function GoogleConnections() {
       const ids = [...selecionados]
       let criados = 0
       let duplicados = 0
+      let indisponiveis = 0
+      const playlist = playlists.find((item) => item.id === playlistAtiva)
+      if (!playlist) throw new Error('Selecione uma playlist antes de importar.')
       for (let inicio = 0; inicio < ids.length; inicio += 50) {
         const response = await fetch('/api/integracoes/google/youtube/import', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ youtubeIds: ids.slice(inicio, inicio + 50) }),
+          body: JSON.stringify({
+            youtubeIds: ids.slice(inicio, inicio + 50),
+            playlist: {
+              youtubePlaylistId: playlist.id,
+              nome: playlist.titulo,
+              origem: 'youtube_conta',
+              origemUrl: urlCanonicaPlaylist(playlist.id),
+            },
+          }),
         })
-        const body = await response.json() as { criados?: number; duplicados?: number; erro?: string }
+        const body = await response.json() as { criados?: number; duplicados?: number; indisponiveis?: number; erro?: string }
         if (!response.ok) throw new Error(body.erro || 'Não foi possível importar os vídeos.')
         criados += body.criados ?? 0
         duplicados += body.duplicados ?? 0
+        indisponiveis += body.indisponiveis ?? 0
       }
-      setMensagem(`${criados} vídeo(s) importado(s); ${duplicados} duplicado(s) ignorado(s).`)
+      setMensagem(`${criadasOuCriados(criados)}; ${duplicados} duplicado(s) vinculado(s); ${indisponiveis} indisponível(is).`)
       setSelecionados(new Set())
     } catch (error) {
       setErro(error instanceof Error ? error.message : 'Não foi possível importar os vídeos.')
@@ -225,4 +238,8 @@ export function GoogleConnections() {
       </div> : null}
     </Card>
   )
+}
+
+function criadasOuCriados(quantidade: number) {
+  return `${quantidade} vídeo(s) novo(s)`
 }

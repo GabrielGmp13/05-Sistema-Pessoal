@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { BrapiQuoteResponse, extrairCotacaoBrapi, normalizarTickerBrapi } from '@/lib/brapi'
+import { getApiUser } from '@/lib/server/supabase'
 
 export async function GET(request: NextRequest) {
+  const user = await getApiUser()
+  if (!user) return NextResponse.json({ erro: 'Não autenticado.' }, { status: 401 })
   const ticker = normalizarTickerBrapi(request.nextUrl.searchParams.get('ticker'))
   if (!ticker) {
     return NextResponse.json({ erro: 'Ticker inválido.' }, { status: 400 })

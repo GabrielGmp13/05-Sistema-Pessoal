@@ -345,7 +345,9 @@ usado pelo usuário no celular pra cronometrar estudo não possui API pública
 documentada (app fechado, sem portal de desenvolvedor). Mesmo raciocínio da
 DEC-009 (Google Calendar): sem integração automática agora,
 `horas_dedicadas` é preenchido manualmente. Revisitar se o app abrir API no
-futuro.
+futuro ou se houver um arquivo exportado real e anonimizado cujo contrato possa
+ser validado. Não solicitar senha, cookie ou token, não usar scraping e não
+criar parser com colunas especulativas.
 
 **Explicitamente fora de escopo (decisão direta do usuário):**
 - Nota TRI estimada do ENEM — "muito relativo"
@@ -1306,3 +1308,38 @@ remotas continuam pós-v2.
 Gabriel pode usar uma conta no Calendar e outra no YouTube sem reconectar ou
 sobrescrever credenciais. A UI apresenta estado, e-mail e desconexão por
 serviço; a Agenda consulta apenas Calendar e playlists consultam apenas YouTube.
+
+## DEC-068 — Playlists persistem como agrupamento de vídeos da Biblioteca
+
+**Data:** 2026-08-22
+**Status:** ✅ Implementada; migration aplicada em produção
+
+### Decisão
+
+- Uma playlist importada possui identidade própria, origem e ordem de itens,
+  mas cada item aponta para um registro normal de `videos`.
+- A unicidade por `(user_id, youtube_playlist_id)` permite reimportar sem criar
+  outra playlist. A unicidade por `(playlist_uuid, video_uuid)` evita repetir
+  o mesmo vídeo no agrupamento.
+- FKs compostas incluem `user_id`, impedindo vínculo cruzado entre dados de
+  usuários mesmo se um UUID externo for conhecido.
+- Importação por conta OAuth e por link usa exclusivamente a YouTube Data API;
+  vídeos privados/removidos são omitidos e `WL` recebe limitação explícita.
+
+### Impacto
+
+Biblioteca > Vídeos passa a exibir playlists persistentes sem criar um segundo
+tipo de vídeo nem quebrar Vídeo → Curso. A migration foi aplicada antes da
+publicação do frontend dependente.
+
+## DEC-069 — Beta permanece privado, pequeno e operado por convite
+
+**Data:** 2026-08-22
+**Status:** ✅ Decisão operacional documentada; homologação pendente
+
+O teste com até dez pessoas não reabre o princípio de produto pessoal: não há
+cadastro público, painel admin, cobrança ou multitenancy organizacional. Usuários
+são convidados pelo Supabase Dashboard; login, RLS, Storage privado e APIs
+autenticadas continuam sendo as fronteiras técnicas. Proteção Vercel de todo o
+domínio é uma camada opcional dependente do plano, não substitui Auth/RLS. O
+checklist e os riscos de exclusão em cascata estão em `BETA_PRIVADO.md`.

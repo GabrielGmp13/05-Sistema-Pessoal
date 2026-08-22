@@ -5,6 +5,7 @@ import { isIP } from 'node:net';
 import type { FonteMetadados, ResultadoMetadados } from '@/lib/biblioteca-metadados';
 import { extrairYoutubeId } from '@/lib/videos';
 import { extrairMetadadosArtigoHtml } from '@/lib/article-metadata';
+import { getApiUser } from '@/lib/server/supabase';
 
 const FONTES: FonteMetadados[] = [
   'youtube',
@@ -353,6 +354,8 @@ async function buscarItunes(q: string): Promise<ResultadoMetadados[]> {
 }
 
 export async function GET(request: NextRequest) {
+  const user = await getApiUser();
+  if (!user) return NextResponse.json({ erro: 'Não autenticado.' }, { status: 401 });
   const fonte = request.nextUrl.searchParams.get('fonte') as FonteMetadados | null;
   const q = request.nextUrl.searchParams.get('q')?.trim() ?? '';
   if (!fonte || !FONTES.includes(fonte) || !q) {
