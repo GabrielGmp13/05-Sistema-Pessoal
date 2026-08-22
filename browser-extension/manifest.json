@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Salvar no Sistema Pessoal",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Abre a Biblioteca com a página atual pré-preenchida, sem armazenar credenciais.",
   "permissions": ["activeTab", "contextMenus", "storage", "tabs"],
   "background": { "service_worker": "service-worker.js" },

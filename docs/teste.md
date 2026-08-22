@@ -1,5 +1,28 @@
 # Checklist de Teste Manual — Sistema Pessoal v2.1
 
+## Reteste pendente — fechamento visual e extensão de 2026-08-21
+
+### Atmosfera
+
+- [ ] Em Sol, Suave, Nublado, Estrelado e Lua, o botão de atmosfera mostra somente borda/foco arredondados, sem retângulo externo.
+- [ ] Repetir no desktop, em largura mobile e por teclado; o foco de atmosfera e “Sair” continua claramente visível.
+- [ ] Lua usa carvão/grafite/ardósia com superfícies distinguíveis e texto confortável, sem preto puro ou dominante laranja.
+- [ ] Estrelado continua azul-marinho/noturno e não se confunde com Lua.
+- [ ] Primavera influencia levemente verde/floral; Verão, dourado; Outono, âmbar/cobre/oliva; Inverno, azul/cinza frio.
+- [ ] Comparar pelo menos Sol+Verão, Sol+Inverno, Lua+Primavera e Estrelado+Outono em Hub, Biblioteca e Treino.
+- [ ] “Nenhum” remove a nuance sazonal e mantém a iluminação; recarregar confirma persistência.
+- [ ] Conferir contraste de textos, bordas, cards, dropdown e foco em todas as combinações amostradas.
+
+### Extensão Edge/Chrome 0.2
+
+- [ ] Recarregar a extensão descompactada após atualizar a pasta local.
+- [ ] Sem domínio configurado, o popup explica o bloqueio, mantém-se aberto e direciona às opções.
+- [ ] Rejeitar URL insegura/inválida; aceitar a origem HTTPS publicada e exibir o host configurado no popup.
+- [ ] Em artigo HTTP/HTTPS, enviar a página e confirmar `/biblioteca?importar=artigo` com URL/título preenchidos para revisão.
+- [ ] Em `youtube.com` e `youtu.be`, confirmar `/biblioteca?importar=video`; revisar metadados e salvar no site.
+- [ ] Em página interna do navegador, confirmar mensagem clara sem fechar silenciosamente.
+- [ ] Confirmar que a extensão não pede senha/token, não autentica por conta própria e não cria item antes do salvamento no app.
+
 ## Reteste pendente — commit d5a8b7e
 
 O lote está publicado, mas os itens abaixo **ainda não foram confirmados por Gabriel em produção**. Marcar somente após o teste manual, preservando os relatos históricos deste documento.

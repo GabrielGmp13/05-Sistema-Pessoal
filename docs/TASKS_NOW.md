@@ -5,11 +5,20 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 ---
 
 ## Status geral
-**Fase atual:** v2.1 — prioridade manual da Agenda implementada, validada e publicada; reteste manual em produção pendente. A v1 está aposentada (DEC-031) e `frontend/` é o único frontend ativo.
+**Fase atual:** v2.1 — fechamento funcional publicado e refinamento final da atmosfera/extensão concluído em código; homologação manual em produção pendente. A v1 está aposentada (DEC-031) e `frontend/` é o único frontend ativo.
 **Bloqueio:** nenhum bloqueio técnico conhecido neste lote; resta homologação manual autenticada.
 **Banco:** produção e cadeia local estão alinhadas até `20260821000100_biblioteca_capas_storage.sql`; o pós-check de 2026-08-21 confirmou colunas, bucket privado, limite, MIME types, policies, histórico e dry-run remoto vazio.
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** retestar em produção a prioridade da Agenda, especialmente persistência, ordenação em empate e coexistência sem duplicação com provas de Estudos.
+**Próxima ação:** executar `docs/teste.md` e `docs/HOMOLOGATION_V2.md` no deploy, com atenção ao controlador de atmosfera, extensão, capas, parcelamento/recorrência e fallbacks das APIs opcionais.
+
+## Fechamento visual e operacional — 2026-08-21
+
+- [x] Removido o fundo quadrado duplicado do wrapper do botão de atmosfera; botão e “Sair” mantêm foco de teclado arredondado e visível.
+- [x] Lua refinado como dark mode neutro em carvão, grafite e ardósia; Estrelado permanece azul noturno.
+- [x] Primavera, Verão, Outono e Inverno passaram a influenciar discretamente acentos, superfícies secundárias, bordas e glow por tokens compartilhados; Nenhum preserva a paleta-base limpa.
+- [x] Extensão local ganhou estado de configuração, feedback de envio e README operacional para Chrome/Edge, sem segredo ou autenticação própria.
+- [x] Auditoria final reconciliada no `BACKLOG.md`; integrações OAuth/schema e evoluções pesadas permanecem fora da homologação.
+- [ ] Retestar este lote no deploy em desktop/mobile e por combinações representativas de iluminação + estação.
 
 ## Prioridade manual da Agenda — lote local de 2026-08-20
 

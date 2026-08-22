@@ -13,12 +13,16 @@ function tipoDaUrl(url) {
 
 async function abrirBiblioteca(url, titulo) {
   const { appBaseUrl } = await chrome.storage.sync.get('appBaseUrl')
-  if (!appBaseUrl) { await chrome.runtime.openOptionsPage(); return }
+  if (!appBaseUrl) {
+    await chrome.runtime.openOptionsPage()
+    return { ok: false, mensagem: 'Configure o endereço do app antes do primeiro envio.' }
+  }
   const destino = new URL('/biblioteca', appBaseUrl)
   destino.searchParams.set('importar', tipoDaUrl(url))
   destino.searchParams.set('url', url)
   if (titulo) destino.searchParams.set('titulo', titulo)
   await chrome.tabs.create({ url: destino.toString() })
+  return { ok: true }
 }
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
@@ -26,6 +30,11 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   void abrirBiblioteca(info.linkUrl || info.srcUrl || info.pageUrl || '', tab?.title || '')
 })
 
-chrome.runtime.onMessage.addListener((message) => {
-  if (message?.type === 'salvar-pagina') void abrirBiblioteca(message.url, message.titulo)
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message?.type !== 'salvar-pagina') return false
+
+  abrirBiblioteca(message.url, message.titulo)
+    .then(sendResponse)
+    .catch(() => sendResponse({ ok: false, mensagem: 'Não foi possível abrir a Biblioteca.' }))
+  return true
 })

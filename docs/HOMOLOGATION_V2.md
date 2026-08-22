@@ -15,6 +15,10 @@ usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
 - [ ] Executar uma passagem nos temas claro, suave, nublado, estrelado e escuro
 - [ ] No painel “Atmosfera”, alternar Sol/Suave/Nublado/Estrelado/Lua e confirmar persistência após recarregar
 - [ ] Alternar Primavera/Verão/Outono/Inverno/Nenhum; confirmar formas claramente distintas, dissipação à direita e leitura dos links
+- [ ] Confirmar que o botão de atmosfera não tem fundo/borda retangular externa em desktop/mobile; navegar por Tab e verificar foco arredondado no botão e em “Sair”
+- [ ] Confirmar Lua em carvão/grafite/ardósia neutros, sem preto puro/laranja dominante; Estrelado continua azul noturno
+- [ ] Por amostragem, comparar Sol+Verão, Sol+Inverno, Lua+Primavera e Estrelado+Outono; acentos, bordas, superfícies secundárias e glow devem mudar sutilmente sem tingir textos
+- [ ] Selecionar Nenhum e confirmar retorno à paleta-base limpa, mantendo a iluminação escolhida
 - [ ] Se o navegador guardava a decoração antiga “Noite”, confirmar que ela migra para “Nenhum” sem quebrar o painel
 - [ ] Definir e restaurar a cor ambiente no resumo do perfil; confirmar que ela afeta detalhes, mas nunca pinta a barra inteira
 - [ ] Com redução de movimento ativa no sistema, confirmar que partículas ficam estáticas
@@ -195,7 +199,7 @@ usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
 - [ ] Finanças: criar recorrência mensal finita, conferir valor por mês e ausência de duplicação após recarga.
 - [ ] Biblioteca: em cada uma das oito categorias, enviar JPG/PNG/WebP, recarregar, abrir card e substituir a capa; rejeitar formato inválido e arquivo acima de 3 MB.
 - [ ] Artigos: colar URL pública, conferir título/site/autor/imagem/tempo sugeridos e cadastrar manualmente quando o site bloquear.
-- [ ] Extensão: instalar a pasta `browser-extension`, configurar URL HTTPS e enviar uma página comum e um vídeo YouTube.
+- [ ] Extensão: instalar/recarregar a pasta `browser-extension`, confirmar aviso antes de configurar, salvar a origem HTTPS e enviar uma página comum e um vídeo YouTube; o popup só fecha após abrir a Biblioteca.
 - [ ] BRAPI: repetir consulta no intervalo curto sem quebrar fallback sem token/quota.
 - [x] Testes automatizados locais: 6/6; reset Supabase e 15/15 testes SQL.
 - [ ] YouTube playlists, Google Calendar e Google Photos: `PENDENTE CREDENCIAL` e `PENDENTE DECISÃO` de cofre de token; não registrar ausência como bug.

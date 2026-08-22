@@ -20,6 +20,15 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — v2.1 pronta tecnicamente; homologação manual pendente
 
+- **2026-08-21 (fechamento visual e operacional)** — Corrigido o fundo
+  retangular externo do botão de atmosfera, preservando foco arredondado e
+  acessível também em “Sair”. Lua virou o dark mode neutro em
+  carvão/grafite/ardósia, enquanto Estrelado manteve o azul noturno. As
+  estações agora influenciam discretamente acentos, superfícies secundárias,
+  bordas e glows por tokens compartilhados. A extensão local passou a exibir
+  configuração e retorno do envio sem credencial própria; documentação e
+  auditoria final foram reconciliadas. Sem migration ou operação remota.
+
 - **2026-08-21 (atmosfera visual de Treino e card de Shape)** — `/treino`
   passou a preservar a profundidade dos cinco ambientes com fundos em camadas,
   superfícies, bordas e sombras integradas. O card de Shape ganhou foto

@@ -56,6 +56,9 @@ Fonte oficial: [formatos importáveis pelo Anki](https://docs.ankiweb.net/import
 - Implementada em `browser-extension/` com Manifest V3 e service worker local.
 - Não lê cookies, sessão ou conteúdo da conta; apenas abre `/biblioteca` com URL/título para revisão.
 - A autenticação continua a do próprio site. A URL publicada é configurada pelo usuário e salva em `chrome.storage.sync`.
-- Instalação manual e operação estão documentadas no README da extensão.
+- O popup informa se o domínio ainda não foi configurado, não fecha em caso de
+  erro e confirma quando a Biblioteca foi aberta para revisão.
+- Instalação manual, recarga, configuração e fluxos separados de Artigo/YouTube
+  estão documentados no README da extensão.
 
 Fonte oficial: [Manifest V3](https://developer.chrome.com/docs/extensions/develop/migrate/what-is-mv3).

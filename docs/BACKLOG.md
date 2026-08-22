@@ -21,7 +21,7 @@ decisão maior.
 - [ ] Importação completa do Anki em formato `.apkg`.
 - [ ] BRAPI/cotações avançadas: histórico, cache, análises e automações; a v2 mantém apenas consulta opcional sob demanda.
 - [ ] Uploads adicionais por domínio, sempre com bucket e policy definidos; imagem/GIF de exercício já foi entregue na v2.1.
-- [ ] Extensão de navegador para captura de conteúdo.
+- [ ] Publicação da extensão em loja ou captura avançada/autenticada; a versão local Manifest V3 para Artigo/Vídeo já foi entregue.
 - [ ] Scraping e importações avançadas/em lote.
 - [ ] Testes automatizados de frontend, integração e E2E guiados por casos de alto valor.
 - [ ] Hardening incremental restante do banco e do Storage, sem editar baselines aplicadas.
@@ -31,7 +31,10 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
 
 ---
 
-## Auditoria de fechamento do brainstorm/v2 — 2026-08-20
+## Auditoria de fechamento do brainstorm/v2 — 2026-08-20 (histórica)
+
+> Esta fotografia foi superada pelo lote publicado de 2026-08-21. A
+> classificação vigente está na seção “Auditoria final” abaixo.
 
 ### 1. Implementado e publicado
 
@@ -253,3 +256,43 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
 - [ ] Scraping em lote/agressivo — PÓS-V2; somente Open Graph limitado foi adotado.
 - [ ] Uploads de Perfil, Receitas, Lugares e provas/simulados — PENDENTE DECISÃO de coluna, bucket e UX por domínio.
 - [ ] Testes de integração/E2E e hardening incremental restante continuam evoluções pós-homologação.
+
+## Auditoria final — fechamento v2.1 em 2026-08-21
+
+### 1. Feito e publicado
+
+- Módulos centrais, Agenda com prioridade, Redações/ENEM, Treino/Shape,
+  Biblioteca com oito categorias, Estudos/Revisão, Diário e módulos derivados.
+- Parcelamento e recorrência finitos, capas privadas nas oito categorias,
+  Open Graph limitado de Artigos, cache BRAPI de 60 s, extensão local Manifest
+  V3 e seis testes Node de funções puras.
+- Migrations e Storage alinhados até
+  `20260821000100_biblioteca_capas_storage.sql`, sem migration deste lote visual.
+
+### 2. Precisa apenas de teste manual
+
+- Homologação autenticada dos módulos, CRUDs, responsividade e segurança básica.
+- Cinco iluminações, cinco opções de estação, foco arredondado do controlador,
+  Lua neutro e combinações sazonais representativas.
+- Extensão com Artigo/YouTube, capas privadas, Open Graph, parcelamento,
+  recorrência e BRAPI com os estados reais do deploy.
+
+### 3. Precisa de credencial ou configuração externa
+
+- `TMDB_API_KEY`, `YOUTUBE_API_KEY` e `BRAPI_TOKEN` são opcionais e server-only;
+  sem eles, os respectivos fallbacks manuais devem continuar funcionando.
+- Extensão local exige carregar a pasta em modo desenvolvedor e configurar a
+  origem HTTPS publicada; isso não é autenticação própria.
+
+### 4. Precisa de decisão grande, OAuth ou schema
+
+- Playlists privadas do YouTube, Google Calendar e Google Photos precisam de
+  OAuth server-side, cofre cifrado e contrato de revogação/sincronização.
+- Uploads de Perfil, Receitas, Lugares, provas/simulados e banners adicionais
+  precisam de contrato por domínio (coluna, bucket, policy e UX).
+
+### 5. Pós-v2
+
+- Anki `.apkg`, scraping/importação em lote, BRAPI histórica/analítica,
+  publicação da extensão em loja ou captura avançada, testes de integração/E2E,
+  dashboards adicionais e hardening incremental de banco/Storage.

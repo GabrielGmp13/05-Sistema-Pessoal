@@ -37,9 +37,13 @@ Cada iluminação altera o conjunto semântico completo, não apenas o fundo:
 superfícies, bordas, textos, ações, campos, header, dropdowns, vidro e sombras
 seguem a mesma temperatura. Sol usa creme dourado/marfim; Suave combina papel,
 areia e argila; Nublado usa azul acinzentado e gelo; Estrelado permanece em
-azul-marinho/petróleo; Lua usa carvão e grafite quentes. `--page-glow`,
+azul-marinho/petróleo; Lua usa carvão, grafite e ardósia neutros/frios, sem
+preto puro ou dominante alaranjada. `--page-glow`,
 `--page-depth`, `--glass-background`, `--atmosphere-panel` e os tokens do topo
-criam profundidade sem substituir os tokens de negócio.
+criam profundidade sem substituir os tokens de negócio. A iluminação define a
+base; `--season-accent`, `--season-surface`, `--season-border` e
+`--season-glow` acrescentam uma nuance leve de Primavera, Verão, Outono ou
+Inverno. “Nenhum” aponta esses tokens para a paleta-base e não adiciona nuance.
 
 Na entrada de Treino, o fundo e as superfícies derivam desses mesmos tokens em
 camadas discretas: métricas e modalidades recebem relevo sutil, enquanto
@@ -170,6 +174,11 @@ Com Idiomas, Histórico e Programação, a faixa mantém rolagem horizontal abai
 de 960px; entre 960px e 1319px usa ícones com `aria-label`/tooltip, e a partir
 de 1320px volta a exibir os rótulos completos para evitar colisão com perfil e
 ações.
+
+O wrapper do controlador não pinta superfície própria: somente o botão
+arredondado recebe fundo e borda. O foco de teclado usa anéis em duas camadas
+com o mesmo raio de 8px; o botão “Sair” segue o mesmo padrão, sem outline
+retangular externo.
 
 O controle de atmosfera pertence à área direita da navegação global,
 imediatamente ao lado de “Sair”. Um único botão abre duas dimensões independentes:

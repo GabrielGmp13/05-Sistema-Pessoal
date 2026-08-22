@@ -1,14 +1,19 @@
 .raiz {
   position: relative;
   flex-shrink: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  outline: 0;
 }
 
 .gatilho {
+  appearance: none;
   display: inline-flex;
   height: 2.25rem;
   align-items: center;
   gap: 0.42rem;
-  border: 1px solid var(--border);
+  border: 1px solid var(--season-border-soft, var(--border));
   border-radius: 8px;
   padding: 0 0.58rem;
   background: color-mix(in oklch, var(--surface) 90%, transparent);
@@ -24,7 +29,12 @@
   color: var(--text);
 }
 
-.gatilho:focus-visible,
+.gatilho:focus-visible {
+  box-shadow:
+    0 0 0 2px var(--surface),
+    0 0 0 4px color-mix(in oklch, var(--season-accent, var(--accent)) 52%, transparent);
+}
+
 .opcao:focus-visible,
 .decoracao:focus-visible {
   box-shadow: 0 0 0 3px color-mix(in oklch, var(--accent) 30%, transparent);
@@ -126,7 +136,7 @@
   height: 2.55rem;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border);
+  border: 1px solid var(--season-border-soft, var(--border));
   border-radius: 50%;
   background: var(--surface);
   box-shadow: 0 3px 10px color-mix(in oklch, var(--foreground) 9%, transparent);

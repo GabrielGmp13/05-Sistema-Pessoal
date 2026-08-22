@@ -263,13 +263,21 @@
   --sidebar-border: oklch(0.845 0.042 86);
   --sidebar-ring: oklch(0.59 0.12 146);
 
+  /* A iluminação define a paleta-base; a estação injeta apenas uma nuance
+     compartilhada. "Nenhum" volta estes tokens para a própria paleta. */
+  --season-accent: var(--accent);
+  --season-surface: var(--muted);
+  --season-border: var(--border);
+  --season-glow: transparent;
+
   /* Vocabulário antigo (CSS Modules, Treino/Dashboard) — alias do vocabulário
      acima, mesma fonte de verdade. Ver DEC-037. */
   --bg: var(--background);
   --surface: var(--card);
-  --surface-2: var(--muted);
-  --accent-wash: var(--accent);
-  --accent-wash-forte: color-mix(in oklch, var(--accent) 55%, var(--accent-foreground) 20%);
+  --surface-2: color-mix(in oklch, var(--muted) 94%, var(--season-surface));
+  --accent-wash: color-mix(in oklch, var(--accent) 88%, var(--season-accent));
+  --accent-wash-forte: color-mix(in oklch, var(--accent-wash) 72%, var(--accent-foreground));
+  --season-border-soft: color-mix(in oklch, var(--border) 88%, var(--season-border));
   --acao: var(--primary);
   --acao-texto: var(--primary-foreground);
   --text: var(--foreground);
@@ -394,56 +402,57 @@
 .dark {
   color-scheme: dark;
 
-  --background: oklch(0.185 0.016 66);
-  --foreground: oklch(0.925 0.014 82);
-  --card: oklch(0.235 0.019 67);
-  --card-foreground: oklch(0.925 0.014 82);
-  --popover: oklch(0.25 0.02 67);
-  --popover-foreground: oklch(0.925 0.014 82);
-  --primary: oklch(0.79 0.035 145);
-  --primary-foreground: oklch(0.205 0.025 72);
-  --secondary: oklch(0.285 0.022 67);
-  --secondary-foreground: oklch(0.91 0.014 82);
-  --muted: oklch(0.275 0.02 67);
-  --muted-foreground: oklch(0.7 0.025 78);
-  --accent: oklch(0.315 0.045 145);
-  --accent-foreground: oklch(0.86 0.055 145);
-  --success: oklch(0.72 0.085 150);
-  --success-foreground: oklch(0.9 0.028 145);
-  --success-muted: oklch(0.29 0.04 145);
+  /* Lua — carvão/ardósia neutros. Estrelado mantém sua paleta azul abaixo. */
+  --background: oklch(0.19 0.012 255);
+  --foreground: oklch(0.925 0.012 245);
+  --card: oklch(0.235 0.014 252);
+  --card-foreground: oklch(0.925 0.012 245);
+  --popover: oklch(0.255 0.016 252);
+  --popover-foreground: oklch(0.925 0.012 245);
+  --primary: oklch(0.78 0.045 210);
+  --primary-foreground: oklch(0.205 0.018 252);
+  --secondary: oklch(0.285 0.016 250);
+  --secondary-foreground: oklch(0.91 0.012 245);
+  --muted: oklch(0.27 0.014 250);
+  --muted-foreground: oklch(0.71 0.022 242);
+  --accent: oklch(0.32 0.05 205);
+  --accent-foreground: oklch(0.86 0.055 205);
+  --success: oklch(0.72 0.085 165);
+  --success-foreground: oklch(0.9 0.028 165);
+  --success-muted: oklch(0.29 0.04 165);
   --warning: oklch(0.72 0.13 65);
   --warning-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(0.69 0.025 72 / 22%);
-  --input: oklch(0.72 0.028 72 / 28%);
-  --ring: oklch(0.7 0.055 145);
-  --chart-1: oklch(0.72 0.085 150);
-  --chart-2: oklch(0.66 0.035 82);
-  --chart-3: oklch(0.68 0.09 70);
-  --chart-4: oklch(0.55 0.055 145);
-  --chart-5: oklch(0.46 0.03 70);
-  --sidebar: oklch(0.22 0.018 67);
-  --sidebar-foreground: oklch(0.925 0.014 82);
-  --sidebar-primary: oklch(0.79 0.035 145);
-  --sidebar-primary-foreground: oklch(0.205 0.025 72);
-  --sidebar-accent: oklch(0.315 0.045 145);
-  --sidebar-accent-foreground: oklch(0.86 0.055 145);
-  --sidebar-border: oklch(0.69 0.025 72 / 22%);
-  --sidebar-ring: oklch(0.7 0.055 145);
-  --ambient-fallback: oklch(0.7 0.055 145);
-  --header-tint: oklch(0.215 0.022 66);
-  --header-depth: oklch(0.18 0.019 62);
-  --page-glow: oklch(0.43 0.065 145 / 16%);
-  --page-depth: oklch(0.17 0.018 72);
-  --glass-background: oklch(0.255 0.02 67 / 78%);
-  --glass-border: oklch(0.68 0.025 72 / 24%);
-  --atmosphere-panel: oklch(0.245 0.022 67);
-  --atmosphere-shadow: 0 7px 26px rgb(8 7 6 / 32%);
-  --atmosphere-panel-shadow: 0 24px 58px rgb(5 4 4 / 48%);
+  --border: oklch(0.68 0.02 245 / 24%);
+  --input: oklch(0.72 0.022 245 / 30%);
+  --ring: oklch(0.7 0.06 210);
+  --chart-1: oklch(0.72 0.085 165);
+  --chart-2: oklch(0.68 0.055 215);
+  --chart-3: oklch(0.72 0.055 85);
+  --chart-4: oklch(0.58 0.07 245);
+  --chart-5: oklch(0.5 0.035 225);
+  --sidebar: oklch(0.215 0.014 252);
+  --sidebar-foreground: oklch(0.925 0.012 245);
+  --sidebar-primary: oklch(0.78 0.045 210);
+  --sidebar-primary-foreground: oklch(0.205 0.018 252);
+  --sidebar-accent: oklch(0.32 0.05 205);
+  --sidebar-accent-foreground: oklch(0.86 0.055 205);
+  --sidebar-border: oklch(0.68 0.02 245 / 24%);
+  --sidebar-ring: oklch(0.7 0.06 210);
+  --ambient-fallback: oklch(0.7 0.06 210);
+  --header-tint: oklch(0.22 0.018 252);
+  --header-depth: oklch(0.18 0.014 258);
+  --page-glow: oklch(0.46 0.06 215 / 16%);
+  --page-depth: oklch(0.17 0.014 258);
+  --glass-background: oklch(0.25 0.016 252 / 78%);
+  --glass-border: oklch(0.68 0.022 242 / 25%);
+  --atmosphere-panel: oklch(0.245 0.018 252);
+  --atmosphere-shadow: 0 7px 26px oklch(0.08 0.012 260 / 36%);
+  --atmosphere-panel-shadow: 0 24px 58px oklch(0.06 0.014 260 / 52%);
   --sun-line: oklch(0.68 0.09 82);
   --cloud-line: oklch(0.62 0.04 218);
   --star-line: oklch(0.58 0.095 260);
-  --moon-line: oklch(0.78 0.025 80);
+  --moon-line: oklch(0.8 0.022 225);
 }
 
 .starry {
@@ -497,6 +506,41 @@
   --atmosphere-panel-shadow: 0 24px 60px oklch(0.07 0.045 272 / 68%);
 }
 
+html[data-decoracao='primavera'] {
+  --season-accent: oklch(0.72 0.1 148);
+  --season-surface: oklch(0.88 0.045 345);
+  --season-border: oklch(0.72 0.065 342);
+  --season-glow: oklch(0.74 0.09 338);
+}
+
+html[data-decoracao='verao'] {
+  --season-accent: oklch(0.78 0.12 82);
+  --season-surface: oklch(0.88 0.065 78);
+  --season-border: oklch(0.76 0.095 76);
+  --season-glow: oklch(0.79 0.12 75);
+}
+
+html[data-decoracao='outono'] {
+  --season-accent: oklch(0.62 0.1 53);
+  --season-surface: oklch(0.72 0.055 74);
+  --season-border: oklch(0.62 0.075 58);
+  --season-glow: oklch(0.62 0.1 52);
+}
+
+html[data-decoracao='inverno'] {
+  --season-accent: oklch(0.72 0.075 222);
+  --season-surface: oklch(0.8 0.04 230);
+  --season-border: oklch(0.7 0.06 225);
+  --season-glow: oklch(0.76 0.075 222);
+}
+
+html[data-decoracao='nenhum'] {
+  --season-accent: var(--accent);
+  --season-surface: var(--muted);
+  --season-border: var(--border);
+  --season-glow: transparent;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -514,6 +558,7 @@ body {
 body {
   background-image:
     radial-gradient(62rem 28rem at 12% -12%, var(--page-glow), transparent 64%),
+    radial-gradient(48rem 24rem at 88% -10%, color-mix(in oklch, var(--season-glow) 18%, transparent), transparent 68%),
     linear-gradient(155deg, color-mix(in oklch, var(--background) 90%, var(--page-depth)) 0%, var(--background) 52%, color-mix(in oklch, var(--background) 94%, var(--page-depth)) 100%);
   background-attachment: fixed;
 }

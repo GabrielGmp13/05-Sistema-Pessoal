@@ -568,7 +568,9 @@
 
 .link:focus-visible,
 .sair:focus-visible {
-  box-shadow: 0 0 0 3px color-mix(in oklch, var(--accent) 30%, transparent);
+  box-shadow:
+    0 0 0 2px var(--surface),
+    0 0 0 4px color-mix(in oklch, var(--season-accent, var(--accent)) 52%, transparent);
 }
 
 .linkAtivo {
@@ -584,7 +586,7 @@
   flex-shrink: 0;
   align-items: center;
   gap: 0.5rem;
-  border: 1px solid var(--border);
+  border: 1px solid var(--season-border-soft, var(--border));
   border-radius: 8px;
   padding: 0 0.65rem;
   background: transparent;
@@ -605,7 +607,8 @@
 }
 
 .tema {
-  background: color-mix(in oklch, var(--surface) 90%, transparent);
+  border-radius: 8px;
+  background: transparent;
 }
 
 .temaLogin {
