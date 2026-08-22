@@ -7,7 +7,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 ## Status geral
 **Fase atual:** v2.1 — fechamento técnico completo; publicação deste lote e homologação manual em produção são as únicas etapas restantes. A v1 está aposentada (DEC-031) e `frontend/` é o único frontend ativo.
 **Bloqueio:** apenas configuração de credenciais externas e homologação autenticada pelo Gabriel.
-**Banco:** produção e cadeia local estão alinhadas até `20260821000200_integracoes_google_midias.sql`; o pós-check de 2026-08-21 confirmou cofre server-only, idempotência Calendar, paths, bucket privado, policies, histórico e dry-run remoto vazio.
+**Banco:** produção e cadeia local estão alinhadas até `20260822000100_integracoes_google_service_role_grant.sql`; o pós-check confirmou CRUD do `service_role`, RLS ativa, zero policies de cliente, histórico e dry-run vazio.
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
 **Próxima ação:** configurar as variáveis externas documentadas, conectar a conta Google e executar `docs/teste.md`/`docs/HOMOLOGATION_V2.md` no deploy.
 
@@ -24,6 +24,13 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
       sanitização do log; suíte Node atual: 21 testes.
 - [ ] Retestar `/api/integracoes/google/status` após o deploy e conferir no log
       Vercel o `kind`/`code` seguro se o Supabase ainda recusar a consulta.
+- [x] O reteste retornou `permission_denied`/`42501`: a migration original
+      concedeu CRUD a `authenticated`, mas não ao papel efetivo `service_role`.
+- [x] Preparada migration incremental mínima com somente o `GRANT` faltante;
+      RLS continua ativa e a tabela continua sem policy de cliente.
+- [x] Reset e 16 scripts SQL passaram; dry-run remoto listou exclusivamente a
+      migration autorizada, aplicação e pós-check passaram e o dry-run final ficou vazio.
+- [ ] Retestar a rota no deploy após a publicação deste lote.
 
 ## Fechamento técnico de integrações e uploads — 2026-08-21
 

@@ -29,6 +29,10 @@ SELECT pg_temp.assert_true(
   'GRANT CRUD explícito deve existir'
 );
 SELECT pg_temp.assert_true(
+  has_table_privilege('service_role', 'public.integracoes_google', 'SELECT, INSERT, UPDATE, DELETE'),
+  'service_role deve possuir CRUD no cofre Google'
+);
+SELECT pg_temp.assert_true(
   (SELECT count(*) = 1 FROM pg_constraint WHERE conrelid = 'public.integracoes_google'::regclass AND contype = 'p'),
   'user_id deve ser PK'
 );

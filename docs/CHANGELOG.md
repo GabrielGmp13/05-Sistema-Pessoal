@@ -20,6 +20,13 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — v2.1 pronta tecnicamente; homologação manual pendente
 
+- **2026-08-22 (causa do `42501` Google confirmada)** — O diagnóstico seguro
+  revelou ausência de privilégio SQL do `service_role` em
+  `integracoes_google`: a migration original havia concedido CRUD somente a
+  `authenticated`. A migration incremental contendo apenas o `GRANT` faltante
+  passou reset/16 testes SQL, dry-run exclusivo, aplicação e pós-check remoto;
+  RLS e ausência de policies de cliente foram preservadas e o dry-run final ficou vazio.
+
 - **2026-08-22 (diagnóstico da conexão Google)** — A rota de status passou a
   preservar e classificar erros do Supabase por códigos estáveis, registrar
   somente campos seguros e diferenciar ambiente ausente, chave inválida,

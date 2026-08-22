@@ -32,7 +32,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON <table> TO authenticated;
 
 Chaves estrangeiras seguem `<tabela_singular>_uuid` (ex: `treino_uuid`, `materia_uuid`), nunca `_id`. Essa é a causa mais comum de bug neste projeto até agora — ver seção Gotchas.
 
-**GRANT é obrigatório em toda migration, não opcional.** Projetos Supabase criados a partir de 2026-05-30 não recebem GRANT automático em nenhuma tabela nova, mesmo com RLS e policy corretos — sem o GRANT explícito para `authenticated`, a tabela fica inacessível via Data API (badge "API DISABLED" no dashboard) e o `supabase-js` recebe erro 42501 mesmo com policies válidas. RLS e GRANT são camadas independentes: GRANT decide se o papel alcança a tabela; RLS decide quais linhas ele vê dentro dela.
+**GRANT é obrigatório em toda migration, não opcional.** Projetos Supabase criados a partir de 2026-05-30 não recebem GRANT automático em nenhuma tabela nova, mesmo com RLS e policy corretos — sem o GRANT explícito para `authenticated`, a tabela fica inacessível via Data API (badge "API DISABLED" no dashboard) e o `supabase-js` recebe erro 42501 mesmo com policies válidas. Tabelas server-only também precisam conceder explicitamente ao `service_role` as operações usadas. RLS/BYPASSRLS e GRANT são camadas independentes: GRANT decide se o papel alcança a tabela; RLS decide quais linhas ele vê dentro dela.
 
 **Confirmado no banco real (2026-08):** a baseline tinha 44 tabelas em `public`, todas com RLS, policy `user_own_data` e GRANT para `authenticated`. As migrations incrementais aplicadas adicionaram 20 tabelas; produção e ambiente local possuem agora 64 tabelas. `anon` continua sem `SELECT`/`INSERT` sobre dados da aplicação.
 
@@ -73,10 +73,11 @@ dessas duas pastas deve ser executado como migration.
 | `20260820000300` | `20260820000300_agenda_prioridade.sql` | ✅ Reset e 14 testes SQL aprovados; aplicada em produção em 2026-08-21 após dry-run exclusivo; pós-check confirmou coluna, default, constraint, histórico e dry-run vazio |
 | `20260821000100` | `20260821000100_biblioteca_capas_storage.sql` | ✅ Reset e 15 testes SQL aprovados; aplicada em produção em 2026-08-21 após dry-run exclusivo; pós-check confirmou colunas, bucket privado, limite, MIME types, quatro policies, histórico e dry-run vazio |
 | `20260821000200` | `20260821000200_integracoes_google_midias.sql` | ✅ Reset e 16 testes SQL aprovados; aplicada em produção em 2026-08-21 após dry-run exclusivo; pós-check confirmou tabela server-only, idempotência Calendar, quatro paths, bucket privado, policies, histórico e dry-run vazio |
+| `20260822000100` | `20260822000100_integracoes_google_service_role_grant.sql` | ✅ Reset e 16 testes SQL aprovados; aplicada em produção em 2026-08-22 após dry-run exclusivo; pós-check confirmou CRUD do `service_role`, RLS ativa, zero policies de cliente, histórico e dry-run vazio |
 
-> **Estado confirmado (2026-08-21):** produção e cadeia local estão alinhadas
-> até `20260821000200_integracoes_google_midias.sql`. `public` possui 64
-> tabelas, seis buckets privados e 18 policies em `storage.objects`.
+> **Estado confirmado (2026-08-22):** produção e cadeia local estão alinhadas
+> até `20260822000100_integracoes_google_service_role_grant.sql`. `public`
+> possui 64 tabelas, seis buckets privados e 18 policies em `storage.objects`.
 
 As três baselines foram adotadas no histórico remoto em 2026-08-08 por
 `migration repair --status applied`, depois de recaptura somente leitura de
@@ -1166,7 +1167,8 @@ updated_at           TIMESTAMPTZ NOT NULL DEFAULT NOW()
 ```
 > Tabela server-only. RLS está ativa e não existe policy para cliente; portanto,
 > o GRANT explícito não torna linhas acessíveis via chave anon/authenticated.
-> Somente API Routes autenticadas usam `service_role`. O campo cifrado contém
+> Somente API Routes autenticadas usam `service_role`, que também precisa de
+> privilégio SQL explícito na tabela além de `BYPASSRLS`. O campo cifrado contém
 > access/refresh token em AES-256-GCM; a chave vive apenas no ambiente do servidor.
 
 ### Tabelas descontinuadas de Estudos v1

@@ -205,6 +205,8 @@ usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
 - [x] Testes automatizados locais: 21/21; reset Supabase e 16/16 scripts SQL.
 - [ ] PENDENTE CREDENCIAL: configurar Google Cloud/Vercel e conectar a conta;
       então testar playlists e Calendar. Ausência sem variável não é bug.
+- [x] Grant server-only do cofre Google aplicado após diagnóstico `42501`;
+      RLS permaneceu ativa e sem policy de cliente.
 - [ ] Testar `.apkg` real com deck básico/cloze e manter CSV/TSV como fallback;
       mídia/template complexo não suportado não bloqueia a v2.1.
 

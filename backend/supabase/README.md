@@ -55,6 +55,9 @@ O ponto inicial oficial da cadeia CLI é:
     server-only, idempotência Calendar, paths de uploads restantes e bucket
     privado `midias-pessoais`; reset e 16 testes SQL aprovados, aplicada em
     produção após dry-run exclusivo e pós-check final vazio.
+19. `20260822000100_integracoes_google_service_role_grant.sql` — concede ao
+    `service_role` o CRUD de tabela que faltava no cofre Google; aplicada após
+    reset, 16 testes SQL, dry-run exclusivo e pós-check com RLS preservada.
 
 As três baselines foram validadas por dois replays locais completos e por
 comparação com produção. Em 2026-08-08, `migration repair --status applied`

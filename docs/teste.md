@@ -375,6 +375,12 @@ Legenda: `[ ]` testar manualmente; `[x]` validado automaticamente;
 - [ ] Após o deploy, abrir a rota autenticado. Se ainda falhar, registrar
   `diagnostico.tipo`/`diagnostico.codigo` e conferir o evento correspondente
   nos logs da Vercel; nenhum segredo deve aparecer.
+- Reteste em produção: retornou `permission_denied` com código `42501`.
+- [x] Causa identificada no SQL: `service_role` não recebeu privilégio de
+  tabela; `BYPASSRLS` sozinho não substitui `GRANT`.
+- [x] Migration incremental validada e aplicada após dry-run exclusivo;
+  pós-check confirmou o privilégio sem abrir policy de cliente.
+- [ ] Repetir a rota e confirmar `configurado: true`, `conectado: false` sem erro.
 
 ### Preparação externa
 
