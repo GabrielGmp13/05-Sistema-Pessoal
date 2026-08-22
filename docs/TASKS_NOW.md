@@ -5,11 +5,11 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 ---
 
 ## Status geral
-**Fase atual:** v2.1 — lote local de playlists/Hub/beta em validação; homologação manual continua obrigatória. A v1 está aposentada (DEC-031) e `frontend/` é o único frontend ativo.
-**Bloqueio:** somente commit/deploy e homologação manual do lote de playlists/Hub/beta.
+**Fase atual:** v2.1 — correção local do painel múltiplo de insights do Hub; homologação manual continua obrigatória. A v1 está aposentada (DEC-031) e `frontend/` é o único frontend ativo.
+**Bloqueio:** validações, commit/deploy e teste visual autenticado do novo painel.
 **Banco:** produção e cadeia local estão alinhadas até `20260822000300_biblioteca_playlists.sql`; reset/17 scripts SQL, dry-run exclusivo, aplicação, pós-check e dry-run final vazio passaram.
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** concluir validações finais, commit/push e homologar playlists, Hub e checklist de beta no deploy.
+**Próxima ação:** concluir validações, publicar o painel múltiplo e homologar Hub, playlists e checklist de beta no deploy.
 
 ## Playlists, Hub e beta privado — lote local de 2026-08-22
 
@@ -33,7 +33,20 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] Dry-run remoto listou exclusivamente `20260822000300`.
 - [x] Autorização recebida; aplicação, pós-check de schema/histórico e dry-run
       final vazio passaram sem migration adicional.
-- [ ] Após as validações finais, commitar/publicar e homologar no deploy.
+- [x] Lote publicado no commit `014eab6`; homologação no deploy permanece.
+
+## Painel múltiplo de insights do Hub — 2026-08-22
+
+- [x] Removido o carrossel que exibia somente um insight a cada cinco segundos.
+- [x] Insights reais aparecem simultaneamente em três colunas no desktop e
+      quatro em telas largas; tablet usa duas colunas.
+- [x] Mobile usa faixa horizontal com snap e prévia do próximo card, sem
+      inventar conteúdo quando existem menos de três registros reais.
+- [x] Cards compactos têm ícone contextual, categoria, título em duas linhas e
+      ação para o módulo de origem.
+- [x] Typecheck, 26 testes Node, build, lint direcionado, `diff --check` e
+      buscas de segurança passaram.
+- [ ] Validar visualmente no deploy autenticado em desktop e mobile.
 
 ## Contas Google separadas por serviço — 2026-08-22
 

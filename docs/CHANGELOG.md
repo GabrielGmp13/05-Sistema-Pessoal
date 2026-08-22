@@ -20,6 +20,12 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — v2.1 pronta tecnicamente; homologação manual pendente
 
+- **2026-08-22 (painel múltiplo de insights do Hub)** — O bloco rotativo de um
+  item foi substituído por cards reais simultâneos: três colunas no desktop,
+  quatro em telas largas, duas no tablet e faixa horizontal com snap no mobile.
+  Ícone, categoria, título compacto e ação contextual permanecem ligados aos
+  dados já carregados; com menos de três insights, nenhum placeholder é criado.
+
 - **2026-08-22 (lote local de playlists e beta privado)** — Biblioteca > Vídeos
   ganhou importação por link com prévia/seleção pela API oficial e agrupamentos
   persistentes que reutilizam vídeos normais, preservando Vídeo → Curso. O Hub

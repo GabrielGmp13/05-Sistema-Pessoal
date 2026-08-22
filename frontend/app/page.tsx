@@ -10,17 +10,21 @@ import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
+  CirclePlay,
   Clock3,
   Code2,
   Dumbbell,
   FolderKanban,
   GraduationCap,
+  HeartPulse,
   Languages,
   Lightbulb,
+  MapPin,
   NotebookTabs,
   RefreshCw,
   Star,
   Utensils,
+  WalletCards,
 } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
@@ -261,7 +265,7 @@ export default function HomePage() {
           </p>
         ) : null}
 
-        <InsightsRotativos insights={insights} loading={carregando} />
+        <PainelInsights insights={insights} loading={carregando} />
 
         <section aria-labelledby="tempo-title" className="mt-8">
           <div className="flex items-center justify-between gap-4">
@@ -640,40 +644,86 @@ function montarInsights(dados: DadosHub, hoje: string): InsightPessoal[] {
   return itens
 }
 
-function InsightsRotativos({ insights, loading }: { insights: InsightPessoal[]; loading: boolean }) {
-  const [indice, setIndice] = useState(0)
+function iconeDoInsight(id: string): typeof Lightbulb {
+  if (id.startsWith('livro') || id.startsWith('manga')) return BookOpen
+  if (id.startsWith('serie') || id.startsWith('anime') || id === 'video') return CirclePlay
+  if (id === 'favoritos') return Star
+  if (id === 'curso' || id === 'prova') return GraduationCap
+  if (id.startsWith('tempo')) return Clock3
+  if (id === 'revisoes') return Brain
+  if (id.startsWith('programacao')) return Code2
+  if (id === 'projeto') return FolderKanban
+  if (id.startsWith('receita')) return Utensils
+  if (id === 'compromisso') return CalendarDays
+  if (id.startsWith('saude')) return HeartPulse
+  if (id.startsWith('financas')) return WalletCards
+  if (id.startsWith('lugar')) return MapPin
+  if (id.startsWith('idioma')) return Languages
+  if (id.startsWith('historico')) return CalendarRange
+  return Lightbulb
+}
 
-  useEffect(() => {
-    if (insights.length < 2) return
-    const intervalId = window.setInterval(() => {
-      setIndice((atual) => (atual + 1) % insights.length)
-    }, 5000)
-    return () => window.clearInterval(intervalId)
-  }, [insights.length])
-
-  const indiceSeguro = insights.length > 0 ? indice % insights.length : 0
-  const atual = insights[indiceSeguro]
-
-  function mover(direcao: -1 | 1) {
-    setIndice((valor) => (valor + direcao + insights.length) % insights.length)
-  }
+function PainelInsights({ insights, loading }: { insights: InsightPessoal[]; loading: boolean }) {
+  const colunas = insights.length === 1
+    ? 'sm:grid-cols-1 lg:max-w-sm'
+    : insights.length === 2
+      ? 'sm:grid-cols-2 lg:max-w-2xl'
+      : 'sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
 
   return (
-    <section aria-label="Insights pessoais" className="mt-6 flex min-h-20 w-full max-w-2xl items-center gap-3 rounded-lg border border-border bg-card px-3 py-3 text-card-foreground sm:px-4">
-      <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-secondary"><Lightbulb className="size-4" /></span>
-      <div className="min-w-0 flex-1" aria-live="polite">
-        <p className="font-mono text-[0.68rem] font-medium uppercase text-muted-foreground">Insight pessoal</p>
-        {loading ? <Skeleton className="mt-2 h-4 w-3/4" /> : atual ? (
-          <Link href={atual.href} className="mt-1 block min-w-0 outline-none focus-visible:ring-[3px] focus-visible:ring-ring/30">
-            <strong className="block truncate text-sm font-medium sm:text-base">{atual.texto}</strong>
-            <span className="mt-0.5 block text-xs text-muted-foreground">{atual.detalhe} · {indiceSeguro + 1}/{insights.length}</span>
-          </Link>
-        ) : <p className="mt-1 text-sm text-muted-foreground">Os insights aparecem conforme seus registros ganham contexto.</p>}
+    <section aria-labelledby="insights-title" className="mt-6">
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <p className="font-mono text-[0.68rem] font-medium uppercase text-muted-foreground">Painel pessoal</p>
+          <h2 id="insights-title" className="mt-1 text-xl font-semibold">Insights</h2>
+        </div>
+        {!loading && insights.length > 0 ? <Badge variant="outline">{insights.length} ativos</Badge> : null}
       </div>
-      {insights.length > 1 ? <div className="flex shrink-0 gap-1">
-        <Button type="button" variant="ghost" size="icon-xs" onClick={() => mover(-1)} aria-label="Insight anterior"><ChevronLeft /></Button>
-        <Button type="button" variant="ghost" size="icon-xs" onClick={() => mover(1)} aria-label="Próximo insight"><ChevronRight /></Button>
-      </div> : null}
+
+      {loading ? (
+        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {Array.from({ length: 4 }, (_, indice) => (
+            <div key={indice} className="min-h-36 rounded-lg border border-border bg-card p-4">
+              <Skeleton className="size-9 rounded-lg" />
+              <Skeleton className="mt-4 h-3 w-20" />
+              <Skeleton className="mt-2 h-5 w-full" />
+              <Skeleton className="mt-2 h-3 w-28" />
+            </div>
+          ))}
+        </div>
+      ) : insights.length > 0 ? (
+        <div className={`mt-3 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 sm:grid sm:overflow-visible sm:pb-0 ${colunas}`}>
+          {insights.map((insight) => {
+            const Icon = iconeDoInsight(insight.id)
+            return (
+              <Link
+                key={insight.id}
+                href={insight.href}
+                className="group flex min-h-36 min-w-[82%] snap-start flex-col rounded-lg border border-border bg-card p-4 text-card-foreground outline-none transition-[border-color,background-color,transform] hover:-translate-y-0.5 hover:border-primary/45 hover:bg-accent/35 focus-visible:ring-[3px] focus-visible:ring-ring/30 sm:min-w-0"
+              >
+                <span className="flex size-9 items-center justify-center rounded-lg bg-secondary text-foreground">
+                  <Icon className="size-4" />
+                </span>
+                <p className="mt-3 font-mono text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">
+                  {insight.detalhe}
+                </p>
+                <strong className="mt-1 line-clamp-2 text-sm font-semibold leading-snug sm:text-[0.95rem]">
+                  {insight.texto}
+                </strong>
+                <span className="mt-auto flex items-center gap-1 pt-3 text-xs font-medium text-muted-foreground group-hover:text-foreground">
+                  Abrir {insight.detalhe}
+                  <ChevronRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+                </span>
+              </Link>
+            )
+          })}
+        </div>
+      ) : (
+        <div className="mt-3 flex min-h-28 items-center gap-3 rounded-lg border border-border bg-card p-4 text-card-foreground">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-secondary"><Lightbulb className="size-4" /></span>
+          <p className="text-sm text-muted-foreground">Os insights aparecem conforme seus registros ganham contexto.</p>
+        </div>
+      )}
     </section>
   )
 }
