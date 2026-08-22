@@ -272,9 +272,10 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
   Biblioteca com oito categorias, Estudos/Revisão, Diário e módulos derivados.
 - Parcelamento e recorrência finitos, capas privadas nas oito categorias,
   Open Graph limitado de Artigos, cache BRAPI de 60 s, extensão local Manifest
-  V3, OAuth Google, `.apkg`, uploads privados restantes e 18 testes Node.
+  V3, OAuth Google separado para YouTube/Calendar, `.apkg`, uploads privados
+  restantes e 23 testes Node.
 - Migrations e Storage alinhados até
-  `20260821000200_integracoes_google_midias.sql`, com pós-check remoto e dry-run vazio.
+  `20260822000200_integracoes_google_servicos.sql`, com pós-check remoto e dry-run vazio.
 
 ### 2. Precisa apenas de teste manual
 

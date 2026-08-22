@@ -20,6 +20,15 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — v2.1 pronta tecnicamente; homologação manual pendente
 
+- **2026-08-22 (contas Google separadas)** — YouTube e Calendar passaram a ter
+  autorizações, credenciais cifradas, status e desconexão independentes por
+  `(user_id, servico)`, permitindo contas Google diferentes. OAuth força escolha
+  da conta e solicita somente o escopo do serviço; eventual conexão legada é
+  mapeada para Calendar sem duplicar refresh token, embora o pós-check tenha
+  encontrado o cofre vazio em produção. A migration incremental passou
+  reset/16 scripts SQL, dry-run remoto exclusivo, aplicação e pós-check; os 23
+  testes Node, typecheck e build também passaram, com dry-run final vazio.
+
 - **2026-08-22 (causa do `42501` Google confirmada)** — O diagnóstico seguro
   revelou ausência de privilégio SQL do `service_role` em
   `integracoes_google`: a migration original havia concedido CRUD somente a

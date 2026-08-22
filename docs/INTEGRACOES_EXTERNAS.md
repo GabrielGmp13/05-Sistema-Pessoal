@@ -1,13 +1,15 @@
 # Integrações externas — configuração da v2.1
 
-Data da revisão: 2026-08-21.
+Data da revisão: 2026-08-22.
 
 ## Google OAuth
 
-A conexão Google está implementada com API Routes server-side, `state` de uso
-único em cookie HttpOnly, PKCE, tokens cifrados por AES-256-GCM e tabela sem
-policy de cliente. O navegador recebe apenas estado conectado/desconectado;
-access e refresh tokens nunca são enviados ao frontend.
+As conexões Google estão implementadas com API Routes server-side, `state` de
+uso único em cookie HttpOnly, PKCE, tokens cifrados por AES-256-GCM e tabela sem
+policy de cliente. YouTube e Calendar têm registros e autorizações separados,
+podendo apontar para contas Google diferentes. O navegador recebe apenas o
+estado e o e-mail de cada serviço; access e refresh tokens nunca são enviados
+ao frontend.
 
 ### Configuração no Google Cloud
 
@@ -34,10 +36,14 @@ são exclusivamente server-side e nunca recebem prefixo `NEXT_PUBLIC_`. Gere a
 última uma única vez com 32 bytes aleatórios em base64, guarde-a no cofre de
 variáveis da Vercel e não a troque sem antes desconectar as contas existentes.
 
-Depois do deploy, abrir **Perfil e configurações > Google > Conectar Google**,
-autorizar os escopos `youtube.readonly` e `calendar.events` e confirmar o e-mail
-conectado. **Desconectar** solicita revogação ao Google e remove a cópia cifrada
-local. Se o provedor não responder, a remoção local continua sendo obrigatória.
+Depois do deploy, abrir **Perfil e configurações > Contas Google** e conectar
+separadamente **YouTube** e **Google Calendar**. O fluxo sempre permite escolher
+a conta: YouTube solicita somente `youtube.readonly`; Calendar solicita somente
+`calendar.events` (ambos também pedem identidade/e-mail). A migration preserva
+eventual conexão legada como Calendar, mas o pós-check encontrou o cofre vazio
+em produção; no deploy atual, ambos precisam ser autorizados. **Desconectar** atua somente sobre o serviço
+escolhido, solicita revogação ao Google e remove sua cópia cifrada local. Se o
+provedor não responder, a remoção local continua sendo obrigatória.
 
 ## YouTube playlists
 

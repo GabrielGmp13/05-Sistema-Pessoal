@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     const url = existingId
       ? `https://www.googleapis.com/calendar/v3/calendars/primary/events/${encodeURIComponent(existingId)}`
       : 'https://www.googleapis.com/calendar/v3/calendars/primary/events'
-    const exported = await googleApi<GoogleCalendarEvent>(user.id, url, {
+    const exported = await googleApi<GoogleCalendarEvent>(user.id, 'calendar', url, {
       method: existingId ? 'PATCH' : 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),

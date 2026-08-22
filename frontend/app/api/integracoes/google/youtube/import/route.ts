@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const params = new URLSearchParams({ part: 'snippet,contentDetails', id: ids.join(',') })
-    const data = await googleApi<VideosResponse>(user.id, `https://www.googleapis.com/youtube/v3/videos?${params}`)
+    const data = await googleApi<VideosResponse>(user.id, 'youtube', `https://www.googleapis.com/youtube/v3/videos?${params}`)
     const admin = getServiceSupabase()
     const canonicalUrls = ids.map((id) => `https://www.youtube.com/watch?v=${id}`)
     const [{ data: existingById, error: idError }, { data: existingByUrl, error: urlError }] = await Promise.all([

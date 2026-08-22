@@ -189,7 +189,9 @@ export default function AgendaPage() {
   useEffect(() => {
     void fetch('/api/integracoes/google/status', { cache: 'no-store' })
       .then((response) => response.ok ? response.json() : null)
-      .then((status: { conectado?: boolean } | null) => setGoogleConectado(Boolean(status?.conectado)))
+      .then((status: { conexoes?: { calendar?: { conectado?: boolean } } } | null) =>
+        setGoogleConectado(Boolean(status?.conexoes?.calendar?.conectado)),
+      )
       .catch(() => setGoogleConectado(false))
   }, [])
 

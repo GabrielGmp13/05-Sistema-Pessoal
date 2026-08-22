@@ -47,14 +47,14 @@ versionar `.env.local`, service role, senha, connection string ou
 
 ## Banco e migrations
 
-- A cadeia operacional ativa contém 19 migrations em
+- A cadeia operacional ativa contém 20 migrations em
   `backend/supabase/migrations/`.
 - As três baselines e as incrementais até
-  `20260822000100_integracoes_google_service_role_grant.sql` estão registradas como
+  `20260822000200_integracoes_google_servicos.sql` estão registradas como
   aplicadas em produção.
-- O pós-check registrado em 2026-08-22 confirmou 64 tabelas e 19 versões
-  aplicadas, cofre Google acessível pelo `service_role`, RLS/policies
-  preservadas e nenhuma migration pendente.
+- O pós-check registrado em 2026-08-22 confirmou 64 tabelas e 20 versões
+  aplicadas, cofre Google separado por serviço e acessível pelo `service_role`,
+  RLS/policies preservadas e nenhuma migration pendente.
 
 Qualquer correção futura de schema deve sair do lote de polimento, receber uma
 nova migration timestamped e cumprir integralmente o fluxo de segurança de

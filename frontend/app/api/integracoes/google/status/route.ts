@@ -1,10 +1,25 @@
 import { NextResponse } from 'next/server'
 
+import type { GoogleService } from '@/lib/google-service'
 import { getGoogleConnection, missingGoogleServerEnvironment } from '@/lib/server/google'
 import { getApiUser, SupabaseServerConfigurationError } from '@/lib/server/supabase'
 import { classifySupabaseFailure, safeSupabaseError, type SupabaseFailureKind } from '@/lib/supabase-diagnostics'
 
 const ROUTE_NAME = '/api/integracoes/google/status'
+
+function connectionStatus(connection: Awaited<ReturnType<typeof getGoogleConnection>>) {
+  return {
+    conectado: Boolean(connection),
+    email: connection?.email_google ?? null,
+    scopes: connection?.scopes ?? [],
+    atualizadoEm: connection?.updated_at ?? null,
+  }
+}
+
+function disconnectedServices() {
+  const disconnected = connectionStatus(null)
+  return { youtube: disconnected, calendar: { ...disconnected } }
+}
 
 const FAILURE_RESPONSES: Record<SupabaseFailureKind, { erro: string; status: number }> = {
   service_key_invalid: {
@@ -49,19 +64,22 @@ export async function GET() {
     if (missingEnvironment.length > 0) {
       return NextResponse.json({
         configurado: false,
-        conectado: false,
+        conexoes: disconnectedServices(),
         erro: 'Configuração server-side incompleta.',
         diagnostico: { tipo: 'env_server_ausente', variaveis: missingEnvironment },
       }, { status: 503 })
     }
 
-    const connection = await getGoogleConnection(user.id)
+    const services: GoogleService[] = ['youtube', 'calendar']
+    const [youtube, calendar] = await Promise.all(
+      services.map((service) => getGoogleConnection(user.id, service)),
+    )
     return NextResponse.json({
       configurado: true,
-      conectado: Boolean(connection),
-      email: connection?.email_google ?? null,
-      scopes: connection?.scopes ?? [],
-      atualizadoEm: connection?.updated_at ?? null,
+      conexoes: {
+        youtube: connectionStatus(youtube),
+        calendar: connectionStatus(calendar),
+      },
     })
   } catch (error) {
     if (error instanceof SupabaseServerConfigurationError) {
@@ -69,7 +87,7 @@ export async function GET() {
       logSafeError(error, kind)
       return NextResponse.json({
         configurado: false,
-        conectado: false,
+        conexoes: disconnectedServices(),
         erro: error.code === 'SERVER_ENV_MISSING'
           ? 'Configuração server-side incompleta.'
           : 'A variável server-side do Supabase não contém uma chave secreta válida.',
@@ -83,7 +101,7 @@ export async function GET() {
     logSafeError(error, kind)
     return NextResponse.json({
       configurado: true,
-      conectado: false,
+      conexoes: disconnectedServices(),
       erro: response.erro,
       diagnostico: { tipo: kind, codigo: safe.code ?? null },
     }, { status: response.status })

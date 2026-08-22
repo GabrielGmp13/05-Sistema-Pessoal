@@ -1245,7 +1245,7 @@ As oito categorias usam o bucket privado `capas`, paths iniciados por `auth.uid(
 ## DEC-065 — OAuth Google fica em API Routes com cofre cifrado
 
 **Data:** 2026-08-21
-**Status:** ✅ Implementada e migration aplicada; credenciais/deploy pendem do Gabriel
+**Status:** ✅ Implementada, configurada e publicada; homologação manual pendente
 
 ### Decisão
 
@@ -1282,3 +1282,27 @@ remotas continuam pós-v2.
   Mídia e templates complexos não são interpretados; CSV/TSV continua fallback.
 - Next.js e o pacote ESLint correspondente ficam em 16.3.2 para remover os
   avisos de segurança conhecidos encontrados no fechamento.
+
+## DEC-067 — YouTube e Calendar usam conexões Google independentes
+
+**Data:** 2026-08-22
+**Status:** ✅ Implementada; migration aplicada em produção
+
+### Decisão
+
+- `integracoes_google` identifica cada autorização pela chave composta
+  `(user_id, servico)`, com `servico` limitado a `youtube` ou `calendar`.
+- Cada fluxo OAuth solicita somente o escopo funcional do serviço e força a
+  escolha explícita da conta Google. Status, renovação, consumo e desconexão
+  sempre recebem o serviço, impedindo o uso acidental da credencial do outro.
+- Eventual conexão única preexistente é migrada para `calendar`; nenhum refresh
+  token é duplicado. O pós-check encontrou zero conexões em produção, então
+  Calendar e YouTube precisam ser autorizados com as contas desejadas no deploy.
+- O cofre continua server-only, com RLS ativa, zero policies de cliente e CRUD
+  explícito para `service_role`.
+
+### Impacto
+
+Gabriel pode usar uma conta no Calendar e outra no YouTube sem reconectar ou
+sobrescrever credenciais. A UI apresenta estado, e-mail e desconexão por
+serviço; a Agenda consulta apenas Calendar e playlists consultam apenas YouTube.

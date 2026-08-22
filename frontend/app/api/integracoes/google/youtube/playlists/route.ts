@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
   try {
     const params = new URLSearchParams({ part: 'snippet,contentDetails', mine: 'true', maxResults: '50' })
     if (pageToken) params.set('pageToken', pageToken)
-    const data = await googleApi<PlaylistsResponse>(user.id, `https://www.googleapis.com/youtube/v3/playlists?${params}`)
+    const data = await googleApi<PlaylistsResponse>(user.id, 'youtube', `https://www.googleapis.com/youtube/v3/playlists?${params}`)
     return NextResponse.json({
       playlists: (data.items ?? []).filter((item) => item.id).map((item) => ({
         id: item.id,

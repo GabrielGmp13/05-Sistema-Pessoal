@@ -202,9 +202,9 @@ usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
 - [ ] Artigos: colar URL pública, conferir título/site/autor/imagem/tempo sugeridos e cadastrar manualmente quando o site bloquear.
 - [ ] Extensão: instalar/recarregar a pasta `browser-extension`, confirmar aviso antes de configurar, salvar a origem HTTPS e enviar uma página comum e um vídeo YouTube; o popup só fecha após abrir a Biblioteca.
 - [ ] BRAPI: repetir consulta no intervalo curto sem quebrar fallback sem token/quota.
-- [x] Testes automatizados locais: 21/21; reset Supabase e 16/16 scripts SQL.
-- [ ] PENDENTE CREDENCIAL: configurar Google Cloud/Vercel e conectar a conta;
-      então testar playlists e Calendar. Ausência sem variável não é bug.
+- [x] Testes automatizados locais: 23/23; reset Supabase e 16/16 scripts SQL.
+- [ ] Após o deploy, conectar Calendar e YouTube com as contas desejadas e
+      conferir os dois e-mails separadamente.
 - [x] Grant server-only do cofre Google aplicado após diagnóstico `42501`;
       RLS permaneceu ativa e sem policy de cliente.
 - [ ] Testar `.apkg` real com deck básico/cloze e manter CSV/TSV como fallback;
@@ -212,8 +212,8 @@ usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
 
 ## Fechamento técnico de 2026-08-21
 
-- [ ] Configurar as cinco variáveis Google server-side descritas em
-      `INTEGRACOES_EXTERNAS.md`, fazer deploy e conectar/desconectar a conta.
+- [ ] Em Configurações, conectar/desconectar YouTube e Calendar separadamente;
+      uma ação não deve alterar o estado exibido do outro serviço.
 - [ ] Listar mais de uma página de playlists/vídeos, importar seleção, recarregar
       Biblioteca e confirmar que repetir a importação gera apenas duplicados.
 - [ ] Exportar evento manual com e sem hora; reexportar após editar e conferir
@@ -228,5 +228,5 @@ usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
       gravar, recarregar e confirmar deduplicação. Testar também pacote inválido.
 - [ ] Confirmar em Network/bundle que client secret, service role, refresh token,
       chave AES e URL do banco não aparecem.
-- [x] Reset local, suíte SQL, typecheck, 21 testes Node, build, audit de
+- [x] Reset local, suíte SQL, typecheck, 23 testes Node, build, audit de
       dependências, dry-run exclusivo, aplicação, pós-check e dry-run vazio.

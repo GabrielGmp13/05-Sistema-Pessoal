@@ -74,9 +74,10 @@ dessas duas pastas deve ser executado como migration.
 | `20260821000100` | `20260821000100_biblioteca_capas_storage.sql` | ✅ Reset e 15 testes SQL aprovados; aplicada em produção em 2026-08-21 após dry-run exclusivo; pós-check confirmou colunas, bucket privado, limite, MIME types, quatro policies, histórico e dry-run vazio |
 | `20260821000200` | `20260821000200_integracoes_google_midias.sql` | ✅ Reset e 16 testes SQL aprovados; aplicada em produção em 2026-08-21 após dry-run exclusivo; pós-check confirmou tabela server-only, idempotência Calendar, quatro paths, bucket privado, policies, histórico e dry-run vazio |
 | `20260822000100` | `20260822000100_integracoes_google_service_role_grant.sql` | ✅ Reset e 16 testes SQL aprovados; aplicada em produção em 2026-08-22 após dry-run exclusivo; pós-check confirmou CRUD do `service_role`, RLS ativa, zero policies de cliente, histórico e dry-run vazio |
+| `20260822000200` | `20260822000200_integracoes_google_servicos.sql` | ✅ Reset e 16 testes SQL aprovados; aplicada em produção em 2026-08-22 após dry-run exclusivo; pós-check confirmou `servico`, domínio, PK composta, GRANT/RLS/policies, histórico e dry-run vazio |
 
 > **Estado confirmado (2026-08-22):** produção e cadeia local estão alinhadas
-> até `20260822000100_integracoes_google_service_role_grant.sql`. `public`
+> até `20260822000200_integracoes_google_servicos.sql`. `public`
 > possui 64 tabelas, seis buckets privados e 18 policies em `storage.objects`.
 
 As três baselines foram adotadas no histórico remoto em 2026-08-08 por
@@ -1157,19 +1158,25 @@ updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), deleted BOOLEAN NOT NULL DEFAULT 
 
 ### `integracoes_google`
 ```sql
-user_id              UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+user_id              UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+servico              TEXT NOT NULL CHECK (servico IN ('youtube', 'calendar')),
 credenciais_cifradas TEXT NOT NULL,
 token_expira_em      TIMESTAMPTZ,
 scopes               TEXT[] NOT NULL DEFAULT '{}',
 email_google         TEXT,
 created_at           TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-updated_at           TIMESTAMPTZ NOT NULL DEFAULT NOW()
+updated_at           TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+PRIMARY KEY (user_id, servico)
 ```
 > Tabela server-only. RLS está ativa e não existe policy para cliente; portanto,
 > o GRANT explícito não torna linhas acessíveis via chave anon/authenticated.
 > Somente API Routes autenticadas usam `service_role`, que também precisa de
 > privilégio SQL explícito na tabela além de `BYPASSRLS`. O campo cifrado contém
 > access/refresh token em AES-256-GCM; a chave vive apenas no ambiente do servidor.
+> Cada usuário pode manter uma conta independente para YouTube e outra para
+> Calendar. Qualquer conexão anterior à separação seria preservada como
+> `calendar`, sem cópia de refresh token para YouTube; o pós-check encontrou a
+> tabela vazia em produção, portanto os dois serviços precisam de autorização.
 
 ### Tabelas descontinuadas de Estudos v1
 `assuntos`, `anotacoes`, `documentos_estudo`, `sessoes_questoes` — confirmadas ausentes no dump. Ver DEC-035.

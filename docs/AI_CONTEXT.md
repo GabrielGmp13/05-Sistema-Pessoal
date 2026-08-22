@@ -52,8 +52,8 @@ operacional.
 **Fase:** v2.1 — fechamento técnico completo. Permanecem configuração de credenciais externas pelo Gabriel e homologação manual; ampliações bidirecionais/analíticas estão no backlog. A v2 é o único frontend ativo (v1 removida em 2026-07-19, DEC-031).
 **Decisão-chave:** DEC-018 (reabre DEC-006) — frontend migrou de HTML puro para Next.js/React
 **Deploy:** ✅ em produção no Vercel desde 2026-07-13 (não "pendente" — ver `ARCHITECTURE.md`)
-**Schema:** baseline confirmada via dump real em 2026-08 com 44 tabelas; produção e ambiente local estão em 64 tabelas após as migrations incrementais aplicadas até `20260822000100_integracoes_google_service_role_grant.sql` (ver `DATABASE.md`).
-**Histórico CLI:** as três baselines e incrementais até `20260822000100_integracoes_google_service_role_grant.sql` estão `applied`. A última migration passou reset e 16 scripts SQL, dry-run exclusivo, aplicação, pós-check de privilégio/RLS/policies/histórico e dry-run final vazio em 2026-08-22.
+**Schema:** baseline confirmada via dump real em 2026-08 com 44 tabelas; produção e ambiente local estão em 64 tabelas após as migrations incrementais aplicadas até `20260822000200_integracoes_google_servicos.sql` (ver `DATABASE.md`).
+**Histórico CLI:** as três baselines e incrementais até `20260822000200_integracoes_google_servicos.sql` estão `applied`. A última migration passou reset e 16 scripts SQL, dry-run exclusivo, aplicação, pós-check de schema/GRANT/RLS/policies/histórico e dry-run final vazio em 2026-08-22.
 **Reprodutibilidade:** Node.js `24.15.0`, npm `12.0.1`, `npm ci`, typecheck e build validados; CI mínima ativa. Lint mantém 51 achados conhecidos e informativos (27 erros e 24 warnings) na medição de 2026-08-15.
 **Próxima tarefa imediata:** executar a homologação manual autenticada completa de `HOMOLOGATION_V2.md`, incluindo o controlador de atmosfera, a extensão local, os fluxos do fechamento funcional, responsividade e segurança básica.
 
@@ -72,7 +72,7 @@ operacional.
 | Offline | Service Worker — fora de escopo por ora (Fase M2, ver `ROADMAP.md`) |
 | Hosting | Vercel — **em produção desde 2026-07-13** |
 | Toolchain | Node.js 24.15.0 + npm 12.0.1; versões fixadas no repositório |
-| CI/testes | GitHub Actions: `npm ci`, typecheck e build bloqueantes; lint informativo. Testes existentes: 16 scripts SQL e 21 testes Node |
+| CI/testes | GitHub Actions: `npm ci`, typecheck e build bloqueantes; lint informativo. Testes existentes: 16 scripts SQL e 23 testes Node |
 
 ---
 

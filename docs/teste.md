@@ -1,5 +1,17 @@
 # Checklist de Teste Manual — Sistema Pessoal v2.1
 
+## Reteste pendente — contas Google separadas de 2026-08-22
+
+- [ ] Abrir Configurações e confirmar dois cards: YouTube e Google Calendar.
+- [ ] Confirmar que ambos começam desconectados no primeiro deploy deste lote.
+- [ ] Conectar YouTube, escolher explicitamente a conta usada no YouTube e
+      conferir que os e-mails exibidos podem ser diferentes.
+- [ ] Listar playlists/importar vídeo; o fluxo deve usar somente a conta YouTube.
+- [ ] Exportar e reexportar um evento manual; o fluxo deve usar somente Calendar.
+- [ ] Desconectar um serviço e confirmar que o outro continua exibido como
+      conectado e funcional.
+- [ ] Recarregar a página e confirmar persistência independente dos dois estados.
+
 ## Reteste pendente — fechamento visual e extensão de 2026-08-21
 
 ### Atmosfera
@@ -347,17 +359,17 @@ continua separada em `[ ]`.
 
 ### Extensão e integrações
 - [ ] Instalar extensão Edge/Chrome em modo desenvolvedor, configurar URL publicada e enviar artigo/vídeo.
-- PENDENTE CREDENCIAL: cadastrar Google OAuth na Vercel e autorizar a conta;
+- [ ] Google OAuth: conectar Calendar e YouTube com as contas específicas;
   playlists/Calendar já estão implementados em código.
 - [x] Armazenamento cifrado, revogação e idempotência Calendar implementados.
 - PÓS-V2 REAL: Google Calendar bidirecional, Google Photos Picker opcional,
   mídia/template Anki complexo, scraping agressivo e BRAPI histórica.
 
 ### Automação
-- [x] `npm test`: 21/21 (finanças, CSV/TSV, Anki, Agenda, ENEM, Redação,
-  Open Graph, BRAPI e diagnóstico seguro do Supabase).
-- [x] Reset local Supabase e 15 testes SQL, incluindo `validate_biblioteca_capas_storage.sql`.
-- [x] Typecheck, 21 testes Node, build, reset local, 16 scripts SQL, dry-run
+- [x] `npm test`: 23/23 (finanças, CSV/TSV, Anki, Agenda, ENEM, Redação,
+  Open Graph, BRAPI, diagnóstico seguro do Supabase e serviços Google).
+- [x] Reset local Supabase e 16 testes SQL.
+- [x] Typecheck, 23 testes Node, build, reset local, 16 scripts SQL, dry-run
   exclusivo, aplicação e pós-check remoto concluídos antes da publicação.
 
 ## Bateria final pós-implementação — 2026-08-21
@@ -380,24 +392,26 @@ Legenda: `[ ]` testar manualmente; `[x]` validado automaticamente;
   tabela; `BYPASSRLS` sozinho não substitui `GRANT`.
 - [x] Migration incremental validada e aplicada após dry-run exclusivo;
   pós-check confirmou o privilégio sem abrir policy de cliente.
-- [ ] Repetir a rota e confirmar `configurado: true`, `conectado: false` sem erro.
+- [ ] Repetir a rota e confirmar `configurado: true`, com estados separados em
+  `conexoes.youtube` e `conexoes.calendar`, sem erro.
 
 ### Preparação externa
 
 - [ ] PENDENTE AÇÃO DO GABRIEL: no Google Cloud, habilitar YouTube Data API v3
   e Google Calendar API, configurar consentimento e criar OAuth Web.
-- [ ] PENDENTE AÇÃO DO GABRIEL: registrar exatamente
+- [x] Registrado exatamente
   `https://SEU-DOMINIO/api/integracoes/google/callback` como redirect URI.
-- [ ] PENDENTE CREDENCIAL: configurar na Vercel `SUPABASE_SERVICE_ROLE_KEY`,
+- [x] Configuradas na Vercel `SUPABASE_SERVICE_ROLE_KEY`,
   `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI` e
-  `GOOGLE_TOKEN_ENCRYPTION_KEY`, todas server-side; fazer novo deploy.
+  `GOOGLE_TOKEN_ENCRYPTION_KEY`, todas server-side; OAuth já confirmado.
 - [ ] PENDENTE CREDENCIAL: manter `YOUTUBE_API_KEY`, `TMDB_API_KEY` e
   `BRAPI_TOKEN` somente se quiser os fallbacks/serviços opcionais correspondentes.
 
 ### Google / YouTube / Calendar
 
-- [ ] Em Configurações, conferir estado não conectado, conectar, validar e-mail
-  e depois desconectar/reconectar sem token ou detalhe sensível em Network.
+- [ ] Em Configurações, conferir os dois estados, conectar cada serviço com a
+  conta desejada, validar os e-mails e desconectar/reconectar um sem alterar o
+  outro ou expor token/detalhe sensível em Network.
 - [ ] Listar playlists; usar “carregar mais” quando disponível, abrir uma
   playlist, selecionar vídeos e importar. Repetir e esperar duplicados ignorados.
 - [ ] Conferir na Biblioteca título, canal, thumbnail, duração, URL e cadastro

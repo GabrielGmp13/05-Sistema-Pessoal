@@ -2,15 +2,11 @@ import 'server-only'
 
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from 'node:crypto'
 
+import { googleScopes, type GoogleService } from '@/lib/google-service'
+
 import { getServiceSupabase } from './supabase'
 
 const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token'
-export const GOOGLE_SCOPES = [
-  'openid',
-  'email',
-  'https://www.googleapis.com/auth/youtube.readonly',
-  'https://www.googleapis.com/auth/calendar.events',
-]
 
 const GOOGLE_SERVER_ENVIRONMENT = [
   'GOOGLE_CLIENT_ID',
@@ -102,13 +98,14 @@ export async function exchangeGoogleCode(code: string, verifier: string) {
   return body
 }
 
-export async function storeGoogleConnection(userId: string, tokens: TokenResponse) {
+export async function storeGoogleConnection(userId: string, service: GoogleService, tokens: TokenResponse) {
   if (!tokens.access_token) throw new Error('Access token ausente.')
   const admin = getServiceSupabase()
   const { data: current } = await admin
     .from('integracoes_google')
     .select('credenciais_cifradas')
     .eq('user_id', userId)
+    .eq('servico', service)
     .maybeSingle()
   const previous = current?.credenciais_cifradas
     ? decryptGoogleCredentials(current.credenciais_cifradas)
@@ -123,31 +120,33 @@ export async function storeGoogleConnection(userId: string, tokens: TokenRespons
   })
   const profile = profileResponse.ok ? await profileResponse.json() as { email?: string } : {}
   const expiresAt = new Date(Date.now() + Math.max(60, tokens.expires_in ?? 3600) * 1000).toISOString()
-  const scopes = tokens.scope?.split(' ').filter(Boolean) ?? GOOGLE_SCOPES
+  const scopes = tokens.scope?.split(' ').filter(Boolean) ?? googleScopes(service)
   const { error } = await admin.from('integracoes_google').upsert({
     user_id: userId,
+    servico: service,
     credenciais_cifradas: credentials,
     token_expira_em: expiresAt,
     scopes,
     email_google: profile.email ?? null,
     updated_at: new Date().toISOString(),
-  })
+  }, { onConflict: 'user_id,servico' })
   if (error) throw new Error('Não foi possível armazenar a conexão Google.')
 }
 
-export async function getGoogleConnection(userId: string) {
+export async function getGoogleConnection(userId: string, service: GoogleService) {
   const { data, error } = await getServiceSupabase()
     .from('integracoes_google')
     .select('credenciais_cifradas, token_expira_em, scopes, email_google, updated_at')
     .eq('user_id', userId)
+    .eq('servico', service)
     .maybeSingle()
   if (error) throw error
   return data
 }
 
-export async function getGoogleAccessToken(userId: string) {
-  const connection = await getGoogleConnection(userId)
-  if (!connection) throw new Error('Google não conectado.')
+export async function getGoogleAccessToken(userId: string, service: GoogleService) {
+  const connection = await getGoogleConnection(userId, service)
+  if (!connection) throw new Error(`${service === 'youtube' ? 'YouTube' : 'Calendar'} não conectado.`)
   const credentials = decryptGoogleCredentials(connection.credenciais_cifradas)
   const expiresAt = connection.token_expira_em ? new Date(connection.token_expira_em).getTime() : 0
   if (credentials.accessToken && expiresAt > Date.now() + 60_000) return credentials.accessToken
@@ -166,12 +165,12 @@ export async function getGoogleAccessToken(userId: string) {
   })
   const tokens = await response.json() as TokenResponse
   if (!response.ok || !tokens.access_token) throw new Error('Não foi possível renovar a conexão Google.')
-  await storeGoogleConnection(userId, { ...tokens, refresh_token: credentials.refreshToken })
+  await storeGoogleConnection(userId, service, { ...tokens, refresh_token: credentials.refreshToken })
   return tokens.access_token
 }
 
-export async function googleApi<T>(userId: string, url: string, init?: RequestInit): Promise<T> {
-  const accessToken = await getGoogleAccessToken(userId)
+export async function googleApi<T>(userId: string, service: GoogleService, url: string, init?: RequestInit): Promise<T> {
+  const accessToken = await getGoogleAccessToken(userId, service)
   const response = await fetch(url, {
     ...init,
     headers: {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { GOOGLE_SCOPES, googleConfigured, oauthState, pkceChallenge, pkceVerifier } from '@/lib/server/google'
+import { googleScopes, parseGoogleService } from '@/lib/google-service'
+import { googleConfigured, oauthState, pkceChallenge, pkceVerifier } from '@/lib/server/google'
 import { getApiUser } from '@/lib/server/supabase'
 
 export async function GET(request: NextRequest) {
@@ -9,6 +10,8 @@ export async function GET(request: NextRequest) {
   if (!googleConfigured()) {
     return NextResponse.redirect(new URL('/configuracoes?google=configuracao', request.url))
   }
+  const service = parseGoogleService(request.nextUrl.searchParams.get('servico'))
+  if (!service) return NextResponse.redirect(new URL('/configuracoes?google=servico-invalido', request.url))
 
   const state = oauthState()
   const verifier = pkceVerifier()
@@ -17,10 +20,9 @@ export async function GET(request: NextRequest) {
     client_id: process.env.GOOGLE_CLIENT_ID!,
     redirect_uri: process.env.GOOGLE_REDIRECT_URI!,
     response_type: 'code',
-    scope: GOOGLE_SCOPES.join(' '),
+    scope: googleScopes(service).join(' '),
     access_type: 'offline',
-    prompt: 'consent',
-    include_granted_scopes: 'true',
+    prompt: 'consent select_account',
     state,
     code_challenge: pkceChallenge(verifier),
     code_challenge_method: 'S256',
@@ -36,5 +38,6 @@ export async function GET(request: NextRequest) {
   }
   response.cookies.set('google_oauth_state', state, cookieOptions)
   response.cookies.set('google_oauth_verifier', verifier, cookieOptions)
+  response.cookies.set('google_oauth_service', service, cookieOptions)
   return response
 }

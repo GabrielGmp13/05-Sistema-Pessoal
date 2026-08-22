@@ -6,10 +6,23 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 
 ## Status geral
 **Fase atual:** v2.1 — fechamento técnico completo; publicação deste lote e homologação manual em produção são as únicas etapas restantes. A v1 está aposentada (DEC-031) e `frontend/` é o único frontend ativo.
-**Bloqueio:** apenas configuração de credenciais externas e homologação autenticada pelo Gabriel.
-**Banco:** produção e cadeia local estão alinhadas até `20260822000100_integracoes_google_service_role_grant.sql`; o pós-check confirmou CRUD do `service_role`, RLS ativa, zero policies de cliente, histórico e dry-run vazio.
+**Bloqueio:** apenas homologação autenticada pelo Gabriel.
+**Banco:** produção e cadeia local estão alinhadas até `20260822000200_integracoes_google_servicos.sql`; o pós-check confirmou serviço obrigatório, domínio, PK composta, CRUD do `service_role`, RLS ativa, zero policies de cliente, histórico e dry-run vazio.
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** configurar as variáveis externas documentadas, conectar a conta Google e executar `docs/teste.md`/`docs/HOMOLOGATION_V2.md` no deploy.
+**Próxima ação:** após o deploy, conectar separadamente Calendar e YouTube com as contas desejadas e executar `docs/teste.md`/`docs/HOMOLOGATION_V2.md`.
+
+## Contas Google separadas por serviço — 2026-08-22
+
+- [x] Cofre evoluído para chave composta `(user_id, servico)`, limitada a
+      `youtube` e `calendar`; conexão legada preservada somente como Calendar.
+- [x] OAuth, status, refresh, consumo e desconexão isolados por serviço, com
+      escolha explícita da conta e escopos funcionais mínimos.
+- [x] Configurações mostram dois cards independentes; Agenda lê apenas Calendar
+      e importação de playlists lê apenas YouTube.
+- [x] Reset local, 16 scripts SQL, 23 testes Node, typecheck e build passaram.
+- [x] Dry-run remoto exclusivo, aplicação, pós-check e dry-run final vazio.
+- [ ] Retestar no deploy: conectar Calendar e YouTube; validar e-mails distintos,
+      playlists e exportação da Agenda.
 
 ## Diagnóstico da conexão Google em produção — 2026-08-22
 
@@ -21,7 +34,8 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] Cliente server-side aceita `sb_secret_...` e JWT legado `service_role`,
       rejeitando chave pública conhecida antes da chamada remota.
 - [x] Testes automatizados cobrem formatos de chave, classificação por código e
-      sanitização do log; suíte Node atual: 21 testes.
+      sanitização do log; a suíte cresceu depois para 23 testes com a separação
+      dos serviços Google.
 - [ ] Retestar `/api/integracoes/google/status` após o deploy e conferir no log
       Vercel o `kind`/`code` seguro se o Supabase ainda recusar a consulta.
 - [x] O reteste retornou `permission_denied`/`42501`: a migration original
@@ -30,7 +44,8 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
       RLS continua ativa e a tabela continua sem policy de cliente.
 - [x] Reset e 16 scripts SQL passaram; dry-run remoto listou exclusivamente a
       migration autorizada, aplicação e pós-check passaram e o dry-run final ficou vazio.
-- [ ] Retestar a rota no deploy após a publicação deste lote.
+- [x] Rota retestada e permissão corrigida; o modelo foi depois separado por
+      serviço conforme o lote acima.
 
 ## Fechamento técnico de integrações e uploads — 2026-08-21
 
@@ -46,15 +61,15 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
       limites, cards básicos/cloze e deduplicação; CSV/TSV foi preservado.
 - [x] Open Graph/SSRF, extensão, BRAPI e séries financeiras foram revalidados;
       parsers e cálculos de alto valor ganharam 18 testes Node naquele lote; a
-      suíte atual possui 21 após os testes de diagnóstico Supabase.
+      suíte atual possui 23 após os testes de diagnóstico e serviços Google.
 - [x] Next.js e eslint-config-next atualizados para 16.3.2; `npm audit` sem
       vulnerabilidades conhecidas após a atualização.
 - [x] Migration `20260821000200_integracoes_google_midias.sql`: reset local,
       16 testes SQL, dry-run remoto exclusivo, aplicação, pós-check e dry-run
       final vazio aprovados.
-- [ ] PENDENTE AÇÃO DO GABRIEL: cadastrar OAuth no Google Cloud, configurar
-      variáveis server-side na Vercel, fazer novo deploy, conectar a conta,
-      recarregar a extensão e executar a bateria manual.
+- [ ] PENDENTE AÇÃO DO GABRIEL: após o deploy, conectar as contas específicas de
+      YouTube e Calendar, recarregar a extensão e
+      executar a bateria manual.
 
 ## Fechamento visual e operacional — 2026-08-21
 

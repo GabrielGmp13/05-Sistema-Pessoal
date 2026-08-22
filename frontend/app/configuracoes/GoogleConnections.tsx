@@ -5,12 +5,22 @@ import { CalendarDays, CheckCircle2, ListVideo, Loader2, RefreshCw, Unplug } fro
 
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import type { GoogleService } from '@/lib/google-service'
 import { cn } from '@/lib/utils'
+
+interface GoogleConnectionStatus {
+  conectado: boolean
+  email: string | null
+}
 
 interface GoogleStatus {
   configurado: boolean
-  conectado: boolean
-  email?: string | null
+  conexoes: Record<GoogleService, GoogleConnectionStatus>
+}
+
+const SERVICE_LABELS: Record<GoogleService, string> = {
+  youtube: 'YouTube',
+  calendar: 'Google Calendar',
 }
 
 interface Playlist {
@@ -55,9 +65,12 @@ export function GoogleConnections() {
     const timeoutId = window.setTimeout(() => {
       void carregarStatus()
       const oauth = new URLSearchParams(window.location.search).get('google')
+      const service = new URLSearchParams(window.location.search).get('servico') as GoogleService | null
+      const serviceLabel = service && SERVICE_LABELS[service] ? SERVICE_LABELS[service] : 'Google'
       const messages: Record<string, string> = {
-        conectado: 'Conta Google conectada com sucesso.',
+        conectado: `${serviceLabel} conectado com sucesso.`,
         configuracao: 'Configure as variáveis Google no servidor antes de conectar.',
+        'servico-invalido': 'Escolha YouTube ou Calendar antes de conectar.',
         'estado-invalido': 'A tentativa OAuth expirou ou falhou na validação de segurança.',
         erro: 'O Google não concluiu a conexão. Tente novamente.',
       }
@@ -140,18 +153,20 @@ export function GoogleConnections() {
     }
   }
 
-  async function desconectar() {
+  async function desconectar(service: GoogleService) {
     setProcessando(true)
     setErro('')
     try {
-      const response = await fetch('/api/integracoes/google/disconnect', { method: 'POST' })
+      const response = await fetch(`/api/integracoes/google/disconnect?servico=${service}`, { method: 'POST' })
       const body = await response.json() as { erro?: string }
       if (!response.ok) throw new Error(body.erro || 'Não foi possível desconectar.')
-      setPlaylists([])
-      setVideos([])
-      setProximaPaginaPlaylists(null)
-      setProximaPaginaVideos(null)
-      setMensagem('Conta Google desconectada localmente e revogação solicitada ao provedor.')
+      if (service === 'youtube') {
+        setPlaylists([])
+        setVideos([])
+        setProximaPaginaPlaylists(null)
+        setProximaPaginaVideos(null)
+      }
+      setMensagem(`${SERVICE_LABELS[service]} desconectado; a revogação foi solicitada ao provedor.`)
       await carregarStatus()
     } catch (error) {
       setErro(error instanceof Error ? error.message : 'Não foi possível desconectar.')
@@ -165,23 +180,42 @@ export function GoogleConnections() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="font-mono text-xs font-semibold uppercase text-muted-foreground">Integrações</p>
-          <h2 className="mt-1 text-xl font-semibold">Google</h2>
-          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">Conexão server-side para playlists do YouTube e exportação unilateral da Agenda. Tokens nunca são enviados ao navegador.</p>
+          <h2 className="mt-1 text-xl font-semibold">Contas Google</h2>
+          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">YouTube e Calendar têm autorizações independentes e podem usar contas diferentes. Tokens nunca são enviados ao navegador.</p>
         </div>
-        {!status ? <Loader2 className="size-5 animate-spin text-muted-foreground" /> : status.conectado ? (
-          <Button type="button" variant="outline" onClick={() => void desconectar()} disabled={processando}><Unplug />Desconectar</Button>
-        ) : status.configurado ? (
-          <a href="/api/integracoes/google/connect" className={cn(buttonVariants())}>Conectar Google</a>
-        ) : <Button type="button" disabled>Conectar Google</Button>}
+        {!status ? <Loader2 className="size-5 animate-spin text-muted-foreground" /> : null}
       </div>
 
-      {status ? <div className="mt-4 rounded-lg border border-border bg-muted/40 p-3 text-sm">
-        {status.conectado ? <p className="flex items-center gap-2"><CheckCircle2 className="size-4 text-success" />Conectado{status.email ? ` como ${status.email}` : ''}.</p> : status.configurado ? <p>Credenciais configuradas; autorização da conta ainda pendente.</p> : <p>Configuração server-side ausente. Consulte <code>docs/INTEGRACOES_EXTERNAS.md</code>.</p>}
+      {status && !status.configurado ? <div className="mt-4 rounded-lg border border-border bg-muted/40 p-3 text-sm">Configuração server-side ausente. Consulte <code>docs/INTEGRACOES_EXTERNAS.md</code>.</div> : null}
+
+      {status?.configurado ? <div className="mt-4 grid gap-3 md:grid-cols-2">
+        {(['youtube', 'calendar'] as GoogleService[]).map((service) => {
+          const connection = status.conexoes[service]
+          const Icon = service === 'youtube' ? ListVideo : CalendarDays
+          return <div key={service} className="rounded-lg border border-border bg-muted/30 p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h3 className="flex items-center gap-2 font-semibold"><Icon className="size-4" />{SERVICE_LABELS[service]}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{connection.conectado
+                  ? <>Conectado{connection.email ? ` como ${connection.email}` : ''}.</>
+                  : 'Conta ainda não conectada.'}</p>
+              </div>
+              {connection.conectado
+                ? <CheckCircle2 className="size-5 shrink-0 text-success" />
+                : null}
+            </div>
+            <div className="mt-4">
+              {connection.conectado
+                ? <Button type="button" size="sm" variant="outline" onClick={() => void desconectar(service)} disabled={processando}><Unplug />Desconectar</Button>
+                : <a href={`/api/integracoes/google/connect?servico=${service}`} className={cn(buttonVariants({ size: 'sm' }))}>Conectar {SERVICE_LABELS[service]}</a>}
+            </div>
+          </div>
+        })}
       </div> : null}
       {mensagem ? <p role="status" className="mt-3 text-sm text-success-foreground">{mensagem}</p> : null}
       {erro ? <p role="alert" className="mt-3 text-sm text-destructive">{erro}</p> : null}
 
-      {status?.conectado ? <div className="mt-6 border-t border-border pt-5">
+      {status?.conexoes.youtube.conectado ? <div className="mt-6 border-t border-border pt-5">
         <div className="flex flex-wrap items-center justify-between gap-3"><div><h3 className="flex items-center gap-2 font-semibold"><ListVideo className="size-4" />Playlists do YouTube</h3><p className="mt-1 text-xs text-muted-foreground">Importa os vídeos selecionados e ignora IDs já presentes na Biblioteca.</p></div><Button type="button" variant="outline" size="sm" disabled={processando} onClick={() => void carregarPlaylists()}><RefreshCw className={processando ? 'animate-spin' : ''} />Listar playlists</Button></div>
         {playlists.length > 0 ? <div className="mt-4 grid gap-2 sm:grid-cols-2">{playlists.map((playlist) => <button key={playlist.id} type="button" onClick={() => void carregarVideos(playlist.id)} className={`rounded-lg border p-3 text-left hover:bg-muted/50 ${playlistAtiva === playlist.id ? 'border-primary bg-primary/5' : 'border-border'}`}><strong className="block truncate text-sm">{playlist.titulo}</strong><span className="mt-1 block text-xs text-muted-foreground">{playlist.quantidade} vídeo(s)</span></button>)}</div> : null}
         {proximaPaginaPlaylists ? <Button type="button" className="mt-3" variant="ghost" size="sm" disabled={processando} onClick={() => void carregarPlaylists(proximaPaginaPlaylists)}>Carregar mais playlists</Button> : null}

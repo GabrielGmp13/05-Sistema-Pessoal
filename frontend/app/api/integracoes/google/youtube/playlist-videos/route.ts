@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
   try {
     const params = new URLSearchParams({ part: 'snippet', playlistId, maxResults: '50' })
     if (pageToken) params.set('pageToken', pageToken)
-    const data = await googleApi<PlaylistItemsResponse>(user.id, `https://www.googleapis.com/youtube/v3/playlistItems?${params}`)
+    const data = await googleApi<PlaylistItemsResponse>(user.id, 'youtube', `https://www.googleapis.com/youtube/v3/playlistItems?${params}`)
     return NextResponse.json({
       videos: (data.items ?? []).map((item) => ({
         youtubeId: item.snippet?.resourceId?.videoId,

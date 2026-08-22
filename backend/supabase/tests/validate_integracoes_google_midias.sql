@@ -13,7 +13,7 @@ $$;
 
 SELECT pg_temp.assert_true(to_regclass('public.integracoes_google') IS NOT NULL, 'tabela server-only ausente');
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 5 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'integracoes_google' AND column_name IN ('credenciais_cifradas', 'token_expira_em', 'scopes', 'email_google', 'updated_at')),
+  (SELECT count(*) = 6 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'integracoes_google' AND column_name IN ('servico', 'credenciais_cifradas', 'token_expira_em', 'scopes', 'email_google', 'updated_at')),
   'colunas de credencial ausentes'
 );
 SELECT pg_temp.assert_true(
@@ -33,8 +33,30 @@ SELECT pg_temp.assert_true(
   'service_role deve possuir CRUD no cofre Google'
 );
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 1 FROM pg_constraint WHERE conrelid = 'public.integracoes_google'::regclass AND contype = 'p'),
-  'user_id deve ser PK'
+  (
+    SELECT array_agg(attribute.attname ORDER BY key_column.ordinality) = ARRAY['user_id', 'servico']::name[]
+    FROM pg_constraint constraint_info
+    CROSS JOIN LATERAL unnest(constraint_info.conkey) WITH ORDINALITY AS key_column(attnum, ordinality)
+    JOIN pg_attribute attribute
+      ON attribute.attrelid = constraint_info.conrelid AND attribute.attnum = key_column.attnum
+    WHERE constraint_info.conrelid = 'public.integracoes_google'::regclass
+      AND constraint_info.contype = 'p'
+  ),
+  'PK deve ser composta por user_id e servico'
+);
+SELECT pg_temp.assert_true(
+  EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conrelid = 'public.integracoes_google'::regclass
+      AND conname = 'integracoes_google_servico_check'
+      AND pg_get_constraintdef(oid) LIKE '%servico%youtube%calendar%'
+  ),
+  'servico deve aceitar somente youtube ou calendar'
+);
+SELECT pg_temp.assert_true(
+  (SELECT is_nullable = 'NO' FROM information_schema.columns
+   WHERE table_schema = 'public' AND table_name = 'integracoes_google' AND column_name = 'servico'),
+  'servico deve ser obrigatório'
 );
 SELECT pg_temp.assert_true(
   (SELECT confdeltype = 'c' FROM pg_constraint WHERE conrelid = 'public.integracoes_google'::regclass AND contype = 'f'),
