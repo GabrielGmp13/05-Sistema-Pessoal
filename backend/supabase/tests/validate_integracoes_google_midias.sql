@@ -13,7 +13,7 @@ $$;
 
 SELECT pg_temp.assert_true(to_regclass('public.integracoes_google') IS NOT NULL, 'tabela server-only ausente');
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 3 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'integracoes_google' AND column_name IN ('credenciais_cifradas', 'token_expira_em', 'scopes')),
+  (SELECT count(*) = 5 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'integracoes_google' AND column_name IN ('credenciais_cifradas', 'token_expira_em', 'scopes', 'email_google', 'updated_at')),
   'colunas de credencial ausentes'
 );
 SELECT pg_temp.assert_true(

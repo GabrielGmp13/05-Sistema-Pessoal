@@ -12,6 +12,14 @@ export const GOOGLE_SCOPES = [
   'https://www.googleapis.com/auth/calendar.events',
 ]
 
+const GOOGLE_SERVER_ENVIRONMENT = [
+  'GOOGLE_CLIENT_ID',
+  'GOOGLE_CLIENT_SECRET',
+  'GOOGLE_REDIRECT_URI',
+  'GOOGLE_TOKEN_ENCRYPTION_KEY',
+  'SUPABASE_SERVICE_ROLE_KEY',
+] as const
+
 interface GoogleCredentials {
   accessToken: string
   refreshToken: string | null
@@ -25,14 +33,12 @@ interface TokenResponse {
   error?: string
 }
 
+export function missingGoogleServerEnvironment() {
+  return GOOGLE_SERVER_ENVIRONMENT.filter((name) => !process.env[name]?.trim())
+}
+
 export function googleConfigured() {
-  return Boolean(
-    process.env.GOOGLE_CLIENT_ID?.trim()
-    && process.env.GOOGLE_CLIENT_SECRET?.trim()
-    && process.env.GOOGLE_REDIRECT_URI?.trim()
-    && process.env.GOOGLE_TOKEN_ENCRYPTION_KEY?.trim()
-    && process.env.SUPABASE_SERVICE_ROLE_KEY?.trim(),
-  )
+  return missingGoogleServerEnvironment().length === 0
 }
 
 function encryptionKey() {
@@ -135,7 +141,7 @@ export async function getGoogleConnection(userId: string) {
     .select('credenciais_cifradas, token_expira_em, scopes, email_google, updated_at')
     .eq('user_id', userId)
     .maybeSingle()
-  if (error) throw new Error('Não foi possível consultar a conexão Google.')
+  if (error) throw error
   return data
 }
 

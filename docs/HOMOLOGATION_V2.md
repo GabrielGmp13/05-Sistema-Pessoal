@@ -202,7 +202,7 @@ usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
 - [ ] Artigos: colar URL pública, conferir título/site/autor/imagem/tempo sugeridos e cadastrar manualmente quando o site bloquear.
 - [ ] Extensão: instalar/recarregar a pasta `browser-extension`, confirmar aviso antes de configurar, salvar a origem HTTPS e enviar uma página comum e um vídeo YouTube; o popup só fecha após abrir a Biblioteca.
 - [ ] BRAPI: repetir consulta no intervalo curto sem quebrar fallback sem token/quota.
-- [x] Testes automatizados locais: 18/18; reset Supabase e 16/16 scripts SQL.
+- [x] Testes automatizados locais: 21/21; reset Supabase e 16/16 scripts SQL.
 - [ ] PENDENTE CREDENCIAL: configurar Google Cloud/Vercel e conectar a conta;
       então testar playlists e Calendar. Ausência sem variável não é bug.
 - [ ] Testar `.apkg` real com deck básico/cloze e manter CSV/TSV como fallback;
@@ -226,5 +226,5 @@ usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
       gravar, recarregar e confirmar deduplicação. Testar também pacote inválido.
 - [ ] Confirmar em Network/bundle que client secret, service role, refresh token,
       chave AES e URL do banco não aparecem.
-- [x] Reset local, suíte SQL, typecheck, 18 testes Node, build, audit de
+- [x] Reset local, suíte SQL, typecheck, 21 testes Node, build, audit de
       dependências, dry-run exclusivo, aplicação, pós-check e dry-run vazio.

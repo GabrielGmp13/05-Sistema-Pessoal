@@ -20,6 +20,13 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — v2.1 pronta tecnicamente; homologação manual pendente
 
+- **2026-08-22 (diagnóstico da conexão Google)** — A rota de status passou a
+  preservar e classificar erros do Supabase por códigos estáveis, registrar
+  somente campos seguros e diferenciar ambiente ausente, chave inválida,
+  tabela/coluna ausente, permissão e erro inesperado. O cliente server-side
+  valida chaves públicas por engano e mantém compatibilidade com `sb_secret_`
+  e JWT legado `service_role`. A suíte Node passou a 21 testes; sem migration.
+
 - **2026-08-21 (fechamento técnico de integrações e uploads)** — OAuth Google
   ganhou state/PKCE, cofre AES-256-GCM server-only, UI de conexão/revogação,
   importação paginada de playlists do YouTube e exportação idempotente da

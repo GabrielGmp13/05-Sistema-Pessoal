@@ -11,6 +11,20 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
 **Próxima ação:** configurar as variáveis externas documentadas, conectar a conta Google e executar `docs/teste.md`/`docs/HOMOLOGATION_V2.md` no deploy.
 
+## Diagnóstico da conexão Google em produção — 2026-08-22
+
+- [x] O erro PostgREST deixou de ser descartado por `getGoogleConnection()`.
+- [x] A rota de status registra somente rota, categoria, mensagem, `code`,
+      `details` e `hint`, sem token, variável, cookie ou header.
+- [x] O JSON diferencia ambiente ausente, chave secreta recusada, tabela/coluna
+      ausente, permissão negada e falha inesperada.
+- [x] Cliente server-side aceita `sb_secret_...` e JWT legado `service_role`,
+      rejeitando chave pública conhecida antes da chamada remota.
+- [x] Testes automatizados cobrem formatos de chave, classificação por código e
+      sanitização do log; suíte Node atual: 21 testes.
+- [ ] Retestar `/api/integracoes/google/status` após o deploy e conferir no log
+      Vercel o `kind`/`code` seguro se o Supabase ainda recusar a consulta.
+
 ## Fechamento técnico de integrações e uploads — 2026-08-21
 
 - [x] OAuth Google server-side com state, PKCE, tokens cifrados, refresh,
@@ -24,7 +38,8 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 - [x] Revisão aceita `.apkg` real com ZIP/SQLite, seleção de deck, prévia,
       limites, cards básicos/cloze e deduplicação; CSV/TSV foi preservado.
 - [x] Open Graph/SSRF, extensão, BRAPI e séries financeiras foram revalidados;
-      parsers e cálculos de alto valor ganharam 18 testes Node.
+      parsers e cálculos de alto valor ganharam 18 testes Node naquele lote; a
+      suíte atual possui 21 após os testes de diagnóstico Supabase.
 - [x] Next.js e eslint-config-next atualizados para 16.3.2; `npm audit` sem
       vulnerabilidades conhecidas após a atualização.
 - [x] Migration `20260821000200_integracoes_google_midias.sql`: reset local,

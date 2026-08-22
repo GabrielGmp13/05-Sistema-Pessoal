@@ -354,16 +354,27 @@ continua separada em `[ ]`.
   mídia/template Anki complexo, scraping agressivo e BRAPI histórica.
 
 ### Automação
-- [x] `npm test`: 18/18 (finanças, CSV/TSV, Anki, Agenda, ENEM, Redação,
-  Open Graph e BRAPI).
+- [x] `npm test`: 21/21 (finanças, CSV/TSV, Anki, Agenda, ENEM, Redação,
+  Open Graph, BRAPI e diagnóstico seguro do Supabase).
 - [x] Reset local Supabase e 15 testes SQL, incluindo `validate_biblioteca_capas_storage.sql`.
-- [x] Typecheck, 18 testes Node, build, reset local, 16 scripts SQL, dry-run
+- [x] Typecheck, 21 testes Node, build, reset local, 16 scripts SQL, dry-run
   exclusivo, aplicação e pós-check remoto concluídos antes da publicação.
 
 ## Bateria final pós-implementação — 2026-08-21
 
 Legenda: `[ ]` testar manualmente; `[x]` validado automaticamente;
 `PENDENTE AÇÃO DO GABRIEL`; `PENDENTE CREDENCIAL`; `PÓS-V2 REAL`.
+
+### Reteste do status Google — correção em código de 2026-08-22
+
+- Relato preservado: em produção, `/api/integracoes/google/status` retornava
+  apenas `{"erro":"Não foi possível consultar a conexão."}` mesmo com as
+  variáveis Google presentes.
+- [x] Corrigido em código: o erro original não é mais descartado e a resposta
+  diferencia configuração, chave, tabela, coluna, permissão e erro inesperado.
+- [ ] Após o deploy, abrir a rota autenticado. Se ainda falhar, registrar
+  `diagnostico.tipo`/`diagnostico.codigo` e conferir o evento correspondente
+  nos logs da Vercel; nenhum segredo deve aparecer.
 
 ### Preparação externa
 
