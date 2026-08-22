@@ -22,6 +22,8 @@ import { getGeneros, getMapaGenerosDosItens, salvarGenerosDoItem, seedGenerosSeN
 import type { Genero } from '@/lib/generos';
 import { ordenarItensBiblioteca, type OrdenacaoBiblioteca } from '@/lib/biblioteca-ordenacao';
 import styles from './BibliotecaSection.module.css';
+import CapaUploadField from './CapaUploadField';
+import { persistirComCapa } from '@/lib/biblioteca-capas';
 
 const STATUS_LABEL: Record<string, string> = {
   quero_ouvir: 'Quero ouvir',
@@ -61,6 +63,7 @@ export default function PodcastsSection({
   const [modalAberto, setModalAberto] = useState(false);
   const [editandoUuid, setEditandoUuid] = useState<string | null>(null);
   const [form, setForm] = useState<PodcastInput>(FORM_VAZIO);
+  const [arquivoCapa, setArquivoCapa] = useState<File | null>(null);
   const [salvando, setSalvando] = useState(false);
 
   const [menuAbertoUuid, setMenuAbertoUuid] = useState<string | null>(null);
@@ -116,11 +119,13 @@ export default function PodcastsSection({
   function abrirNovo() {
     setEditandoUuid(null);
     setForm(FORM_VAZIO);
+    setArquivoCapa(null);
     setGenerosSelecionados([]);
     setModalAberto(true);
   }
 
   function abrirEdicao(podcast: Podcast) {
+    setArquivoCapa(null);
     setEditandoUuid(podcast.uuid);
     setForm({
       titulo: podcast.titulo,
@@ -146,12 +151,15 @@ export default function PodcastsSection({
     if (!form.titulo?.trim()) return;
 
     setSalvando(true);
-    const resultado = editandoUuid
-      ? await atualizarPodcast(editandoUuid, form)
-      : await criarPodcast(form);
+    const atual = editandoUuid ? podcasts.find((podcast) => podcast.uuid === editandoUuid) : null;
+    const persistencia = await persistirComCapa({ categoria: 'podcasts', arquivo: arquivoCapa, capaPathAtual: atual?.capa_path, persistir: (capaPath) => {
+      const dados = capaPath ? { ...form, capa_path: capaPath } : form;
+      return editandoUuid ? atualizarPodcast(editandoUuid, dados) : criarPodcast(dados);
+    }});
+    const resultado = persistencia.resultado;
 
     if (resultado === null) {
-      setErro('Não foi possível salvar o podcast.');
+      setErro(persistencia.erro ?? 'Não foi possível salvar o podcast.');
     } else {
       const userId = await getUserId();
       const { error: erroGeneros } = userId
@@ -243,6 +251,7 @@ export default function PodcastsSection({
               key={podcast.uuid}
               titulo={podcast.titulo}
               capaUrl={podcast.capa_url}
+              capaPath={podcast.capa_path}
               favorito={podcast.favorito}
               nota={podcast.nota}
               ano={null} // podcasts não têm campo de ano
@@ -295,6 +304,7 @@ export default function PodcastsSection({
                   link_oficial: resultado.linkOficial ?? atual.link_oficial,
                 }))}
               />
+              <CapaUploadField arquivo={arquivoCapa} onChange={setArquivoCapa} />
               <label>
                 Produtora
                 <input

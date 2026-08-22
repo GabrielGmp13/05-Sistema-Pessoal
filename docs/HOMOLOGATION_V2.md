@@ -188,3 +188,15 @@ usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
 - [ ] Nenhum fluxo usa `confirm()` ou `window.prompt`; exclusões usam `ConfirmDialog`
 - [ ] Erros externos e do Supabase não exibem tokens, URLs de banco ou credenciais
 - [ ] Logout, expiração e cookie inválido não liberam páginas nem APIs protegidas
+
+## Lote de fechamento funcional — 2026-08-21
+
+- [ ] Finanças: criar despesa em 3 parcelas com centavos, conferir soma, meses, `1/3`–`3/3`, recarga e exclusão individual.
+- [ ] Finanças: criar recorrência mensal finita, conferir valor por mês e ausência de duplicação após recarga.
+- [ ] Biblioteca: em cada uma das oito categorias, enviar JPG/PNG/WebP, recarregar, abrir card e substituir a capa; rejeitar formato inválido e arquivo acima de 3 MB.
+- [ ] Artigos: colar URL pública, conferir título/site/autor/imagem/tempo sugeridos e cadastrar manualmente quando o site bloquear.
+- [ ] Extensão: instalar a pasta `browser-extension`, configurar URL HTTPS e enviar uma página comum e um vídeo YouTube.
+- [ ] BRAPI: repetir consulta no intervalo curto sem quebrar fallback sem token/quota.
+- [x] Testes automatizados locais: 6/6; reset Supabase e 15/15 testes SQL.
+- [ ] YouTube playlists, Google Calendar e Google Photos: `PENDENTE CREDENCIAL` e `PENDENTE DECISÃO` de cofre de token; não registrar ausência como bug.
+- [ ] Anki `.apkg`: `PÓS-V2`; CSV/TSV continua sendo o formato suportado.

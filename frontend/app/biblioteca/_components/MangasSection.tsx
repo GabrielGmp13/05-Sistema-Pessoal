@@ -23,6 +23,8 @@ import { getGeneros, getMapaGenerosDosItens, salvarGenerosDoItem, seedGenerosSeN
 import type { Genero } from '@/lib/generos';
 import { ordenarItensBiblioteca, type OrdenacaoBiblioteca } from '@/lib/biblioteca-ordenacao';
 import styles from './BibliotecaSection.module.css';
+import CapaUploadField from './CapaUploadField';
+import { persistirComCapa } from '@/lib/biblioteca-capas';
 
 const STATUS_LABEL: Record<string, string> = {
   quero_ler: 'Quero ler',
@@ -72,6 +74,7 @@ export default function MangasSection({
   const [modalAberto, setModalAberto] = useState(false);
   const [editandoUuid, setEditandoUuid] = useState<string | null>(null);
   const [form, setForm] = useState<MangaInput>(FORM_VAZIO);
+  const [arquivoCapa, setArquivoCapa] = useState<File | null>(null);
   const [salvando, setSalvando] = useState(false);
 
   const [menuAbertoUuid, setMenuAbertoUuid] = useState<string | null>(null);
@@ -127,11 +130,13 @@ export default function MangasSection({
   function abrirNovo() {
     setEditandoUuid(null);
     setForm(FORM_VAZIO);
+    setArquivoCapa(null);
     setGenerosSelecionados([]);
     setModalAberto(true);
   }
 
   function abrirEdicao(manga: Manga) {
+    setArquivoCapa(null);
     setEditandoUuid(manga.uuid);
     setForm({
       titulo: manga.titulo,
@@ -162,12 +167,15 @@ export default function MangasSection({
     if (!form.titulo?.trim()) return;
 
     setSalvando(true);
-    const resultado = editandoUuid
-      ? await atualizarManga(editandoUuid, form)
-      : await criarManga(form);
+    const atual = editandoUuid ? mangas.find((manga) => manga.uuid === editandoUuid) : null;
+    const persistencia = await persistirComCapa({ categoria: 'mangas', arquivo: arquivoCapa, capaPathAtual: atual?.capa_path, persistir: (capaPath) => {
+      const dados = capaPath ? { ...form, capa_path: capaPath } : form;
+      return editandoUuid ? atualizarManga(editandoUuid, dados) : criarManga(dados);
+    }});
+    const resultado = persistencia.resultado;
 
     if (resultado === null) {
-      setErro('Não foi possível salvar o mangá.');
+      setErro(persistencia.erro ?? 'Não foi possível salvar o mangá.');
     } else {
       const userId = await getUserId();
       const { error: erroGeneros } = userId
@@ -272,6 +280,7 @@ export default function MangasSection({
               key={manga.uuid}
               titulo={manga.titulo}
               capaUrl={manga.capa_url}
+              capaPath={manga.capa_path}
               favorito={manga.favorito}
               nota={manga.nota}
               ano={manga.ano_inicio_publicacao}
@@ -329,6 +338,7 @@ export default function MangasSection({
                   link_mal: resultado.linkOficial ?? atual.link_mal,
                 }))}
               />
+              <CapaUploadField arquivo={arquivoCapa} onChange={setArquivoCapa} />
               <label>
                 Título traduzido
                 <input

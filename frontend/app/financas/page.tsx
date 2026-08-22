@@ -10,6 +10,7 @@ import { Progress } from '@/components/ui/progress'
 import { buscarCotacao, CotacaoAtivo } from '@/lib/cotacoes'
 import {
   CategoriaFinanceira,
+  criarLancamentosFinanceiros,
   deletarCategoriaFinanceira,
   deletarInvestimentoFinanceiro,
   deletarLancamentoFinanceiro,
@@ -32,6 +33,7 @@ import {
   TipoInvestimento,
   TipoMovimento,
 } from '@/lib/financas'
+import { gerarSerieLancamentos, type ModoLancamento } from '@/lib/financas-series'
 import { dataLocalIso } from '@/lib/date'
 
 type Exclusao = { tipo: 'categoria' | 'lancamento' | 'orcamento' | 'meta' | 'investimento'; uuid: string; nome: string }
@@ -68,6 +70,8 @@ export default function FinancasPage() {
   const [lancamentoValor, setLancamentoValor] = useState('')
   const [lancamentoData, setLancamentoData] = useState(dataLocalIso())
   const [lancamentoDescricao, setLancamentoDescricao] = useState('')
+  const [lancamentoModo, setLancamentoModo] = useState<ModoLancamento>('unico')
+  const [lancamentoQuantidade, setLancamentoQuantidade] = useState('2')
   const [metaEditando, setMetaEditando] = useState<MetaEconomia | null>(null)
   const [metaTitulo, setMetaTitulo] = useState('')
   const [metaAlvo, setMetaAlvo] = useState('')
@@ -138,12 +142,18 @@ export default function FinancasPage() {
   async function salvarLancamento() {
     const categoria = categorias.find((item) => item.uuid === lancamentoCategoria)
     if (!categoria || Number(lancamentoValor) <= 0) return setErro('Selecione a categoria e informe um valor válido.')
-    await executar(() => salvarLancamentoFinanceiro({
-      categoria_uuid: categoria.uuid, tipo: categoria.tipo, valor: Number(lancamentoValor),
-      data: lancamentoData, descricao: lancamentoDescricao.trim() || null,
-    }, lancamentoEditando?.uuid), () => {
-      setLancamentoEditando(null); setLancamentoCategoria(''); setLancamentoValor(''); setLancamentoDescricao(''); setLancamentoData(dataLocalIso())
-    })
+    if (lancamentoModo === 'parcelado' && categoria.tipo !== 'saida') return setErro('Parcelamento está disponível apenas para despesas.')
+    try {
+      const serie = gerarSerieLancamentos({ valor: Number(lancamentoValor), data: lancamentoData, descricao: lancamentoDescricao, modo: lancamentoEditando ? 'unico' : lancamentoModo, quantidade: Number(lancamentoQuantidade) })
+      await executar(
+        () => lancamentoEditando
+          ? salvarLancamentoFinanceiro({ categoria_uuid: categoria.uuid, tipo: categoria.tipo, ...serie[0] }, lancamentoEditando.uuid)
+          : criarLancamentosFinanceiros(serie.map((item) => ({ categoria_uuid: categoria.uuid, tipo: categoria.tipo, ...item }))),
+        () => { setLancamentoEditando(null); setLancamentoCategoria(''); setLancamentoValor(''); setLancamentoDescricao(''); setLancamentoData(dataLocalIso()); setLancamentoModo('unico'); setLancamentoQuantidade('2') },
+      )
+    } catch (error) {
+      setErro(error instanceof Error ? error.message : 'Não foi possível gerar os lançamentos.')
+    }
   }
 
   async function salvarMeta() {
@@ -180,7 +190,7 @@ export default function FinancasPage() {
   }
 
   function editarCategoria(item: CategoriaFinanceira) { setCategoriaEditando(item); setCategoriaNome(item.nome); setCategoriaTipo(item.tipo); setCategoriaCor(item.cor ?? '#3b82f6') }
-  function editarLancamento(item: LancamentoFinanceiro) { setLancamentoEditando(item); setLancamentoCategoria(item.categoria_uuid); setLancamentoValor(String(item.valor)); setLancamentoData(item.data); setLancamentoDescricao(item.descricao ?? '') }
+  function editarLancamento(item: LancamentoFinanceiro) { setLancamentoEditando(item); setLancamentoCategoria(item.categoria_uuid); setLancamentoValor(String(item.valor)); setLancamentoData(item.data); setLancamentoDescricao(item.descricao ?? ''); setLancamentoModo('unico') }
   function editarMeta(item: MetaEconomia) { setMetaEditando(item); setMetaTitulo(item.titulo); setMetaAlvo(String(item.valor_alvo)); setMetaAtual(String(item.valor_atual)); setMetaData(item.data_alvo ?? '') }
   function editarInvestimento(item: InvestimentoFinanceiro) { setInvestimentoEditando(item); setInvestimentoTicker(item.ticker); setInvestimentoTipo(item.tipo); setInvestimentoQuantidade(String(item.quantidade)); setInvestimentoPrecoMedio(String(item.preco_medio)) }
 
@@ -214,7 +224,7 @@ export default function FinancasPage() {
       <section className="mt-7 grid gap-3 sm:grid-cols-3"><Resumo icon={ArrowUpRight} label="Entradas" valor={entradas} positive /><Resumo icon={ArrowDownLeft} label="Saídas" valor={saidas} /><Resumo icon={WalletCards} label="Saldo" valor={saldo} positive={saldo >= 0} /></section>
 
       <div className="mt-9 grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(19rem,.85fr)]">
-        <section className="border-t border-border pt-5"><p className="font-mono text-xs uppercase text-muted-foreground">Movimentação</p><h2 className="mt-1 text-xl font-semibold">{lancamentoEditando ? 'Editar lançamento' : 'Novo lançamento'}</h2><div className="mt-4 grid gap-3 sm:grid-cols-2"><Campo label="Categoria"><select value={lancamentoCategoria} onChange={(e) => setLancamentoCategoria(e.target.value)} className={selectClass}><option value="">Selecione</option>{categorias.map((item) => <option key={item.uuid} value={item.uuid}>{item.nome} · {item.tipo}</option>)}</select></Campo><Campo label="Valor"><Input type="number" min="0.01" step="0.01" value={lancamentoValor} onChange={(e) => setLancamentoValor(e.target.value)} /></Campo><Campo label="Data"><Input type="date" value={lancamentoData} onChange={(e) => setLancamentoData(e.target.value)} /></Campo><Campo label="Descrição"><Input value={lancamentoDescricao} onChange={(e) => setLancamentoDescricao(e.target.value)} /></Campo></div><div className="mt-3 flex gap-2"><Button onClick={() => void salvarLancamento()} disabled={salvando || categorias.length === 0}><Plus /> Salvar</Button>{lancamentoEditando ? <Button variant="outline" onClick={() => setLancamentoEditando(null)}>Cancelar</Button> : null}</div>
+        <section className="border-t border-border pt-5"><p className="font-mono text-xs uppercase text-muted-foreground">Movimentação</p><h2 className="mt-1 text-xl font-semibold">{lancamentoEditando ? 'Editar lançamento' : 'Novo lançamento'}</h2><div className="mt-4 grid gap-3 sm:grid-cols-2"><Campo label="Categoria"><select value={lancamentoCategoria} onChange={(e) => setLancamentoCategoria(e.target.value)} className={selectClass}><option value="">Selecione</option>{categorias.map((item) => <option key={item.uuid} value={item.uuid}>{item.nome} · {item.tipo}</option>)}</select></Campo><Campo label={lancamentoModo === 'parcelado' ? 'Valor total' : 'Valor por lançamento'}><Input type="number" min="0.01" step="0.01" value={lancamentoValor} onChange={(e) => setLancamentoValor(e.target.value)} /></Campo><Campo label="Data inicial"><Input type="date" value={lancamentoData} onChange={(e) => setLancamentoData(e.target.value)} /></Campo><Campo label="Descrição"><Input value={lancamentoDescricao} onChange={(e) => setLancamentoDescricao(e.target.value)} /></Campo>{!lancamentoEditando ? <><Campo label="Repetição"><select value={lancamentoModo} onChange={(e) => setLancamentoModo(e.target.value as ModoLancamento)} className={selectClass}><option value="unico">Uma vez</option><option value="parcelado">Parcelar despesa</option><option value="recorrente">Repetir mensalmente</option></select></Campo>{lancamentoModo !== 'unico' ? <Campo label={lancamentoModo === 'parcelado' ? 'Número de parcelas' : 'Número de meses'}><Input type="number" min="2" max="120" step="1" value={lancamentoQuantidade} onChange={(e) => setLancamentoQuantidade(e.target.value)} /></Campo> : null}</> : null}</div>{!lancamentoEditando && lancamentoModo !== 'unico' ? <p className="mt-2 text-xs text-muted-foreground">Serão criados lançamentos reais e finitos, um por mês. Cada item poderá ser editado ou excluído separadamente.</p> : null}<div className="mt-3 flex gap-2"><Button onClick={() => void salvarLancamento()} disabled={salvando || categorias.length === 0}><Plus /> {lancamentoModo === 'unico' || lancamentoEditando ? 'Salvar' : 'Criar série'}</Button>{lancamentoEditando ? <Button variant="outline" onClick={() => setLancamentoEditando(null)}>Cancelar</Button> : null}</div>
           <ul className="mt-5 divide-y divide-border border-y border-border">{lancamentosMes.length === 0 ? <li className="py-4 text-sm text-muted-foreground">Nenhum lançamento neste mês.</li> : lancamentosMes.map((item) => <li key={item.uuid} className="flex items-center gap-3 py-3"><span className={`flex size-8 items-center justify-center rounded-lg ${item.tipo === 'entrada' ? 'bg-success/15 text-success' : 'bg-destructive/10 text-destructive'}`}>{item.tipo === 'entrada' ? <ArrowUpRight className="size-4" /> : <ArrowDownLeft className="size-4" />}</span><div className="min-w-0 flex-1"><strong className="block truncate text-sm">{item.descricao || nomeCategoria(item.categoria_uuid)}</strong><span className="text-xs text-muted-foreground">{nomeCategoria(item.categoria_uuid)} · {new Date(`${item.data}T00:00:00`).toLocaleDateString('pt-BR')}</span></div><strong className="font-mono text-sm tabular-nums">{item.tipo === 'saida' ? '-' : '+'}{moeda.format(Number(item.valor))}</strong><Button size="icon-xs" variant="ghost" onClick={() => editarLancamento(item)} aria-label="Editar lançamento"><Pencil /></Button><Button size="icon-xs" variant="ghost" onClick={() => setExclusao({ tipo: 'lancamento', uuid: item.uuid, nome: item.descricao || nomeCategoria(item.categoria_uuid) })} aria-label="Excluir lançamento"><Trash2 /></Button></li>)}</ul>
         </section>
 

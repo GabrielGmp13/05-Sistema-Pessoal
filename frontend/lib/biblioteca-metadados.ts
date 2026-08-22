@@ -5,7 +5,8 @@ export type FonteMetadados =
   | 'google_livros'
   | 'jikan_anime'
   | 'jikan_manga'
-  | 'itunes_podcast';
+  | 'itunes_podcast'
+  | 'artigo';
 
 export interface ResultadoMetadados {
   id: string;
@@ -32,6 +33,7 @@ export interface ResultadoMetadados {
   classificacaoIndicativa?: string;
   anoTermino?: number;
   statusPublicacao?: 'em_andamento' | 'concluida' | 'hiato' | 'cancelada';
+  siteOrigem?: string;
 }
 
 interface RespostaMetadados {

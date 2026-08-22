@@ -16,6 +16,9 @@ import BibliotecaBanner from './BibliotecaBanner';
 import BibliotecaCard from './BibliotecaCard';
 import { ordenarItensBiblioteca, type OrdenacaoBiblioteca } from '@/lib/biblioteca-ordenacao';
 import styles from './BibliotecaSection.module.css';
+import BuscaMetadados from './BuscaMetadados';
+import CapaUploadField from './CapaUploadField';
+import { persistirComCapa } from '@/lib/biblioteca-capas';
 
 const FORM_VAZIO: ArtigoInput = {
   titulo: '',
@@ -24,6 +27,8 @@ const FORM_VAZIO: ArtigoInput = {
   site_origem: '',
   favorito: false,
   comentario: '',
+  capa_url: '',
+  capa_path: null,
 };
 
 interface Props {
@@ -32,6 +37,7 @@ interface Props {
   onTotalCarregado?: (total: number) => void;
   ordenacao: OrdenacaoBiblioteca;
   onOrdenacaoChange: (ordenacao: OrdenacaoBiblioteca) => void;
+  rascunhoImportacao?: { url: string; titulo: string } | null;
 }
 
 function formatarData(data: string) {
@@ -44,6 +50,7 @@ export default function ArtigosSection({
   onTotalCarregado,
   ordenacao,
   onOrdenacaoChange,
+  rascunhoImportacao,
 }: Props) {
   const [artigos, setArtigos] = useState<Artigo[]>([]);
   const [carregando, setCarregando] = useState(true);
@@ -55,6 +62,7 @@ export default function ArtigosSection({
   const [menuAbertoUuid, setMenuAbertoUuid] = useState<string | null>(null);
   const [painelArtigo, setPainelArtigo] = useState<Artigo | null>(null);
   const [artigoParaApagar, setArtigoParaApagar] = useState<string | null>(null);
+  const [arquivoCapa, setArquivoCapa] = useState<File | null>(null);
 
   async function carregar() {
     setCarregando(true);
@@ -69,11 +77,12 @@ export default function ArtigosSection({
   }
 
   useEffect(() => { void carregar(); }, []);
-  useEffect(() => { if (gatilhoAdicionar > 0) abrirNovo(); }, [gatilhoAdicionar]);
+  useEffect(() => { if (gatilhoAdicionar > 0) { abrirNovo(); if (rascunhoImportacao) setForm((atual) => ({ ...atual, ...rascunhoImportacao })); } }, [gatilhoAdicionar, rascunhoImportacao]);
 
   function abrirNovo() {
     setEditandoUuid(null);
     setForm(FORM_VAZIO);
+    setArquivoCapa(null);
     setModalAberto(true);
   }
 
@@ -88,7 +97,10 @@ export default function ArtigosSection({
       tempo_leitura_minutos: artigo.tempo_leitura_minutos,
       favorito: artigo.favorito,
       comentario: artigo.comentario ?? '',
+      capa_url: artigo.capa_url ?? '',
+      capa_path: artigo.capa_path,
     });
+    setArquivoCapa(null);
     setModalAberto(true);
   }
 
@@ -101,10 +113,13 @@ export default function ArtigosSection({
     event.preventDefault();
     if (!form.titulo.trim() || !form.url.trim()) return;
     setSalvando(true);
-    const resultado = editandoUuid
-      ? await atualizarArtigo(editandoUuid, form)
-      : await criarArtigo(form);
-    if (!resultado) setErro('Não foi possível salvar o artigo.');
+    const atual = editandoUuid ? artigos.find((artigo) => artigo.uuid === editandoUuid) : null;
+    const persistencia = await persistirComCapa({ categoria: 'artigos', arquivo: arquivoCapa, capaPathAtual: atual?.capa_path, persistir: (capaPath) => {
+      const dados = capaPath ? { ...form, capa_path: capaPath } : form;
+      return editandoUuid ? atualizarArtigo(editandoUuid, dados) : criarArtigo(dados);
+    }});
+    const resultado = persistencia.resultado;
+    if (!resultado) setErro(persistencia.erro ?? 'Não foi possível salvar o artigo.');
     else {
       fecharModal();
       await carregar();
@@ -178,7 +193,8 @@ export default function ArtigosSection({
               <BibliotecaCard
                 key={artigo.uuid}
                 titulo={artigo.titulo}
-                capaUrl={null}
+                capaUrl={artigo.capa_url}
+                capaPath={artigo.capa_path}
                 favorito={artigo.favorito}
                 nota={null}
                 ano={artigo.data_leitura ? Number(artigo.data_leitura.slice(0, 4)) : null}
@@ -208,6 +224,9 @@ export default function ArtigosSection({
             <form onSubmit={salvar} className={styles.modalBody}>
               <label>Título *<input required value={form.titulo} onChange={(event) => setForm({ ...form, titulo: event.target.value })} /></label>
               <label>URL *<input required type="url" value={form.url} onChange={(event) => setForm({ ...form, url: event.target.value })} /></label>
+              <BuscaMetadados fonte="artigo" termo={form.url} onSelect={(resultado) => setForm((atual) => ({ ...atual, titulo: resultado.titulo, url: resultado.linkOficial ?? atual.url, autor: resultado.autor ?? atual.autor, site_origem: resultado.siteOrigem ?? atual.site_origem, capa_url: resultado.capaUrl ?? atual.capa_url, tempo_leitura_minutos: resultado.duracaoMinutos ?? atual.tempo_leitura_minutos }))} />
+              <label>URL externa da capa<input type="url" value={form.capa_url ?? ''} onChange={(event) => setForm({ ...form, capa_url: event.target.value })} /></label>
+              <CapaUploadField arquivo={arquivoCapa} onChange={setArquivoCapa} />
               <label>Autor<input value={form.autor ?? ''} onChange={(event) => setForm({ ...form, autor: event.target.value })} /></label>
               <label>Site de origem<input value={form.site_origem ?? ''} onChange={(event) => setForm({ ...form, site_origem: event.target.value })} /></label>
               <label>Data da leitura<input type="date" value={form.data_leitura ?? ''} onChange={(event) => setForm({ ...form, data_leitura: event.target.value || null })} /></label>

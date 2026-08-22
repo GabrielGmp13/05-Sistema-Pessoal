@@ -1227,3 +1227,17 @@ negócio, Supabase, uploads, rotas funcionais ou dependências.
 `20260820000300_agenda_prioridade.sql` adiciona uma coluna e um check, mantendo
 RLS e GRANT existentes. A migration foi aplicada em 2026-08-21 após dry-run
 exclusivo e pós-check remoto vazio; o frontend foi publicado somente depois.
+
+## DEC-063 — Séries financeiras são lançamentos finitos e independentes
+
+**Data:** 2026-08-21
+**Status:** ✅ Implementada; homologação manual pendente
+
+Parcelamento divide o valor total em centavos sem perder soma; recorrência repete o valor mensal. Ambos criam de 2 a 120 lançamentos reais em uma única inserção e identificam `N/total` na descrição. Não há grupo, cron ou recorrência infinita; edição e exclusão afetam somente o lançamento selecionado.
+
+## DEC-064 — Capas privadas e integrações externas não simuladas
+
+**Data:** 2026-08-21
+**Status:** ✅ Migration aplicada em produção; homologação manual pendente
+
+As oito categorias usam o bucket privado `capas`, paths iniciados por `auth.uid()`, signed URL, JPG/PNG/WebP até 3 MB, rollback e limpeza na substituição. URL externa de metadados continua fallback. YouTube/Calendar/Photos não exibem estado conectado antes de existir OAuth server-side com refresh token cifrado e revogável; a arquitetura está em `INTEGRACOES_EXTERNAS.md`.

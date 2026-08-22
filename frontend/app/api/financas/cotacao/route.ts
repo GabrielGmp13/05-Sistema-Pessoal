@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const response = await fetch(`https://brapi.dev/api/quote/${encodeURIComponent(ticker)}`, {
-      cache: 'no-store',
+      next: { revalidate: 60 },
       headers: {
         Accept: 'application/json',
         Authorization: `Bearer ${token}`,

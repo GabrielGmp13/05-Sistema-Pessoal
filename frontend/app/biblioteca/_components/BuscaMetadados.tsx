@@ -8,6 +8,7 @@ import styles from './BibliotecaSection.module.css';
 const FONTE_LABEL: Record<FonteMetadados, string> = {
   youtube: 'YouTube', tmdb_filme: 'TMDB', tmdb_serie: 'TMDB', google_livros: 'Google Books',
   jikan_anime: 'Jikan', jikan_manga: 'Jikan', itunes_podcast: 'iTunes',
+  artigo: 'site do artigo',
 };
 
 interface BuscaMetadadosProps {

@@ -90,6 +90,16 @@ export const listarMetasEconomia = () => listar<MetaEconomia>('financas_metas_ec
 export const listarInvestimentosFinanceiros = () => listar<InvestimentoFinanceiro>('financas_investimentos')
 export const salvarCategoriaFinanceira = (input: CategoriaInput, uuid?: string) => salvar<CategoriaFinanceira>('financas_categorias', input, uuid)
 export const salvarLancamentoFinanceiro = (input: LancamentoInput, uuid?: string) => salvar<LancamentoFinanceiro>('financas_lancamentos', input, uuid)
+export async function criarLancamentosFinanceiros(inputs: LancamentoInput[]): Promise<LancamentoFinanceiro[] | null> {
+  const userId = await getUserId()
+  if (!userId || inputs.length === 0) return null
+  const timestamp = now()
+  const { data, error } = await sb.from('financas_lancamentos').insert(inputs.map((input) => ({
+    ...input, uuid: crypto.randomUUID(), user_id: userId, updated_at: timestamp,
+  }))).select()
+  if (error) return sbErr(error, 'criarLancamentosFinanceiros')
+  return data as LancamentoFinanceiro[]
+}
 export const salvarOrcamentoFinanceiro = (input: OrcamentoInput, uuid?: string) => salvar<OrcamentoFinanceiro>('financas_orcamentos', input, uuid)
 export const salvarMetaEconomia = (input: MetaInput, uuid?: string) => salvar<MetaEconomia>('financas_metas_economia', input, uuid)
 export const salvarInvestimentoFinanceiro = (input: InvestimentoInput, uuid?: string) => salvar<InvestimentoFinanceiro>('financas_investimentos', input, uuid)

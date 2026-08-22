@@ -9,6 +9,7 @@ export interface Video {
   canal: string | null;
   duracao_segundos: number | null;
   capa_url: string | null;
+  capa_path: string | null;
   assistido: boolean;
   favorito: boolean;
   nota: number | null;

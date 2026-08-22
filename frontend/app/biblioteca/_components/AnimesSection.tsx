@@ -26,6 +26,8 @@ import { getGeneros, getMapaGenerosDosItens, salvarGenerosDoItem, seedGenerosSeN
 import type { Genero } from '@/lib/generos';
 import { ordenarItensBiblioteca, type OrdenacaoBiblioteca } from '@/lib/biblioteca-ordenacao';
 import styles from './BibliotecaSection.module.css';
+import CapaUploadField from './CapaUploadField';
+import { persistirComCapa } from '@/lib/biblioteca-capas';
 
 const STATUS_LABEL: Record<string, string> = {
   quero_ver: 'Quero ver',
@@ -74,6 +76,7 @@ export default function AnimesSection({
   const [modalAberto, setModalAberto] = useState(false);
   const [editandoUuid, setEditandoUuid] = useState<string | null>(null);
   const [form, setForm] = useState<AnimeInput>(FORM_VAZIO);
+  const [arquivoCapa, setArquivoCapa] = useState<File | null>(null);
   const [salvando, setSalvando] = useState(false);
 
   const [menuAbertoUuid, setMenuAbertoUuid] = useState<string | null>(null);
@@ -129,11 +132,13 @@ export default function AnimesSection({
   function abrirNovo() {
     setEditandoUuid(null);
     setForm(FORM_VAZIO);
+    setArquivoCapa(null);
     setGenerosSelecionados([]);
     setModalAberto(true);
   }
 
   function abrirEdicao(anime: Anime) {
+    setArquivoCapa(null);
     setEditandoUuid(anime.uuid);
     setForm({
       nome_original: anime.nome_original,
@@ -169,12 +174,15 @@ export default function AnimesSection({
     if (!form.nome_original?.trim()) return;
 
     setSalvando(true);
-    const resultado = editandoUuid
-      ? await atualizarAnime(editandoUuid, form)
-      : await criarAnime(form);
+    const atual = editandoUuid ? animes.find((anime) => anime.uuid === editandoUuid) : null;
+    const persistencia = await persistirComCapa({ categoria: 'animes', arquivo: arquivoCapa, capaPathAtual: atual?.capa_path, persistir: (capaPath) => {
+      const dados = capaPath ? { ...form, capa_path: capaPath } : form;
+      return editandoUuid ? atualizarAnime(editandoUuid, dados) : criarAnime(dados);
+    }});
+    const resultado = persistencia.resultado;
 
     if (resultado === null) {
-      setErro('Não foi possível salvar o anime.');
+      setErro(persistencia.erro ?? 'Não foi possível salvar o anime.');
     } else {
       const userId = await getUserId();
       const { error: erroGeneros } = userId
@@ -283,6 +291,7 @@ export default function AnimesSection({
               key={anime.uuid}
               titulo={anime.nome_traduzido || anime.nome_original}
               capaUrl={anime.capa_url}
+              capaPath={anime.capa_path}
               favorito={anime.favorito}
               nota={anime.nota}
               ano={anime.ano_lancamento}
@@ -340,6 +349,7 @@ export default function AnimesSection({
                   duracao_minutos: resultado.duracaoMinutos ?? atual.duracao_minutos,
                 }))}
               />
+              <CapaUploadField arquivo={arquivoCapa} onChange={setArquivoCapa} />
               <label>
                 Nome traduzido
                 <input

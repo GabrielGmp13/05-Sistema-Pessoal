@@ -71,9 +71,10 @@ dessas duas pastas deve ser executado como migration.
 | `20260820000100` | `20260820000100_redacoes_nota_mil.sql` | ✅ Reset e 12 testes SQL aprovados; dry-run listou somente esta migration; aplicada em produção em 2026-08-20; pós-check confirmou `NUMERIC(5,1)`, constraint 0–1000, histórico e dry-run vazio |
 | `20260820000200` | `20260820000200_redacoes_tempo_execucao.sql` | ✅ Reset e 13 testes SQL aprovados; dry-run listou somente esta migration; aplicada em produção em 2026-08-20; pós-check confirmou coluna inteira opcional, constraint não negativa, histórico e dry-run vazio |
 | `20260820000300` | `20260820000300_agenda_prioridade.sql` | ✅ Reset e 14 testes SQL aprovados; aplicada em produção em 2026-08-21 após dry-run exclusivo; pós-check confirmou coluna, default, constraint, histórico e dry-run vazio |
+| `20260821000100` | `20260821000100_biblioteca_capas_storage.sql` | ✅ Reset e 15 testes SQL aprovados; aplicada em produção em 2026-08-21 após dry-run exclusivo; pós-check confirmou colunas, bucket privado, limite, MIME types, quatro policies, histórico e dry-run vazio |
 
 > **Estado confirmado (2026-08-21):** produção e cadeia local estão alinhadas
-> até `20260820000300_agenda_prioridade.sql`. A migration não cria tabelas;
+> até `20260821000100_biblioteca_capas_storage.sql`. A migration não cria tabelas;
 > `public` permanece com 63 tabelas.
 
 As três baselines foram adotadas no histórico remoto em 2026-08-08 por
@@ -262,6 +263,7 @@ youtube_id        TEXT,
 canal             TEXT,
 duracao_segundos  INTEGER,
 capa_url          TEXT,
+capa_path         TEXT,
 assistido         BOOLEAN NOT NULL DEFAULT FALSE,
 favorito          BOOLEAN NOT NULL DEFAULT FALSE,
 nota              NUMERIC(2,1),
@@ -281,6 +283,8 @@ titulo                 TEXT NOT NULL,
 url                    TEXT NOT NULL,
 autor                  TEXT,
 site_origem            TEXT,
+capa_url               TEXT,
+capa_path              TEXT,
 data_leitura           DATE,
 tempo_leitura_minutos  INTEGER,
 favorito               BOOLEAN NOT NULL DEFAULT FALSE,

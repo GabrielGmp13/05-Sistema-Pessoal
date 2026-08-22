@@ -44,6 +44,19 @@ export default function BibliotecaPage() {
   const [gatilhoAdicionar, setGatilhoAdicionar] = useState(0);
   const [busca, setBusca] = useState('');
   const [ordenacao, setOrdenacao] = useState<OrdenacaoBiblioteca>('recentes');
+  const [rascunhoImportacao, setRascunhoImportacao] = useState<{ url: string; titulo: string } | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tipo = params.get('importar');
+    const url = params.get('url')?.trim();
+    if ((tipo === 'artigo' || tipo === 'video') && url) {
+      setCategoriaAtiva(tipo === 'video' ? 'videos' : 'artigos');
+      setRascunhoImportacao({ url, titulo: params.get('titulo')?.trim() || '' });
+      setGatilhoAdicionar(1);
+      window.history.replaceState({}, '', '/biblioteca');
+    }
+  }, []);
 
   // A carga inicial preenche tudo; cada Section mantém sua contagem atualizada após CRUD.
   const [contagens, setContagens] = useState<Record<CategoriaId, number | null>>({
@@ -158,6 +171,7 @@ export default function BibliotecaPage() {
             key="videos"
             {...props}
             onTotalCarregado={(t: number) => atualizarContagem('videos', t)}
+            rascunhoImportacao={rascunhoImportacao}
           />
         );
       case 'artigos':
@@ -166,6 +180,7 @@ export default function BibliotecaPage() {
             key="artigos"
             {...props}
             onTotalCarregado={(t: number) => atualizarContagem('artigos', t)}
+            rascunhoImportacao={rascunhoImportacao}
           />
         );
     }

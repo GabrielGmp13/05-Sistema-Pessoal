@@ -239,3 +239,17 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
 ## v3 (futuro distante)
 
 - [ ] Migrar Treino/Biblioteca (CSS Modules) para Tailwind — Estudos já migrou (DEC-038, 2026-07-25); decisão de estender pro resto do sistema ainda não tomada, sem data
+
+## Reclassificação após o lote de 2026-08-21
+
+- [x] Parcelamento e recorrência financeira manual, finitos e sem cron.
+- [x] Upload privado de capa nas oito categorias; banners permanecem por URL/path já existentes e não ganharam segundo fluxo neste lote.
+- [x] Importação mínima e segura de metadados Open Graph para Artigos.
+- [x] Extensão Edge/Chrome Manifest V3 para abrir Artigo/Vídeo pré-preenchido.
+- [x] Testes automatizados iniciais de funções puras e hardening MIME do bucket `capas`.
+- [ ] YouTube playlists, Google Calendar e Google Photos — PÓS-V2 até OAuth server-side e cofre cifrado de refresh token.
+- [ ] Anki `.apkg` — PÓS-V2 por ZIP/SQLite/modelos/mídia; CSV/TSV é o contrato suportado.
+- [ ] BRAPI avançada com histórico/análises — PÓS-V2; cache curto e consulta sob demanda já existem.
+- [ ] Scraping em lote/agressivo — PÓS-V2; somente Open Graph limitado foi adotado.
+- [ ] Uploads de Perfil, Receitas, Lugares e provas/simulados — PENDENTE DECISÃO de coluna, bucket e UX por domínio.
+- [ ] Testes de integração/E2E e hardening incremental restante continuam evoluções pós-homologação.

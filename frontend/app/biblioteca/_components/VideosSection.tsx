@@ -28,12 +28,15 @@ import BibliotecaBanner from './BibliotecaBanner';
 import BibliotecaCard from './BibliotecaCard';
 import { ordenarItensBiblioteca, type OrdenacaoBiblioteca } from '@/lib/biblioteca-ordenacao';
 import styles from './BibliotecaSection.module.css';
+import CapaUploadField from './CapaUploadField';
+import { persistirComCapa } from '@/lib/biblioteca-capas';
 
 const FORM_VAZIO: VideoInput = {
   titulo: '',
   url: '',
   canal: '',
   capa_url: '',
+  capa_path: null,
   assistido: false,
   favorito: false,
   comentario: '',
@@ -45,6 +48,7 @@ interface Props {
   onTotalCarregado?: (total: number) => void;
   ordenacao: OrdenacaoBiblioteca;
   onOrdenacaoChange: (ordenacao: OrdenacaoBiblioteca) => void;
+  rascunhoImportacao?: { url: string; titulo: string } | null;
 }
 
 function formatarDuracao(segundos: number) {
@@ -62,6 +66,7 @@ export default function VideosSection({
   onTotalCarregado,
   ordenacao,
   onOrdenacaoChange,
+  rascunhoImportacao,
 }: Props) {
   const [videos, setVideos] = useState<Video[]>([]);
   const [carregando, setCarregando] = useState(true);
@@ -69,6 +74,7 @@ export default function VideosSection({
   const [modalAberto, setModalAberto] = useState(false);
   const [editandoUuid, setEditandoUuid] = useState<string | null>(null);
   const [form, setForm] = useState<VideoInput>(FORM_VAZIO);
+  const [arquivoCapa, setArquivoCapa] = useState<File | null>(null);
   const [salvando, setSalvando] = useState(false);
   const [menuAbertoUuid, setMenuAbertoUuid] = useState<string | null>(null);
   const [painelVideo, setPainelVideo] = useState<Video | null>(null);
@@ -96,11 +102,12 @@ export default function VideosSection({
   }
 
   useEffect(() => { void carregar(); }, []);
-  useEffect(() => { if (gatilhoAdicionar > 0) abrirNovo(); }, [gatilhoAdicionar]);
+  useEffect(() => { if (gatilhoAdicionar > 0) { abrirNovo(); if (rascunhoImportacao) setForm((atual) => ({ ...atual, ...rascunhoImportacao })); } }, [gatilhoAdicionar, rascunhoImportacao]);
 
   function abrirNovo() {
     setEditandoUuid(null);
     setForm(FORM_VAZIO);
+    setArquivoCapa(null);
     setModalAberto(true);
   }
 
@@ -113,11 +120,13 @@ export default function VideosSection({
       canal: video.canal ?? '',
       duracao_segundos: video.duracao_segundos,
       capa_url: video.capa_url ?? '',
+      capa_path: video.capa_path,
       assistido: video.assistido,
       favorito: video.favorito,
       nota: video.nota,
       comentario: video.comentario ?? '',
     });
+    setArquivoCapa(null);
     setModalAberto(true);
   }
 
@@ -216,10 +225,13 @@ export default function VideosSection({
     event.preventDefault();
     if (!form.titulo.trim() || !form.url.trim()) return;
     setSalvando(true);
-    const resultado = editandoUuid
-      ? await atualizarVideo(editandoUuid, form)
-      : await criarVideo(form);
-    if (!resultado) setErro('Não foi possível salvar o vídeo.');
+    const atual = editandoUuid ? videos.find((video) => video.uuid === editandoUuid) : null;
+    const persistencia = await persistirComCapa({ categoria: 'videos', arquivo: arquivoCapa, capaPathAtual: atual?.capa_path, persistir: (capaPath) => {
+      const dados = capaPath ? { ...form, capa_path: capaPath } : form;
+      return editandoUuid ? atualizarVideo(editandoUuid, dados) : criarVideo(dados);
+    }});
+    const resultado = persistencia.resultado;
+    if (!resultado) setErro(persistencia.erro ?? 'Não foi possível salvar o vídeo.');
     else {
       fecharModal();
       await carregar();
@@ -296,6 +308,7 @@ export default function VideosSection({
                 key={video.uuid}
                 titulo={video.titulo}
                 capaUrl={video.capa_url}
+                capaPath={video.capa_path}
                 favorito={video.favorito}
                 nota={video.nota}
                 ano={null}
@@ -341,6 +354,7 @@ export default function VideosSection({
               <label>Canal<input value={form.canal ?? ''} onChange={(event) => setForm({ ...form, canal: event.target.value })} /></label>
               <label>Duração em segundos<input type="number" min={1} inputMode="numeric" value={form.duracao_segundos ?? ''} onChange={(event) => setForm({ ...form, duracao_segundos: event.target.value === '' ? null : Number(event.target.value) })} /></label>
               <label>URL da capa<input type="url" value={form.capa_url ?? ''} onChange={(event) => setForm({ ...form, capa_url: event.target.value })} /></label>
+              <CapaUploadField arquivo={arquivoCapa} onChange={setArquivoCapa} />
               <StarRating value={form.nota} onChange={(nota) => setForm({ ...form, nota })} />
               <label className={styles.checkboxLabel}><input type="checkbox" checked={form.assistido ?? false} onChange={(event) => setForm({ ...form, assistido: event.target.checked })} />Assistido</label>
               <label className={styles.checkboxLabel}><input type="checkbox" checked={form.favorito ?? false} onChange={(event) => setForm({ ...form, favorito: event.target.checked })} />Favorito</label>

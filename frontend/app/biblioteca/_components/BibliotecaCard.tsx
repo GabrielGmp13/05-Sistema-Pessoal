@@ -1,7 +1,8 @@
 'use client';
 
 import { Heart, MoreHorizontal, Pencil, Star, Trash2 } from 'lucide-react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { getSignedUrl } from '@/lib/supabase';
 
 import styles from './BibliotecaCard.module.css';
 
@@ -22,6 +23,7 @@ const STATUS_LABEL: Record<string, string> = {
 interface BibliotecaCardProps {
   titulo: string;
   capaUrl: string | null;
+  capaPath?: string | null;
   favorito: boolean;
   nota: number | null;
   ano: number | null;
@@ -40,6 +42,7 @@ interface BibliotecaCardProps {
 export default function BibliotecaCard({
   titulo,
   capaUrl,
+  capaPath,
   favorito,
   nota,
   ano,
@@ -57,6 +60,14 @@ export default function BibliotecaCard({
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const generosVisiveis = generos.slice(0, 2);
+  const [capaPrivada, setCapaPrivada] = useState<string | null>(null);
+
+  useEffect(() => {
+    let ativo = true;
+    if (!capaPath) { setCapaPrivada(null); return; }
+    void getSignedUrl('capas', capaPath, 3600).then((url) => { if (ativo) setCapaPrivada(url); });
+    return () => { ativo = false; };
+  }, [capaPath]);
 
   const statusLabel = status ? STATUS_LABEL[status] ?? status : null;
 
@@ -86,8 +97,8 @@ export default function BibliotecaCard({
   return (
     <div className={styles.card}>
       <div className={styles.capaWrapper} onClick={onClick}>
-        {capaUrl ? (
-          <img className={styles.capa} src={capaUrl} alt={titulo} loading="lazy" />
+        {capaPrivada ?? capaUrl ? (
+          <img className={styles.capa} src={(capaPrivada ?? capaUrl) as string} alt={titulo} loading="lazy" />
         ) : (
           <div className={styles.capaPlaceholder}>
             <span>{placeholder}</span>

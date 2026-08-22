@@ -24,6 +24,8 @@ import { getGeneros, getMapaGenerosDosItens, salvarGenerosDoItem, seedGenerosSeN
 import type { Genero } from '@/lib/generos';
 import { ordenarItensBiblioteca, type OrdenacaoBiblioteca } from '@/lib/biblioteca-ordenacao';
 import styles from './BibliotecaSection.module.css';
+import CapaUploadField from './CapaUploadField';
+import { persistirComCapa } from '@/lib/biblioteca-capas';
 
 const STATUS_LABEL: Record<string, string> = {
   quero_ver: 'Quero ver',
@@ -67,6 +69,7 @@ export default function SeriesSection({
   const [modalAberto, setModalAberto] = useState(false);
   const [editandoUuid, setEditandoUuid] = useState<string | null>(null);
   const [form, setForm] = useState<SerieInput>(FORM_VAZIO);
+  const [arquivoCapa, setArquivoCapa] = useState<File | null>(null);
   const [salvando, setSalvando] = useState(false);
 
   const [menuAbertoUuid, setMenuAbertoUuid] = useState<string | null>(null);
@@ -122,11 +125,13 @@ export default function SeriesSection({
   function abrirNovo() {
     setEditandoUuid(null);
     setForm(FORM_VAZIO);
+    setArquivoCapa(null);
     setGenerosSelecionados([]);
     setModalAberto(true);
   }
 
   function abrirEdicao(serie: Serie) {
+    setArquivoCapa(null);
     setEditandoUuid(serie.uuid);
     setForm({
       titulo: serie.titulo,
@@ -159,12 +164,15 @@ export default function SeriesSection({
     if (!form.titulo?.trim()) return;
 
     setSalvando(true);
-    const resultado = editandoUuid
-      ? await atualizarSerie(editandoUuid, form)
-      : await criarSerie(form);
+    const atual = editandoUuid ? series.find((serie) => serie.uuid === editandoUuid) : null;
+    const persistencia = await persistirComCapa({ categoria: 'series', arquivo: arquivoCapa, capaPathAtual: atual?.capa_path, persistir: (capaPath) => {
+      const dados = capaPath ? { ...form, capa_path: capaPath } : form;
+      return editandoUuid ? atualizarSerie(editandoUuid, dados) : criarSerie(dados);
+    }});
+    const resultado = persistencia.resultado;
 
     if (resultado === null) {
-      setErro('Não foi possível salvar a série.');
+      setErro(persistencia.erro ?? 'Não foi possível salvar a série.');
     } else {
       const userId = await getUserId();
       const { error: erroGeneros } = userId
@@ -270,6 +278,7 @@ export default function SeriesSection({
               key={serie.uuid}
               titulo={serie.titulo}
               capaUrl={serie.capa_url}
+              capaPath={serie.capa_path}
               favorito={serie.favorito}
               nota={serie.nota}
               ano={serie.ano_lancamento}
@@ -326,6 +335,7 @@ export default function SeriesSection({
                   classificacao_indicativa: resultado.classificacaoIndicativa ?? atual.classificacao_indicativa,
                 }))}
               />
+              <CapaUploadField arquivo={arquivoCapa} onChange={setArquivoCapa} />
               <label>
                 Criação
                 <input

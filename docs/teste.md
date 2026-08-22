@@ -308,3 +308,27 @@ continua separada em `[ ]`.
   profundidade própria coerente com Sol, Suave, Nublado, Estrelado e Lua.
 - [ ] Retestar com/sem foto e peso em desktop/mobile, nos ambientes Sol, Suave,
   Nublado, Estrelado e Lua.
+
+## Lote de fechamento funcional — relato preservado / 2026-08-21
+
+### Finanças — parcelamento e recorrência
+- [x] Geração pura e distribuição de centavos validadas automaticamente.
+- [ ] Em produção, criar R$ 100,00 em 3 parcelas e conferir R$ 33,34 + R$ 33,33 + R$ 33,33.
+- [ ] Criar 12 meses recorrentes, recarregar e confirmar que não duplicou; editar/excluir um item e confirmar efeito individual.
+
+### Biblioteca — capas privadas e Artigos
+- [x] Migration e teste SQL validam colunas, MIME e limite do bucket local.
+- [ ] Testar capa em Filmes, Séries, Animes, Mangás, Livros, Podcasts, Vídeos e Artigos; testar substituição e recarga.
+- [ ] Testar JPG/PNG/WebP, arquivo maior que 3 MB e formato inválido.
+- [ ] Colar URL de artigo pública; revisar metadados sugeridos e confirmar fallback manual em página bloqueada.
+
+### Extensão e integrações
+- [ ] Instalar extensão Edge/Chrome em modo desenvolvedor, configurar URL publicada e enviar artigo/vídeo.
+- PENDENTE CREDENCIAL: playlists YouTube, Google Calendar e Google Photos.
+- PENDENTE DECISÃO: armazenamento cifrado/rotação/revogação de refresh token e idempotência Calendar.
+- PÓS-V2: Anki `.apkg`, scraping agressivo, sincronização Google bidirecional e uploads adicionais sem contrato.
+
+### Automação
+- [x] `npm test`: 6/6 (séries financeiras e CSV/TSV).
+- [x] Reset local Supabase e 15 testes SQL, incluindo `validate_biblioteca_capas_storage.sql`.
+- [x] Typecheck, 6 testes Node, build, reset local, 15 testes SQL, dry-run exclusivo, aplicação e pós-check remoto concluídos antes da publicação.

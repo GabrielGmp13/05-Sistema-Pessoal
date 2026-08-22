@@ -7,7 +7,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 ## Status geral
 **Fase atual:** v2.1 — prioridade manual da Agenda implementada, validada e publicada; reteste manual em produção pendente. A v1 está aposentada (DEC-031) e `frontend/` é o único frontend ativo.
 **Bloqueio:** nenhum bloqueio técnico conhecido neste lote; resta homologação manual autenticada.
-**Banco:** produção e cadeia local estão alinhadas até `20260820000300_agenda_prioridade.sql`; o pós-check de 2026-08-21 confirmou coluna, default, constraint, histórico e dry-run remoto vazio.
+**Banco:** produção e cadeia local estão alinhadas até `20260821000100_biblioteca_capas_storage.sql`; o pós-check de 2026-08-21 confirmou colunas, bucket privado, limite, MIME types, policies, histórico e dry-run remoto vazio.
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
 **Próxima ação:** retestar em produção a prioridade da Agenda, especialmente persistência, ordenação em empate e coexistência sem duplicação com provas de Estudos.
 
@@ -314,3 +314,15 @@ Ver `BACKLOG.md` — upload de capa/banner, edição de itens em listas aninhada
 - [x] Menu de ações dos cards fecha por clique externo e Escape
 - [x] Trocar de categoria não reaproveita um gatilho antigo de “Adicionar”; menu fecha ao editar/apagar e é acessível por toque
 - [ ] Validar manualmente os dois fluxos na etapa final
+
+## Fechamento funcional v2.1 — lote 2026-08-21
+
+- [x] Finanças cria parcelamento de despesas e recorrência mensal finita (2–120), em lote único, sem cron e sem duplicar ao recarregar.
+- [x] Upload privado de capa foi implementado nas oito categorias, com JPG/PNG/WebP, 3 MB, signed URL, rollback e remoção da capa substituída.
+- [x] Artigos ganharam extração server-side limitada de Open Graph, bloqueio de rede privada e fallback manual.
+- [x] Extensão Manifest V3 isolada abre Artigo/Vídeo no app com URL e título para revisão, sem credencial.
+- [x] BRAPI usa cache server-side curto de 60 s, preservando consulta manual e cotação não persistida.
+- [x] Seis testes Node cobrem séries financeiras e parser CSV/TSV.
+- [x] `20260821000100_biblioteca_capas_storage.sql` aplicada após dry-run remoto exclusivo; pós-check de schema/Storage/histórico e dry-run final vazio aprovados.
+- [ ] Homologar os fluxos novos em produção conforme `docs/teste.md`.
+- [ ] OAuth de YouTube/Calendar/Photos permanece bloqueado até existir cofre server-side de refresh tokens; ver `INTEGRACOES_EXTERNAS.md`.

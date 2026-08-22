@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { lookup } from 'node:dns/promises';
+import { isIP } from 'node:net';
 
 import type { FonteMetadados, ResultadoMetadados } from '@/lib/biblioteca-metadados';
 import { extrairYoutubeId } from '@/lib/videos';
@@ -11,7 +13,86 @@ const FONTES: FonteMetadados[] = [
   'jikan_anime',
   'jikan_manga',
   'itunes_podcast',
+  'artigo',
 ];
+
+const MAX_HTML_BYTES = 512 * 1024;
+
+function ipPrivado(ip: string): boolean {
+  if (ip === '::1' || ip.startsWith('fc') || ip.startsWith('fd') || ip.startsWith('fe80:')) return true;
+  if (isIP(ip) !== 4) return false;
+  const [a, b] = ip.split('.').map(Number);
+  return a === 10 || a === 127 || a === 0 || (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168);
+}
+
+async function validarUrlPublica(valor: string): Promise<URL> {
+  const url = new URL(valor);
+  if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) throw new Error('Informe uma URL pública HTTP ou HTTPS.');
+  if (url.hostname === 'localhost' || url.hostname.endsWith('.local')) throw new Error('Endereço local não permitido.');
+  const enderecos = await lookup(url.hostname, { all: true });
+  if (enderecos.length === 0 || enderecos.some((item) => ipPrivado(item.address))) throw new Error('Endereço privado não permitido.');
+  return url;
+}
+
+async function baixarHtmlSeguro(valor: string): Promise<{ html: string; url: URL }> {
+  let url = await validarUrlPublica(valor);
+  for (let redirecionamentos = 0; redirecionamentos <= 3; redirecionamentos += 1) {
+    const response = await fetch(url, { redirect: 'manual', signal: AbortSignal.timeout(8000), headers: { Accept: 'text/html,application/xhtml+xml', 'User-Agent': 'Sistema-Pessoal/2.1 (+metadata)' } });
+    if (response.status >= 300 && response.status < 400) {
+      const location = response.headers.get('location');
+      if (!location || redirecionamentos === 3) throw new Error('O site redirecionou demais.');
+      url = await validarUrlPublica(new URL(location, url).toString());
+      continue;
+    }
+    if (!response.ok) throw new Error(`O site respondeu com status ${response.status}.`);
+    if (!response.headers.get('content-type')?.toLowerCase().includes('text/html')) throw new Error('A URL não aponta para uma página HTML.');
+    const reader = response.body?.getReader();
+    if (!reader) throw new Error('O site não retornou conteúdo legível.');
+    const blocos: Uint8Array[] = [];
+    let total = 0;
+    while (total < MAX_HTML_BYTES) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const restante = MAX_HTML_BYTES - total;
+      blocos.push(value.slice(0, restante));
+      total += Math.min(value.length, restante);
+      if (value.length > restante) await reader.cancel();
+    }
+    const bytes = new Uint8Array(total);
+    let offset = 0;
+    for (const bloco of blocos) { bytes.set(bloco, offset); offset += bloco.length; }
+    return { html: new TextDecoder().decode(bytes), url };
+  }
+  throw new Error('Não foi possível acessar o artigo.');
+}
+
+function decodificarHtml(valor?: string): string | undefined {
+  return valor?.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim() || undefined;
+}
+
+function meta(html: string, chave: string): string | undefined {
+  const escaped = chave.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const padroes = [
+    new RegExp(`<meta[^>]+(?:property|name)=["']${escaped}["'][^>]+content=["']([^"']+)["']`, 'i'),
+    new RegExp(`<meta[^>]+content=["']([^"']+)["'][^>]+(?:property|name)=["']${escaped}["']`, 'i'),
+  ];
+  return decodificarHtml(padroes.map((padrao) => html.match(padrao)?.[1]).find(Boolean));
+}
+
+async function buscarArtigo(q: string): Promise<ResultadoMetadados[]> {
+  const { html, url } = await baixarHtmlSeguro(q);
+  const titulo = meta(html, 'og:title') ?? decodificarHtml(html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1]);
+  if (!titulo) return [];
+  const texto = html.replace(/<script[\s\S]*?<\/script>/gi, ' ').replace(/<style[\s\S]*?<\/style>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  const palavras = texto ? texto.split(/\s+/).length : 0;
+  return [{
+    id: url.toString(), titulo, autor: meta(html, 'article:author') ?? meta(html, 'author'),
+    descricao: meta(html, 'og:description') ?? meta(html, 'description'), capaUrl: meta(html, 'og:image'),
+    siteOrigem: meta(html, 'og:site_name') ?? url.hostname.replace(/^www\./, ''),
+    duracaoMinutos: palavras >= 100 ? Math.max(1, Math.ceil(palavras / 220)) : undefined,
+    linkOficial: url.toString(),
+  }];
+}
 
 function ano(valor?: string | null): number | undefined {
   const resultado = valor?.match(/^\d{4}/)?.[0];
@@ -309,6 +390,7 @@ export async function GET(request: NextRequest) {
       case 'jikan_anime': resultados = await buscarJikan(q, false); break;
       case 'jikan_manga': resultados = await buscarJikan(q, true); break;
       case 'itunes_podcast': resultados = await buscarItunes(q); break;
+      case 'artigo': resultados = await buscarArtigo(q); break;
     }
 
     if (resultados === null) {

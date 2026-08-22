@@ -7,6 +7,8 @@ export interface Artigo {
   url: string;
   autor: string | null;
   site_origem: string | null;
+  capa_url: string | null;
+  capa_path: string | null;
   data_leitura: string | null;
   tempo_leitura_minutos: number | null;
   favorito: boolean;

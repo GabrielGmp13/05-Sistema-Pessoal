@@ -23,6 +23,8 @@ import { getGeneros, getMapaGenerosDosItens, salvarGenerosDoItem, seedGenerosSeN
 import type { Genero } from '@/lib/generos';
 import { ordenarItensBiblioteca, type OrdenacaoBiblioteca } from '@/lib/biblioteca-ordenacao';
 import styles from './BibliotecaSection.module.css';
+import CapaUploadField from './CapaUploadField';
+import { persistirComCapa } from '@/lib/biblioteca-capas';
 
 const STATUS_LABEL: Record<string, string> = {
   quero_ler: 'Quero ler',
@@ -71,6 +73,7 @@ export default function LivrosSection({
   const [modalAberto, setModalAberto] = useState(false);
   const [editandoUuid, setEditandoUuid] = useState<string | null>(null);
   const [form, setForm] = useState<LivroInput>(FORM_VAZIO);
+  const [arquivoCapa, setArquivoCapa] = useState<File | null>(null);
   const [salvando, setSalvando] = useState(false);
 
   const [menuAbertoUuid, setMenuAbertoUuid] = useState<string | null>(null);
@@ -126,11 +129,13 @@ export default function LivrosSection({
   function abrirNovo() {
     setEditandoUuid(null);
     setForm(FORM_VAZIO);
+    setArquivoCapa(null);
     setGenerosSelecionados([]);
     setModalAberto(true);
   }
 
   function abrirEdicao(livro: Livro) {
+    setArquivoCapa(null);
     setEditandoUuid(livro.uuid);
     setForm({
       titulo: livro.titulo,
@@ -161,12 +166,15 @@ export default function LivrosSection({
     if (!form.titulo?.trim()) return;
 
     setSalvando(true);
-    const resultado = editandoUuid
-      ? await atualizarLivro(editandoUuid, form)
-      : await criarLivro(form);
+    const atual = editandoUuid ? livros.find((livro) => livro.uuid === editandoUuid) : null;
+    const persistencia = await persistirComCapa({ categoria: 'livros', arquivo: arquivoCapa, capaPathAtual: atual?.capa_path, persistir: (capaPath) => {
+      const dados = capaPath ? { ...form, capa_path: capaPath } : form;
+      return editandoUuid ? atualizarLivro(editandoUuid, dados) : criarLivro(dados);
+    }});
+    const resultado = persistencia.resultado;
 
     if (resultado === null) {
-      setErro('Não foi possível salvar o livro.');
+      setErro(persistencia.erro ?? 'Não foi possível salvar o livro.');
     } else {
       const userId = await getUserId();
       const { error: erroGeneros } = userId
@@ -268,6 +276,7 @@ export default function LivrosSection({
               key={livro.uuid}
               titulo={livro.titulo}
               capaUrl={livro.capa_url}
+              capaPath={livro.capa_path}
               favorito={livro.favorito}
               nota={livro.nota}
               ano={livro.ano_publicacao}
@@ -325,6 +334,7 @@ export default function LivrosSection({
                   link_oficial: resultado.linkOficial ?? atual.link_oficial,
                 }))}
               />
+              <CapaUploadField arquivo={arquivoCapa} onChange={setArquivoCapa} />
               <label>
                 Autor
                 <input

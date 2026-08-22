@@ -249,7 +249,7 @@ SELECT pg_temp.assert_true(
      FROM storage.buckets)
     EXCEPT
     (VALUES
-      ('capas', 'capas', 'STANDARD', false, 3145728::bigint, NULL::text[], false),
+      ('capas', 'capas', 'STANDARD', false, 3145728::bigint, ARRAY['image/jpeg','image/png','image/webp']::text[], false),
       ('documentos', 'documentos', 'STANDARD', false, 52428800::bigint,
        ARRAY['application/pdf','application/epub+zip','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.ms-excel','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/vnd.ms-powerpoint','application/vnd.openxmlformats-officedocument.presentationml.presentation','text/plain','application/json']::text[], false),
       ('exercicios', 'exercicios', 'STANDARD', false, 5242880::bigint,

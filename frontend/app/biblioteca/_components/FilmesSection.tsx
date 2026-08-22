@@ -23,6 +23,8 @@ import { getGeneros, getMapaGenerosDosItens, salvarGenerosDoItem, seedGenerosSeN
 import type { Genero } from '@/lib/generos';
 import { ordenarItensBiblioteca, type OrdenacaoBiblioteca } from '@/lib/biblioteca-ordenacao';
 import styles from './BibliotecaSection.module.css';
+import CapaUploadField from './CapaUploadField';
+import { persistirComCapa } from '@/lib/biblioteca-capas';
 
 const STATUS_LABEL: Record<string, string> = {
   quero_ver: 'Quero ver',
@@ -64,6 +66,7 @@ export default function FilmesSection({
   const [modalAberto, setModalAberto] = useState(false);
   const [editandoUuid, setEditandoUuid] = useState<string | null>(null);
   const [form, setForm] = useState<FilmeInput>(FORM_VAZIO);
+  const [arquivoCapa, setArquivoCapa] = useState<File | null>(null);
   const [salvando, setSalvando] = useState(false);
 
   const [menuAbertoUuid, setMenuAbertoUuid] = useState<string | null>(null);
@@ -119,11 +122,13 @@ export default function FilmesSection({
   function abrirNovo() {
     setEditandoUuid(null);
     setForm(FORM_VAZIO);
+    setArquivoCapa(null);
     setGenerosSelecionados([]);
     setModalAberto(true);
   }
 
   function abrirEdicao(filme: Filme) {
+    setArquivoCapa(null);
     setEditandoUuid(filme.uuid);
     setForm({
       titulo: filme.titulo,
@@ -155,12 +160,15 @@ export default function FilmesSection({
     if (!form.titulo?.trim()) return;
 
     setSalvando(true);
-    const resultado = editandoUuid
-      ? await atualizarFilme(editandoUuid, form)
-      : await criarFilme(form);
+    const atual = editandoUuid ? filmes.find((filme) => filme.uuid === editandoUuid) : null;
+    const persistencia = await persistirComCapa({ categoria: 'filmes', arquivo: arquivoCapa, capaPathAtual: atual?.capa_path, persistir: (capaPath) => {
+      const dados = capaPath ? { ...form, capa_path: capaPath } : form;
+      return editandoUuid ? atualizarFilme(editandoUuid, dados) : criarFilme(dados);
+    }});
+    const resultado = persistencia.resultado;
 
     if (resultado === null) {
-      setErro('Não foi possível salvar o filme.');
+      setErro(persistencia.erro ?? 'Não foi possível salvar o filme.');
     } else {
       const userId = await getUserId();
       const { error: erroGeneros } = userId
@@ -258,6 +266,7 @@ export default function FilmesSection({
               key={filme.uuid}
               titulo={filme.titulo}
               capaUrl={filme.capa_url}
+              capaPath={filme.capa_path}
               favorito={filme.favorito}
               nota={filme.nota}
               ano={filme.ano_lancamento}
@@ -313,6 +322,7 @@ export default function FilmesSection({
                   classificacao_indicativa: resultado.classificacaoIndicativa ?? atual.classificacao_indicativa,
                 }))}
               />
+              <CapaUploadField arquivo={arquivoCapa} onChange={setArquivoCapa} />
               <label>
                 Diretor
                 <input
