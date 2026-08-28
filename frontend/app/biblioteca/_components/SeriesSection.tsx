@@ -20,8 +20,10 @@ import BibliotecaBanner from './BibliotecaBanner';
 import BuscaMetadados from './BuscaMetadados';
 import BibliotecaCard from './BibliotecaCard';
 import { sb, getUserId } from '@/lib/supabase';
-import { getGeneros, getMapaGenerosDosItens, salvarGenerosDoItem, seedGenerosSeNecessario } from '@/lib/generos';
+import { garantirGenerosExternos, getGeneros, getMapaGenerosDosItens, salvarGenerosDoItem, seedGenerosSeNecessario } from '@/lib/generos';
 import type { Genero } from '@/lib/generos';
+import { importarElencoMetadados } from '@/lib/elenco';
+import type { ResultadoMetadados } from '@/lib/biblioteca-metadados';
 import { ordenarItensBiblioteca, type OrdenacaoBiblioteca } from '@/lib/biblioteca-ordenacao';
 import styles from './BibliotecaSection.module.css';
 import CapaUploadField from './CapaUploadField';
@@ -43,7 +45,6 @@ const FORM_VAZIO: SerieInput = {
   roteirista: '',
   produtores: '',
   estudio: '',
-  distribuidora: '',
   favorito: false,
 };
 
@@ -80,6 +81,7 @@ export default function SeriesSection({
   const [generos, setGeneros] = useState<Genero[]>([]);
   const [generosSelecionados, setGenerosSelecionados] = useState<string[]>([]);
   const [generosPorItem, setGenerosPorItem] = useState<Record<string, Genero[]>>({});
+  const [elencoImportado, setElencoImportado] = useState<ResultadoMetadados['elenco']>([]);
 
   async function carregarGenerosDosItens(lista: Serie[]) {
     const userId = await getUserId();
@@ -129,6 +131,7 @@ export default function SeriesSection({
     setArquivoCapa(null);
     setArquivoBanner(null);
     setGenerosSelecionados([]);
+    setElencoImportado([]);
     setModalAberto(true);
   }
 
@@ -147,13 +150,13 @@ export default function SeriesSection({
       roteirista: serie.roteirista ?? '',
       produtores: serie.produtores ?? '',
       estudio: serie.estudio ?? '',
-      distribuidora: serie.distribuidora ?? '',
       ano_lancamento: serie.ano_lancamento ?? undefined,
       ano_termino: serie.ano_termino ?? undefined,
       duracao_minutos: serie.duracao_minutos ?? undefined,
       favorito: serie.favorito,
     });
     setGenerosSelecionados(generosPorItem[serie.uuid]?.map((g) => g.uuid) ?? []);
+    setElencoImportado([]);
     setModalAberto(true);
   }
 
@@ -181,9 +184,10 @@ export default function SeriesSection({
       const { error: erroGeneros } = userId
         ? await salvarGenerosDoItem(sb, userId, 'series', resultado.uuid, generosSelecionados)
         : { error: 'Sessão indisponível' };
+      const elencoOk = await importarElencoMetadados('serie', resultado.uuid, elencoImportado ?? []);
       fecharModal();
       await carregar();
-      if (erroGeneros) setErro('Série salva, mas não foi possível salvar os gêneros.');
+      if (erroGeneros || !elencoOk) setErro('Série salva, mas parte dos gêneros ou do elenco não pôde ser importada.');
     }
     setSalvando(false);
   }
@@ -206,8 +210,6 @@ export default function SeriesSection({
     if (serie.roteirista) campos.push({ label: 'Roteiro', valor: serie.roteirista });
     if (serie.produtores) campos.push({ label: 'Produção', valor: serie.produtores });
     if (serie.estudio) campos.push({ label: 'Estúdio', valor: serie.estudio });
-    if (serie.distribuidora)
-      campos.push({ label: 'Distribuidora', valor: serie.distribuidora });
     if (serie.duracao_minutos)
       campos.push({ label: 'Duração/ep', valor: `${serie.duracao_minutos} min` });
     if (serie.comentario) campos.push({ label: 'Comentário', valor: serie.comentario });
@@ -324,7 +326,8 @@ export default function SeriesSection({
               <BuscaMetadados
                 fonte="tmdb_serie"
                 termo={form.titulo}
-                onSelect={(resultado) => setForm((atual) => ({
+                onSelect={(resultado) => {
+                  setForm((atual) => ({
                   ...atual,
                   titulo: resultado.titulo,
                   tmdb_id: resultado.identificadorExterno ?? atual.tmdb_id,
@@ -338,7 +341,16 @@ export default function SeriesSection({
                   produtores: resultado.produtores ?? atual.produtores,
                   estudio: resultado.estudio ?? atual.estudio,
                   classificacao_indicativa: resultado.classificacaoIndicativa ?? atual.classificacao_indicativa,
-                }))}
+                  }));
+                  setElencoImportado(resultado.elenco ?? []);
+                  if (resultado.generos?.length) void (async () => {
+                    const userId = await getUserId();
+                    if (!userId) return;
+                    const resolvidos = await garantirGenerosExternos(sb, userId, resultado.generos!);
+                    setGeneros(resolvidos.generos);
+                    setGenerosSelecionados(resolvidos.selecionados);
+                  })();
+                }}
               />
               <CapaUploadField arquivo={arquivoCapa} onChange={setArquivoCapa} />
               <CapaUploadField arquivo={arquivoBanner} onChange={setArquivoBanner} label="Banner do dispositivo" />
@@ -472,13 +484,6 @@ export default function SeriesSection({
                 <input
                   value={form.estudio ?? ''}
                   onChange={(e) => setForm({ ...form, estudio: e.target.value })}
-                />
-              </label>
-              <label>
-                Distribuidora
-                <input
-                  value={form.distribuidora ?? ''}
-                  onChange={(e) => setForm({ ...form, distribuidora: e.target.value })}
                 />
               </label>
               <label>

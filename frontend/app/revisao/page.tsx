@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import Link from 'next/link'
 import {
   Archive,
   ArchiveRestore,
@@ -12,6 +13,7 @@ import {
   EyeOff,
   FileUp,
   Plus,
+  Play,
   Trash2,
 } from 'lucide-react'
 
@@ -30,6 +32,8 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { dataLocalIso } from '@/lib/date'
 import { analisarFlashcards, FlashcardImportado } from '@/lib/flashcard-import'
+import { Conteudo, listarConteudosPorMateria } from '@/lib/conteudos'
+import { listarMaterias, Materia } from '@/lib/materias'
 import {
   avaliarCard,
   CardRevisao,
@@ -78,20 +82,29 @@ export default function RevisaoPage() {
   const [previewImportacao, setPreviewImportacao] = useState<FlashcardImportado[]>([])
   const [moduloPadrao, setModuloPadrao] = useState('manual')
   const [filtroModulo, setFiltroModulo] = useState('todos')
+  const [materias, setMaterias] = useState<Materia[]>([])
+  const [conteudosImportacao, setConteudosImportacao] = useState<Conteudo[]>([])
+  const [materiaImportacao, setMateriaImportacao] = useState(() => typeof window === 'undefined' ? '' : new URLSearchParams(window.location.search).get('materia') ?? '')
+  const [conteudoImportacao, setConteudoImportacao] = useState(() => typeof window === 'undefined' ? '' : new URLSearchParams(window.location.search).get('conteudo') ?? '')
+  const [filtroMateria, setFiltroMateria] = useState('todos')
+  const [filtroConteudo, setFiltroConteudo] = useState('todos')
+  const [conteudosFiltro, setConteudosFiltro] = useState<Conteudo[]>([])
   const [arquivoAnki, setArquivoAnki] = useState<File | null>(null)
   const [decksAnki, setDecksAnki] = useState<AnkiDeck[]>([])
   const [deckAnki, setDeckAnki] = useState('')
 
   const carregar = useCallback(async () => {
-    const [atuais, suspensos] = await Promise.all([
+    const [atuais, suspensos, materiasAtuais] = await Promise.all([
       listarCardsRevisao(),
       listarCardsArquivados(),
+      listarMaterias(),
     ])
     if (atuais === null || suspensos === null) {
       setErro('Não foi possível carregar as revisões.')
     } else {
       setCards(atuais)
       setArquivados(suspensos)
+      setMaterias(materiasAtuais ?? [])
       setErro('')
     }
     setCarregando(false)
@@ -104,10 +117,26 @@ export default function RevisaoPage() {
     return () => window.clearTimeout(timeoutId)
   }, [carregar])
 
+  useEffect(() => {
+    if (!materiaImportacao) return
+    void listarConteudosPorMateria(materiaImportacao).then((itens) => setConteudosImportacao(itens ?? []))
+  }, [materiaImportacao])
+
+  useEffect(() => {
+    if (filtroMateria === 'todos') return
+    void listarConteudosPorMateria(filtroMateria).then((itens) => setConteudosFiltro(itens ?? []))
+  }, [filtroMateria])
+
   const hoje = dataLocalIso()
   const modulosDisponiveis = useMemo(() => [...new Set([...cards, ...arquivados].map((card) => card.modulo || 'manual'))].sort(), [cards, arquivados])
-  const cardsFiltrados = useMemo(() => filtroModulo === 'todos' ? cards : cards.filter((card) => (card.modulo || 'manual') === filtroModulo), [cards, filtroModulo])
-  const arquivadosFiltrados = useMemo(() => filtroModulo === 'todos' ? arquivados : arquivados.filter((card) => (card.modulo || 'manual') === filtroModulo), [arquivados, filtroModulo])
+  const aplicarFiltros = useCallback((itens: CardRevisao[]) => itens.filter((card) => {
+    if (filtroModulo !== 'todos' && (card.modulo || 'manual') !== filtroModulo) return false
+    if (filtroMateria !== 'todos' && card.materia_uuid !== filtroMateria) return false
+    if (filtroConteudo !== 'todos' && card.conteudo_uuid !== filtroConteudo) return false
+    return true
+  }), [filtroConteudo, filtroMateria, filtroModulo])
+  const cardsFiltrados = useMemo(() => aplicarFiltros(cards), [aplicarFiltros, cards])
+  const arquivadosFiltrados = useMemo(() => aplicarFiltros(arquivados), [aplicarFiltros, arquivados])
   const { pendentes, futuras, atrasadas, paraHoje } = useMemo(() => {
     const atrasados = cardsFiltrados.filter((card) => card.proxima_revisao < hoje)
     const hojeCards = cardsFiltrados.filter((card) => card.proxima_revisao === hoje)
@@ -209,7 +238,12 @@ export default function RevisaoPage() {
     setErro('')
     setResultadoImportacao('')
     try {
-      const cardsImportados = previewImportacao.map((card) => ({ ...card, modulo: card.modulo || moduloPadrao }))
+      const cardsImportados = previewImportacao.map((card) => ({
+        ...card,
+        modulo: materiaImportacao ? 'estudos' : card.modulo || moduloPadrao,
+        materia_uuid: materiaImportacao || null,
+        conteudo_uuid: conteudoImportacao || null,
+      }))
       const resultado = await importarCardsRevisao(cardsImportados)
       if (!resultado) throw new Error('Não foi possível salvar os cards importados.')
       setResultadoImportacao(`${resultado.criados} card${resultado.criados === 1 ? '' : 's'} criado${resultado.criados === 1 ? '' : 's'} · ${resultado.duplicados} duplicado${resultado.duplicados === 1 ? '' : 's'} ignorado${resultado.duplicados === 1 ? '' : 's'}.`)
@@ -282,7 +316,7 @@ export default function RevisaoPage() {
         description="Revise o que está pendente e registre o resultado para calcular o próximo intervalo."
       />
 
-      <div role="tablist" aria-label="Filtros de revisão" className="mt-7 flex gap-2 border-b border-border pb-3">
+      <div role="tablist" aria-label="Filtros de revisão" className="mt-7 flex flex-wrap gap-2 border-b border-border pb-3">
         <Button
           type="button"
           role="tab"
@@ -308,6 +342,14 @@ export default function RevisaoPage() {
           <option value="todos">Todos os módulos</option>
           {modulosDisponiveis.map((modulo) => <option key={modulo} value={modulo}>{modulo === 'manual' ? 'Manual' : modulo}</option>)}
         </Select>
+        <Select value={filtroMateria} onChange={(event) => { setFiltroMateria(event.target.value); setFiltroConteudo('todos'); setConteudosFiltro([]) }} className="w-44" aria-label="Filtrar por matéria">
+          <option value="todos">Todas as matérias</option>
+          {materias.map((materia) => <option key={materia.uuid} value={materia.uuid}>{materia.nome}</option>)}
+        </Select>
+        <Select value={filtroConteudo} onChange={(event) => setFiltroConteudo(event.target.value)} className="w-44" aria-label="Filtrar por conteúdo" disabled={filtroMateria === 'todos'}>
+          <option value="todos">Todos os conteúdos</option>
+          {conteudosFiltro.map((conteudo) => <option key={conteudo.uuid} value={conteudo.uuid}>{conteudo.nome}</option>)}
+        </Select>
       </div>
 
       <div className={`${aba === 'ativos' ? '' : 'hidden'} mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3`}>
@@ -315,6 +357,17 @@ export default function RevisaoPage() {
         <ResumoCard icon={CheckCircle2} label="Para hoje" value={paraHoje} />
         <ResumoCard icon={CalendarClock} label="Futuras" value={futuras.length} />
       </div>
+
+      {aba === 'ativos' && pendentes.length > 0 ? (
+        <div className="mt-5 flex justify-end">
+          <Link
+            className={buttonVariants()}
+            href={`/revisao/sessao?materia=${filtroMateria === 'todos' ? '' : filtroMateria}&conteudo=${filtroConteudo === 'todos' ? '' : filtroConteudo}`}
+          >
+            <Play className="size-4" /> Iniciar sessão focada
+          </Link>
+        </div>
+      ) : null}
 
       {erro ? (
         <p role="alert" className="mt-6 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
@@ -402,7 +455,7 @@ export default function RevisaoPage() {
             <div className="flex flex-wrap items-center justify-between gap-4"><div className="min-w-0"><p className="text-sm font-medium">Importação com prévia e deduplicação</p><p className="mt-1 text-xs text-muted-foreground">CSV/TSV: 1 MB. Anki: .apkg de até 25 MB, seleção de deck e até 500 cards por importação. Mídias do pacote não são copiadas.</p>{resultadoImportacao ? <p role="status" className="mt-2 text-xs text-success">{resultadoImportacao}</p> : null}</div>
             <label className={buttonVariants({ variant: 'outline', size: 'sm', className: importando ? 'pointer-events-none opacity-60' : 'cursor-pointer' })}><FileUp className="size-3.5" />Selecionar arquivo<input type="file" accept=".csv,.tsv,.apkg,text/csv,text/tab-separated-values,application/zip" className="sr-only" onChange={(event) => void handleSelecionarImportacao(event)} disabled={importando} /></label></div>
             {decksAnki.length > 0 ? <div className="mt-4"><Field label="Deck do Anki" htmlFor="deck-anki"><Select id="deck-anki" value={deckAnki} onChange={(event) => void selecionarDeckAnki(event.target.value)}><option value="">Selecione um deck</option>{decksAnki.map((deck) => <option key={deck.id} value={deck.id}>{deck.nome} ({deck.quantidade})</option>)}</Select></Field></div> : null}
-            {previewImportacao.length > 0 ? <div className="mt-4 border-t border-border pt-4"><div className="flex flex-wrap items-end justify-between gap-3"><Field label="Módulo padrão" htmlFor="modulo-padrao" optional><Select id="modulo-padrao" value={moduloPadrao} onChange={(event) => setModuloPadrao(event.target.value)} className="w-44"><option value="manual">Manual</option><option value="estudos">Estudos</option><option value="idiomas">Idiomas</option><option value="treino">Treino</option></Select></Field><p className="text-xs text-muted-foreground">Aplicado somente às linhas sem <code>modulo</code>.</p></div><div className="mt-3 overflow-x-auto"><table className="w-full min-w-[34rem] text-left text-xs"><thead className="text-muted-foreground"><tr><th className="pb-2 pr-3">Pergunta</th><th className="pb-2 pr-3">Resposta</th><th className="pb-2">Módulo</th></tr></thead><tbody>{previewImportacao.slice(0, 10).map((card, indice) => <tr key={`${card.pergunta}-${indice}`} className="border-t border-border"><td className="max-w-56 truncate py-2 pr-3">{card.pergunta}</td><td className="max-w-56 truncate py-2 pr-3">{card.resposta || '—'}</td><td className="py-2">{card.modulo || moduloPadrao}</td></tr>)}</tbody></table></div>{previewImportacao.length > 10 ? <p className="mt-2 text-xs text-muted-foreground">Mostrando 10 de {previewImportacao.length} cards.</p> : null}<div className="mt-4 flex gap-2"><Button type="button" size="sm" disabled={importando || (decksAnki.length > 0 && !deckAnki)} onClick={() => void confirmarImportacao()}>{importando ? 'Importando...' : `Importar ${previewImportacao.length} cards`}</Button><Button type="button" size="sm" variant="outline" disabled={importando} onClick={() => { setPreviewImportacao([]); setArquivoAnki(null); setDecksAnki([]); setDeckAnki('') }}>Cancelar</Button></div></div> : null}
+            {previewImportacao.length > 0 ? <div className="mt-4 border-t border-border pt-4"><div className="grid gap-3 sm:grid-cols-3"><Field label="Matéria" htmlFor="materia-importacao"><Select id="materia-importacao" value={materiaImportacao} onChange={(event) => { setMateriaImportacao(event.target.value); setConteudoImportacao(''); setConteudosImportacao([]) }}><option value="">Sem vínculo acadêmico</option>{materias.map((materia) => <option key={materia.uuid} value={materia.uuid}>{materia.nome}</option>)}</Select></Field><Field label="Conteúdo" htmlFor="conteudo-importacao" optional><Select id="conteudo-importacao" value={conteudoImportacao} onChange={(event) => setConteudoImportacao(event.target.value)} disabled={!materiaImportacao}><option value="">Toda a matéria</option>{conteudosImportacao.map((conteudo) => <option key={conteudo.uuid} value={conteudo.uuid}>{conteudo.nome}</option>)}</Select></Field><Field label="Módulo padrão" htmlFor="modulo-padrao" optional><Select id="modulo-padrao" value={moduloPadrao} onChange={(event) => setModuloPadrao(event.target.value)} disabled={Boolean(materiaImportacao)}><option value="manual">Manual</option><option value="estudos">Estudos</option><option value="idiomas">Idiomas</option><option value="treino">Treino</option></Select></Field></div><p className="mt-2 text-xs text-muted-foreground">Estes cards serão atribuídos à matéria e ao conteúdo escolhidos acima. O vínculo vale para todo o lote e permite filtrar a sessão.</p><div className="mt-3 overflow-x-auto"><table className="w-full min-w-[34rem] text-left text-xs"><thead className="text-muted-foreground"><tr><th className="pb-2 pr-3">Pergunta</th><th className="pb-2 pr-3">Resposta</th><th className="pb-2">Destino</th></tr></thead><tbody>{previewImportacao.slice(0, 10).map((card, indice) => <tr key={`${card.pergunta}-${indice}`} className="border-t border-border"><td className="max-w-56 truncate py-2 pr-3">{card.pergunta}</td><td className="max-w-56 truncate py-2 pr-3">{card.resposta || '—'}</td><td className="py-2">{materias.find((materia) => materia.uuid === materiaImportacao)?.nome || card.modulo || moduloPadrao}</td></tr>)}</tbody></table></div>{previewImportacao.length > 10 ? <p className="mt-2 text-xs text-muted-foreground">Mostrando 10 de {previewImportacao.length} cards.</p> : null}<div className="mt-4 flex gap-2"><Button type="button" size="sm" disabled={importando || (decksAnki.length > 0 && !deckAnki)} onClick={() => void confirmarImportacao()}>{importando ? 'Importando...' : `Importar ${previewImportacao.length} cards`}</Button><Button type="button" size="sm" variant="outline" disabled={importando} onClick={() => { setPreviewImportacao([]); setArquivoAnki(null); setDecksAnki([]); setDeckAnki('') }}>Cancelar</Button></div></div> : null}
           </Card>
         </Section>
       </div>

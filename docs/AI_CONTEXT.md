@@ -49,13 +49,13 @@ operacional.
 
 ## Estado atual (2026-08)
 
-**Fase:** v2.1 — lote local de playlists persistentes, Hub e preparação de beta privado em validação; homologação manual continua pendente. A v2 é o único frontend ativo (v1 removida em 2026-07-19, DEC-031).
+**Fase:** v2.1 — lote consolidado de homologação publicado tecnicamente; homologação manual continua pendente. A v2 é o único frontend ativo (v1 removida em 2026-07-19, DEC-031).
 **Decisão-chave:** DEC-018 (reabre DEC-006) — frontend migrou de HTML puro para Next.js/React
 **Deploy:** ✅ em produção no Vercel desde 2026-07-13 (não "pendente" — ver `ARCHITECTURE.md`)
-**Schema:** baseline confirmada via dump real em 2026-08 com 44 tabelas; produção e cadeia local têm 66 após as migrations aplicadas até `20260822000300_biblioteca_playlists.sql` (ver `DATABASE.md`).
-**Histórico CLI:** as três baselines e incrementais até `20260822000300_biblioteca_playlists.sql` estão `applied`; a última passou reset, 17 scripts SQL, dry-run exclusivo, aplicação, pós-check de schema/histórico e dry-run final vazio.
+**Schema:** baseline confirmada via dump real em 2026-08 com 44 tabelas; produção tem 68 após as migrations aplicadas até `20260827000100_homologacao_fluxos_pessoais.sql` (ver `DATABASE.md`).
+**Histórico CLI:** as três baselines e todas as incrementais até `20260827000100_homologacao_fluxos_pessoais.sql` estão `applied`; o pós-check confirmou os objetos, FKs, RLS e GRANTs do lote, e o dry-run final ficou vazio.
 **Reprodutibilidade:** Node.js `24.15.0`, npm `12.0.1`, `npm ci`, typecheck e build validados; CI mínima ativa. Lint mantém 51 achados conhecidos e informativos (27 erros e 24 warnings) na medição de 2026-08-15.
-**Próxima tarefa imediata:** publicar o lote validado e executar `HOMOLOGATION_V2.md` e `BETA_PRIVADO.md` no deploy.
+**Próxima tarefa imediata:** executar `HOMOLOGATION_V2.md`, `BETA_PRIVADO.md` e os retestes objetivos de `teste.md` no deploy.
 
 ---
 
@@ -63,16 +63,16 @@ operacional.
 
 | Camada | Tecnologia |
 |---|---|
-| Banco de dados | PostgreSQL via Supabase (66 tabelas em `public`, alinhadas entre produção e cadeia local) |
+| Banco de dados | PostgreSQL via Supabase (68 tabelas em produção) |
 | Auth | Supabase Auth (email+senha) |
 | Storage | Supabase Storage — 6 buckets privados e 18 policies; o sexto foi confirmado por pós-check remoto |
 | Frontend | Next.js 16.3.2 (React 19) + TypeScript — pasta `frontend/`, único frontend do projeto |
 | Estilização | CSS Modules (Treino/Biblioteca/Dashboard) + Tailwind v4/shadcn (Estudos) — stack mista intencional, DEC-038 |
-| Backend leve | 12 API Routes (Next.js/Vercel): metadados, BRAPI, Anki e Google OAuth/YouTube/Calendar, com credenciais server-only |
+| Backend leve | 14 API Routes (Next.js/Vercel): metadados, BRAPI, Anki, Google OAuth/YouTube/Calendar e Places, com credenciais server-only |
 | Offline | Service Worker — fora de escopo por ora (Fase M2, ver `ROADMAP.md`) |
 | Hosting | Vercel — **em produção desde 2026-07-13** |
 | Toolchain | Node.js 24.15.0 + npm 12.0.1; versões fixadas no repositório |
-| CI/testes | GitHub Actions: `npm ci`, typecheck e build bloqueantes; lint informativo. Lote local: 17 scripts SQL e 26 testes Node aprovados |
+| CI/testes | GitHub Actions: `npm ci`, typecheck e build bloqueantes; lint informativo. Lote atual: 18 scripts SQL e 28 testes Node aprovados |
 
 ---
 

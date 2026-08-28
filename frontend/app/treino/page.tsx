@@ -2,12 +2,12 @@
 
 import Link from 'next/link'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Activity, ArrowRight, CalendarDays, Clock3, Dumbbell, Gauge, RefreshCw, Scale, Sparkles } from 'lucide-react'
+import { Activity, ArrowRight, CalendarDays, Clock3, Dumbbell, Gauge, Pencil, Plus, RefreshCw, Scale, Sparkles, Trash2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { getSession, sb } from '@/lib/supabase'
 import { getModulosTreino, ModuloTreino, seedModulosSeNecessario } from '@/lib/modulos-treinos'
-import { DadosDashboardTreino, getDadosDashboardTreino } from '@/lib/treino'
+import { DadosDashboardTreino, getDadosDashboardTreino, removerPlanejamentoSemanal, salvarPlanejamentoSemanal } from '@/lib/treino'
 import styles from './page.module.css'
 
 export default function TreinoHubPage() {
@@ -17,6 +17,9 @@ export default function TreinoHubPage() {
   const [erro, setErro] = useState('')
   const [fotosShape, setFotosShape] = useState<string[]>([])
   const [fotoShapeAtiva, setFotoShapeAtiva] = useState(0)
+  const [usuarioUuid, setUsuarioUuid] = useState('')
+  const [planejamentoForm, setPlanejamentoForm] = useState({ uuid: '', dia: '1', treinoUuid: '' })
+  const [salvandoPlanejamento, setSalvandoPlanejamento] = useState(false)
 
   const carregar = useCallback(async () => {
     setCarregando(true)
@@ -27,6 +30,7 @@ export default function TreinoHubPage() {
       setCarregando(false)
       return
     }
+    setUsuarioUuid(session.user.id)
 
     await seedModulosSeNecessario(sb, session.user.id)
     const [modulosAtuais, resumo] = await Promise.all([
@@ -81,6 +85,26 @@ export default function TreinoHubPage() {
     })
   }, [dados, modulos])
   const maiorPontuacao = Math.max(1, ...progressoModulos.map((modulo) => modulo.pontos))
+  const diasDaSemana = useMemo(() => semanaAtual(), [])
+
+  async function salvarPlanejamento(event: React.FormEvent) {
+    event.preventDefault()
+    if (!usuarioUuid || !planejamentoForm.treinoUuid) return
+    setSalvandoPlanejamento(true)
+    const resultado = await salvarPlanejamentoSemanal(sb, usuarioUuid, planejamentoForm.treinoUuid, Number(planejamentoForm.dia), planejamentoForm.uuid || undefined)
+    if (resultado.error) setErro('Não foi possível salvar o planejamento semanal. Verifique se o mesmo treino já está neste dia.')
+    else {
+      setPlanejamentoForm({ uuid: '', dia: '1', treinoUuid: '' })
+      await carregar()
+    }
+    setSalvandoPlanejamento(false)
+  }
+
+  async function removerPlanejamento(uuid: string) {
+    if (!usuarioUuid) return
+    if (!(await removerPlanejamentoSemanal(sb, usuarioUuid, uuid))) setErro('Não foi possível remover o item do planejamento.')
+    else await carregar()
+  }
 
   return (
     <main className={styles.pagina}>
@@ -140,6 +164,29 @@ export default function TreinoHubPage() {
             </div>
           </aside>
         </div>
+
+        <section className={styles.secao}>
+          <div className={styles.secaoCabecalho}>
+            <div><p className={styles.eyebrow}>Semana atual</p><h2>Planejamento semanal</h2></div>
+            <span>Rotina de segunda a domingo</span>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-7">
+            {diasDaSemana.map((dia) => {
+              const itens = dados?.planejamentoSemanal.filter((item) => item.dia_semana === dia.numero) ?? []
+              return <article key={dia.numero} className="min-w-0 rounded-xl border border-border bg-card/80 p-3 text-card-foreground shadow-sm">
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{dia.nome}</p>
+                <strong className="mt-1 block text-lg">{dia.data}</strong>
+                <div className="mt-3 space-y-2">{itens.length === 0 ? <p className="text-xs text-muted-foreground">Descanso / livre</p> : itens.map((item) => <div key={item.uuid} className="rounded-lg bg-secondary/70 p-2"><p className="truncate text-xs font-medium">{treinosPorUuid.get(item.treino_uuid)?.nome ?? 'Treino'}</p><div className="mt-1 flex justify-end gap-1"><Button type="button" variant="ghost" size="icon-xs" onClick={() => setPlanejamentoForm({ uuid: item.uuid, dia: String(item.dia_semana), treinoUuid: item.treino_uuid })} aria-label="Editar planejamento"><Pencil /></Button><Button type="button" variant="ghost" size="icon-xs" onClick={() => void removerPlanejamento(item.uuid)} aria-label="Remover planejamento"><Trash2 /></Button></div></div>)}</div>
+              </article>
+            })}
+          </div>
+          <form onSubmit={salvarPlanejamento} className="mt-4 flex flex-col gap-2 rounded-xl border border-border bg-card/70 p-3 sm:flex-row sm:items-end">
+            <label className="flex flex-1 flex-col gap-1 text-xs font-medium text-muted-foreground">Dia<select className="h-9 rounded-lg border border-border bg-background px-3 text-sm text-foreground" value={planejamentoForm.dia} onChange={(event) => setPlanejamentoForm((atual) => ({ ...atual, dia: event.target.value }))}>{diasDaSemana.map((dia) => <option key={dia.numero} value={dia.numero}>{dia.nome}</option>)}</select></label>
+            <label className="flex flex-[2] flex-col gap-1 text-xs font-medium text-muted-foreground">Treino<select required className="h-9 rounded-lg border border-border bg-background px-3 text-sm text-foreground" value={planejamentoForm.treinoUuid} onChange={(event) => setPlanejamentoForm((atual) => ({ ...atual, treinoUuid: event.target.value }))}><option value="">Selecione</option>{dados?.treinos.map((treino) => <option key={treino.uuid} value={treino.uuid}>{treino.nome}</option>)}</select></label>
+            <Button type="submit" disabled={salvandoPlanejamento || !planejamentoForm.treinoUuid}><Plus />{planejamentoForm.uuid ? 'Atualizar' : 'Adicionar'}</Button>
+            {planejamentoForm.uuid ? <Button type="button" variant="ghost" onClick={() => setPlanejamentoForm({ uuid: '', dia: '1', treinoUuid: '' })}>Cancelar</Button> : null}
+          </form>
+        </section>
 
         <section className={styles.secao}>
           <div className={styles.secaoCabecalho}>
@@ -210,4 +257,16 @@ function formatarDuracao(minutos: number) {
   const horas = Math.floor(minutos / 60)
   const restante = minutos % 60
   return restante ? `${horas}h ${restante}min` : `${horas}h`
+}
+
+function semanaAtual() {
+  const hoje = new Date()
+  const segunda = new Date(hoje)
+  segunda.setDate(hoje.getDate() - ((hoje.getDay() + 6) % 7))
+  const nomes = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom']
+  return nomes.map((nome, indice) => {
+    const data = new Date(segunda)
+    data.setDate(segunda.getDate() + indice)
+    return { numero: indice + 1, nome, data: data.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) }
+  })
 }

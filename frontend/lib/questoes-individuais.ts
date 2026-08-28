@@ -70,7 +70,20 @@ export async function lancarRespostasGabarito(
   const userId = await getUserId();
   if (!userId) return false;
 
-  const linhas = respostas.map((r) => ({
+  const { data: existentes, error: erroBusca } = await sb
+    .from('questoes_individuais')
+    .select('uuid,numero,letra_correta')
+    .eq('user_id', userId)
+    .eq('prova_uuid', provaUuid)
+    .eq('deleted', false);
+  if (erroBusca) {
+    sbErr(erroBusca, 'lancarRespostasGabarito:buscar');
+    return false;
+  }
+
+  const porNumero = new Map((existentes ?? []).map((questao) => [questao.numero, questao]));
+  const novas = respostas.filter((resposta) => !porNumero.has(resposta.numero));
+  const linhas = novas.map((r) => ({
     uuid: crypto.randomUUID(),
     user_id: userId,
     materia_uuid: null,
@@ -85,8 +98,29 @@ export async function lancarRespostasGabarito(
     letra_correta: null,
   }));
 
-  const { error } = await sb.from('questoes_individuais').insert(linhas);
-  if (error) { sbErr(error, 'lancarRespostasGabarito'); return false; }
+  if (linhas.length > 0) {
+    const { error } = await sb.from('questoes_individuais').insert(linhas);
+    if (error) { sbErr(error, 'lancarRespostasGabarito:inserir'); return false; }
+  }
+
+  for (const resposta of respostas) {
+    const existente = porNumero.get(resposta.numero);
+    if (!existente) continue;
+    const acertou = existente.letra_correta === null
+      ? null
+      : calcularAcertou(resposta.letra_marcada, existente.letra_correta as Letra);
+    const { error } = await sb
+      .from('questoes_individuais')
+      .update({
+        letra_marcada: resposta.letra_marcada,
+        acertou,
+        data,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('uuid', existente.uuid)
+      .eq('user_id', userId);
+    if (error) { sbErr(error, 'lancarRespostasGabarito:atualizar'); return false; }
+  }
   return true;
 }
 

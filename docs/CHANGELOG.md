@@ -20,6 +20,15 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — v2.1 pronta tecnicamente; homologação manual pendente
 
+- **2026-08-27 (lote consolidado de homologação)** — Hub passou a exibir
+  somente revisões, provas e Biblioteca em andamento; Biblioteca ampliou gêneros
+  e importação de metadados/créditos; ENEM ganhou histórico seguro de tentativas;
+  Revisão ganhou vínculo acadêmico e sessão focada; Agenda ganhou importação
+  Calendar com prévia/conflitos; Treino ganhou planejamento semanal; Lugares
+  ganhou busca Google Places server-side. Reset/18 scripts, 28 testes Node,
+  typecheck e build passaram. A migration foi aplicada após dry-run exclusivo;
+  pós-check confirmou schema/segurança e o dry-run final ficou vazio.
+
 - **2026-08-22 (painel múltiplo de insights do Hub)** — O bloco rotativo de um
   item foi substituído por cards reais simultâneos: três colunas no desktop,
   quatro em telas largas, duas no tablet e faixa horizontal com snap no mobile.

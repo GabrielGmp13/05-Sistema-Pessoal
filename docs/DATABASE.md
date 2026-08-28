@@ -34,7 +34,7 @@ Chaves estrangeiras seguem `<tabela_singular>_uuid` (ex: `treino_uuid`, `materia
 
 **GRANT é obrigatório em toda migration, não opcional.** Projetos Supabase criados a partir de 2026-05-30 não recebem GRANT automático em nenhuma tabela nova, mesmo com RLS e policy corretos — sem o GRANT explícito para `authenticated`, a tabela fica inacessível via Data API (badge "API DISABLED" no dashboard) e o `supabase-js` recebe erro 42501 mesmo com policies válidas. Tabelas server-only também precisam conceder explicitamente ao `service_role` as operações usadas. RLS/BYPASSRLS e GRANT são camadas independentes: GRANT decide se o papel alcança a tabela; RLS decide quais linhas ele vê dentro dela.
 
-**Confirmado no banco real (2026-08):** a baseline tinha 44 tabelas em `public`, todas com RLS, policy `user_own_data` e GRANT para `authenticated`. As migrations incrementais aplicadas adicionaram 22 tabelas; produção e cadeia local possuem 66 tabelas. `anon` continua sem `SELECT`/`INSERT` sobre dados da aplicação.
+**Confirmado no banco real (2026-08):** a baseline tinha 44 tabelas em `public`, todas com RLS, policy `user_own_data` e GRANT para `authenticated`. As migrations incrementais aplicadas adicionaram 24 tabelas; produção possui 68 tabelas. `anon` continua sem `SELECT`/`INSERT` sobre dados da aplicação.
 
 Índices parciais `WHERE NOT deleted` existem nas tabelas principais para acelerar as queries que sempre filtram registros ativos — confirmados no dump para praticamente todas as tabelas de alto volume (ver lista completa na seção Índices, ao final).
 
@@ -76,9 +76,10 @@ dessas duas pastas deve ser executado como migration.
 | `20260822000100` | `20260822000100_integracoes_google_service_role_grant.sql` | ✅ Reset e 16 testes SQL aprovados; aplicada em produção em 2026-08-22 após dry-run exclusivo; pós-check confirmou CRUD do `service_role`, RLS ativa, zero policies de cliente, histórico e dry-run vazio |
 | `20260822000200` | `20260822000200_integracoes_google_servicos.sql` | ✅ Reset e 16 testes SQL aprovados; aplicada em produção em 2026-08-22 após dry-run exclusivo; pós-check confirmou `servico`, domínio, PK composta, GRANT/RLS/policies, histórico e dry-run vazio |
 | `20260822000300` | `20260822000300_biblioteca_playlists.sql` | ✅ Reset local e 17 scripts SQL aprovados; aplicada em produção em 2026-08-22 após dry-run exclusivo; pós-check confirmou histórico, 66 tabelas, RLS, policies, GRANTs, índices e FKs compostas; dry-run final vazio |
+| `20260827000100` | `20260827000100_homologacao_fluxos_pessoais.sql` | ✅ Reset e 18 scripts SQL aprovados; aplicada em produção em 2026-08-27 após dry-run exclusivo; pós-check confirmou histórico, tabelas, campos, FKs, RLS e GRANTs; dry-run final vazio |
 
-> **Estado confirmado (2026-08-22):** produção e cadeia local estão alinhadas
-> até `20260822000300_biblioteca_playlists.sql`, com 66 tabelas, seis buckets
+> **Estado confirmado (2026-08-27):** produção e cadeia local estão alinhadas
+> até `20260827000100_homologacao_fluxos_pessoais.sql`, com 68 tabelas, seis buckets
 > privados, 18 policies em `storage.objects` e dry-run remoto vazio.
 
 As três baselines foram adotadas no histórico remoto em 2026-08-08 por
@@ -217,6 +218,8 @@ pergunta        TEXT NOT NULL,
 resposta        TEXT,
 modulo          TEXT,            -- 'treino', 'estudos', etc.
 referencia_uuid TEXT,            -- FK polimórfica, sem REFERENCES físico
+materia_uuid    TEXT REFERENCES materias(uuid) ON DELETE SET NULL,
+conteudo_uuid   TEXT REFERENCES conteudos(uuid) ON DELETE SET NULL,
 ef              NUMERIC(4,2) DEFAULT 2.5,
 repeticoes      INTEGER DEFAULT 0,
 intervalo_dias  INTEGER DEFAULT 1,
@@ -225,7 +228,7 @@ arquivado       BOOLEAN NOT NULL DEFAULT FALSE,
 updated_at      TIMESTAMPTZ DEFAULT NOW(),
 deleted         BOOLEAN DEFAULT FALSE
 ```
-> Reaproveitada por Estudos v2 (SM-2, ver DEC-035) — cada conteúdo pode ter um card com `modulo = 'estudos'`, `referencia_uuid = conteudos.uuid`. A página dedicada `/revisao` também aceita cards independentes com `modulo = 'manual'` e `referencia_uuid = NULL`. A migration incremental `20260812000100_revisao_arquivados.sql`, aplicada em produção em 2026-08-12, acrescentou `arquivado`: o card sai das filas ativas sem perder progresso, vínculo ou histórico; `deleted` continua reservado à exclusão lógica.
+> Reaproveitada por Estudos v2 (SM-2, ver DEC-035) — cada conteúdo pode ter um card com `modulo = 'estudos'`, `referencia_uuid = conteudos.uuid`. A página dedicada `/revisao` também aceita cards independentes com `modulo = 'manual'` e `referencia_uuid = NULL`. A migration incremental `20260812000100_revisao_arquivados.sql`, aplicada em produção em 2026-08-12, acrescentou `arquivado`. A migration aplicada `20260827000100` adicionou FKs opcionais explícitas de matéria/conteúdo para importação e filtro de flashcards.
 
 ### Tabelas descontinuadas de `001`
 `cardio`, `exercicios`, `series_executadas` — removidas em `005_treino_v2.sql`. Confirmado ausentes no dump real. Ver DEC-020.
@@ -1186,12 +1189,37 @@ updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), deleted BOOLEAN NOT NULL DEFAULT 
 uuid TEXT PRIMARY KEY, user_id UUID NOT NULL REFERENCES auth.users(id),
 nome TEXT NOT NULL, tipo TEXT, cidade TEXT, pais TEXT,
 latitude NUMERIC(9,6), longitude NUMERIC(9,6),
+endereco TEXT, google_place_id TEXT,
 data_inicio DATE, data_fim DATE, custo NUMERIC(12,2), nota NUMERIC(3,1),
 favorito BOOLEAN NOT NULL DEFAULT FALSE, texto TEXT, capa_url TEXT, capa_path TEXT,
 updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), deleted BOOLEAN NOT NULL DEFAULT FALSE
 ```
-> O link para Google Maps é montado no cliente a partir das coordenadas ou do
-> nome/local. Não há Maps API; `capa_path` usa upload privado e signed URL.
+> `endereco` e `google_place_id` foram aplicados pela migration
+> `20260827000100`. A busca Google Places roda somente em API Route com chave
+> server-side; coordenadas são persistidas internamente e não aparecem no
+> formulário comum. O link externo usa Place ID quando disponível.
+
+### `provas_tentativas` (migration aplicada `20260827000100`)
+```sql
+uuid TEXT PRIMARY KEY, user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+prova_uuid TEXT NOT NULL REFERENCES provas(uuid) ON DELETE CASCADE,
+numero INTEGER NOT NULL CHECK (numero > 0), resultado JSONB NOT NULL,
+finalizada_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), deleted BOOLEAN NOT NULL DEFAULT FALSE,
+UNIQUE (user_id, prova_uuid, numero)
+```
+> Guarda o resumo e a estrutura da tentativa anterior antes de “Refazer prova”.
+> Gabarito correto, matéria, conteúdo e redação continuam nas fontes atuais.
+
+### `treinos_planejamento_semanal` (migration aplicada `20260827000100`)
+```sql
+uuid TEXT PRIMARY KEY, user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+treino_uuid TEXT NOT NULL REFERENCES treinos(uuid) ON DELETE CASCADE,
+dia_semana SMALLINT NOT NULL CHECK (dia_semana BETWEEN 1 AND 7),
+updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), deleted BOOLEAN NOT NULL DEFAULT FALSE
+```
+> Planejamento recorrente visual da semana de Treino. É próprio do módulo e
+> não cria linhas em `agenda`, evitando duas fontes editáveis para o mesmo item.
 
 ### `integracoes_google`
 ```sql

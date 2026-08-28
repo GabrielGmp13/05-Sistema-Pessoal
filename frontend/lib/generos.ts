@@ -30,6 +30,41 @@ const GENEROS_PADRAO: Omit<Genero, 'uuid'>[] = [
   { nome: 'Guerra', descricao: null },
   { nome: 'Crime', descricao: null },
   { nome: 'Família', descricao: null },
+  { nome: 'Animação', descricao: null },
+  { nome: 'Western', descricao: null },
+  { nome: 'Policial', descricao: null },
+  { nome: 'Aventura histórica', descricao: null },
+  { nome: 'Comédia romântica', descricao: null },
+  { nome: 'Drama psicológico', descricao: null },
+  { nome: 'Fantasia urbana', descricao: null },
+  { nome: 'Ficção distópica', descricao: null },
+  { nome: 'Ficção jovem adulta', descricao: null },
+  { nome: 'Literatura clássica', descricao: null },
+  { nome: 'Contos', descricao: null },
+  { nome: 'Poesia', descricao: null },
+  { nome: 'Crônica', descricao: null },
+  { nome: 'Ensaio', descricao: null },
+  { nome: 'Autobiografia', descricao: null },
+  { nome: 'Memórias', descricao: null },
+  { nome: 'Autoajuda', descricao: null },
+  { nome: 'Desenvolvimento pessoal', descricao: null },
+  { nome: 'Filosofia', descricao: null },
+  { nome: 'Psicologia', descricao: null },
+  { nome: 'Sociologia', descricao: null },
+  { nome: 'Ciência', descricao: null },
+  { nome: 'Tecnologia', descricao: null },
+  { nome: 'Negócios', descricao: null },
+  { nome: 'Economia', descricao: null },
+  { nome: 'Política', descricao: null },
+  { nome: 'Religião', descricao: null },
+  { nome: 'Espiritualidade', descricao: null },
+  { nome: 'Esportes', descricao: null },
+  { nome: 'Culinária', descricao: null },
+  { nome: 'Viagem', descricao: null },
+  { nome: 'Educação', descricao: null },
+  { nome: 'Notícias', descricao: null },
+  { nome: 'True crime', descricao: null },
+  { nome: 'Entrevista', descricao: null },
   { nome: 'Slice of life', descricao: 'Histórias do cotidiano, sem grandes conflitos centrais — foco na vivência dos personagens.' },
 
   // Japoneses (classificação por público-alvo, não por tema)
@@ -39,15 +74,20 @@ const GENEROS_PADRAO: Omit<Genero, 'uuid'>[] = [
   { nome: 'Josei', descricao: 'Voltado a público adulto feminino. Romance e drama com abordagem realista — ex: Nana.' },
   { nome: 'Isekai', descricao: 'Personagem transportado para outro mundo (fantasia, jogo, dimensão paralela).' },
   { nome: 'Mecha', descricao: 'Foco em robôs gigantes pilotados — ex: Gundam, Evangelion.' },
+  { nome: 'Mahou shoujo', descricao: 'Histórias de garotas mágicas, transformação e fantasia.' },
+  { nome: 'Esportes (anime)', descricao: 'Narrativas centradas em treinamento e competição esportiva.' },
+  { nome: 'Sobrenatural', descricao: null },
+  { nome: 'Artes marciais', descricao: null },
+  { nome: 'Gastronomia', descricao: null },
   { nome: 'Ecchi', descricao: 'Conteúdo com apelo sexual leve, sem ser explícito.' },
   { nome: 'Yaoi', descricao: 'Romance entre personagens masculinos, voltado a público feminino.' },
   { nome: 'Yuri', descricao: 'Romance entre personagens femininas.' },
 ]
 
 export async function seedGenerosSeNecessario(sb: SB, userId: string): Promise<void> {
-  const { count, error: erroContagem } = await sb
+  const { data: existentes, error: erroContagem } = await sb
     .from('generos')
-    .select('uuid', { count: 'exact', head: true })
+    .select('nome')
     .eq('user_id', userId)
     .eq('deleted', false)
 
@@ -55,9 +95,11 @@ export async function seedGenerosSeNecessario(sb: SB, userId: string): Promise<v
     console.error('[seedGenerosSeNecessario] erro ao contar:', erroContagem)
     return
   }
-  if (count && count > 0) return
+  const nomes = new Set((existentes ?? []).map((item: { nome: string }) => item.nome.trim().toLocaleLowerCase('pt-BR')))
+  const faltantes = GENEROS_PADRAO.filter((genero) => !nomes.has(genero.nome.toLocaleLowerCase('pt-BR')))
+  if (faltantes.length === 0) return
 
-  const linhas = GENEROS_PADRAO.map((g) => ({
+  const linhas = faltantes.map((g) => ({
     uuid: crypto.randomUUID(),
     user_id: userId,
     nome: g.nome,
@@ -161,6 +203,44 @@ export async function getMapaGenerosDosItens(
     mapa[itemUuid] = [...(mapa[itemUuid] ?? []), linha.genero_uuid]
   }
   return mapa
+}
+
+const GENEROS_EXTERNOS: Record<string, string> = {
+  action: 'Ação', adventure: 'Aventura', animation: 'Animação', comedy: 'Comédia', crime: 'Crime',
+  documentary: 'Documentário', drama: 'Drama', family: 'Família', fantasy: 'Fantasia', history: 'Histórico',
+  horror: 'Terror', music: 'Musical', mystery: 'Mistério', romance: 'Romance', science: 'Ciência',
+  'science fiction': 'Ficção científica', thriller: 'Suspense', war: 'Guerra', western: 'Western',
+  biography: 'Biografia', philosophy: 'Filosofia', psychology: 'Psicologia', technology: 'Tecnologia',
+  business: 'Negócios', education: 'Educação', sports: 'Esportes', supernatural: 'Sobrenatural',
+  'slice of life': 'Slice of life', shounen: 'Shounen', shoujo: 'Shoujo', seinen: 'Seinen', josei: 'Josei',
+  isekai: 'Isekai', mecha: 'Mecha', ecchi: 'Ecchi', boys: 'Yaoi', girls: 'Yuri',
+}
+
+function nomeGeneroExterno(nome: string) {
+  const limpo = nome.split('/')[0].trim()
+  const chave = limpo.toLocaleLowerCase('en-US')
+  const aproximado = Object.entries(GENEROS_EXTERNOS).find(([origem]) => chave === origem || chave.includes(origem))?.[1]
+  return aproximado ?? limpo
+}
+
+/** Garante que gêneros retornados pelas APIs existam e devolve seus UUIDs. */
+export async function garantirGenerosExternos(
+  sb: SB,
+  userId: string,
+  nomesExternos: string[],
+): Promise<{ generos: Genero[]; selecionados: string[] }> {
+  const nomes = [...new Set(nomesExternos.map(nomeGeneroExterno).filter(Boolean))].slice(0, 12)
+  let existentes = await getGeneros(sb, userId)
+  const chaves = new Set(existentes.map((genero) => genero.nome.toLocaleLowerCase('pt-BR')))
+  const faltantes = nomes.filter((nome) => !chaves.has(nome.toLocaleLowerCase('pt-BR')))
+  if (faltantes.length > 0) {
+    const { error } = await sb.from('generos').insert(faltantes.map((nome) => ({
+      uuid: crypto.randomUUID(), user_id: userId, nome, descricao: null,
+    })))
+    if (!error) existentes = await getGeneros(sb, userId)
+  }
+  const desejados = new Set(nomes.map((nome) => nome.toLocaleLowerCase('pt-BR')))
+  return { generos: existentes, selecionados: existentes.filter((genero) => desejados.has(genero.nome.toLocaleLowerCase('pt-BR'))).map((genero) => genero.uuid) }
 }
 
 // Sincroniza por diferenca. Novas associacoes entram antes da remocao das

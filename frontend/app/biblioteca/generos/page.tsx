@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { createBrowserClient } from '@supabase/ssr'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
@@ -17,15 +17,16 @@ export default function GenerosPage() {
   const [nomeEdit, setNomeEdit] = useState('')
   const [descEdit, setDescEdit] = useState('')
   const [generoParaApagar, setGeneroParaApagar] = useState<string | null>(null)
+  const [busca, setBusca] = useState('')
 
-  const sb = createBrowserClient(
+  const sb = useMemo(() => createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
+  ), [])
 
-  async function recarregar(uid: string) {
+  const recarregar = useCallback(async (uid: string) => {
     setGeneros(await getGeneros(sb, uid))
-  }
+  }, [sb])
 
   useEffect(() => {
     async function init() {
@@ -38,7 +39,7 @@ export default function GenerosPage() {
       setCarregando(false)
     }
     init()
-  }, [])
+  }, [recarregar, sb])
 
   async function handleCriar(e: React.FormEvent) {
     e.preventDefault()
@@ -85,8 +86,10 @@ export default function GenerosPage() {
         <button className={styles.btnSalvar} type="submit">Adicionar gênero</button>
       </form>
 
+      <input className={styles.input} type="search" placeholder="Pesquisar gênero" value={busca} onChange={(e) => setBusca(e.target.value)} aria-label="Pesquisar gênero" />
+
       <div className={styles.lista}>
-        {generos.map((g) => (
+        {generos.filter((g) => `${g.nome} ${g.descricao ?? ''}`.toLocaleLowerCase('pt-BR').includes(busca.trim().toLocaleLowerCase('pt-BR'))).map((g) => (
           <div key={g.uuid} className={styles.card}>
             {editando === g.uuid ? (
               <div className={styles.edicao}>

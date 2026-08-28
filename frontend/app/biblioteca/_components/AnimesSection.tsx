@@ -22,7 +22,7 @@ import SeletorGenero from '@/components/SeletorGenero';
 import BibliotecaBanner from './BibliotecaBanner';
 import BibliotecaCard from './BibliotecaCard';
 import { sb, getUserId } from '@/lib/supabase';
-import { getGeneros, getMapaGenerosDosItens, salvarGenerosDoItem, seedGenerosSeNecessario } from '@/lib/generos';
+import { garantirGenerosExternos, getGeneros, getMapaGenerosDosItens, salvarGenerosDoItem, seedGenerosSeNecessario } from '@/lib/generos';
 import type { Genero } from '@/lib/generos';
 import { ordenarItensBiblioteca, type OrdenacaoBiblioteca } from '@/lib/biblioteca-ordenacao';
 import styles from './BibliotecaSection.module.css';
@@ -46,7 +46,6 @@ const FORM_VAZIO: AnimeInput = {
   roteirista: '',
   produtores: '',
   estudio: '',
-  distribuidora: '',
   character_designer: '',
   animador_chefe: '',
   compositor: '',
@@ -156,7 +155,6 @@ export default function AnimesSection({
       roteirista: anime.roteirista ?? '',
       produtores: anime.produtores ?? '',
       estudio: anime.estudio ?? '',
-      distribuidora: anime.distribuidora ?? '',
       character_designer: anime.character_designer ?? '',
       animador_chefe: anime.animador_chefe ?? '',
       compositor: anime.compositor ?? '',
@@ -337,7 +335,8 @@ export default function AnimesSection({
               <BuscaMetadados
                 fonte="jikan_anime"
                 termo={form.nome_original}
-                onSelect={(resultado) => setForm((atual) => ({
+                onSelect={(resultado) => {
+                  setForm((atual) => ({
                   ...atual,
                   nome_original: resultado.titulo,
                   nome_traduzido: resultado.subtitulo ?? atual.nome_traduzido,
@@ -347,12 +346,19 @@ export default function AnimesSection({
                   sinopse: resultado.descricao ?? atual.sinopse,
                   estudio: resultado.autor ?? atual.estudio,
                   produtores: resultado.produtores ?? atual.produtores,
-                  distribuidora: resultado.distribuidora ?? atual.distribuidora,
                   classificacao_indicativa: resultado.classificacaoIndicativa ?? atual.classificacao_indicativa,
                   ano_termino: resultado.anoTermino ?? atual.ano_termino,
                   link_mal: resultado.linkOficial ?? atual.link_mal,
                   duracao_minutos: resultado.duracaoMinutos ?? atual.duracao_minutos,
-                }))}
+                  }));
+                  if (resultado.generos?.length) void (async () => {
+                    const userId = await getUserId();
+                    if (!userId) return;
+                    const resolvidos = await garantirGenerosExternos(sb, userId, resultado.generos!);
+                    setGeneros(resolvidos.generos);
+                    setGenerosSelecionados(resolvidos.selecionados);
+                  })();
+                }}
               />
               <CapaUploadField arquivo={arquivoCapa} onChange={setArquivoCapa} />
               <CapaUploadField arquivo={arquivoBanner} onChange={setArquivoBanner} label="Banner do dispositivo" />
@@ -471,13 +477,6 @@ export default function AnimesSection({
                 <input
                   value={form.estudio ?? ''}
                   onChange={(e) => setForm({ ...form, estudio: e.target.value })}
-                />
-              </label>
-              <label>
-                Distribuidora
-                <input
-                  value={form.distribuidora ?? ''}
-                  onChange={(e) => setForm({ ...form, distribuidora: e.target.value })}
                 />
               </label>
               <label>

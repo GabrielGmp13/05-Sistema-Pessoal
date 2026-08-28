@@ -19,8 +19,10 @@ import BibliotecaBanner from './BibliotecaBanner';
 import BibliotecaCard from './BibliotecaCard';
 import BuscaMetadados from './BuscaMetadados';
 import { sb, getUserId } from '@/lib/supabase';
-import { getGeneros, getMapaGenerosDosItens, salvarGenerosDoItem, seedGenerosSeNecessario } from '@/lib/generos';
+import { garantirGenerosExternos, getGeneros, getMapaGenerosDosItens, salvarGenerosDoItem, seedGenerosSeNecessario } from '@/lib/generos';
 import type { Genero } from '@/lib/generos';
+import { importarElencoMetadados } from '@/lib/elenco';
+import type { ResultadoMetadados } from '@/lib/biblioteca-metadados';
 import { ordenarItensBiblioteca, type OrdenacaoBiblioteca } from '@/lib/biblioteca-ordenacao';
 import styles from './BibliotecaSection.module.css';
 import CapaUploadField from './CapaUploadField';
@@ -40,7 +42,6 @@ const FORM_VAZIO: FilmeInput = {
   roteirista: '',
   produtores: '',
   estudio: '',
-  distribuidora: '',
   favorito: false,
 };
 
@@ -77,6 +78,7 @@ export default function FilmesSection({
   const [generos, setGeneros] = useState<Genero[]>([]);
   const [generosSelecionados, setGenerosSelecionados] = useState<string[]>([]);
   const [generosPorFilme, setGenerosPorFilme] = useState<Record<string, Genero[]>>({});
+  const [elencoImportado, setElencoImportado] = useState<ResultadoMetadados['elenco']>([]);
 
   async function carregarGenerosDosFilmes(filmesLista: Filme[]) {
     const userId = await getUserId();
@@ -126,6 +128,7 @@ export default function FilmesSection({
     setArquivoCapa(null);
     setArquivoBanner(null);
     setGenerosSelecionados([]);
+    setElencoImportado([]);
     setModalAberto(true);
   }
 
@@ -142,14 +145,12 @@ export default function FilmesSection({
       roteirista: filme.roteirista ?? '',
       produtores: filme.produtores ?? '',
       estudio: filme.estudio ?? '',
-      distribuidora: filme.distribuidora ?? '',
-      orcamento: filme.orcamento ?? undefined,
-      bilheteria: filme.bilheteria ?? undefined,
       ano_lancamento: filme.ano_lancamento ?? undefined,
       duracao_minutos: filme.duracao_minutos ?? undefined,
       favorito: filme.favorito,
     });
     setGenerosSelecionados(generosPorFilme[filme.uuid]?.map((g) => g.uuid) ?? []);
+    setElencoImportado([]);
     setModalAberto(true);
   }
 
@@ -177,9 +178,10 @@ export default function FilmesSection({
       const { error: erroGeneros } = userId
         ? await salvarGenerosDoItem(sb, userId, 'filmes', resultado.uuid, generosSelecionados)
         : { error: 'Sessão indisponível' };
+      const elencoOk = await importarElencoMetadados('filme', resultado.uuid, elencoImportado ?? []);
       fecharModal();
       await carregar();
-      if (erroGeneros) setErro('Filme salvo, mas não foi possível salvar os gêneros.');
+      if (erroGeneros || !elencoOk) setErro('Filme salvo, mas parte dos gêneros ou do elenco não pôde ser importada.');
     }
     setSalvando(false);
   }
@@ -193,8 +195,6 @@ export default function FilmesSection({
     if (filme.roteirista) campos.push({ label: 'Roteiro', valor: filme.roteirista });
     if (filme.produtores) campos.push({ label: 'Produção', valor: filme.produtores });
     if (filme.estudio) campos.push({ label: 'Estúdio', valor: filme.estudio });
-    if (filme.distribuidora)
-      campos.push({ label: 'Distribuidora', valor: filme.distribuidora });
     if (filme.duracao_minutos)
       campos.push({ label: 'Duração', valor: `${filme.duracao_minutos} min` });
     if (filme.comentario) campos.push({ label: 'Comentário', valor: filme.comentario });
@@ -312,7 +312,8 @@ export default function FilmesSection({
               <BuscaMetadados
                 fonte="tmdb_filme"
                 termo={form.titulo}
-                onSelect={(resultado) => setForm((atual) => ({
+                onSelect={(resultado) => {
+                  setForm((atual) => ({
                   ...atual,
                   titulo: resultado.titulo,
                   tmdb_id: resultado.identificadorExterno ?? atual.tmdb_id,
@@ -325,7 +326,16 @@ export default function FilmesSection({
                   produtores: resultado.produtores ?? atual.produtores,
                   estudio: resultado.estudio ?? atual.estudio,
                   classificacao_indicativa: resultado.classificacaoIndicativa ?? atual.classificacao_indicativa,
-                }))}
+                  }));
+                  setElencoImportado(resultado.elenco ?? []);
+                  if (resultado.generos?.length) void (async () => {
+                    const userId = await getUserId();
+                    if (!userId) return;
+                    const resolvidos = await garantirGenerosExternos(sb, userId, resultado.generos!);
+                    setGeneros(resolvidos.generos);
+                    setGenerosSelecionados(resolvidos.selecionados);
+                  })();
+                }}
               />
               <CapaUploadField arquivo={arquivoCapa} onChange={setArquivoCapa} />
               <CapaUploadField arquivo={arquivoBanner} onChange={setArquivoBanner} label="Banner do dispositivo" />
@@ -419,41 +429,6 @@ export default function FilmesSection({
                 <input
                   value={form.estudio ?? ''}
                   onChange={(e) => setForm({ ...form, estudio: e.target.value })}
-                />
-              </label>
-              <label>
-                Distribuidora
-                <input
-                  value={form.distribuidora ?? ''}
-                  onChange={(e) => setForm({ ...form, distribuidora: e.target.value })}
-                />
-              </label>
-              <label>
-                Orçamento (R$)
-                <input
-                  type="number"
-                  inputMode="decimal"
-                  value={form.orcamento ?? ''}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      orcamento: e.target.value === '' ? undefined : Number(e.target.value),
-                    })
-                  }
-                />
-              </label>
-              <label>
-                Bilheteria (R$)
-                <input
-                  type="number"
-                  inputMode="decimal"
-                  value={form.bilheteria ?? ''}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      bilheteria: e.target.value === '' ? undefined : Number(e.target.value),
-                    })
-                  }
                 />
               </label>
               <label>

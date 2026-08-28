@@ -1,6 +1,6 @@
 # Integrações externas — configuração da v2.1
 
-Data da revisão: 2026-08-22.
+Data da revisão: 2026-08-27.
 
 ## Google OAuth
 
@@ -29,9 +29,10 @@ GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 GOOGLE_REDIRECT_URI=https://SEU-DOMINIO/api/integracoes/google/callback
 GOOGLE_TOKEN_ENCRYPTION_KEY=
+GOOGLE_MAPS_API_KEY=
 ```
 
-`SUPABASE_SERVICE_ROLE_KEY`, `GOOGLE_CLIENT_SECRET` e a chave de criptografia
+`SUPABASE_SERVICE_ROLE_KEY`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_MAPS_API_KEY` e a chave de criptografia
 são exclusivamente server-side e nunca recebem prefixo `NEXT_PUBLIC_`. Gere a
 última uma única vez com 32 bytes aleatórios em base64, guarde-a no cofre de
 variáveis da Vercel e não a troque sem antes desconectar as contas existentes.
@@ -80,8 +81,24 @@ prévia e deduplicação definidas; não existe parser especulativo nesta versã
 - Compromissos sem hora viram evento de dia inteiro. Os demais usam
   `America/Recife`; sem duração explícita, o fallback é 60 minutos.
 - Provas de Estudos continuam somente leitura na Agenda e não exibem exportação.
-- Sincronização bidirecional, importação do Calendar e tratamento de exclusão
-  remota são pós-v2 por exigirem conflito, autoria e política de remoção.
+- O botão **Importar Calendar** consulta somente o período visível, expande
+  ocorrências recorrentes e mostra prévia antes de gravar. IDs remotos evitam
+  duplicação; mudanças remotas atualizam a linha e cancelamentos viram exclusão
+  lógica. Se remoto e local mudaram desde a última sincronização, o item fica
+  marcado como conflito e não é sobrescrito.
+- A sincronização é manual e usa o calendário primário. Escolha de calendários,
+  resolução interativa de conflito e sincronização automática em segundo plano
+  permanecem pós-v2.
+
+## Google Places
+
+- Habilitar **Places API (New)** no Google Cloud e configurar
+  `GOOGLE_MAPS_API_KEY` no ambiente do servidor. Restrinja a chave à Places API.
+- A busca de `/lugares` passa por uma API Route autenticada; a chave nunca entra
+  no bundle cliente. O resultado preenche nome, endereço, cidade, país, Place ID
+  e coordenadas internas, mas latitude/longitude não aparecem no formulário.
+- Sem a variável, cadastro manual, capas e links externos continuam funcionando;
+  somente a pesquisa retorna a mensagem de integração não configurada.
 
 ## Google Photos e alternativa adotada
 
@@ -108,6 +125,7 @@ operacional sobre esse contrato completo.
 - extrai somente `collection.anki2`, `collection.anki21` ou `collection.anki21b`;
 - mostra decks, quantidade e prévia antes de gravar;
 - converte cards básicos e cloze, remove HTML simples e deduplica conteúdo;
+- permite atribuir todos os cards importados a uma matéria e conteúdo;
 - importa no máximo 500 cards do deck selecionado por operação.
 
 As dependências `fflate`, `sql.js` e `@types/sql.js` foram adicionadas para ZIP

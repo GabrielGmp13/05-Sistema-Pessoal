@@ -16,8 +16,9 @@ A infraestrutura segura possível no repositório foi concluída. Permanecem
 somente evoluções que ampliam o contrato já entregue ou exigem custo, política
 de conflito/publicação ou comportamento não definido.
 
-- [ ] Google Calendar bidirecional/importação, conflitos e propagação de
-      exclusões. OAuth e exportação unilateral idempotente já estão entregues.
+- [ ] Google Calendar automático em segundo plano, escolha de calendários e
+      resolução avançada de conflitos. A primeira via bidirecional manual com
+      prévia, deduplicação, atualização e cancelamento lógico já está entregue.
 - [ ] Google Photos Picker opcional. Uploads duráveis de Perfil, Receitas,
       Lugares, Biblioteca e provas/simulados já usam Supabase Storage privado.
 - [ ] Anki avançado: mídias embutidas e templates/JavaScript complexos. `.apkg`
@@ -28,8 +29,8 @@ de conflito/publicação ou comportamento não definido.
       upload conhecido da v2.1 sem destino.
 - [ ] Publicação da extensão em loja ou captura avançada/autenticada; a versão local Manifest V3 para Artigo/Vídeo já foi entregue.
 - [ ] Scraping e importações avançadas/em lote.
-- [ ] Testes de integração/E2E autenticados. A base Node agora cobre 18 casos
-      de parser/cálculo/ordenação e a suíte SQL cobre 16 scripts.
+- [ ] Testes de integração/E2E autenticados. A base Node cobre 28 casos
+      de parser/cálculo/ordenação; a suíte local inclui 18 scripts SQL.
 - [ ] Hardening incremental restante do banco e do Storage, sem editar baselines aplicadas.
 - [ ] Polimentos visuais identificados na homologação, sem redesign amplo.
 
@@ -103,8 +104,8 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
 ## Geral
 
 - [ ] Exportação geral de dados CSV/JSON via Supabase; o Histórico já exporta o recorte visível em CSV.
-- [x] Google Calendar OAuth server-side e exportação unilateral idempotente
-      implementados por API Routes; bidirecional permanece no topo deste arquivo.
+- [x] Google Calendar OAuth, exportação idempotente e primeira importação segura
+      com prévia/deduplicação/atualização/cancelamento lógico implementados.
 - [ ] Dashboard analytics avançado
 - [x] Heatmap retrospectivo transversal implementado em `/historico` sem tabela
       agregada: conta registros por fonte/dia, permite filtro por área e evita
@@ -125,9 +126,9 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
 - [x] Importação leve de exportações CSV/TSV implementada em `/revisao`, com
       `pergunta`, `resposta`, módulo opcional, limites, prévia antes de gravar,
       módulo padrão, filtro e deduplicação simples.
-- [ ] Importação Anki `.apkg` permanece etapa própria: o pacote combina ZIP,
-      SQLite e mídia e exige parser/dependência, escolha de baralho/modelo e
-      tratamento de HTML/cloze; não misturar com o importador tabulado atual.
+- [x] Importação Anki `.apkg` básica/cloze com ZIP/SQLite, seleção de deck,
+      prévia, deduplicação e vínculo de matéria/conteúdo já estão entregues.
+      Mídias e templates/JavaScript complexos permanecem pós-v2.
 - [ ] Redação versionada (múltiplas versões, competências detalhadas), Fase 1 entrega só versão leve (DEC-035)
 - [x] Calendário acadêmico/cronograma absorvido pela Agenda v2; provas continuam em Estudos e são apenas exibidas na Agenda, sem duplicação
 - [ ] Metas diárias/semanais/mensais e sequência de dias estudando (streak) — avaliar sobreposição com o módulo Hábitos (ainda não iniciado) antes de construir algo específico de Estudos
@@ -175,8 +176,8 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
 
 - [x] YouTube API preparada para importar título, canal, duração e thumbnail
       por uma API Route server-side; requer `YOUTUBE_API_KEY` no ambiente.
-- [ ] Extensão de navegador, importação em lote e scraping para Vídeos/Artigos
-      continuam fora do produto atual. O cadastro manual permanece disponível.
+- [x] Extensão local Manifest V3 para enviar Artigo/Vídeo entregue; publicação
+      em loja, captura autenticada e scraping continuam fora do produto atual.
 - [x] Fluxo manual Vídeo → Curso em Estudos — implementado localmente com
       `conteudos.video_uuid`, escolha explícita de curso/módulo e bloqueio de
       duplicação no mesmo curso (DEC-048). Migration aplicada em produção em
@@ -257,7 +258,7 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
 - [x] YouTube playlists e exportação unilateral do Calendar com OAuth server-side,
       PKCE, cofre AES-256-GCM e revogação.
 - [x] Importação de playlist do YouTube por link, prévia/seleção e persistência
-      do agrupamento na Biblioteca — lote local depende de migration/publicação.
+      do agrupamento na Biblioteca — fluxo base já publicado.
 - [x] Alternativa completa ao Google Photos via Supabase Storage privado.
 - [x] Anki `.apkg` com ZIP/SQLite, deck, prévia, limite e deduplicação; CSV/TSV preservado.
 - [ ] BRAPI avançada com histórico/análises — PÓS-V2; cache curto e consulta sob demanda já existem.

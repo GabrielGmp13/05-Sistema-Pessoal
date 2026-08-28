@@ -1343,3 +1343,30 @@ são convidados pelo Supabase Dashboard; login, RLS, Storage privado e APIs
 autenticadas continuam sendo as fronteiras técnicas. Proteção Vercel de todo o
 domínio é uma camada opcional dependente do plano, não substitui Auth/RLS. O
 checklist e os riscos de exclusão em cascata estão em `BETA_PRIVADO.md`.
+
+## DEC-070 — Fluxos de homologação preservam fontes de verdade
+
+**Data:** 2026-08-27
+**Status:** ✅ Implementada; migration aplicada em produção
+
+### Decisão
+
+- Refazer ENEM arquiva a tentativa anterior em `provas_tentativas`, mas mantém
+  prova, questões, gabarito correto, classificação acadêmica e redação nas
+  tabelas existentes. A nova marcação recalcula o resultado sem apagar estrutura.
+- Flashcards importados podem apontar diretamente para matéria/conteúdo por FKs
+  opcionais, sem substituir o vínculo polimórfico histórico usado pelos lembretes.
+- O planejamento semanal pertence a Treino e não cria compromisso na Agenda.
+  Assim, não existem duas linhas editáveis concorrendo pelo mesmo planejamento.
+- Calendar bidirecional começa por sincronização manual com prévia. Evento remoto
+  usa ID idempotente, cancelamento é lógico e conflito local/remoto bloqueia a
+  escrita automática; provas continuam somente leitura de Estudos.
+- Google Places usa chave exclusivamente server-side. Endereço e Place ID são
+  persistidos; coordenadas continuam internas e deixam de ser exigidas na UI.
+
+### Impacto
+
+A migration `20260827000100_homologacao_fluxos_pessoais.sql` cria duas tabelas
+com RLS/GRANT, adiciona quatro FKs/campos opcionais e não altera dados existentes.
+O frontend foi liberado para publicação somente depois da aplicação autorizada;
+o pós-check confirmou histórico, objetos, FKs, RLS e GRANTs, seguido de dry-run vazio.

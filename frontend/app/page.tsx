@@ -7,24 +7,20 @@ import {
   Brain,
   CalendarDays,
   CalendarRange,
+  Code2,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
-  CirclePlay,
   Clock3,
-  Code2,
   Dumbbell,
   FolderKanban,
   GraduationCap,
-  HeartPulse,
-  Languages,
   Lightbulb,
-  MapPin,
+  Languages,
   NotebookTabs,
   RefreshCw,
   Star,
   Utensils,
-  WalletCards,
 } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
@@ -485,182 +481,65 @@ export default function HomePage() {
 
 interface InsightPessoal {
   id: string
-  texto: string
   detalhe: string
   href: string
+  itens: Array<{ id: string; texto: string }>
 }
 
 function montarInsights(dados: DadosHub, hoje: string): InsightPessoal[] {
   const itens: InsightPessoal[] = []
   const biblioteca = dados.insights
 
-  function adicionarConsumos(
-    id: string,
-    prefixo: string,
-    candidatos: Array<{ titulo: string }>,
-  ) {
-    candidatos.slice(0, 2).forEach((item, indice) => {
-      itens.push({ id: `${id}-${indice}`, texto: `${prefixo}: ${item.titulo}`, detalhe: 'Biblioteca', href: '/biblioteca' })
-    })
-  }
+  const obras = [
+    ...(biblioteca?.livros.filter((item) => item.status === 'lendo').map((item) => ({ id: `livro-${item.titulo}`, texto: `Lendo agora: ${item.titulo}` })) ?? []),
+    ...(biblioteca?.mangas.filter((item) => item.status === 'lendo').map((item) => ({ id: `manga-${item.titulo}`, texto: `Lendo agora: ${item.titulo}` })) ?? []),
+    ...(biblioteca?.series.filter((item) => item.status === 'assistindo').map((item) => ({ id: `serie-${item.titulo}`, texto: `Assistindo agora: ${item.titulo}` })) ?? []),
+    ...(biblioteca?.animes.filter((item) => item.status === 'assistindo').map((item) => ({ id: `anime-${item.titulo}`, texto: `Assistindo agora: ${item.titulo}` })) ?? []),
+    ...(biblioteca?.podcasts.filter((item) => item.status === 'ouvindo').map((item) => ({ id: `podcast-${item.titulo}`, texto: `Ouvindo agora: ${item.titulo}` })) ?? []),
+  ]
+  if (obras.length > 0) itens.push({ id: 'biblioteca-andamento', detalhe: 'Biblioteca', href: '/biblioteca', itens: obras })
 
-  adicionarConsumos('livro', 'Lendo agora', biblioteca?.livros.filter((item) => item.status === 'lendo') ?? [])
-  adicionarConsumos('manga', 'Lendo agora', biblioteca?.mangas.filter((item) => item.status === 'lendo') ?? [])
-  adicionarConsumos('serie', 'Assistindo agora', biblioteca?.series.filter((item) => item.status === 'assistindo') ?? [])
-  adicionarConsumos('anime', 'Assistindo agora', biblioteca?.animes.filter((item) => item.status === 'assistindo') ?? [])
-  adicionarConsumos('podcast', 'Ouvindo agora', biblioteca?.podcasts.filter((item) => item.status === 'ouvindo') ?? [])
-
-  const videoPendente = biblioteca?.videos.find((item) => !item.assistido)
-  if (videoPendente) itens.push({ id: 'video', texto: `Vídeo ainda não assistido: ${videoPendente.titulo}`, detalhe: 'Biblioteca', href: '/biblioteca' })
-
-  if (biblioteca) {
-    const favoritos = [
-      ...biblioteca.livros,
-      ...biblioteca.mangas,
-      ...biblioteca.series,
-      ...biblioteca.animes,
-      ...biblioteca.podcasts,
-      ...biblioteca.videos,
-    ].filter((item) => item.favorito).length
-    if (favoritos > 0) itens.push({ id: 'favoritos', texto: `${favoritos} ${favoritos === 1 ? 'item favorito' : 'itens favoritos'} na Biblioteca`, detalhe: 'Acervo pessoal', href: '/biblioteca' })
-
-    const curso = biblioteca.cursos.find((item) => !item.concluido)
-    if (curso) itens.push({ id: 'curso', texto: `Curso em andamento: ${curso.nome}`, detalhe: 'Estudos', href: '/estudos/curso' })
-  }
-
-  const proximaProva = dados.proximasProvas?.find((prova) => prova.data >= hoje)
-  if (proximaProva) {
-    const dias = diferencaDias(hoje, proximaProva.data)
+  const provas = (dados.proximasProvas ?? []).filter((prova) => prova.data >= hoje).map((prova) => {
+    const dias = diferencaDias(hoje, prova.data)
     const textoData = dias === 0 ? 'é hoje' : dias === 1 ? 'é amanhã' : `acontece em ${dias} dias`
-    itens.push({ id: 'prova', texto: `${proximaProva.titulo || 'A próxima prova'} ${textoData}`, detalhe: 'Estudos', href: '/estudos' })
-  }
+    return { id: prova.uuid, texto: `${prova.titulo || 'Próxima prova'} ${textoData}` }
+  })
+  if (provas.length > 0) itens.push({ id: 'provas', detalhe: 'Próximas provas', href: '/estudos', itens: provas })
 
-  if (dados.tempo?.hojeMinutos) itens.push({ id: 'tempo-hoje', texto: `Você estudou ${formatarDuracao(dados.tempo.hojeMinutos)} hoje`, detalhe: 'Tempo registrado', href: '/estudos' })
-  if (dados.tempo?.semanaMinutos) itens.push({ id: 'tempo-semana', texto: `Você estudou ${formatarDuracao(dados.tempo.semanaMinutos)} nesta semana`, detalhe: 'Tempo registrado', href: '/estudos' })
-  if (dados.tempo?.mesMinutos) itens.push({ id: 'tempo-mes', texto: `Você estudou ${formatarDuracao(dados.tempo.mesMinutos)} neste mês`, detalhe: 'Tempo registrado', href: '/estudos' })
-
-  const vencidas = dados.revisoes?.filter((card) => card.proxima_revisao < hoje).length ?? 0
-  if (vencidas > 0) itens.push({ id: 'revisoes', texto: `${vencidas} ${vencidas === 1 ? 'revisão vencida' : 'revisões vencidas'}`, detalhe: 'Revisão Espaçada', href: '/revisao' })
-
-  if (dados.projetos && dados.tarefasProjetos) {
-    const projetoProgramacao = dados.projetos.find((item) => item.destaque && (item.repositorio_url || item.linguagem_principal))
-    if (projetoProgramacao) {
-      itens.push({ id: 'programacao-destaque', texto: `Projeto em destaque: ${projetoProgramacao.nome}${projetoProgramacao.linguagem_principal ? ` · ${projetoProgramacao.linguagem_principal}` : ''}`, detalhe: 'Programação', href: '/programacao' })
-    }
-    const projeto = dados.projetos.find((item) => item.status !== 'concluido')
-    if (projeto) {
-      const pendentes = dados.tarefasProjetos.filter((tarefa) => tarefa.projeto_uuid === projeto.uuid && tarefa.status !== 'feito').length
-      itens.push({ id: 'projeto', texto: `Projeto ${projeto.nome} tem ${pendentes} ${pendentes === 1 ? 'tarefa pendente' : 'tarefas pendentes'}`, detalhe: 'Projetos', href: '/projetos' })
-    }
-  }
-
-  const receitaFavorita = dados.receitas?.find((receita) => receita.favorito)
-  if (receitaFavorita) itens.push({ id: 'receita-favorita', texto: `Receita favorita: ${receitaFavorita.titulo}`, detalhe: 'Receitas', href: '/receitas' })
-  const receitasFeitas = dados.receitas?.filter((receita) => receita.fez).length ?? 0
-  if (receitasFeitas > 0) itens.push({ id: 'receitas-feitas', texto: `${receitasFeitas} ${receitasFeitas === 1 ? 'receita marcada' : 'receitas marcadas'} como feita${receitasFeitas === 1 ? '' : 's'}`, detalhe: 'Receitas', href: '/receitas' })
-  const receitaRecente = dados.receitas ? [...dados.receitas].sort((a, b) => b.updated_at.localeCompare(a.updated_at))[0] : undefined
-  if (receitaRecente && receitaRecente.uuid !== receitaFavorita?.uuid) itens.push({ id: 'receita-recente', texto: `Receita adicionada recentemente: ${receitaRecente.titulo}`, detalhe: 'Receitas', href: '/receitas' })
-
-  const compromisso = dados.proximosEventos?.find((evento) => !evento.concluido && evento.data >= hoje)
-  if (compromisso) {
-    const dias = diferencaDias(hoje, compromisso.data)
-    const textoData = dias === 0 ? 'é hoje' : dias === 1 ? 'é amanhã' : `acontece em ${dias} dias`
-    itens.push({ id: 'compromisso', texto: `${compromisso.titulo} ${textoData}`, detalhe: 'Próximo compromisso', href: '/agenda' })
-  }
-
-  const humorRecente = dados.humor?.[0]
-  if (humorRecente) {
-    itens.push({
-      id: 'saude-humor',
-      texto: `Último humor: ${humorRecente.humor}/5 · energia ${humorRecente.energia}/5`,
-      detalhe: 'Saúde',
-      href: '/saude',
-    })
-  }
-
-  const lancamentosMes = dados.lancamentos?.filter((item) => item.data.startsWith(hoje.slice(0, 7))) ?? []
-  if (lancamentosMes.length > 0) {
-    const saldo = lancamentosMes.reduce(
-      (total, item) => total + (item.tipo === 'entrada' ? Number(item.valor) : -Number(item.valor)),
-      0,
-    )
-    itens.push({
-      id: 'financas-saldo',
-      texto: `Saldo registrado no mês: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(saldo)}`,
-      detalhe: 'Finanças',
-      href: '/financas',
-    })
-  }
-
-  if (dados.investimentos && dados.investimentos.length > 0) {
-    const custo = dados.investimentos.reduce((total, item) => total + Number(item.quantidade) * Number(item.preco_medio), 0)
-    itens.push({
-      id: 'financas-investimentos',
-      texto: `${dados.investimentos.length} ${dados.investimentos.length === 1 ? 'posição de investimento' : 'posições de investimento'} · custo ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(custo)}`,
-      detalhe: 'Finanças',
-      href: '/financas',
-    })
-  }
-
-  const lugar = dados.lugares?.find((item) => item.favorito) ?? dados.lugares?.[0]
-  if (lugar) {
-    itens.push({
-      id: 'lugar-destaque',
-      texto: `${lugar.favorito ? 'Lugar favorito' : 'Lugar em destaque'}: ${lugar.nome}`,
-      detalhe: 'Lugares',
-      href: '/lugares',
-    })
-  }
-
-  if (dados.idiomas?.idiomaAtivo) {
-    itens.push({
-      id: 'idioma-ativo',
-      texto: `Idioma ativo: ${dados.idiomas.idiomaAtivo.nome}${dados.idiomas.idiomaAtivo.nivel_atual ? ` · nível ${dados.idiomas.idiomaAtivo.nivel_atual}` : ''}`,
-      detalhe: 'Idiomas',
-      href: '/idiomas',
-    })
-  }
-  if (dados.idiomas && dados.idiomas.minutosSemana > 0) {
-    itens.push({
-      id: 'idiomas-tempo',
-      texto: `${formatarDuracao(dados.idiomas.minutosSemana)} de prática de idiomas nesta semana`,
-      detalhe: 'Idiomas',
-      href: '/idiomas',
-    })
-  }
-
-  const diaMaisAtivo = dados.atividade?.dias.length
-    ? [...dados.atividade.dias].sort((a, b) => b.total - a.total)[0]
-    : null
-  if (diaMaisAtivo) {
-    itens.push({
-      id: 'historico-dia',
-      texto: `Dia mais ativo do ano: ${new Date(`${diaMaisAtivo.data}T00:00:00`).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })} · ${diaMaisAtivo.total} registros`,
-      detalhe: 'Histórico',
-      href: '/historico',
-    })
-  }
+  const revisoes = (dados.revisoes ?? [])
+    .filter((card) => card.proxima_revisao <= hoje)
+    .map((card) => ({ id: card.uuid, texto: `${card.proxima_revisao < hoje ? 'Revisão atrasada' : 'Revisar hoje'}: ${card.pergunta}` }))
+  if (revisoes.length > 0) itens.push({ id: 'revisoes', detalhe: 'Revisão Espaçada', href: '/revisao', itens: revisoes })
 
   return itens
 }
 
-function iconeDoInsight(id: string): typeof Lightbulb {
-  if (id.startsWith('livro') || id.startsWith('manga')) return BookOpen
-  if (id.startsWith('serie') || id.startsWith('anime') || id === 'video') return CirclePlay
-  if (id === 'favoritos') return Star
-  if (id === 'curso' || id === 'prova') return GraduationCap
-  if (id.startsWith('tempo')) return Clock3
-  if (id === 'revisoes') return Brain
-  if (id.startsWith('programacao')) return Code2
-  if (id === 'projeto') return FolderKanban
-  if (id.startsWith('receita')) return Utensils
-  if (id === 'compromisso') return CalendarDays
-  if (id.startsWith('saude')) return HeartPulse
-  if (id.startsWith('financas')) return WalletCards
-  if (id.startsWith('lugar')) return MapPin
-  if (id.startsWith('idioma')) return Languages
-  if (id.startsWith('historico')) return CalendarRange
-  return Lightbulb
+function IconeInsight({ id }: { id: string }) {
+  if (id === 'biblioteca-andamento') return <BookOpen className="size-4" />
+  if (id === 'provas') return <GraduationCap className="size-4" />
+  if (id === 'revisoes') return <Brain className="size-4" />
+  return <Lightbulb className="size-4" />
+}
+
+function InsightCard({ insight }: { insight: InsightPessoal }) {
+  const [indice, setIndice] = useState(0)
+  useEffect(() => {
+    if (insight.itens.length < 2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const intervalId = window.setInterval(() => setIndice((atual) => (atual + 1) % insight.itens.length), 5000)
+    return () => window.clearInterval(intervalId)
+  }, [insight])
+  const item = insight.itens[indice % insight.itens.length] ?? insight.itens[0]
+  return (
+    <Link href={insight.href} className="group flex min-h-36 min-w-[82%] snap-start flex-col rounded-lg border border-border bg-card p-4 text-card-foreground outline-none transition-[border-color,background-color,transform] hover:-translate-y-0.5 hover:border-primary/45 hover:bg-accent/35 focus-visible:ring-[3px] focus-visible:ring-ring/30 sm:min-w-0">
+      <span className="flex size-9 items-center justify-center rounded-lg bg-secondary text-foreground"><IconeInsight id={insight.id} /></span>
+      <p className="mt-3 font-mono text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">{insight.detalhe}</p>
+      <strong key={item.id} className="mt-1 line-clamp-2 animate-in fade-in text-sm font-semibold leading-snug sm:text-[0.95rem]">{item.texto}</strong>
+      <span className="mt-auto flex items-center justify-between gap-2 pt-3 text-xs font-medium text-muted-foreground group-hover:text-foreground">
+        <span>Abrir {insight.detalhe}</span>
+        {insight.itens.length > 1 ? <span>{(indice % insight.itens.length) + 1}/{insight.itens.length}</span> : <ChevronRight className="size-3.5" />}
+      </span>
+    </Link>
+  )
 }
 
 function PainelInsights({ insights, loading }: { insights: InsightPessoal[]; loading: boolean }) {
@@ -693,30 +572,7 @@ function PainelInsights({ insights, loading }: { insights: InsightPessoal[]; loa
         </div>
       ) : insights.length > 0 ? (
         <div className={`mt-3 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 sm:grid sm:overflow-visible sm:pb-0 ${colunas}`}>
-          {insights.map((insight) => {
-            const Icon = iconeDoInsight(insight.id)
-            return (
-              <Link
-                key={insight.id}
-                href={insight.href}
-                className="group flex min-h-36 min-w-[82%] snap-start flex-col rounded-lg border border-border bg-card p-4 text-card-foreground outline-none transition-[border-color,background-color,transform] hover:-translate-y-0.5 hover:border-primary/45 hover:bg-accent/35 focus-visible:ring-[3px] focus-visible:ring-ring/30 sm:min-w-0"
-              >
-                <span className="flex size-9 items-center justify-center rounded-lg bg-secondary text-foreground">
-                  <Icon className="size-4" />
-                </span>
-                <p className="mt-3 font-mono text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">
-                  {insight.detalhe}
-                </p>
-                <strong className="mt-1 line-clamp-2 text-sm font-semibold leading-snug sm:text-[0.95rem]">
-                  {insight.texto}
-                </strong>
-                <span className="mt-auto flex items-center gap-1 pt-3 text-xs font-medium text-muted-foreground group-hover:text-foreground">
-                  Abrir {insight.detalhe}
-                  <ChevronRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
-                </span>
-              </Link>
-            )
-          })}
+          {insights.map((insight) => <InsightCard key={insight.id} insight={insight} />)}
         </div>
       ) : (
         <div className="mt-3 flex min-h-28 items-center gap-3 rounded-lg border border-border bg-card p-4 text-card-foreground">

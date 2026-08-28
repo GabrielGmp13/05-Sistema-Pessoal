@@ -1,495 +1,129 @@
-# Checklist de Teste Manual — Sistema Pessoal v2.1
-
-## Reteste pendente — contas Google separadas de 2026-08-22
-
-- [ ] Abrir Configurações e confirmar dois cards: YouTube e Google Calendar.
-- [ ] Confirmar que ambos começam desconectados no primeiro deploy deste lote.
-- [ ] Conectar YouTube, escolher explicitamente a conta usada no YouTube e
-      conferir que os e-mails exibidos podem ser diferentes.
-- [ ] Listar playlists/importar vídeo; o fluxo deve usar somente a conta YouTube.
-- [ ] Exportar e reexportar um evento manual; o fluxo deve usar somente Calendar.
-- [ ] Desconectar um serviço e confirmar que o outro continua exibido como
-      conectado e funcional.
-- [ ] Recarregar a página e confirmar persistência independente dos dois estados.
-
-## Reteste pendente — fechamento visual e extensão de 2026-08-21
-
-### Atmosfera
-
-- [ ] Em Sol, Suave, Nublado, Estrelado e Lua, o botão de atmosfera mostra somente borda/foco arredondados, sem retângulo externo.
-- [ ] Repetir no desktop, em largura mobile e por teclado; o foco de atmosfera e “Sair” continua claramente visível.
-- [ ] Lua usa carvão/grafite/ardósia com superfícies distinguíveis e texto confortável, sem preto puro ou dominante laranja.
-- [ ] Estrelado continua azul-marinho/noturno e não se confunde com Lua.
-- [ ] Primavera influencia levemente verde/floral; Verão, dourado; Outono, âmbar/cobre/oliva; Inverno, azul/cinza frio.
-- [ ] Comparar pelo menos Sol+Verão, Sol+Inverno, Lua+Primavera e Estrelado+Outono em Hub, Biblioteca e Treino.
-- [ ] “Nenhum” remove a nuance sazonal e mantém a iluminação; recarregar confirma persistência.
-- [ ] Conferir contraste de textos, bordas, cards, dropdown e foco em todas as combinações amostradas.
-
-### Extensão Edge/Chrome 0.2
-
-- [ ] Recarregar a extensão descompactada após atualizar a pasta local.
-- [ ] Sem domínio configurado, o popup explica o bloqueio, mantém-se aberto e direciona às opções.
-- [ ] Rejeitar URL insegura/inválida; aceitar a origem HTTPS publicada e exibir o host configurado no popup.
-- [ ] Em artigo HTTP/HTTPS, enviar a página e confirmar `/biblioteca?importar=artigo` com URL/título preenchidos para revisão.
-- [ ] Em `youtube.com` e `youtu.be`, confirmar `/biblioteca?importar=video`; revisar metadados e salvar no site.
-- [ ] Em página interna do navegador, confirmar mensagem clara sem fechar silenciosamente.
-- [ ] Confirmar que a extensão não pede senha/token, não autentica por conta própria e não cria item antes do salvamento no app.
-
-## Reteste pendente — commit d5a8b7e
-
-O lote está publicado, mas os itens abaixo **ainda não foram confirmados por Gabriel em produção**. Marcar somente após o teste manual, preservando os relatos históricos deste documento.
-
-- [ ] Redação com C1–C5 = 200 e total 1000.
-- [ ] Rejeitar competência 20, negativa e acima de 200.
-- [ ] Tempo de redação: 00:00, 01:30, minuto 60, edição e recarga.
-- [ ] Prova ENEM finalizada em branco: 0 respondidas, 90 em branco.
-- [ ] Prova ENEM com algumas e todas respondidas.
-- [ ] Dia 1: anexar imagem válida da redação.
-- [ ] Dia 1: rejeitar imagem inválida e maior que 10 MB.
-- [ ] Redação vinculada aparece depois em `/estudos/redacoes`.
-- [ ] Card de Shape com foto, sem foto, peso/data/botão no rodapé.
-- [ ] Card de Shape nos temas claro, suave e escuro.
-- [ ] Desktop e mobile.
-
-O novo topo deste lote também precisa de homologação separada nos cinco temas:
-
-- [ ] Painel “Atmosfera” abre no login e no topo autenticado; iluminação e decoração persistem após recarregar.
-- [ ] Sol, Suave, Nublado, Estrelado e Lua apresentam paletas completas e mantêm contraste.
-- [ ] Primavera, Verão, Outono e Inverno mostram partículas coerentes e visualmente distintas; Nenhum deixa o topo limpo.
-- [ ] Preferência antiga “Noite” migra automaticamente para “Nenhum”; Estrelado continua apenas como iluminação.
-- [ ] Partículas são mais densas perto do perfil, somem à direita e ficam estáticas com redução de movimento.
-- [ ] Cor ambiente altera somente detalhes do topo, persiste localmente e pode ser restaurada ao fallback do tema.
-- [ ] Background real não sai da área do perfil nem é repetido/esticado pela barra.
-- [ ] Nublado e estrelado mantêm contraste em Hub, Biblioteca e Treino.
-- [ ] Dropdown de perfil mostra dados e cor ambiente, fecha por clique externo/Escape/troca de rota e abre “Editar perfil”.
-
-Baseado no roteiro gerado pelo Codex (commits `740ada1`/`3b4cbd6`). Este é o
-formato de execução: sessões curtas, marcáveis, com prioridade. O roteiro
-completo continua sendo a referência pra "Não É Bug Se" quando alguma coisa
-parecer estranha — antes de registrar como bug, confira lá.
-
-**Legenda de prioridade**
-- 🔴 Novo/recente — sem histórico de correção anterior, testar com atenção total
-- 🟢 Módulo antigo — já passou por várias rodadas de correção, teste mais leve serve
-
-## Correções publicadas para reteste — 2026-08-20
-
-O relato original abaixo foi preservado. Estes itens foram corrigidos,
-validados e publicados; ainda precisam do reteste manual de Gabriel:
-
-- [x] Estado “Saindo...” resetado entre logout e novo login.
-- [x] Contraste dos botões primários de Treino alinhado a tokens compartilhados.
-- [x] Arquivo inválido de exercício ganhou erro, remoção, substituição e bloqueio de envio.
-- [x] Shape ganhou edição/exclusão por clique; Saúde usa o registro mais atualizado do dia.
-- [x] Dashboard de Treino ganhou fotos reais do Shape e pontuação derivada de sessões.
-- [x] Agenda expõe “Concluir/Reabrir” com texto no card e no modal.
-- [x] Tema suave, metadados adicionais e base cronometrada do ENEM implementados.
-- [x] Falha de Redações rastreada ao tipo de `nota`; migration incremental criada.
-- [x] Reset/12 testes, dry-run exclusivo, aplicação autorizada e pós-check vazio concluídos.
-
-**Antes de começar**
-- [x] URL de produção aberta, conta Supabase existente à mão
-- [x] Arquivos de teste prontos: 1 imagem, 1 GIF, 1 PDF, 1 CSV, 1 TSV (pequenos)
-- [ ] Navegador + versão anotados
-- [x] Anotar se `TMDB_API_KEY`/`YOUTUBE_API_KEY`/`BRAPI_TOKEN` estão configuradas (senão, pular os passos que dependem delas — não é bug)
-
----
-
-## Sessão 0 — Smoke test (10–15 min, rodar primeiro)
-
-Passada rápida em tudo, só pra achar quebra óbvia antes de investir tempo no
-resto.
-
-- [x] Abrir `/` deslogado → confirma redirect pra `/login` BUG: quando entro no site pela primeira vez, deslogo dele e entro de novo o botão "sair" fica como "saindo..." onde só volta a deslogar caso eu de f5
-- [x] Login com credencial errada → erro sem entrar
-- [x] Login com credencial certa → entra
-- [x] Clicar em cada item da navegação uma vez — nenhum dá erro/tela branca
-- [x] Alternar tema claro/escuro uma vez SUG:adicionar mais temas a escolha do usuário
-- [x] Abrir o Hub, confirmar que carrega sem travar
-
-Se algo cair aqui, corrigir antes de seguir pras sessões detalhadas.
-
----
-
-## Sessão 1 — Login, Perfil, Navegação, Temas 🟢
-
-- [x] Logout → tentar Voltar/recarregar rota privada → deve pedir login de novo
-- [x] Abrir `/configuracoes`: editar nome, descrição, URL de avatar e background
-- [x] Salvar, conferir topo, **recarregar** e confirmar que persistiu
-- [x] Testar nome vazio e URL inválida → devem ser rejeitados
-- [x] Navegação: abrir cada item do menu, conferir destaque da seção ativa
-- [x] Abrir Saúde/Finanças/Lugares/Receitas pelo Diário (não ficam no topo)
-- [x] Tema claro → recarregar → confirma que persistiu; repetir no escuro
-- [x] Testar navegação em tela estreita (~360px)
-
----
-
-## Sessão 2 — Treino + Shape 🟢
-
-- [x] Confirmar os 7 módulos fixos (Cardio, Força, Resistência, Hipertrofia, Flexibilidade, Mobilidade, Potência)
-- [x] Criar treino, adicionar exercício de força E de cardio no mesmo treino BUG: cores da página que criar treinos não está com o novo contraste dos botões. ao criar exercicio dentro de algum treino ao tentar adicionar imagem maior que o limite de 5mb ele avisa, mas não tem a opção de deletar a imagem precisando que o usuario coloque outra imagem dentro do limite ou atualize a página, uma vez que não consegue adicionar o novo exercicio.
-
-AVISO DE ERRO RECORRENTE EM MUITAS PARTES DO SITE: o botão no tema claro tem um tom de verde claro enquanto no modo escuro um tom de cinza claro. ambos não tem um bom contraste com os temas, esse problema foi mencionado e solucionado isoladamente em biblioteca.
-- [x] Abrir Academia, registrar séries, marcar cardio, finalizar sessão SUG: o card de shape que fica na página de treino, poderia mostrar de backgroud imagens que estão salvas em shape, matenha tudo o nome evolução, o nome shape, o simbolo, a pesagem a data e o botão abrir shape, apenas faça com que mostre dados de shapes e sua foto e fique passando para o lado sozinho
-- [x] Conferir resumo no dashboard de Treino SUG: não sei se faz parte das funções que ainda não foram adicionadas, mas gostei de todo o dashboard de treino, falta apenas o esquema de gráficos como se fosse pontuação pessoal. aquilo de eu ao longo do tempo ter pontos em cada modulo de treino e ter um grafico gamificado.
-- [x] Excluir exercício e treino (confirma modal, não `confirm()` nativo)
-- [x] Shape: registrar peso sem foto, depois com foto válida
-- [x] Testar imagem >10MB ou formato errado → deve rejeitar
-- [ ] Recarregar, conferir foto e peso persistidos BUG: depois de registrar um shape, ao clicar no shape não consigo editar os dados dele nem mesmo apagar, crie uma forma de eu poder editar e apagar o shape ao clicar na foto dele
-- [ ] Abrir Saúde e confirmar que o peso aparece lá **sem duplicar** o dado BUG: o dado aparece sem erro, mas ele não mostra o ultimo shape criado e sim o primeiro shape criado do dia. ou seja, como shape de certa forma é algo adicionado uma vez por dia vai funcionar, mas caso seja adicionado outro no mesmo dia ele fica preso ao primeiro.
-
----
-
-## Sessão 3 — Biblioteca + Metadados + Vídeo→Curso
-
-🟢 CRUD básico / 🔴 Vídeo→Curso e metadados externos são mais recentes
-
-- [ ] Cadastrar 1 item de cada categoria: Filmes, Séries, Animes, Mangás, Livros, Podcasts, Vídeos, Artigos SUG: importar mais dados das apis, da imdb apenas foi importado nome, foto, ano e duração. PEN: api para importar dados para animes, mangas, livros. a criação de playlist dos vídeos de biblioteca, até mesmo vinculado a conta google exibir em playlist as salvas da conta google no youtube, como assistir mais tarde etc. importar artigo pelo edge, pendencia de extensão.
-- [x] Clicar no coração do card → favorita sem abrir o detalhe
-- [x] Abrir detalhe clicando no corpo do card → favoritar de lá também → checar se os dois lados ficam sincronizados
-- [x] Buscar dentro de cada categoria, testar as 5 ordenações (recente/título/nota/favorito/status)
-- [x] Editar um item, recarregar, confirmar persistência
-- [x] Excluir com modal de confirmação
-- [ ] 🔴 Buscar metadado real: TMDB (filme/série), Jikan (anime/mangá), Google Books, iTunes, URL do YouTube — conferir que é só **prévia**, e que salvar ainda exige confirmação manual
-- [x] 🔴 Testar um fluxo de metadado **sem** a API key configurada → deve cair pro cadastro manual sem quebrar
-- [x] 🔴 Vídeo→Curso: abrir detalhe do vídeo, "Usar em Curso", vincular a módulo existente e a um módulo novo
-- [x] 🔴 Tentar vincular o mesmo vídeo de novo no mesmo curso → deve bloquear duplicata
-- [x] 🔴 Conferir que a aula aparece certinho dentro do curso em Estudos
-
----
-
-## Sessão 4 — Estudos + Revisão Espaçada 🟢
-SUG/BUG: não sei se ainda não foi implementado mas não tem a função fazer prova enem que tanto comentei, onde eu aperto em fazer prova, e começa um cronometro com o tempo real de prova do enem e eu tenho que até esse tempo chegar em 0, colocar o gabarito, ficando apenas de fora de por na hora a redação. pergunte caso tenha dúvidas.
-- [x] Criar matéria, criar conteúdo, vincular o **mesmo conteúdo** a duas matérias (checa N:N)
-- [x] Marcar teoria vista e domínio manual
-- [x] Criar prova/atividade, questão avulsa, simulado
-- [x] 🔴 Confirmar que **simulado com conteúdo** cria/atualiza card em Revisão Espaçada, e que **prova** nunca faz isso
-- [x] Criar curso → módulo → aula, marcar aula concluída e desmarcar
-- [x] Anexar material por URL e por upload de arquivo — abrir depois via URL assinada
-- [x] Criar redação com notas C1–C5 BUG:Não foi possível salvar a redação. (Nâo foi possível crir a redação)
-- [x] Registrar sessão de estudo (tempo) e conferir se aparece em algum resumo (: ESSA FUNÇÃO DEVE APENAS SER IMPORTADA DO YPT, mas está funcionando)
-- [x] Revisão Espaçada: avaliar um card, conferir que intervalo/próxima data mudam
-- [ ] Importar CSV e depois TSV com prévia antes de gravar
-- [ ] 🔴 Testar duplicata na importação → deve ignorar, não duplicar
-- [ ] Arquivar e restaurar um card
-
----
-
-## Sessão 5 — Agenda 🔴
-
-Prioridade foi corrigida em código, validada e publicada em 2026-08-21; os
-itens abaixo continuam desmarcados até o reteste manual de Gabriel.
-
-- [ ] Criar três eventos no mesmo dia/horário com prioridades baixa, normal e alta; conferir ordem alta → normal → baixa
-- [ ] Criar evento sem horário; confirmar que aparece após os eventos com horário e mantém a prioridade após recarregar/editar
-- [ ] Confirmar que provas vindas de Estudos continuam sem prioridade editável e sem duplicação
-- [x] Criar evento geral, evento de estudo (matéria+conteúdo) e evento de treino (vinculado a treino real)
-- [x] Alternar visão semana/mês, navegar com anterior/próximo/hoje
-- [ ] Concluir e reabrir evento Não achei nada sobre concluir
-- [x] Editar e excluir evento
-- [x] Criar prova em Estudos → conferir que aparece na Agenda **sem duplicar**
-- [x] Testar virada de mês (evento no último/primeiro dia)
-
----
-
-## Sessão 6 — Diário / Saúde / Finanças / Investimentos / Lugares / Receitas 🔴 (tudo novo)
-
-- [x] Diário: abrir `/diario`, conferir os 4 resumos, abrir cada módulo pelo atalho
-- [x] Saúde: registrar sono, água, humor, energia, observação numa data
-- [x] Saúde: criar medicamento, marcar/desmarcar tomado hoje
-- [x] Testar limites de campo (sono fora da faixa, escala 1–5 fora do range)
-- [ ] Finanças: criar categorias de entrada/saída, lançar 2 movimentos, conferir saldo do mês
-- [ ] Trocar mês selecionado, editar e excluir lançamento
-- [ ] Criar orçamento por categoria/mês → salvar de novo a mesma combinação → deve **atualizar**, não duplicar
-- [ ] Criar meta de economia, atualizar valor
-- [ ] Investimentos: cadastrar posição manual (tipo/ticker/qtd/preço médio)
-- [ ] Se tiver `BRAPI_TOKEN`: consultar cotação, conferir valor atual/resultado
-- [ ] Testar sem token → interface deve avisar sem quebrar Finanças
-- [ ] Lugares: cadastrar com endereço e com lat/long, testar link do Maps
-- [ ] Receitas: cadastrar com e sem foto, marcar favorita e "feita"
-- [ ] Reload em cada um dos 5 sub-módulos, confirmar persistência
-
----
-
-## Sessão 7 — Projetos + Programação 🔴
-
-- [ ] Criar projeto, adicionar tarefas nas 3 colunas (a fazer/fazendo/feito)
-- [ ] Mover tarefas entre colunas, mudar estado do projeto (ativo/pausado/concluído)
-- [ ] Criar projeto pela tela de Programação (linguagem, URL de repo)
-- [ ] Testar URL de repo inválida
-- [ ] Marcar destaque → conferir se aparece como insight no Hub
-- [ ] Confirmar que o mesmo projeto aparece nas duas telas (Projetos e Programação) — editar/excluir num lado reflete no outro, sem duplicar
-
----
-
-## Sessão 8 — Idiomas 🔴
-
-- [ ] Criar idioma (nível, objetivo, cor, ativo)
-- [ ] Adicionar 2 palavras de vocabulário, marcar/desmarcar como dominada
-- [ ] Registrar práticas de tipos diferentes em datas diferentes
-- [ ] Conferir totais da semana e do mês (testar perto da virada de semana se der)
-- [ ] Excluir palavra, prática e idioma (checar que não afeta outros idiomas)
-
----
-
-## Sessão 9 — Histórico / Heatmap 🔴
-
-Rodar **depois** de já ter dado nas sessões 2–8, pra ter dado real de todas as
-7 áreas (Treino, Estudos, Agenda, Revisão, Saúde, Finanças, Idiomas).
-
-- [ ] Abrir `/historico`, selecionar o ano
-- [ ] Filtrar por cada uma das 7 áreas
-- [ ] Clicar num dia com atividade, conferir detalhe
-- [ ] Comparar a contagem do dia com o dado de origem real
-- [ ] Exportar CSV, abrir e conferir datas/áreas/totais
-- [ ] Confirmar que treino não finalizado e evento não concluído **não** entram na contagem
-- [ ] Confirmar que posições de investimento **não** aparecem no heatmap
-
----
-
-## Sessão 10 — Uploads / Storage (passe transversal)
-
-Já tocado nas sessões acima (Shape, exercício, redação, materiais) — usar
-esta sessão só pra reforçar os casos de erro:
-
-- [ ] Cada tipo de upload aceita o formato certo e rejeita o errado
-- [ ] Cada tipo respeita o limite de tamanho (Shape 10MB / exercício 5MB / redação 10MB / materiais 50MB)
-- [ ] Arquivo abre autenticado depois de recarregar a página
-- [ ] Substituir um arquivo já enviado não deixa link quebrado apontando pro antigo
-
----
-
-## Sessão 11 — Segurança básica + Persistência final
-
-- [ ] Rota privada sem sessão → bloqueia
-- [ ] Depois de logout, nenhuma página privada aparece brevemente com dado antigo
-- [ ] Inspecionar network/código-fonte da página → nenhuma key (TMDB/YouTube/BRAPI) aparece no cliente
-- [ ] **Recarregar cada módulo principal uma última vez** e conferir que tudo que foi criado nesta rodada de testes ainda está lá
-
----
-
-## Registro de bug (usar pra cada problema encontrado)
-
-```
-Módulo:
-Página:
-Passos:
-Esperado:
-Obtido:
-Print:
-Tema (claro/escuro):
-Dispositivo/largura:
-Navegador:
-Persiste após recarregar?:
-```
-
----
-
-## Ordem sugerida de execução
-
-Se for testar em blocos de tempo separados, essa ordem prioriza o que tem
-mais chance de esconder bug real primeiro:
-
-1. Sessão 0 (smoke test) — sempre primeiro
-2. Sessão 6 (Diário/Saúde/Finanças/Investimentos/Lugares/Receitas) — mais novo, mais superfície
-3. Sessão 5 (Agenda) — cruza dado de vários módulos, propenso a duplicação
-4. Sessão 3 (Biblioteca, foco em Vídeo→Curso e metadados)
-5. Sessão 7 (Projetos/Programação) — dois telas, um dado só, risco de duplicar
-6. Sessão 8 (Idiomas)
-7. Sessão 9 (Histórico) — depende de dado das outras, rodar quase por último
-8. Sessões 1, 2, 4 (Perfil/Nav, Treino, Estudos/Revisão) — módulos mais maduros, teste mais rápido
-9. Sessões 10 e 11 (Uploads/Segurança/Persistência) — fechamento
-
----
-
-## Segunda rodada de homologação — relato e tratamento em 2026-08-20
-
-Os relatos abaixo foram acrescentados sem alterar os registros anteriores.
-`[x]` significa **corrigido em código**; a confirmação na versão publicada
-continua separada em `[ ]`.
-
-### Redações
-
-- Relato: competências C1–C5 precisavam seguir os passos reais do ENEM
-  (`0`, `40`, `80`, `120`, `160`, `200`) e a redação precisava registrar o
-  tempo em horas/minutos.
-- [x] Inputs e validação rejeitam notas fora da sequência; a soma permanece 0–1000.
-- [x] Tempo opcional foi adicionado ao formulário, à edição e ao resumo do card;
-  minutos fora de 0–59 e tempo negativo são rejeitados.
-- [x] Migration de duração passou validação local e foi aplicada em produção com pós-check vazio.
-- [ ] Retestar criação e edição com C1–C5 em 200 e tempos `00:00`, `01:30`,
-  minuto `60`, valor `20` em competência e recarga da página.
-
-### Fazer prova ENEM
-
-- Relato: finalizar sem responder mostrava `90/90 lançadas`; no Dia 1 também
-  faltava anexar a redação feita durante a prova.
-- [x] O resumo separa respondidas, em branco, acertos, erros e total, contando
-  `letra_marcada = NULL` como branco.
-- [x] Dia 1 permite informar tema, anexar/substituir imagem e salvar o vínculo
-  existente `provas.redacao_uuid`; a redação fica disponível para completar em
-  `/estudos/redacoes`.
-- [ ] Retestar finalização com 0, algumas e 90 respostas, antes/depois da correção.
-- [ ] Retestar upload válido, arquivo inválido/maior que 10 MB, recarga e abertura
-  posterior da redação vinculada.
-
-### Card de Shape no dashboard de Treino
-
-- Relato: mover balança, peso, data e “Abrir Shape” para baixo, preservar a foto
-  rotativa e remover a pequena faixa sem imagem no topo do card.
-- [x] Conteúdo de evolução foi dividido em cabeçalho limpo e rodapé; fundo e
-  máscara cobrem toda a área interna, inclusive a borda superior.
-- [x] Rodapé visual e clipping da foto foram reforçados; `/treino` ganhou
-  profundidade própria coerente com Sol, Suave, Nublado, Estrelado e Lua.
-- [ ] Retestar com/sem foto e peso em desktop/mobile, nos ambientes Sol, Suave,
-  Nublado, Estrelado e Lua.
-
-## Lote de fechamento funcional — relato preservado / 2026-08-21
-
-### Finanças — parcelamento e recorrência
-- [x] Geração pura e distribuição de centavos validadas automaticamente.
-- [ ] Em produção, criar R$ 100,00 em 3 parcelas e conferir R$ 33,34 + R$ 33,33 + R$ 33,33.
-- [ ] Criar 12 meses recorrentes, recarregar e confirmar que não duplicou; editar/excluir um item e confirmar efeito individual.
-
-### Biblioteca — capas privadas e Artigos
-- [x] Migration e teste SQL validam colunas, MIME e limite do bucket local.
-- [ ] Testar capa em Filmes, Séries, Animes, Mangás, Livros, Podcasts, Vídeos e Artigos; testar substituição e recarga.
-- [ ] Testar JPG/PNG/WebP, arquivo maior que 3 MB e formato inválido.
-- [ ] Colar URL de artigo pública; revisar metadados sugeridos e confirmar fallback manual em página bloqueada.
-
-### Extensão e integrações
-- [ ] Instalar extensão Edge/Chrome em modo desenvolvedor, configurar URL publicada e enviar artigo/vídeo.
-- [ ] Google OAuth: conectar Calendar e YouTube com as contas específicas;
-  playlists/Calendar já estão implementados em código.
-- [x] Armazenamento cifrado, revogação e idempotência Calendar implementados.
-- PÓS-V2 REAL: Google Calendar bidirecional, Google Photos Picker opcional,
-  mídia/template Anki complexo, scraping agressivo e BRAPI histórica.
-
-### Automação
-- [x] `npm test`: 26/26 (finanças, CSV/TSV, Anki, Agenda, ENEM, Redação,
-  Open Graph, BRAPI, Supabase, serviços Google e links de playlists).
-- [x] Reset local Supabase e 17 testes SQL.
-- [x] Typecheck, 26 testes Node, build, reset local, 17 scripts SQL, dry-run
-  exclusivo, aplicação e pós-check remoto concluídos antes da publicação.
-
-## Bateria final pós-implementação — 2026-08-21
-
-Legenda: `[ ]` testar manualmente; `[x]` validado automaticamente;
-`PENDENTE AÇÃO DO GABRIEL`; `PENDENTE CREDENCIAL`; `PÓS-V2 REAL`.
-
-### Reteste do status Google — correção em código de 2026-08-22
-
-- Relato preservado: em produção, `/api/integracoes/google/status` retornava
-  apenas `{"erro":"Não foi possível consultar a conexão."}` mesmo com as
-  variáveis Google presentes.
-- [x] Corrigido em código: o erro original não é mais descartado e a resposta
-  diferencia configuração, chave, tabela, coluna, permissão e erro inesperado.
-- [ ] Após o deploy, abrir a rota autenticado. Se ainda falhar, registrar
-  `diagnostico.tipo`/`diagnostico.codigo` e conferir o evento correspondente
-  nos logs da Vercel; nenhum segredo deve aparecer.
-- Reteste em produção: retornou `permission_denied` com código `42501`.
-- [x] Causa identificada no SQL: `service_role` não recebeu privilégio de
-  tabela; `BYPASSRLS` sozinho não substitui `GRANT`.
-- [x] Migration incremental validada e aplicada após dry-run exclusivo;
-  pós-check confirmou o privilégio sem abrir policy de cliente.
-- [ ] Repetir a rota e confirmar `configurado: true`, com estados separados em
-  `conexoes.youtube` e `conexoes.calendar`, sem erro.
-
-### Preparação externa
-
-- [ ] PENDENTE AÇÃO DO GABRIEL: no Google Cloud, habilitar YouTube Data API v3
-  e Google Calendar API, configurar consentimento e criar OAuth Web.
-- [x] Registrado exatamente
-  `https://SEU-DOMINIO/api/integracoes/google/callback` como redirect URI.
-- [x] Configuradas na Vercel `SUPABASE_SERVICE_ROLE_KEY`,
-  `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI` e
-  `GOOGLE_TOKEN_ENCRYPTION_KEY`, todas server-side; OAuth já confirmado.
-- [ ] PENDENTE CREDENCIAL: manter `YOUTUBE_API_KEY`, `TMDB_API_KEY` e
-  `BRAPI_TOKEN` somente se quiser os fallbacks/serviços opcionais correspondentes.
-
-### Google / YouTube / Calendar
-
-- [ ] Em Configurações, conferir os dois estados, conectar cada serviço com a
-  conta desejada, validar os e-mails e desconectar/reconectar um sem alterar o
-  outro ou expor token/detalhe sensível em Network.
-- [ ] Listar playlists; usar “carregar mais” quando disponível, abrir uma
-  playlist, selecionar vídeos e importar. Repetir e esperar duplicados ignorados.
-- [ ] Conferir na Biblioteca título, canal, thumbnail, duração, URL e cadastro
-  manual preservado.
-- [ ] Na Agenda, exportar compromisso com horário/duração e um de dia inteiro.
-  Editar e reexportar: o mesmo evento deve ser atualizado, não duplicado.
-- [ ] Confirmar que provas lidas de Estudos não exibem botão do Calendar.
-
-### Uploads privados
-
-- [ ] Perfil: enviar JPG/PNG/WebP de avatar e background, recarregar, substituir
-  e remover; o topo deve refletir a signed URL sem tornar o bucket público.
-- [ ] Receitas e Lugares: criar com foto/capa, recarregar, abrir, substituir,
-  remover e excluir; erro de persistência não pode deixar arquivo órfão novo.
-- [ ] Prova escolar, prova ENEM e simulado: anexar PDF e imagem, abrir em nova
-  aba por signed URL e substituir. Rejeitar MIME inválido e arquivo > 15 MB.
-- [ ] Biblioteca: testar capa nas oito categorias e banner nas seis que possuem
-  `banner_path`; aceitar JPG/PNG/WebP até 3 MB e rejeitar demais.
-
-### Anki e demais importações
-
-- [x] Parsers CSV/TSV, básico/cloze do Anki e Open Graph têm testes Node.
-- [ ] Em Revisão, selecionar `.apkg` de até 25 MB, escolher deck, conferir
-  prévia, importar e repetir para validar deduplicação. Testar pacote inválido.
-- [ ] Repetir CSV/TSV para confirmar que o fallback anterior continua igual.
-- [ ] Em Artigos, colar URL pública e conferir título, autor, site, imagem e
-  tempo; página bloqueada/privada deve dar erro claro e permitir preenchimento manual.
-
-### Extensão, Finanças e BRAPI
-
-- [ ] PENDENTE AÇÃO DO GABRIEL: recarregar `browser-extension/` em modo
-  desenvolvedor, configurar origem HTTPS e enviar Artigo/YouTube pelo popup e menu.
-- [ ] Parcelar R$ 100 em três e conferir soma/meses; criar recorrência finita,
-  recarregar e confirmar que não duplicou. Edição/exclusão afeta só um lançamento.
-- [ ] Sem `BRAPI_TOKEN`, conferir fallback. Com token, consultar ticker válido,
-  repetir em menos de 60 s, testar ativo ausente/quota e conferir resultado/cobertura.
-
-### Segurança e aprovação
-
-- [x] Migration aplica RLS sem policy de cliente ao cofre, bucket privado com
-  quatro policies e índice Calendar; baseline e teste específico passaram.
-- [x] `npm audit --omit=dev` retornou zero vulnerabilidades após Next 16.3.2.
-- [ ] Em sessão anônima, todas as novas API Routes devem retornar 401/redirecionar.
-- [ ] Inspecionar bundle/Network: nenhum service role, client secret, refresh
-  token, chave AES, token BRAPI/TMDB/YouTube ou URL de banco pode aparecer.
-- [ ] Testar desktop/mobile e cinco iluminações; aprovar somente após recarga dos
-  registros, erros visíveis e ausência de regressão nos módulos anteriores.
-
-PÓS-V2 REAL: Calendar bidirecional/conflitos/exclusões remotas; Google Photos
-Picker; mídia e templates complexos de `.apkg`; scraping em lote; histórico e
-alertas BRAPI; publicação da extensão em loja; E2E autenticado amplo.
-
-## Segurança / Privacidade / Beta privado
-
-- [ ] Testar como visitante anônimo: páginas protegidas redirecionam ao login e
-      cada API autenticada retorna 401 sem revelar detalhe interno.
-- [ ] Criar dois usuários de teste por convite; cada um só enxerga, altera e
-      remove seus próprios registros e arquivos.
-- [ ] Confirmar RLS ativa nas tabelas novas, policies por `auth.uid()` e GRANTs
-      mínimos; o vínculo playlist/vídeo não aceita `user_id` cruzado.
-- [ ] Confirmar seis buckets privados, tipos/tamanhos permitidos, paths iniciados
-      pelo usuário e signed URLs temporárias.
-- [ ] Inspecionar HTML, bundle, Network, logs e diff: nenhuma service role,
-      client secret, refresh/access token, chave AES, cookie, URL/senha de banco
-      ou variável server-side pode aparecer.
-- [ ] Validar login, logout, expiração/revogação de sessão, troca de usuário e
-      recarga direta de rota sem reaproveitar dados da sessão anterior.
-- [ ] Conferir Site URL, Redirect URLs de Auth, callbacks OAuth e domínio final;
-      nenhum redirect deve aceitar origem inesperada.
-- [ ] Em Vercel, confirmar proteção dos previews. Se o domínio de produção não
-      estiver coberto pelo plano, registrar que Auth/RLS são o portão efetivo.
-- [ ] Convidar no máximo dez pessoas pelo Supabase Dashboard, sem cadastro
-      público, senha compartilhada ou UI administrativa improvisada.
-- [ ] Antes do convite, apresentar aviso curto com finalidade, dados guardados,
-      serviços externos, contato, retenção e procedimento de exclusão/exportação.
-- [ ] Não excluir usuário sem confirmação e backup/exportação: `ON DELETE
-      CASCADE` remove seus dados. Registrar convite, remoção e incidentes.
-- [ ] Bugs do beta devem incluir módulo, passos, esperado, obtido, tema,
-      dispositivo e print sem dados pessoais ou credenciais.
-- [ ] Seguir integralmente `docs/BETA_PRIVADO.md` antes de usar dados reais de
-      terceiros; gestão admin, E2E amplo e revisão jurídica permanecem fora.
+# Retestes Manuais — lote de homologação v2.1
+
+Este arquivo contém somente verificações que dependem do deploy, de uma conta
+real, de upload, de APIs externas, de mouse/toque ou de julgamento visual. Não
+repita typecheck, build, testes Node/SQL ou buscas de segurança registrados pelo
+Codex.
+
+## Antes de começar
+
+- [ ] Confirmar que o deploy contém o commit deste lote e que a migration
+      `20260827000100_homologacao_fluxos_pessoais.sql` foi aplicada.
+- [ ] Usar uma conta de teste com dados descartáveis; não apagar o usuário real
+      no Supabase Auth, pois isso remove seus dados por cascade.
+- [ ] Testar ao menos uma vez em desktop e uma vez em celular real ou em largura
+      próxima de 360 px.
+- [ ] Repetir a inspeção visual em um tema claro e um escuro.
+
+## Hub
+
+- [ ] Confirmar que “Insight pessoal” mostra somente próxima revisão, próxima
+      prova e obras realmente em andamento.
+- [ ] Confirmar que não aparecem vídeo genérico não assistido, total de acervo,
+      curso em andamento nem tempo estudado nesse bloco.
+- [ ] Criar duas obras em andamento da mesma família e observar a troca interna
+      aproximadamente a cada cinco segundos, sem perder os demais cards visíveis.
+
+## Biblioteca e metadados
+
+- [ ] Confirmar que distribuidora, orçamento e bilheteria não aparecem em
+      formulário, card ou detalhes de Filmes/Séries/Animes.
+- [ ] Em Gêneros, pesquisar nomes no catálogo ampliado e criar/editar uma obra
+      usando os gêneros encontrados.
+- [ ] Com `TMDB_API_KEY`, pesquisar um filme e uma série; salvar e conferir
+      gêneros e elenco/créditos importados nos detalhes.
+- [ ] Pesquisar Anime e Mangá pelo Jikan e Livro pelo Google Books; conferir
+      mensagem de busca, seleção, gêneros e salvamento.
+- [ ] Simular uma busca sem resultado ou API indisponível e confirmar que o
+      cadastro manual continua utilizável sem perder o que já foi digitado.
+
+## ENEM e Redações
+
+- [ ] Finalizar uma prova curta de teste e confirmar que o botão vira **Refazer
+      prova**.
+- [ ] Refazer marcando respostas diferentes; confirmar que as alternativas ficam
+      editáveis e que gabarito correto, matérias e conteúdos anteriores continuam.
+- [ ] Confirmar no novo resultado que respondidas, em branco, acertos, erros e
+      total estão coerentes; repetir com todas em branco.
+- [ ] No Dia 1, anexar uma imagem real de redação durante a prova, finalizar e
+      localizar a redação em `/estudos/redacoes` para completar a correção.
+- [ ] Em Redações, testar C1–C5 somente em 0/40/80/120/160/200 e duração em
+      horas/minutos; salvar, recarregar e conferir total e tempo.
+- [ ] Em Estudos, conferir visualmente Redações ao lado de ENEM e Escola na
+      posição antes ocupada por Redações.
+
+## Revisão e flashcards
+
+- [ ] Importar um CSV/TSV real escolhendo matéria e conteúdo; recarregar e
+      confirmar que todos os cards do lote aparecem nesses filtros.
+- [ ] Repetir com um `.apkg` real: escolher deck, revisar prévia e confirmar o
+      mesmo vínculo acadêmico. Mídias e templates JavaScript complexos não são
+      suportados e não devem bloquear este teste.
+- [ ] Em uma matéria de Estudos, abrir **Flashcards** em um conteúdo e confirmar
+      que a importação já sugere esse destino.
+- [ ] Iniciar a sessão focada: toque/clique revela a resposta; arrastar à esquerda
+      registra erro; arrastar à direita revela as opções Difícil/Bom/Fácil.
+- [ ] Repetir o gesto com mouse e touch e conferir inclinação, avanço do card e
+      próxima data após recarregar.
+- [ ] Confirmar que arquivar, restaurar e excluir continuam funcionando na tela
+      normal de Revisão.
+
+## Agenda e Google Calendar
+
+- [ ] Conectar a conta **Calendar** em Configurações e manter a conexão YouTube
+      independente.
+- [ ] Criar no Google Calendar um evento com hora, um de dia inteiro e uma
+      ocorrência recorrente dentro do período visível da Agenda.
+- [ ] Clicar **Importar Calendar**, revisar a prévia e aplicar; confirmar horários
+      em `America/Recife` e ausência de duplicação ao importar novamente.
+- [ ] Alterar o evento no Google, consultar outra vez e confirmar “Atualizar”.
+- [ ] Alterar um evento importado localmente e também no Google; confirmar que a
+      prévia marca conflito e não sobrescreve automaticamente a edição local.
+- [ ] Cancelar um evento no Google, importar e confirmar que ele sai da Agenda
+      por exclusão lógica sem afetar provas de Estudos.
+- [ ] Editar um evento importado e usar o ícone de exportação; confirmar que o
+      mesmo evento remoto é atualizado, não duplicado.
+- [ ] Confirmar que provas continuam visíveis, mas não selecionáveis para
+      importação/exportação como compromisso comum.
+
+## Treino
+
+- [ ] No dashboard, adicionar um treino a um dia da semana atual; recarregar e
+      confirmar persistência.
+- [ ] Editar dia/treino, remover o planejamento e conferir desktop/mobile.
+- [ ] Confirmar que o planejamento não cria automaticamente item duplicado na
+      Agenda.
+
+## Lugares e Google Places
+
+- [ ] Com `GOOGLE_MAPS_API_KEY` configurada na Vercel, pesquisar um restaurante,
+      parque ou cidade e selecionar um resultado visual.
+- [ ] Confirmar preenchimento de nome, endereço, cidade/país quando disponíveis,
+      sem campos visíveis de latitude/longitude.
+- [ ] Salvar, recarregar e abrir no Google Maps; conferir que o destino é o lugar
+      selecionado, não apenas uma busca aproximada.
+- [ ] Testar o cadastro manual quando a busca não encontra resultado.
+- [ ] Conferir capa privada, favorito, edição e exclusão lógica de um lugar.
+
+## Responsividade, acessibilidade e beta privado
+
+- [ ] Nas páginas alteradas, navegar apenas por teclado e confirmar foco visível,
+      fechamento de modais e ausência de armadilhas de foco.
+- [ ] Conferir que cards, prévias, selects e botões não vazam horizontalmente em
+      360 px e permanecem legíveis nos temas claro/escuro.
+- [ ] Em janela anônima sem sessão, acessar diretamente as novas API Routes de
+      Calendar e Places e confirmar resposta não autenticada, sem dados.
+- [ ] Nos logs Vercel, confirmar que falhas de Calendar/Places não exibem tokens,
+      cookies, headers, URLs de banco ou valores de variáveis.
+- [ ] Com uma segunda conta de beta, confirmar que não aparecem eventos,
+      tentativas, flashcards, planejamentos ou lugares da primeira conta.
+
+## Modelo curto de bug
+
+- Módulo/página:
+- Navegador, dispositivo e tema:
+- Dados mínimos usados:
+- Passos:
+- Esperado:
+- Obtido:
+- Print ou vídeo (sem dados sensíveis):

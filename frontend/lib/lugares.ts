@@ -9,6 +9,8 @@ export interface Lugar {
   pais: string | null
   latitude: number | null
   longitude: number | null
+  endereco: string | null
+  google_place_id: string | null
   data_inicio: string | null
   data_fim: string | null
   custo: number | null
@@ -50,9 +52,10 @@ export async function salvarLugar(input: LugarInput, uuid?: string): Promise<Lug
 
 export const deletarLugar = (uuid: string) => softDelete('lugares', uuid)
 
-export function linkMapa(lugar: Pick<Lugar, 'nome' | 'latitude' | 'longitude' | 'cidade' | 'pais'>) {
+export function linkMapa(lugar: Pick<Lugar, 'nome' | 'latitude' | 'longitude' | 'cidade' | 'pais' | 'google_place_id'>) {
   const busca = lugar.latitude !== null && lugar.longitude !== null
     ? `${lugar.latitude},${lugar.longitude}`
     : [lugar.nome, lugar.cidade, lugar.pais].filter(Boolean).join(', ')
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(busca)}`
+  const placeId = lugar.google_place_id ? `&query_place_id=${encodeURIComponent(lugar.google_place_id)}` : ''
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(busca)}${placeId}`
 }

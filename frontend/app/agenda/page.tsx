@@ -8,6 +8,7 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
+  CloudDownload,
   CloudUpload,
   Clock3,
   Dumbbell,
@@ -40,6 +41,16 @@ import { listarMaterias, Materia } from '@/lib/materias'
 import { listarProvasNoPeriodo, Prova } from '@/lib/provas'
 import { getUserId, sb } from '@/lib/supabase'
 import { getTodosTreinos, Treino } from '@/lib/treino'
+import type { AcaoImportacaoCalendar } from '@/lib/calendar-import'
+
+interface EventoCalendarPrevia {
+  id: string
+  titulo: string
+  data: string
+  horaInicio: string | null
+  acao: AcaoImportacaoCalendar
+  link: string | null
+}
 
 interface FormularioEvento {
   titulo: string
@@ -136,6 +147,9 @@ export default function AgendaPage() {
   const [mensagem, setMensagem] = useState('')
   const [googleConectado, setGoogleConectado] = useState(false)
   const [exportandoUuid, setExportandoUuid] = useState<string | null>(null)
+  const [importandoCalendar, setImportandoCalendar] = useState(false)
+  const [previaCalendar, setPreviaCalendar] = useState<EventoCalendarPrevia[]>([])
+  const [selecionadosCalendar, setSelecionadosCalendar] = useState<Set<string>>(new Set())
 
   const semana = useMemo(() => {
     const inicio = inicioDaSemana(dataReferencia)
@@ -313,6 +327,50 @@ export default function AgendaPage() {
     }
   }
 
+  async function consultarGoogleCalendar() {
+    setImportandoCalendar(true)
+    setErro('')
+    setMensagem('')
+    try {
+      const response = await fetch('/api/integracoes/google/calendar/import', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ inicio: inicioIso, fim: fimIso }),
+      })
+      const body = await response.json() as { eventos?: EventoCalendarPrevia[]; erro?: string }
+      if (!response.ok) throw new Error(body.erro || 'Não foi possível consultar o Google Calendar.')
+      const eventos = body.eventos ?? []
+      setPreviaCalendar(eventos)
+      setSelecionadosCalendar(new Set(eventos.filter((evento) => ['novo', 'atualizar', 'cancelar'].includes(evento.acao)).map((evento) => evento.id)))
+      if (eventos.length === 0) setMensagem('Nenhum evento do Google Calendar neste período.')
+    } catch (error) {
+      setErro(error instanceof Error ? error.message : 'Não foi possível consultar o Google Calendar.')
+    } finally {
+      setImportandoCalendar(false)
+    }
+  }
+
+  async function aplicarGoogleCalendar() {
+    if (selecionadosCalendar.size === 0) return
+    setImportandoCalendar(true)
+    setErro('')
+    try {
+      const response = await fetch('/api/integracoes/google/calendar/import', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ inicio: inicioIso, fim: fimIso, aplicarIds: [...selecionadosCalendar] }),
+      })
+      const body = await response.json() as { aplicados?: number; erro?: string }
+      if (!response.ok) throw new Error(body.erro || 'Não foi possível importar os eventos.')
+      setMensagem(`${body.aplicados ?? 0} evento${body.aplicados === 1 ? '' : 's'} sincronizado${body.aplicados === 1 ? '' : 's'} com a Agenda.`)
+      setPreviaCalendar([])
+      setSelecionadosCalendar(new Set())
+      await carregar()
+    } catch (error) {
+      setErro(error instanceof Error ? error.message : 'Não foi possível importar os eventos.')
+    } finally {
+      setImportandoCalendar(false)
+    }
+  }
+
   async function apagarEvento() {
     if (!eventoParaApagar) return
     const apagado = await deletarEventoAgenda(eventoParaApagar.uuid)
@@ -343,7 +401,7 @@ export default function AgendaPage() {
         eyebrow="Planejamento"
         title="Agenda"
         description="Compromissos gerais, estudos, provas e treinos em visão semanal ou mensal."
-        actions={<Button type="button" onClick={() => abrirNovo(dataReferencia)}><Plus />Novo compromisso</Button>}
+        actions={<><Button type="button" variant="outline" disabled={!googleConectado || importandoCalendar} onClick={() => void consultarGoogleCalendar()} title={googleConectado ? 'Comparar este período com o Google Calendar' : 'Conecte o Calendar em Configurações'}><CloudDownload />Importar Calendar</Button><Button type="button" onClick={() => abrirNovo(dataReferencia)}><Plus />Novo compromisso</Button></>}
       />
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -361,6 +419,25 @@ export default function AgendaPage() {
 
       {erro ? <p role="alert" className="mt-5 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">{erro}</p> : null}
       {mensagem ? <p role="status" className="mt-5 rounded-lg border border-success/30 bg-success-muted px-3 py-2 text-sm text-success-foreground">{mensagem}</p> : null}
+      {previaCalendar.length > 0 ? (
+        <section className="mt-5 rounded-xl border border-border bg-card p-4 text-card-foreground shadow-sm" aria-label="Prévia de importação do Google Calendar">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div><h2 className="font-semibold">Prévia do Google Calendar</h2><p className="mt-1 text-xs text-muted-foreground">Revise antes de criar, atualizar ou cancelar. Conflitos locais não são sobrescritos.</p></div>
+            <Button type="button" size="sm" disabled={importandoCalendar || selecionadosCalendar.size === 0} onClick={() => void aplicarGoogleCalendar()}>Aplicar {selecionadosCalendar.size}</Button>
+          </div>
+          <div className="mt-4 divide-y divide-border border-y border-border">
+            {previaCalendar.map((evento) => {
+              const selecionavel = ['novo', 'atualizar', 'cancelar'].includes(evento.acao)
+              return <label key={evento.id} className={`flex items-center gap-3 py-3 ${selecionavel ? 'cursor-pointer' : ''}`}>
+                <input type="checkbox" checked={selecionadosCalendar.has(evento.id)} disabled={!selecionavel} onChange={(event) => setSelecionadosCalendar((atuais) => { const proximos = new Set(atuais); if (event.target.checked) proximos.add(evento.id); else proximos.delete(evento.id); return proximos })} />
+                <div className="min-w-0 flex-1"><p className="truncate text-sm font-medium">{evento.titulo}</p><p className="text-xs text-muted-foreground">{evento.data}{evento.horaInicio ? ` · ${evento.horaInicio}` : ' · dia inteiro'}</p></div>
+                <Badge variant={evento.acao === 'conflito' ? 'warning' : evento.acao === 'sem_alteracao' ? 'outline' : 'default'}>{evento.acao === 'novo' ? 'Novo' : evento.acao === 'atualizar' ? 'Atualizar' : evento.acao === 'cancelar' ? 'Cancelar' : evento.acao === 'conflito' ? 'Conflito local' : 'Sem alteração'}</Badge>
+              </label>
+            })}
+          </div>
+          <Button type="button" variant="ghost" size="sm" className="mt-3" onClick={() => { setPreviaCalendar([]); setSelecionadosCalendar(new Set()) }}>Fechar prévia</Button>
+        </section>
+      ) : null}
 
       {visualizacao === 'semana' ? <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-7">
         {semana.dias.map((dia) => {

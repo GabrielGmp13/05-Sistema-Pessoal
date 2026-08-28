@@ -19,7 +19,7 @@ import BibliotecaBanner from './BibliotecaBanner';
 import BibliotecaCard from './BibliotecaCard';
 import BuscaMetadados from './BuscaMetadados';
 import { sb, getUserId } from '@/lib/supabase';
-import { getGeneros, getMapaGenerosDosItens, salvarGenerosDoItem, seedGenerosSeNecessario } from '@/lib/generos';
+import { garantirGenerosExternos, getGeneros, getMapaGenerosDosItens, salvarGenerosDoItem, seedGenerosSeNecessario } from '@/lib/generos';
 import type { Genero } from '@/lib/generos';
 import { ordenarItensBiblioteca, type OrdenacaoBiblioteca } from '@/lib/biblioteca-ordenacao';
 import styles from './BibliotecaSection.module.css';
@@ -325,7 +325,8 @@ export default function LivrosSection({
               <BuscaMetadados
                 fonte="google_livros"
                 termo={form.titulo}
-                onSelect={(resultado) => setForm((atual) => ({
+                onSelect={(resultado) => {
+                  setForm((atual) => ({
                   ...atual,
                   titulo: resultado.titulo,
                   autor: resultado.autor ?? atual.autor,
@@ -337,7 +338,15 @@ export default function LivrosSection({
                   idioma: resultado.idioma ?? atual.idioma,
                   ano_publicacao: resultado.ano ?? atual.ano_publicacao,
                   link_oficial: resultado.linkOficial ?? atual.link_oficial,
-                }))}
+                  }));
+                  if (resultado.generos?.length) void (async () => {
+                    const userId = await getUserId();
+                    if (!userId) return;
+                    const resolvidos = await garantirGenerosExternos(sb, userId, resultado.generos!);
+                    setGeneros(resolvidos.generos);
+                    setGenerosSelecionados(resolvidos.selecionados);
+                  })();
+                }}
               />
               <CapaUploadField arquivo={arquivoCapa} onChange={setArquivoCapa} />
               <CapaUploadField arquivo={arquivoBanner} onChange={setArquivoBanner} label="Banner do dispositivo" />

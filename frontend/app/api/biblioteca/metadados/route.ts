@@ -185,7 +185,11 @@ async function buscarTmdb(q: string, serie: boolean): Promise<ResultadoMetadados
       last_air_date?: string | null;
       created_by?: Array<{ name?: string }>;
       production_companies?: Array<{ name?: string }>;
-      credits?: { crew?: Array<{ name?: string; job?: string }> };
+      genres?: Array<{ name?: string }>;
+      credits?: {
+        crew?: Array<{ name?: string; job?: string }>;
+        cast?: Array<{ name?: string; character?: string; profile_path?: string | null; order?: number }>;
+      };
       content_ratings?: { results?: Array<{ iso_3166_1?: string; rating?: string }> };
       release_dates?: { results?: Array<{ iso_3166_1?: string; release_dates?: Array<{ certification?: string }> }> };
     };
@@ -227,6 +231,12 @@ async function buscarTmdb(q: string, serie: boolean): Promise<ResultadoMetadados
       roteirista: roteiristas.join(', ') || undefined,
       produtores: produtores.join(', ') || undefined,
       estudio: detalhe?.production_companies?.map((empresa) => empresa.name).filter(Boolean).join(', ') || undefined,
+      generos: detalhe?.genres?.map((genero) => genero.name).filter((nome): nome is string => Boolean(nome)) ?? [],
+      elenco: (detalhe?.credits?.cast ?? []).slice(0, 12).flatMap((pessoa) => pessoa.name ? [{
+        ator: pessoa.name,
+        personagem: pessoa.character || undefined,
+        fotoUrl: pessoa.profile_path ? `https://image.tmdb.org/t/p/w185${pessoa.profile_path}` : undefined,
+      }] : []),
       classificacaoIndicativa: classificacao || undefined,
       anoTermino: serie ? ano(detalhe?.last_air_date) : undefined,
     };
@@ -250,6 +260,7 @@ async function buscarGoogleLivros(q: string): Promise<ResultadoMetadados[]> {
         infoLink?: string;
         imageLinks?: { thumbnail?: string };
         industryIdentifiers?: Array<{ type?: string; identifier?: string }>;
+        categories?: string[];
       };
     }>;
   };
@@ -272,6 +283,7 @@ async function buscarGoogleLivros(q: string): Promise<ResultadoMetadados[]> {
       idioma: info.language,
       paginas: info.pageCount,
       linkOficial: info.infoLink,
+      generos: info.categories ?? [],
     };
   });
 }
@@ -298,6 +310,10 @@ async function buscarJikan(q: string, manga: boolean): Promise<ResultadoMetadado
       licensors?: Array<{ name?: string }>;
       serializations?: Array<{ name?: string }>;
       duration?: string | null;
+      genres?: Array<{ name?: string }>;
+      explicit_genres?: Array<{ name?: string }>;
+      themes?: Array<{ name?: string }>;
+      demographics?: Array<{ name?: string }>;
     }>;
   };
 
@@ -314,7 +330,8 @@ async function buscarJikan(q: string, manga: boolean): Promise<ResultadoMetadado
     identificadorExterno: String(item.mal_id),
     produtores: manga ? undefined : item.producers?.map((valor) => valor.name).filter(Boolean).join(', ') || undefined,
     estudio: manga ? undefined : item.studios?.map((valor) => valor.name).filter(Boolean).join(', ') || undefined,
-    distribuidora: manga ? undefined : item.licensors?.map((valor) => valor.name).filter(Boolean).join(', ') || undefined,
+    generos: [...(item.genres ?? []), ...(item.explicit_genres ?? []), ...(item.themes ?? []), ...(item.demographics ?? [])]
+      .map((valor) => valor.name).filter((nome): nome is string => Boolean(nome)),
     classificacaoIndicativa: manga ? undefined : item.rating ?? undefined,
     editora: manga ? item.serializations?.map((valor) => valor.name).filter(Boolean).join(', ') || undefined : undefined,
     anoTermino: ano(item.aired?.to ?? item.published?.to),

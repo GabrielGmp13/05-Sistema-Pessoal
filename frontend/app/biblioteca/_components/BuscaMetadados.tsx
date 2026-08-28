@@ -25,12 +25,7 @@ export default function BuscaMetadados({ fonte, termo, onSelect }: BuscaMetadado
 
   useEffect(() => {
     const consulta = termo.trim();
-    if (consulta.length < 2) {
-      setResultados([]);
-      setMensagem('');
-      setBuscando(false);
-      return;
-    }
+    if (consulta.length < 2) return;
 
     if (termosSelecionados.current.delete(consulta)) return;
 
@@ -57,11 +52,14 @@ export default function BuscaMetadados({ fonte, termo, onSelect }: BuscaMetadado
     };
   }, [fonte, termo]);
 
+  const consultaValida = termo.trim().length >= 2;
+
   return (
     <div className={styles.buscaMetadados} aria-live="polite">
-      {buscando && <p className={styles.buscaMetadadosMensagem}>Buscando sugestões...</p>}
-      {mensagem && <p className={styles.buscaMetadadosMensagem}>{mensagem}</p>}
-      {resultados.length > 0 && (
+      {!consultaValida ? <p className={styles.buscaMetadadosMensagem}>Digite ao menos 2 caracteres para buscar no {FONTE_LABEL[fonte]}. O cadastro manual continua disponível.</p> : null}
+      {consultaValida && buscando && <p className={styles.buscaMetadadosMensagem}>Buscando sugestões...</p>}
+      {consultaValida && mensagem && <p className={styles.buscaMetadadosMensagem}>{mensagem}</p>}
+      {consultaValida && resultados.length > 0 && (
         <div className={styles.resultadosMetadados} aria-label="Sugestões de preenchimento automático">
           <p className={styles.fonteMetadados}>Resultados de {FONTE_LABEL[fonte]} · selecione para preencher e revise antes de salvar</p>
           {resultados.map((resultado) => (

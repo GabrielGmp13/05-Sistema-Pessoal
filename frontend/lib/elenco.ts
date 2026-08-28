@@ -91,3 +91,29 @@ export async function atualizarElenco(
 export async function apagarElenco(uuid: string): Promise<boolean> {
   return await softDelete('elenco', uuid);
 }
+
+export async function importarElencoMetadados(
+  tipoObra: Extract<TipoObraElenco, 'filme' | 'serie'>,
+  obraUuid: string,
+  itens: Array<{ ator: string; personagem?: string; fotoUrl?: string }>,
+): Promise<boolean> {
+  const userId = await getUserId();
+  if (!userId || itens.length === 0) return Boolean(userId);
+  const atuais = await listarElenco(tipoObra, obraUuid);
+  if (atuais === null) return false;
+  const chaves = new Set(atuais.map((item) => `${item.ator?.trim().toLocaleLowerCase('pt-BR')}\u0000${item.personagem?.trim().toLocaleLowerCase('pt-BR')}`));
+  const novos = itens.slice(0, 12).filter((item) => {
+    const chave = `${item.ator.trim().toLocaleLowerCase('pt-BR')}\u0000${item.personagem?.trim().toLocaleLowerCase('pt-BR')}`;
+    if (chaves.has(chave)) return false;
+    chaves.add(chave);
+    return true;
+  });
+  if (novos.length === 0) return true;
+  const { error } = await sb.from('elenco').insert(novos.map((item, indice) => ({
+    uuid: crypto.randomUUID(), user_id: userId, tipo_obra: tipoObra, obra_uuid: obraUuid,
+    ator: item.ator, personagem: item.personagem || null, foto_url: item.fotoUrl || null,
+    ordem: atuais.length + indice,
+  })));
+  if (error) sbErr(error, 'importarElencoMetadados');
+  return !error;
+}

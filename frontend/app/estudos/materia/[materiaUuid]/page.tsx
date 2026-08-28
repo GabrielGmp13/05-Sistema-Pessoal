@@ -1,9 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { useParams, useSearchParams } from 'next/navigation'
 import {
   Award,
+  Brain,
   BookCheck,
   CalendarDays,
   CheckCircle2,
@@ -25,6 +27,7 @@ import { StudyRecords } from '@/components/study/study-records'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -500,6 +503,13 @@ export default function MateriaDetalhePage() {
                             : 'Ainda sem revisão'}
                         </MonoLabel>
                         <div className="ml-auto flex items-center gap-1">
+                          <Link
+                            href={`/revisao?materia=${materiaUuid}&conteudo=${c.uuid}`}
+                            className={buttonVariants({ variant: 'ghost', size: 'sm' })}
+                            title="Importar ou revisar flashcards deste conteúdo"
+                          >
+                            <Brain className="size-3.5" /> Flashcards
+                          </Link>
                           {BOTOES_QUALIDADE.map((b) => (
                             <Button
                               key={b.label}

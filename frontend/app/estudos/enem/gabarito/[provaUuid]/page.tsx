@@ -107,27 +107,35 @@ export default function GabaritoProvaPage() {
     setProva(p)
     setMateriasEnem(m ?? [])
     setGabarito(g ?? [])
+    setLetrasSelecionadas(Object.fromEntries(
+      (g ?? []).filter((questao) => questao.numero && questao.letra_marcada)
+        .map((questao) => [questao.numero as number, questao.letra_marcada as Letra])
+    ))
     setRedacaoVinculada(redacao)
     setCarregando(false)
   }
 
   useEffect(() => {
-    if (provaUuid) carregar()
+    const timeoutId = window.setTimeout(() => { if (provaUuid) void carregar() }, 0)
+    return () => window.clearTimeout(timeoutId)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [provaUuid])
 
   useEffect(() => {
     if (!prova || !new URLSearchParams(window.location.search).has('modo')) return
     if (new URLSearchParams(window.location.search).get('modo') !== 'prova') return
-    const chave = `sistema-pessoal:enem-fim:${prova.uuid}`
-    const salvo = Number(localStorage.getItem(chave))
-    const duracaoMinutos = prova.tempo_minutos ?? (prova.tipo === 'enem_dia1' ? 330 : 300)
-    const fim = Number.isFinite(salvo) && salvo > 0 ? salvo : Date.now() + duracaoMinutos * 60_000
-    localStorage.setItem(chave, String(fim))
-    setFimProva(fim)
-    setModoProva(true)
-    setTentativaAutomatica(false)
-    setAgora(Date.now())
+    const timeoutId = window.setTimeout(() => {
+      const chave = `sistema-pessoal:enem-fim:${prova.uuid}`
+      const salvo = Number(localStorage.getItem(chave))
+      const duracaoMinutos = prova.tempo_minutos ?? (prova.tipo === 'enem_dia1' ? 330 : 300)
+      const fim = Number.isFinite(salvo) && salvo > 0 ? salvo : Date.now() + duracaoMinutos * 60_000
+      localStorage.setItem(chave, String(fim))
+      setFimProva(fim)
+      setModoProva(true)
+      setTentativaAutomatica(false)
+      setAgora(Date.now())
+    }, 0)
+    return () => window.clearTimeout(timeoutId)
   }, [prova])
 
   useEffect(() => {
@@ -156,7 +164,7 @@ export default function GabaritoProvaPage() {
   }, [correcoes])
 
   const numerosJaLancados = useMemo(() => new Set(gabarito.map((q) => q.numero)), [gabarito])
-  const faltaLancar = numerosJaLancados.size < 90
+  const faltaLancar = !prova?.feita || numerosJaLancados.size < 90
 
   const pendentesCorrecao = useMemo(
     () => gabarito.filter((q) => q.letra_correta === null),
@@ -183,10 +191,8 @@ export default function GabaritoProvaPage() {
     if (!prova) return false
     const respostas: RespostaLancamento[] = []
     for (let n = 1; n <= 90; n++) {
-      if (numerosJaLancados.has(n)) continue
       respostas.push({ numero: n, letra_marcada: letrasSelecionadas[n] ?? null })
     }
-    if (respostas.length === 0) return true
 
     setSalvandoLancamento(true)
     const salvo = await lancarRespostasGabarito(provaUuid, prova.data, respostas)
@@ -214,6 +220,13 @@ export default function GabaritoProvaPage() {
       setFinalizandoTempo(false)
       return
     }
+    const provaFinalizada = await atualizarProva(prova.uuid, { feita: true })
+    if (!provaFinalizada) {
+      setErro('As respostas foram salvas, mas a prova não pôde ser marcada como finalizada.')
+      setFinalizandoTempo(false)
+      return
+    }
+    setProva(provaFinalizada)
     localStorage.removeItem(`sistema-pessoal:enem-fim:${prova.uuid}`)
     setModoProva(false)
     setFimProva(null)
@@ -224,8 +237,11 @@ export default function GabaritoProvaPage() {
 
   useEffect(() => {
     if (modoProva && segundosRestantes === 0 && !tentativaAutomatica && !finalizandoTempo && !salvandoLancamento) {
-      setTentativaAutomatica(true)
-      void finalizarModoProva()
+      const timeoutId = window.setTimeout(() => {
+        setTentativaAutomatica(true)
+        void finalizarModoProva()
+      }, 0)
+      return () => window.clearTimeout(timeoutId)
     }
     // finalizarModoProva usa o estado atual do gabarito; a guarda evita execução duplicada.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -537,7 +553,7 @@ export default function GabaritoProvaPage() {
           <h2 className="text-base font-semibold">Lançar respostas</h2>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {blocos.map((bloco, iBloco) => {
-              const pendentesDoBloco = bloco.filter((n) => !numerosJaLancados.has(n))
+              const pendentesDoBloco = bloco.filter((n) => !numerosJaLancados.has(n) || !prova.feita)
               if (pendentesDoBloco.length === 0) return null
               return (
                 <Card key={iBloco} className="overflow-hidden">
@@ -546,7 +562,7 @@ export default function GabaritoProvaPage() {
                   </div>
                   <div className="divide-y divide-border">
                     {bloco.map((numero) => {
-                      const jaLancado = numerosJaLancados.has(numero)
+                      const jaLancado = numerosJaLancados.has(numero) && prova.feita
                       const areaLabel = areaEnemDoNumero(prova.tipo, numero)
                       const selecionada = letrasSelecionadas[numero]
                       return (

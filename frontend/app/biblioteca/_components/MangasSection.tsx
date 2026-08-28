@@ -19,7 +19,7 @@ import BibliotecaBanner from './BibliotecaBanner';
 import BibliotecaCard from './BibliotecaCard';
 import BuscaMetadados from './BuscaMetadados';
 import { sb, getUserId } from '@/lib/supabase';
-import { getGeneros, getMapaGenerosDosItens, salvarGenerosDoItem, seedGenerosSeNecessario } from '@/lib/generos';
+import { garantirGenerosExternos, getGeneros, getMapaGenerosDosItens, salvarGenerosDoItem, seedGenerosSeNecessario } from '@/lib/generos';
 import type { Genero } from '@/lib/generos';
 import { ordenarItensBiblioteca, type OrdenacaoBiblioteca } from '@/lib/biblioteca-ordenacao';
 import styles from './BibliotecaSection.module.css';
@@ -329,7 +329,8 @@ export default function MangasSection({
               <BuscaMetadados
                 fonte="jikan_manga"
                 termo={form.titulo}
-                onSelect={(resultado) => setForm((atual) => ({
+                onSelect={(resultado) => {
+                  setForm((atual) => ({
                   ...atual,
                   titulo: resultado.titulo,
                   titulo_traduzido: resultado.subtitulo ?? atual.titulo_traduzido,
@@ -341,7 +342,15 @@ export default function MangasSection({
                   editora: resultado.editora ?? atual.editora,
                   status_publicacao: resultado.statusPublicacao ?? atual.status_publicacao,
                   link_mal: resultado.linkOficial ?? atual.link_mal,
-                }))}
+                  }));
+                  if (resultado.generos?.length) void (async () => {
+                    const userId = await getUserId();
+                    if (!userId) return;
+                    const resolvidos = await garantirGenerosExternos(sb, userId, resultado.generos!);
+                    setGeneros(resolvidos.generos);
+                    setGenerosSelecionados(resolvidos.selecionados);
+                  })();
+                }}
               />
               <CapaUploadField arquivo={arquivoCapa} onChange={setArquivoCapa} />
               <CapaUploadField arquivo={arquivoBanner} onChange={setArquivoBanner} label="Banner do dispositivo" />

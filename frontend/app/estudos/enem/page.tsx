@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import {
   CalendarClock,
   ChevronRight,
@@ -15,7 +16,7 @@ import {
   AREA_ENEM_LABELS,
   ORDEM_AREAS_ENEM,
 } from '../../../lib/materias'
-import { listarProximasProvas, criarProva, Prova, TipoProva } from '../../../lib/provas'
+import { listarProvasEnem, listarTentativasEnem, criarProva, iniciarNovaTentativaEnem, Prova, TentativaProvaEnem, TipoProva } from '../../../lib/provas'
 import {
   BackLink,
   PageHeader,
@@ -43,23 +44,42 @@ function formatDate(iso: string) {
 }
 
 export default function EnemPage() {
+  const router = useRouter()
   const [materias, setMaterias] = useState<Materia[]>([])
   const [provas, setProvas] = useState<Prova[]>([])
+  const [tentativas, setTentativas] = useState<TentativaProvaEnem[]>([])
   const [novaProva, setNovaProva] = useState({ titulo: '', data: '', tipo: 'enem_dia1' as TipoProva })
   const [carregando, setCarregando] = useState(true)
+  const [refazendoUuid, setRefazendoUuid] = useState<string | null>(null)
+  const [erro, setErro] = useState('')
 
   async function carregar() {
-    const [m, p] = await Promise.all([
+    const [m, p, historico] = await Promise.all([
       listarTodasMateriasEnem(),
-      listarProximasProvas(),
+      listarProvasEnem(),
+      listarTentativasEnem(),
     ])
     setMaterias(m ?? [])
     setProvas((p ?? []).filter((pr) => pr.tipo === 'enem_dia1' || pr.tipo === 'enem_dia2'))
+    setTentativas(historico ?? [])
     setCarregando(false)
   }
 
+  async function refazerProva(prova: Prova) {
+    setRefazendoUuid(prova.uuid)
+    setErro('')
+    const pronta = await iniciarNovaTentativaEnem(prova.uuid)
+    if (!pronta) {
+      setErro('Não foi possível preparar uma nova tentativa sem perder o resultado anterior.')
+      setRefazendoUuid(null)
+      return
+    }
+    router.push(`/estudos/enem/gabarito/${prova.uuid}?modo=prova`)
+  }
+
   useEffect(() => {
-    carregar()
+    const timeoutId = window.setTimeout(() => void carregar(), 0)
+    return () => window.clearTimeout(timeoutId)
   }, [])
 
   async function handleCriarProva() {
@@ -90,6 +110,8 @@ export default function EnemPage() {
         title="ENEM"
         description="Áreas de conhecimento fixas do exame. Entre em uma área pra ver suas matérias, ou gerencie a prova oficial aqui embaixo."
       />
+
+      {erro ? <p role="alert" className="mt-5 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">{erro}</p> : null}
 
       {carregando ? (
         <LoadingState />
@@ -124,7 +146,9 @@ export default function EnemPage() {
                 />
               ) : (
                 <Card className="divide-y divide-border overflow-hidden">
-                  {provas.map((p) => (
+                  {provas.map((p) => {
+                    const anteriores = tentativas.filter((tentativa) => tentativa.prova_uuid === p.uuid)
+                    return (
                     <div
                       key={p.uuid}
                       className="flex flex-wrap items-center gap-3 px-5 py-4"
@@ -137,15 +161,13 @@ export default function EnemPage() {
                           {p.titulo || 'Prova ENEM'}
                         </span>
                         <MonoLabel>{formatDate(p.data)}</MonoLabel>
+                        {anteriores.length > 0 ? <span className="mt-1 text-xs text-muted-foreground">{anteriores.length} tentativa{anteriores.length === 1 ? '' : 's'} arquivada{anteriores.length === 1 ? '' : 's'} · última: {anteriores[0].resultado.acertos ?? 0} acertos, {anteriores[0].resultado.em_branco ?? 0} em branco</span> : null}
                       </div>
                       <div className="ml-auto flex flex-wrap gap-2">
-                      <Link
+                      {p.feita ? <Button type="button" size="sm" disabled={refazendoUuid === p.uuid} onClick={() => void refazerProva(p)}><Timer className="size-3.5" />{refazendoUuid === p.uuid ? 'Preparando...' : 'Refazer prova'}</Button> : <Link
                         href={`/estudos/enem/gabarito/${p.uuid}?modo=prova`}
                         className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-2.5 py-1.5 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/80 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/30"
-                      >
-                        <Timer className="size-3.5" />
-                        Fazer prova
-                      </Link>
+                      ><Timer className="size-3.5" />Fazer prova</Link>}
                       <Link
                         href={`/estudos/enem/gabarito/${p.uuid}`}
                         className={cn(
@@ -157,7 +179,7 @@ export default function EnemPage() {
                       </Link>
                       </div>
                     </div>
-                  ))}
+                  )})}
                 </Card>
               )}
 

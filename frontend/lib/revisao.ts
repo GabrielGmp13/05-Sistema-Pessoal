@@ -12,6 +12,8 @@ export interface CardRevisao {
   resposta: string | null
   modulo: string | null
   referencia_uuid: string | null
+  materia_uuid: string | null
+  conteudo_uuid: string | null
   ef: number
   repeticoes: number
   intervalo_dias: number
@@ -35,6 +37,8 @@ export interface CardManualInput {
 
 export interface CardImportacaoInput extends CardManualInput {
   modulo: string | null
+  materia_uuid?: string | null
+  conteudo_uuid?: string | null
 }
 
 export interface ResultadoImportacaoCards {
@@ -231,6 +235,8 @@ export async function criarCardManual(
       resposta: input.resposta,
       modulo: 'manual',
       referencia_uuid: null,
+      materia_uuid: null,
+      conteudo_uuid: null,
       arquivado: false,
       updated_at: now(),
     })
@@ -277,6 +283,8 @@ export async function importarCardsRevisao(
     resposta: card.resposta,
     modulo: card.modulo?.trim() || 'manual',
     referencia_uuid: null,
+    materia_uuid: card.materia_uuid ?? null,
+    conteudo_uuid: card.conteudo_uuid ?? null,
     arquivado: false,
     updated_at: atualizadoEm,
   })))
@@ -353,6 +361,14 @@ export async function avaliarCardPorConteudo(
 
   // Conteúdo ainda não tem card de revisão — cria um na primeira avaliação.
   if (!conteudo.revisao_uuid) {
+    const { data: vinculo } = await sb
+      .from('conteudos_materias')
+      .select('materia_uuid')
+      .eq('conteudo_uuid', conteudoUuid)
+      .eq('user_id', userId)
+      .eq('deleted', false)
+      .limit(1)
+      .maybeSingle()
     const novoCardUuid = crypto.randomUUID()
     const { error: erroCriacao } = await sb.from('revisao_espacada').insert({
       uuid: novoCardUuid,
@@ -361,6 +377,8 @@ export async function avaliarCardPorConteudo(
       resposta: '',
       modulo: 'estudos',
       referencia_uuid: conteudo.uuid,
+      materia_uuid: vinculo?.materia_uuid ?? null,
+      conteudo_uuid: conteudo.uuid,
       updated_at: now(),
     })
 

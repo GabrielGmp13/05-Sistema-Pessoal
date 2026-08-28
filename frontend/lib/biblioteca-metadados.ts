@@ -29,7 +29,8 @@ export interface ResultadoMetadados {
   roteirista?: string;
   produtores?: string;
   estudio?: string;
-  distribuidora?: string;
+  generos?: string[];
+  elenco?: Array<{ ator: string; personagem?: string; fotoUrl?: string }>;
   classificacaoIndicativa?: string;
   anoTermino?: number;
   statusPublicacao?: 'em_andamento' | 'concluida' | 'hiato' | 'cancelada';

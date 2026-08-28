@@ -49,12 +49,20 @@ export interface RegistroShapeResumo {
   updated_at: string
 }
 
+export interface PlanejamentoSemanalTreino {
+  uuid: string
+  treino_uuid: string
+  dia_semana: number
+  updated_at: string
+}
+
 export interface DadosDashboardTreino {
   treinos: Treino[]
   sessoes: SessaoTreinoResumo[]
   sessoesSemana: SessaoTreinoResumo[]
   sessoesConcluidas: Array<Pick<SessaoTreinoResumo, 'treino_uuid'>>
   registrosShape: RegistroShapeResumo[]
+  planejamentoSemanal: PlanejamentoSemanalTreino[]
   totalExercicios: number
 }
 
@@ -235,6 +243,26 @@ export async function getTodosTreinos(sb: SB, userId: string): Promise<Treino[]>
   return data ?? []
 }
 
+export async function salvarPlanejamentoSemanal(
+  sb: SB, userId: string, treinoUuid: string, diaSemana: number, uuid?: string,
+): Promise<{ error: string | null }> {
+  const valores = { treino_uuid: treinoUuid, dia_semana: diaSemana, updated_at: new Date().toISOString() }
+  const consulta = uuid
+    ? sb.from('treinos_planejamento_semanal').update(valores).eq('uuid', uuid).eq('user_id', userId)
+    : sb.from('treinos_planejamento_semanal').insert({ ...valores, uuid: crypto.randomUUID(), user_id: userId })
+  const { error } = await consulta
+  if (error) console.error('[salvarPlanejamentoSemanal]', error)
+  return { error: error?.message ?? null }
+}
+
+export async function removerPlanejamentoSemanal(sb: SB, userId: string, uuid: string): Promise<boolean> {
+  const { error } = await sb.from('treinos_planejamento_semanal')
+    .update({ deleted: true, updated_at: new Date().toISOString() })
+    .eq('uuid', uuid).eq('user_id', userId)
+  if (error) console.error('[removerPlanejamentoSemanal]', error)
+  return !error
+}
+
 export async function getDadosDashboardTreino(
   sb: SB,
   userId: string,
@@ -243,17 +271,18 @@ export async function getDadosDashboardTreino(
   inicioSemana.setDate(inicioSemana.getDate() - ((inicioSemana.getDay() + 6) % 7))
   inicioSemana.setHours(0, 0, 0, 0)
 
-  const [treinos, sessoes, sessoesSemana, sessoesConcluidas, shape, forca, cardio] = await Promise.all([
+  const [treinos, sessoes, sessoesSemana, sessoesConcluidas, shape, planejamento, forca, cardio] = await Promise.all([
     sb.from('treinos').select('uuid, nome, descricao, modulo_uuid').eq('user_id', userId).eq('deleted', false).order('nome'),
     sb.from('sessoes_treino').select('uuid, treino_uuid, data_inicio, data_fim').eq('user_id', userId).eq('deleted', false).order('data_inicio', { ascending: false }).limit(12),
     sb.from('sessoes_treino').select('uuid, treino_uuid, data_inicio, data_fim').eq('user_id', userId).eq('deleted', false).gte('data_inicio', inicioSemana.toISOString()).order('data_inicio', { ascending: false }),
     sb.from('sessoes_treino').select('treino_uuid').eq('user_id', userId).eq('deleted', false).not('data_fim', 'is', null),
     sb.from('shape').select('uuid, data, peso, foto_path, updated_at').eq('user_id', userId).eq('deleted', false).order('data', { ascending: false }).order('updated_at', { ascending: false }).limit(6),
+    sb.from('treinos_planejamento_semanal').select('uuid, treino_uuid, dia_semana, updated_at').eq('user_id', userId).eq('deleted', false).order('dia_semana'),
     sb.from('exercicios_forca').select('uuid').eq('user_id', userId).eq('deleted', false),
     sb.from('exercicios_cardio').select('uuid').eq('user_id', userId).eq('deleted', false),
   ])
 
-  const erro = treinos.error ?? sessoes.error ?? sessoesSemana.error ?? sessoesConcluidas.error ?? shape.error ?? forca.error ?? cardio.error
+  const erro = treinos.error ?? sessoes.error ?? sessoesSemana.error ?? sessoesConcluidas.error ?? shape.error ?? planejamento.error ?? forca.error ?? cardio.error
   if (erro) {
     console.error('[getDadosDashboardTreino]', erro)
     return null
@@ -265,6 +294,7 @@ export async function getDadosDashboardTreino(
     sessoesSemana: sessoesSemana.data ?? [],
     sessoesConcluidas: sessoesConcluidas.data ?? [],
     registrosShape: shape.data ?? [],
+    planejamentoSemanal: planejamento.data ?? [],
     totalExercicios: (forca.data?.length ?? 0) + (cardio.data?.length ?? 0),
   }
 }

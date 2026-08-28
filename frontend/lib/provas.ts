@@ -25,6 +25,14 @@ export interface Prova {
 export type ProvaInput = Omit<Prova, 'uuid' | 'user_id' | 'arquivo_path' | 'updated_at' | 'deleted'> & { arquivo_path?: string | null };
 export type ProvaUpdate = Partial<ProvaInput>;
 
+export interface TentativaProvaEnem {
+  uuid: string;
+  prova_uuid: string;
+  numero: number;
+  resultado: { respondidas?: number; em_branco?: number; acertos?: number; erros?: number };
+  finalizada_em: string;
+}
+
 /** Busca uma prova específica por uuid — usado pelo gabarito pra saber o dia (tipo). */
 export async function buscarProva(uuid: string): Promise<Prova | null> {
   const userId = await getUserId();
@@ -77,6 +85,67 @@ export async function listarProvasPorMateria(materiaUuid: string): Promise<Prova
 
   if (error) return sbErr(error, 'listarProvasPorMateria');
   return data;
+}
+
+/** Lista provas ENEM futuras e concluídas para permitir consultar/refazer. */
+export async function listarProvasEnem(): Promise<Prova[] | null> {
+  const userId = await getUserId();
+  if (!userId) return null;
+  const { data, error } = await sb.from('provas').select('*')
+    .eq('user_id', userId).eq('deleted', false)
+    .in('tipo', ['enem_dia1', 'enem_dia2'])
+    .order('data', { ascending: false });
+  if (error) return sbErr(error, 'listarProvasEnem');
+  return data;
+}
+
+export async function listarTentativasEnem(): Promise<TentativaProvaEnem[] | null> {
+  const userId = await getUserId();
+  if (!userId) return null;
+  const { data, error } = await sb.from('provas_tentativas')
+    .select('uuid,prova_uuid,numero,resultado,finalizada_em')
+    .eq('user_id', userId).eq('deleted', false)
+    .order('finalizada_em', { ascending: false });
+  if (error) return sbErr(error, 'listarTentativasEnem');
+  return data as TentativaProvaEnem[];
+}
+
+/**
+ * Arquiva a tentativa atual e limpa apenas as respostas marcadas. Gabarito
+ * correto, matéria, conteúdo, dificuldade, motivo, redação e prova permanecem.
+ */
+export async function iniciarNovaTentativaEnem(provaUuid: string): Promise<boolean> {
+  const userId = await getUserId();
+  if (!userId) return false;
+  const [{ data: prova, error: erroProva }, { data: questoes, error: erroQuestoes }, { data: tentativas, error: erroTentativas }] = await Promise.all([
+    sb.from('provas').select('*').eq('uuid', provaUuid).eq('user_id', userId).eq('deleted', false).single(),
+    sb.from('questoes_individuais').select('numero,letra_marcada,letra_correta,materia_uuid,conteudo_uuid,acertou,motivo_erro,dificuldade').eq('prova_uuid', provaUuid).eq('user_id', userId).eq('deleted', false).order('numero'),
+    sb.from('provas_tentativas').select('numero').eq('prova_uuid', provaUuid).eq('user_id', userId).eq('deleted', false).order('numero', { ascending: false }).limit(1),
+  ]);
+  if (erroProva || erroQuestoes || erroTentativas || !prova) {
+    sbErr(erroProva ?? erroQuestoes ?? erroTentativas, 'iniciarNovaTentativaEnem:carregar');
+    return false;
+  }
+  const numero = Number(tentativas?.[0]?.numero ?? 0) + 1;
+  const respondidas = (questoes ?? []).filter((questao) => questao.letra_marcada).length;
+  const acertos = (questoes ?? []).filter((questao) => questao.acertou === true).length;
+  const { error: erroHistorico } = await sb.from('provas_tentativas').insert({
+    uuid: crypto.randomUUID(), user_id: userId, prova_uuid: provaUuid, numero,
+    resultado: { respondidas, em_branco: Math.max(0, 90 - respondidas), acertos, erros: Math.max(0, respondidas - acertos), questoes: questoes ?? [] },
+  });
+  if (erroHistorico) {
+    sbErr(erroHistorico, 'iniciarNovaTentativaEnem:historico');
+    return false;
+  }
+  const { error: erroReset } = await sb.from('questoes_individuais')
+    .update({ letra_marcada: null, acertou: null, updated_at: new Date().toISOString() })
+    .eq('prova_uuid', provaUuid).eq('user_id', userId).eq('deleted', false);
+  if (erroReset) {
+    sbErr(erroReset, 'iniciarNovaTentativaEnem:respostas');
+    return false;
+  }
+  const atualizada = await atualizarProva(provaUuid, { feita: false });
+  return Boolean(atualizada);
 }
 
 /** Provas de um intervalo para a Agenda. A linha continua pertencendo a Estudos. */

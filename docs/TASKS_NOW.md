@@ -5,11 +5,32 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 ---
 
 ## Status geral
-**Fase atual:** v2.1 — correção local do painel múltiplo de insights do Hub; homologação manual continua obrigatória. A v1 está aposentada (DEC-031) e `frontend/` é o único frontend ativo.
-**Bloqueio:** validações, commit/deploy e teste visual autenticado do novo painel.
-**Banco:** produção e cadeia local estão alinhadas até `20260822000300_biblioteca_playlists.sql`; reset/17 scripts SQL, dry-run exclusivo, aplicação, pós-check e dry-run final vazio passaram.
+**Fase atual:** v2.1 — lote consolidado de correções da homologação tecnicamente concluído; homologação manual continua obrigatória. A v1 está aposentada (DEC-031) e `frontend/` é o único frontend ativo.
+**Bloqueio:** nenhum bloqueio técnico ou migration pendente; resta validar os fluxos reais no deploy.
+**Banco:** produção e cadeia local estão alinhadas até `20260827000100_homologacao_fluxos_pessoais.sql` (68 tabelas).
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** concluir validações, publicar o painel múltiplo e homologar Hub, playlists e checklist de beta no deploy.
+**Próxima ação:** executar os retestes de `docs/teste.md` no deploy, com as contas e APIs reais.
+
+## Correções consolidadas da homologação — lote de 2026-08-27
+
+- [x] Hub limitado a revisões, provas e obras realmente em andamento, com
+      alternância interna de itens da mesma família a cada cinco segundos.
+- [x] Biblioteca removeu distribuidora/orçamento/bilheteria da experiência,
+      ampliou gêneros, busca e importação de gêneros/créditos por API.
+- [x] ENEM permite refazer sem apagar gabarito correto ou estrutura e arquiva
+      cada tentativa anterior; Dia 1 mantém a redação vinculada.
+- [x] Revisão vincula importações a matéria/conteúdo, filtra a fila e oferece
+      sessão focada com mouse/touch e SM-2.
+- [x] Agenda ganhou importação Calendar com prévia, deduplicação, atualização,
+      cancelamento lógico, timezone Recife e proteção de conflito local.
+- [x] Treino ganhou planejamento semanal próprio, editável e sem duplicar na
+      Agenda; Lugares ganhou busca Google Places server-side e coordenadas internas.
+- [x] Testes Node incluem regras puras de Calendar; `docs/teste.md` foi reduzido
+      aos retestes que dependem de produção, conta real, upload ou avaliação visual.
+- [x] Reset local, 18 scripts SQL, typecheck, 28 testes Node, build de 41 rotas,
+      lint direcionado, diff check e auditorias de segurança passaram.
+- [x] Dry-run remoto listou exclusivamente `20260827000100_homologacao_fluxos_pessoais.sql`.
+- [x] Migration aplicada; pós-check confirmou histórico, schema, FKs, RLS e GRANTs, e o dry-run final ficou vazio.
 
 ## Playlists, Hub e beta privado — lote local de 2026-08-22
 

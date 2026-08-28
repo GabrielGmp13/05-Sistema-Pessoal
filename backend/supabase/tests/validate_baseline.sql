@@ -15,39 +15,39 @@ $$;
 
 -- Estrutura do schema public.
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 66
+  (SELECT count(*) = 68
    FROM pg_class c
    JOIN pg_namespace n ON n.oid = c.relnamespace
    WHERE n.nspname = 'public' AND c.relkind = 'r'),
-  'public deve conter exatamente 66 tabelas'
-);
-
-SELECT pg_temp.assert_true(
-  (SELECT count(*) = 66
-   FROM pg_constraint c
-   JOIN pg_namespace n ON n.oid = c.connamespace
-   WHERE n.nspname = 'public' AND c.contype = 'p'),
-  'public deve conter exatamente 66 PKs'
-);
-
-SELECT pg_temp.assert_true(
-  (SELECT count(*) = 125
-   FROM pg_constraint c
-   JOIN pg_namespace n ON n.oid = c.connamespace
-   WHERE n.nspname = 'public' AND c.contype = 'f'),
-  'public deve conter exatamente 125 FKs'
-);
-
-SELECT pg_temp.assert_true(
-  (SELECT count(*) = 83
-   FROM pg_constraint c
-   JOIN pg_namespace n ON n.oid = c.connamespace
-   WHERE n.nspname = 'public' AND c.contype = 'c'),
-  'public deve conter exatamente 83 checks'
+  'public deve conter exatamente 68 tabelas'
 );
 
 SELECT pg_temp.assert_true(
   (SELECT count(*) = 68
+   FROM pg_constraint c
+   JOIN pg_namespace n ON n.oid = c.connamespace
+   WHERE n.nspname = 'public' AND c.contype = 'p'),
+  'public deve conter exatamente 68 PKs'
+);
+
+SELECT pg_temp.assert_true(
+  (SELECT count(*) = 131
+   FROM pg_constraint c
+   JOIN pg_namespace n ON n.oid = c.connamespace
+   WHERE n.nspname = 'public' AND c.contype = 'f'),
+  'public deve conter exatamente 131 FKs'
+);
+
+SELECT pg_temp.assert_true(
+  (SELECT count(*) = 86
+   FROM pg_constraint c
+   JOIN pg_namespace n ON n.oid = c.connamespace
+   WHERE n.nspname = 'public' AND c.contype = 'c'),
+  'public deve conter exatamente 86 checks'
+);
+
+SELECT pg_temp.assert_true(
+  (SELECT count(*) = 73
    FROM pg_index i
    JOIN pg_class t ON t.oid = i.indrelid
    JOIN pg_namespace n ON n.oid = t.relnamespace
@@ -55,21 +55,21 @@ SELECT pg_temp.assert_true(
    WHERE n.nspname = 'public'
      AND t.relkind = 'r'
      AND con.oid IS NULL),
-  'public deve conter exatamente 68 indices explicitos'
+  'public deve conter exatamente 73 indices explicitos'
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 66
+  (SELECT count(*) = 68
    FROM pg_class c
    JOIN pg_namespace n ON n.oid = c.relnamespace
    WHERE n.nspname = 'public'
      AND c.relkind = 'r'
      AND c.relrowsecurity),
-  'as 66 tabelas public devem ter RLS habilitada'
+  'as 68 tabelas public devem ter RLS habilitada'
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 46
+  (SELECT count(*) = 48
    FROM pg_policies
    WHERE schemaname = 'public'
      AND policyname = 'user_own_data'
@@ -77,7 +77,7 @@ SELECT pg_temp.assert_true(
      AND roles = ARRAY['public']::name[]
      AND qual = '(auth.uid() = user_id)'
      AND with_check IS NULL),
-  'as 46 policies historicas user_own_data devem preservar definicao equivalente'
+  'as 48 policies user_own_data devem preservar definicao equivalente'
 );
 
 -- Defaults e constraints reconciliados pelo hardening v2.1.

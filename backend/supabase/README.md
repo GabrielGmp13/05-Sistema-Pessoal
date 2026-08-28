@@ -62,6 +62,13 @@ O ponto inicial oficial da cadeia CLI é:
     `youtube`/`calendar`, migra a conexão legada para Calendar e troca a PK por
     `(user_id, servico)`; aplicada após reset, 16 testes SQL, dry-run exclusivo,
     pós-check de schema/segurança e dry-run final vazio.
+21. `20260822000300_biblioteca_playlists.sql` — cria agrupamentos persistentes
+    de playlists e itens da Biblioteca; aplicada após reset, 17 scripts SQL,
+    dry-run exclusivo e pós-check final vazio.
+22. `20260827000100_homologacao_fluxos_pessoais.sql` — migration aplicada
+    para histórico ENEM, vínculo acadêmico de flashcards, planejamento semanal
+    de Treino e identificação Google Places; aplicada após reset/18 scripts e
+    dry-run remoto exclusivo, com pós-check e dry-run final vazio.
 
 As três baselines foram validadas por dois replays locais completos e por
 comparação com produção. Em 2026-08-08, `migration repair --status applied`
