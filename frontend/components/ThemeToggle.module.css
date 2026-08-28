@@ -69,11 +69,14 @@
 }
 
 :global(.theme-toggle--rail) .painel {
+  position: fixed;
   top: auto;
   right: auto;
-  bottom: calc(100% + 0.65rem);
-  left: 0;
-  width: min(31rem, calc(100vw - var(--app-rail-width, 20.25rem) - 2rem));
+  bottom: 4rem;
+  left: 0.85rem;
+  width: min(31rem, calc(100vw - 1.7rem));
+  max-height: calc(100dvh - 5rem);
+  overflow-y: auto;
 }
 
 .cabecalho {

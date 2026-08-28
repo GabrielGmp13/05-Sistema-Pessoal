@@ -4,13 +4,15 @@
   top: 0;
   bottom: 0;
   left: 0;
-  display: grid;
-  grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+  display: flex;
+  flex-direction: column;
   width: var(--app-rail-width, 20.25rem);
   height: 100dvh;
   min-width: 0;
   gap: 0.72rem;
-  overflow: visible;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   border-right: 1px solid color-mix(in oklch, var(--glass-border) 70%, transparent);
   padding: 0.85rem;
   scrollbar-width: thin;
@@ -30,6 +32,7 @@
 
 .card {
   position: relative;
+  flex: 0 0 auto;
   overflow: hidden;
   border: 1px solid color-mix(in oklch, var(--glass-border) 78%, transparent);
   border-radius: 16px;
@@ -194,8 +197,6 @@
   gap: 0.55rem;
   margin: 0.75rem 0 0;
   padding: 0;
-  overflow: auto;
-  padding-right: 0.12rem;
   list-style: none;
 }
 
@@ -220,6 +221,15 @@
 .vazio {
   color: var(--texto-secundario);
   font-size: 0.68rem;
+}
+
+.aviso {
+  position: relative;
+  z-index: 1;
+  margin: 0.65rem 0 0;
+  color: var(--warning, var(--texto-secundario));
+  font-size: 0.7rem;
+  line-height: 1.4;
 }
 
 .linhaTempo strong {
@@ -272,6 +282,11 @@
 .controlesCard {
   overflow: visible;
   padding: 0;
+}
+
+.controlesCard {
+  /* Mantém o painel fixo de atmosfera relativo à viewport, não a este card. */
+  backdrop-filter: none;
 }
 
 .capaPerfil {
@@ -399,6 +414,14 @@
 .perfilAcoes > a:hover {
   border-color: var(--accent-foreground);
   color: var(--text);
+}
+
+.atualizar:focus-visible,
+.linkAgenda:focus-visible,
+.perfilAcoes > a:focus-visible,
+.sair:focus-visible {
+  outline: 2px solid var(--accent-foreground);
+  outline-offset: 2px;
 }
 
 .sair:disabled {

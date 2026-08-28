@@ -99,6 +99,7 @@ export function RightRail() {
   const [eventos, setEventos] = useState<EventoAgenda[]>([])
   const [provas, setProvas] = useState<Prova[]>([])
   const [perfil, setPerfil] = useState<PerfilResumo | null>(null)
+  const [aviso, setAviso] = useState<string | null>(null)
 
   const hoje = dataLocalIso(agora)
   const fimLinhaTempo = dataLocalSomandoDias(14, agora)
@@ -116,28 +117,52 @@ export function RightRail() {
 
   async function carregar() {
     setCarregando(true)
-    const [eventosData, provasData, session] = await Promise.all([
-      listarEventosAgenda(hoje, fimLinhaTempo),
-      listarProvasNoPeriodo(hoje, fimLinhaTempo),
-      getSession(),
-    ])
+    setAviso(null)
 
-    const meta = session?.user.user_metadata
-    const [avatarSigned, backgroundSigned] = await Promise.all([
-      meta?.avatar_path ? getSignedUrl('midias-pessoais', meta.avatar_path) : null,
-      meta?.background_path ? getSignedUrl('midias-pessoais', meta.background_path) : null,
-    ])
+    try {
+      const [eventosResultado, provasResultado, sessaoResultado] = await Promise.allSettled([
+        listarEventosAgenda(hoje, fimLinhaTempo),
+        listarProvasNoPeriodo(hoje, fimLinhaTempo),
+        getSession(),
+      ])
+      const eventosData = eventosResultado.status === 'fulfilled' ? eventosResultado.value : null
+      const provasData = provasResultado.status === 'fulfilled' ? provasResultado.value : null
+      const session = sessaoResultado.status === 'fulfilled' ? sessaoResultado.value : null
 
-    setEventos(eventosData ?? [])
-    setProvas(provasData ?? [])
-    setPerfil(session ? {
-      nome: meta?.full_name || meta?.name || session.user.email?.split('@')[0] || 'Usuário',
-      email: session.user.email ?? null,
-      descricao: meta?.subtitle || null,
-      avatarUrl: avatarSigned || meta?.avatar_url || null,
-      backgroundUrl: backgroundSigned || meta?.background_url || null,
-    } : null)
-    setCarregando(false)
+      setEventos(eventosData ?? [])
+      setProvas(provasData ?? [])
+
+      if (session) {
+        const meta = session.user.user_metadata
+        const [avatarResultado, backgroundResultado] = await Promise.allSettled([
+          meta?.avatar_path ? getSignedUrl('midias-pessoais', meta.avatar_path) : null,
+          meta?.background_path ? getSignedUrl('midias-pessoais', meta.background_path) : null,
+        ])
+        const avatarSigned = avatarResultado.status === 'fulfilled' ? avatarResultado.value : null
+        const backgroundSigned = backgroundResultado.status === 'fulfilled' ? backgroundResultado.value : null
+
+        setPerfil({
+          nome: meta?.full_name || meta?.name || session.user.email?.split('@')[0] || 'Usuário',
+          email: session.user.email ?? null,
+          descricao: meta?.subtitle || null,
+          avatarUrl: avatarSigned || meta?.avatar_url || null,
+          backgroundUrl: backgroundSigned || meta?.background_url || null,
+        })
+      } else {
+        setPerfil(null)
+      }
+
+      const houveFalha = eventosResultado.status === 'rejected'
+        || provasResultado.status === 'rejected'
+        || sessaoResultado.status === 'rejected'
+        || (Boolean(session) && (eventosData === null || provasData === null))
+      if (houveFalha) setAviso('Parte dos dados não pôde ser carregada. Tente atualizar.')
+    } catch (error) {
+      console.error('Erro inesperado ao carregar a coluna pessoal:', error)
+      setAviso('Não foi possível atualizar a coluna pessoal.')
+    } finally {
+      setCarregando(false)
+    }
   }
 
   useEffect(() => {
@@ -255,7 +280,9 @@ export function RightRail() {
             <span className="sr-only">Atualizar agenda lateral</span>
           </button>
         </div>
-        {linhaTempo.length ? (
+        {carregando && !linhaTempo.length ? (
+          <p className={styles.vazio} role="status">Carregando próximos itens...</p>
+        ) : linhaTempo.length ? (
           <ol className={styles.linhaTempo}>
             {linhaTempo.map((item) => (
               <li key={item.id}>
@@ -272,6 +299,7 @@ export function RightRail() {
         <Link href="/agenda" className={styles.linkAgenda}>
           Abrir agenda <ExternalLink aria-hidden="true" />
         </Link>
+        {aviso ? <p className={styles.aviso} role="status">{aviso}</p> : null}
       </section>
 
       <section className={cn(styles.card, styles.controlesCard)} aria-label="Perfil e tema">
