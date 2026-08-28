@@ -26,8 +26,8 @@ export function AppChrome({ children }: { children: ReactNode }) {
   return (
     <div className={styles.shell}>
       <div className={styles.ambiente} aria-hidden="true" />
-      <div className={styles.conteudo}>{children}</div>
       <RightRail />
+      <div className={styles.conteudo}>{children}</div>
     </div>
   )
 }

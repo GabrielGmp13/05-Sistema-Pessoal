@@ -2,11 +2,11 @@
   position: relative;
   isolation: isolate;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 18.5rem;
-  gap: clamp(0.85rem, 1.35vw, 1.4rem);
-  width: min(100%, 100rem);
+  grid-template-columns: 18.75rem minmax(0, 1fr);
+  gap: clamp(1rem, 1.5vw, 1.75rem);
+  width: min(100%, 104rem);
   margin: 0 auto;
-  padding: 0 clamp(0.75rem, 1.4vw, 1.25rem) 1.5rem;
+  padding: 0 clamp(0.85rem, 1.4vw, 1.4rem) 1.5rem;
 }
 
 .ambiente {
@@ -15,10 +15,10 @@
   inset: 3.5rem 0 0;
   pointer-events: none;
   background:
-    radial-gradient(34rem 20rem at 82% 8%, color-mix(in oklch, var(--season-accent, var(--accent)) 10%, transparent), transparent 70%),
-    radial-gradient(28rem 22rem at 10% 26%, color-mix(in oklch, var(--ambient-color, var(--ambient-fallback)) 8%, transparent), transparent 72%),
-    linear-gradient(135deg, color-mix(in oklch, var(--page-glow) 72%, transparent), transparent 32%),
-    linear-gradient(180deg, transparent, color-mix(in oklch, var(--page-depth) 32%, transparent));
+    radial-gradient(38rem 24rem at 8% 5%, color-mix(in oklch, var(--season-accent, var(--accent)) 16%, transparent), transparent 72%),
+    radial-gradient(36rem 28rem at 78% 10%, color-mix(in oklch, var(--ambient-color, var(--ambient-fallback)) 9%, transparent), transparent 70%),
+    linear-gradient(120deg, color-mix(in oklch, var(--page-glow) 78%, transparent), transparent 34%),
+    linear-gradient(180deg, color-mix(in oklch, var(--surface) 18%, transparent), color-mix(in oklch, var(--page-depth) 38%, transparent));
   opacity: 0.92;
 }
 
@@ -28,6 +28,11 @@
 
 .conteudo :global(main) {
   background-color: transparent;
+}
+
+.conteudo :global(main > .mx-auto) {
+  margin-left: 0;
+  margin-right: auto;
 }
 
 @media (max-width: 1480px) {

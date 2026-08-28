@@ -13,8 +13,8 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 
 ## Enquadramento visual global — 2026-08-27
 
-- [x] Rotas autenticadas comuns ganharam o `AppChrome`, com conteúdo principal
-      à esquerda e coluna lateral à direita em telas largas.
+- [x] Rotas autenticadas comuns ganharam o `AppChrome`, com coluna pessoal à
+      esquerda e conteúdo principal adaptado à direita em telas largas.
 - [x] A coluna lateral exibe relógio digital, calendário mensal, linha temporal
       de Agenda/provas e bloco de perfil/tema, todos adaptados aos tokens de
       iluminação e estação.

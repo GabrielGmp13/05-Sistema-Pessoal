@@ -80,10 +80,10 @@ Todas self-hosted em `.woff2` — nunca carregar de CDN externo.
 - Grids de duas colunas em desktop colapsam para uma coluna abaixo de `680px`–`720px`.
 - Grids de cards usam `repeat(auto-fill, minmax(...))` quando o número de itens é variável.
 - Breakpoint extra para telas muito pequenas: `360px`–`400px`.
-- Rotas autenticadas comuns passam pelo `AppChrome`: conteúdo principal à
-  esquerda e coluna lateral à direita em telas largas. A coluna recolhe abaixo
-  de `1480px` para preservar módulos densos e mobile. Telas de foco, como
-  prova ENEM e sessão de Revisão, continuam em largura total.
+- Rotas autenticadas comuns passam pelo `AppChrome`: coluna pessoal fixa à
+  esquerda e conteúdo principal à direita em telas largas. A coluna recolhe
+  abaixo de `1480px` para preservar módulos densos e mobile. Telas de foco,
+  como prova ENEM e sessão de Revisão, continuam em largura total.
 - A coluna lateral usa a mesma atmosfera do site, não um tema independente:
   relógio digital, calendário do mês, linha temporal da Agenda/provas e resumo
   de perfil/tema herdam `--glass-background`, `--page-glow`,

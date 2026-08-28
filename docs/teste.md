@@ -107,8 +107,8 @@ Codex.
 
 ## Responsividade, acessibilidade e beta privado
 
-- [ ] Em tela larga, confirmar que as páginas comuns exibem conteúdo à esquerda
-      e coluna lateral à direita sem comprimir textos, cards ou menus.
+- [ ] Em tela larga, confirmar que as páginas comuns exibem coluna pessoal à
+      esquerda e conteúdo principal à direita sem comprimir textos, cards ou menus.
 - [ ] Conferir relógio digital, calendário mensal, marcação de dias com eventos
       e linha temporal de Agenda/provas nos temas Sol, Nublado, Estrelado e Lua.
 - [ ] Confirmar que login, prova ENEM e sessão focada de Revisão não exibem a
