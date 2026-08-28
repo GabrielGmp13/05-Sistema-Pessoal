@@ -21,11 +21,13 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 ## v2 expandida (Next.js) — v2.1 pronta tecnicamente; homologação manual pendente
 
 - **2026-08-27 (enquadramento visual global)** — Rotas autenticadas comuns
-  ganharam um `AppChrome` com coluna pessoal atmosférica à esquerda e conteúdo
-  principal adaptado à direita em telas largas. A coluna reúne relógio digital, calendário do
-  mês, linha temporal de Agenda/provas e perfil/tema, recolhendo abaixo de
-  `1480px`; login, prova ENEM e sessão focada de Revisão preservam largura
-  total. Sem migration, dependência ou alteração de dados.
+  ganharam um `AppChrome` com coluna pessoal atmosférica fixa à esquerda, do
+  topo ao rodapé, e conteúdo principal adaptado à direita em telas largas. A
+  coluna reúne perfil, relógio digital, calendário do mês, linha temporal de
+  Agenda/provas, tema e logout; a barra superior ficou dedicada à navegação.
+  A área principal recebeu gradientes e profundidade por tema/estação,
+  recolhendo abaixo de `1480px`; login, prova ENEM e sessão focada de Revisão
+  preservam largura total. Sem migration, dependência ou alteração de dados.
 
 - **2026-08-27 (lote consolidado de homologação)** — Hub passou a exibir
   somente revisões, provas e Biblioteca em andamento; Biblioteca ampliou gêneros

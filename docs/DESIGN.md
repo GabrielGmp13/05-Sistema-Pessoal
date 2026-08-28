@@ -81,13 +81,18 @@ Todas self-hosted em `.woff2` — nunca carregar de CDN externo.
 - Grids de cards usam `repeat(auto-fill, minmax(...))` quando o número de itens é variável.
 - Breakpoint extra para telas muito pequenas: `360px`–`400px`.
 - Rotas autenticadas comuns passam pelo `AppChrome`: coluna pessoal fixa à
-  esquerda e conteúdo principal à direita em telas largas. A coluna recolhe
-  abaixo de `1480px` para preservar módulos densos e mobile. Telas de foco,
-  como prova ENEM e sessão de Revisão, continuam em largura total.
+  esquerda, do topo ao rodapé da janela, e conteúdo principal à direita em
+  telas largas. A coluna recolhe abaixo de `1480px` para preservar módulos
+  densos e mobile. Telas de foco, como prova ENEM e sessão de Revisão,
+  continuam em largura total.
 - A coluna lateral usa a mesma atmosfera do site, não um tema independente:
   relógio digital, calendário do mês, linha temporal da Agenda/provas e resumo
   de perfil/tema herdam `--glass-background`, `--page-glow`,
   `--season-accent` e demais tokens globais.
+- Em telas largas, o topo global mostra somente a navegação principal dentro da
+  área de conteúdo. Perfil, controle de atmosfera e saída ficam na coluna
+  pessoal. A área principal recebe gradientes discretos e linhas luminosas por
+  tema/estação, criando profundidade sem reescrever os cards de cada módulo.
 
 ### Layout por módulo com sidebar interna (DEC-032)
 Módulos com navegação por categoria (Biblioteca; possivelmente Treino/Estudos
@@ -158,26 +163,17 @@ navegação por categoria.
 3. **Lista de itens** — ícone + label + badge; as contagens reais de todas as categorias são carregadas na entrada do módulo
 4. **Rodapé** — ação secundária opcional e botão primário (ex: "+ Adicionar obra")
 
-Em todas as rotas autenticadas, o perfil fica no início da navegação global
-(DEC-049): avatar maior, nome ao lado e `user_metadata.background_url`
-degradando logo depois do nome até a barra. “Início” é o acesso à Home; a área
-de perfil não duplica esse link. Perfil, links e logout ocupam uma única grade
-e compartilham altura, alinhamento central e a borda inferior do `header`; o
-efeito principal do perfil fica contido na célula esquerda. A imagem real de
-background nunca é aplicada ao restante da barra: ela desaparece dentro do
-perfil por máscara. Fora dele, a continuidade visual usa apenas manchas e
-fragmentos abstratos em forma de pétalas/lascas. Com um background de perfil
-configurado, ele ganha apenas um pouco mais de presença dentro do próprio
-bloco. Fora dele, as partículas usam a cor ambiente configurável ou o fallback
-da iluminação. A densidade é maior perto do perfil, mas continua
-visível atrás da navegação sem cobrir os links. A sidebar da Biblioteca não
-duplica perfil. O próprio perfil abre um dropdown de resumo, com hover e foco
-visíveis; a ação “Editar perfil” dentro dele é o acesso a `/configuracoes`, sem
-engrenagem ou atalho separado. O dropdown mostra somente metadados reais
-disponíveis e fecha por clique externo, Escape ou troca de rota. Fragmentos pequenos e
-orgânicos nunca repetem ou esticam `background_url`, formam faixa sólida ou
-prejudicam a leitura. Os links ficam sobre uma cápsula translúcida com blur,
-borda e item ativo próprio, separando conteúdo e decoração.
+Em telas largas, perfil, atmosfera e logout vivem na coluna pessoal esquerda
+(DEC-049 evoluída): avatar, nome e `user_metadata.background_url` aparecem no
+bloco de perfil da coluna, junto dos controles de editar, tema e sair. “Início”
+continua sendo o acesso à Home. A imagem real de background nunca é aplicada ao
+restante da barra superior: a continuidade visual fora do perfil usa apenas
+manchas e fragmentos abstratos em forma de pétalas/lascas. As partículas usam a
+cor ambiente configurável ou o fallback da iluminação, sem cobrir os links. A
+sidebar da Biblioteca não duplica perfil. Fragmentos pequenos e orgânicos nunca
+repetem ou esticam `background_url`, formam faixa sólida ou prejudicam a
+leitura. Os links ficam sobre uma cápsula translúcida com blur, borda e item
+ativo próprio, separando conteúdo e decoração.
 Com Idiomas, Histórico e Programação, a faixa mantém rolagem horizontal abaixo
 de 960px; entre 960px e 1319px usa ícones com `aria-label`/tooltip, e a partir
 de 1320px volta a exibir os rótulos completos para evitar colisão com perfil e

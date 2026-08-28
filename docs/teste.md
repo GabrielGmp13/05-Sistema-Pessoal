@@ -108,7 +108,12 @@ Codex.
 ## Responsividade, acessibilidade e beta privado
 
 - [ ] Em tela larga, confirmar que as páginas comuns exibem coluna pessoal à
-      esquerda e conteúdo principal à direita sem comprimir textos, cards ou menus.
+      esquerda do topo ao rodapé e conteúdo principal à direita sem comprimir
+      textos, cards ou menus.
+- [ ] Confirmar que a barra superior autenticada mostra somente navegação, sem
+      perfil, seletor de tema ou botão sair.
+- [ ] Confirmar que editar perfil, trocar atmosfera e sair funcionam pela coluna
+      pessoal.
 - [ ] Conferir relógio digital, calendário mensal, marcação de dias com eventos
       e linha temporal de Agenda/provas nos temas Sol, Nublado, Estrelado e Lua.
 - [ ] Confirmar que login, prova ENEM e sessão focada de Revisão não exibem a

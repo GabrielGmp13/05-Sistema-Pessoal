@@ -68,6 +68,14 @@
   backdrop-filter: blur(18px) saturate(1.12);
 }
 
+:global(.theme-toggle--rail) .painel {
+  top: auto;
+  right: auto;
+  bottom: calc(100% + 0.65rem);
+  left: 0;
+  width: min(31rem, calc(100vw - var(--app-rail-width, 20.25rem) - 2rem));
+}
+
 .cabecalho {
   display: flex;
   align-items: baseline;

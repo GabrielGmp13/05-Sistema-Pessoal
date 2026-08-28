@@ -3,6 +3,7 @@
   position: sticky;
   z-index: 40;
   top: 0;
+  margin-left: var(--app-rail-width, 20.25rem);
   border-bottom: 1px solid color-mix(in oklch, var(--border) 78%, transparent);
   background:
     radial-gradient(34rem 6rem at 8% 55%, var(--season-glow), transparent 72%),
@@ -11,6 +12,10 @@
   box-shadow: 0 1px 0 color-mix(in oklch, var(--surface) 28%, transparent), 0 8px 26px color-mix(in oklch, var(--foreground) 5%, transparent);
   backdrop-filter: blur(18px) saturate(1.08);
   overflow: visible;
+}
+
+.headerTelaInteira {
+  margin-left: 0;
 }
 
 :global(html[data-decoracao='primavera']) .header {
@@ -37,18 +42,15 @@
   position: relative;
   isolation: isolate;
   display: grid;
-  grid-template-areas:
-    'perfil acoes'
-    'navegacao navegacao';
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: 'navegacao';
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
-  column-gap: 0.75rem;
-  row-gap: 0.25rem;
+  justify-items: center;
   width: 100%;
-  min-height: 6rem;
-  max-width: 90rem;
+  min-height: 3.5rem;
+  max-width: 86rem;
   margin: 0 auto;
-  padding: 0.5rem 1rem;
+  padding: 0 1rem;
 }
 
 .perfilRastro {
@@ -630,10 +632,9 @@
 
 @media (min-width: 960px) {
   .barra {
-    grid-template-areas: 'perfil navegacao acoes';
-    grid-template-columns: minmax(8.5rem, 9.5rem) minmax(0, 1fr) auto;
+    grid-template-areas: 'navegacao';
+    grid-template-columns: minmax(0, 1fr);
     min-height: 3.5rem;
-    column-gap: 0.25rem;
     padding: 0 0.75rem;
   }
 
@@ -678,6 +679,10 @@
 }
 
 @media (max-width: 959px) {
+  .header {
+    margin-left: 0;
+  }
+
   .perfilRastro {
     width: min(32rem, 78%);
     opacity: 0.72;
@@ -697,6 +702,12 @@
 
   .perfilPainel {
     top: calc(100% + 0.5rem);
+  }
+}
+
+@media (max-width: 1480px) {
+  .header {
+    margin-left: 0;
   }
 }
 
@@ -720,8 +731,7 @@
 
 @media (min-width: 1320px) {
   .barra {
-    grid-template-columns: minmax(9rem, 10.5rem) minmax(0, 1fr) auto;
-    column-gap: 0.5rem;
+    grid-template-columns: minmax(0, 1fr);
     padding: 0 1rem;
   }
 

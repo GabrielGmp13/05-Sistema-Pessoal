@@ -1,13 +1,14 @@
 'use client'
 
 import Link from 'next/link'
-import { CalendarDays, ExternalLink, ImageIcon, Loader2, RefreshCw, UserRound } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { CalendarDays, ExternalLink, ImageIcon, Loader2, LogOut, RefreshCw, UserRound } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 
 import { listarEventosAgenda, type EventoAgenda } from '@/lib/agenda'
 import { dataLocalIso, dataLocalSomandoDias } from '@/lib/date'
 import { listarProvasNoPeriodo, type Prova } from '@/lib/provas'
-import { getSignedUrl, getSession } from '@/lib/supabase'
+import { getSignedUrl, getSession, sb } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
 import { ThemeToggle } from './ThemeToggle'
 import styles from './RightRail.module.css'
@@ -91,8 +92,10 @@ function criarItemProva(prova: Prova): ItemLinhaTempo {
 }
 
 export function RightRail() {
+  const router = useRouter()
   const [agora, setAgora] = useState(() => new Date())
   const [carregando, setCarregando] = useState(true)
+  const [saindo, setSaindo] = useState(false)
   const [eventos, setEventos] = useState<EventoAgenda[]>([])
   const [provas, setProvas] = useState<Prova[]>([])
   const [perfil, setPerfil] = useState<PerfilResumo | null>(null)
@@ -156,8 +159,52 @@ export function RightRail() {
 
   const inicial = perfil?.nome.charAt(0).toUpperCase() || 'U'
 
+  async function handleLogout() {
+    if (saindo) return
+    setSaindo(true)
+    try {
+      const { error } = await sb.auth.signOut()
+      if (error) {
+        console.error('Erro ao sair:', error)
+        return
+      }
+      router.replace('/login')
+      router.refresh()
+    } finally {
+      setSaindo(false)
+    }
+  }
+
   return (
     <aside className={styles.rail} aria-label="Painel lateral pessoal">
+      <section className={cn(styles.card, styles.identidadeCard)} aria-label="Perfil">
+        <div className={styles.capaPerfil}>
+          {perfil?.backgroundUrl ? (
+            <span aria-hidden="true" style={{ backgroundImage: `url(${perfil.backgroundUrl})` }} />
+          ) : (
+            <ImageIcon aria-hidden="true" />
+          )}
+        </div>
+        <div className={styles.perfilCorpo}>
+          <span className={styles.avatar}>
+            {perfil?.avatarUrl ? (
+              <span
+                aria-hidden="true"
+                className={styles.avatarImagem}
+                style={{ backgroundImage: `url(${perfil.avatarUrl})` }}
+              />
+            ) : (
+              <span aria-hidden="true">{inicial}</span>
+            )}
+          </span>
+          <div>
+            <span className={styles.eyebrow}>Perfil</span>
+            <h2>{perfil?.nome || 'Usuário'}</h2>
+            {perfil?.descricao ? <p>{perfil.descricao}</p> : perfil?.email ? <p>{perfil.email}</p> : null}
+          </div>
+        </div>
+      </section>
+
       <section className={cn(styles.card, styles.relogioCard)} aria-label="Relógio">
         <span className={styles.eyebrow}>Agora</span>
         <strong className={styles.hora}>
@@ -227,38 +274,17 @@ export function RightRail() {
         </Link>
       </section>
 
-      <section className={cn(styles.card, styles.perfilCard)} aria-label="Perfil e tema">
-        <div className={styles.capaPerfil}>
-          {perfil?.backgroundUrl ? (
-            <span aria-hidden="true" style={{ backgroundImage: `url(${perfil.backgroundUrl})` }} />
-          ) : (
-            <ImageIcon aria-hidden="true" />
-          )}
-        </div>
-        <div className={styles.perfilCorpo}>
-          <span className={styles.avatar}>
-            {perfil?.avatarUrl ? (
-              <span
-                aria-hidden="true"
-                className={styles.avatarImagem}
-                style={{ backgroundImage: `url(${perfil.avatarUrl})` }}
-              />
-            ) : (
-              <span aria-hidden="true">{inicial}</span>
-            )}
-          </span>
-          <div>
-            <span className={styles.eyebrow}>Perfil</span>
-            <h2>{perfil?.nome || 'Usuário'}</h2>
-            {perfil?.descricao ? <p>{perfil.descricao}</p> : perfil?.email ? <p>{perfil.email}</p> : null}
-          </div>
-        </div>
+      <section className={cn(styles.card, styles.controlesCard)} aria-label="Perfil e tema">
         <div className={styles.perfilAcoes}>
           <Link href="/configuracoes">
             <UserRound aria-hidden="true" />
             Editar
           </Link>
-          <ThemeToggle className={styles.temaRail} />
+          <ThemeToggle className={cn(styles.temaRail, 'theme-toggle--rail')} />
+          <button type="button" onClick={handleLogout} disabled={saindo} className={styles.sair}>
+            <LogOut aria-hidden="true" />
+            <span>{saindo ? 'Saindo...' : 'Sair'}</span>
+          </button>
         </div>
       </section>
     </aside>

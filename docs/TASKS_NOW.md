@@ -13,11 +13,16 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 
 ## Enquadramento visual global — 2026-08-27
 
-- [x] Rotas autenticadas comuns ganharam o `AppChrome`, com coluna pessoal à
-      esquerda e conteúdo principal adaptado à direita em telas largas.
+- [x] Rotas autenticadas comuns ganharam o `AppChrome`, com coluna pessoal
+      fixa à esquerda do topo ao rodapé e conteúdo principal adaptado à direita
+      em telas largas.
 - [x] A coluna lateral exibe relógio digital, calendário mensal, linha temporal
       de Agenda/provas e bloco de perfil/tema, todos adaptados aos tokens de
       iluminação e estação.
+- [x] Topo autenticado ficou dedicado à navegação; perfil, tema e logout foram
+      removidos da barra superior e concentrados na coluna pessoal.
+- [x] Área principal recebeu camadas de gradiente e profundidade por
+      tema/estação sem alterar os fluxos dos módulos.
 - [x] Telas de foco (`/login`, prova ENEM e sessão focada de Revisão) ficam sem
       coluna lateral para preservar concentração e largura útil.
 - [x] A coluna recolhe abaixo de 1480 px para não comprimir Biblioteca, Agenda
