@@ -1,6 +1,10 @@
 # AI_CONTEXT.md
 
 > **Leia este arquivo primeiro.** Ele é o ponto de entrada do projeto — um bootstrap para qualquer agente de IA (ou o próprio Gabriel) retomar o trabalho sem precisar reler tudo. Detalhes técnicos vivem nos documentos linkados abaixo, não aqui.
+>
+> **Retomada rápida:** depois deste arquivo, leia `docs/NEXT_ENGINEER_HANDOFF.md`
+> para obter o estado operacional curto, o bug ativo conhecido e o prompt de
+> continuidade sem carregar toda a documentação longa.
 
 ---
 

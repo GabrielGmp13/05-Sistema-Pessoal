@@ -6,10 +6,21 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 
 ## Status geral
 **Fase atual:** v2.1 — lote consolidado de correções da homologação tecnicamente concluído; homologação manual continua obrigatória. A v1 está aposentada (DEC-031) e `frontend/` é o único frontend ativo.
-**Bloqueio:** nenhum bloqueio técnico ou migration pendente; resta validar os fluxos reais no deploy.
+**Bloqueio:** nenhum bloqueio técnico ou migration pendente; resta validar os
+fluxos reais e a correção da coluna pessoal no deploy.
 **Banco:** produção e cadeia local estão alinhadas até `20260827000100_homologacao_fluxos_pessoais.sql` (68 tabelas).
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** executar os retestes de `docs/teste.md` no deploy, com as contas e APIs reais.
+**Próxima ação:** executar os retestes de `docs/teste.md` no deploy com as contas
+e APIs reais, incluindo altura reduzida e seletor de atmosfera na coluna pessoal.
+
+## Handoff curto para novo chat
+
+- [x] Criado `docs/NEXT_ENGINEER_HANDOFF.md` como ponto curto de retomada para
+      o próximo chat/engenheiro.
+- [x] Corrigir a coluna pessoal esquerda: scroll vertical, seletor de tema sem
+      corte, foco/teclado, estados vazios e falhas parciais.
+- [x] Após a correção, atualizar `docs/teste.md` para manter somente os testes
+      manuais que Gabriel ainda precisa fazer.
 
 ## Enquadramento visual global — 2026-08-27
 
@@ -29,6 +40,8 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
       ou mobile.
 - [ ] Validar visualmente no deploy autenticado em telas largas, temas e
       estações representativas.
+- [ ] Validar coluna esquerda quando o conteúdo excede a altura da janela:
+      scroll do mouse, teclado, seletor de tema aberto e botões inferiores.
 
 ## Correções consolidadas da homologação — lote de 2026-08-27
 

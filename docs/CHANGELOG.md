@@ -20,6 +20,20 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — v2.1 pronta tecnicamente; homologação manual pendente
 
+- **2026-08-28 (scroll e robustez da coluna pessoal)** — A coluna lateral fixa
+  passou a rolar verticalmente como uma área única em janelas baixas, sem scroll
+  concorrente na linha temporal e sem cortar o seletor de atmosfera. O
+  carregamento agora preserva resultados parciais, sempre encerra o estado de
+  espera, informa falhas e expõe foco visível nos controles. Typecheck e build
+  aprovados; validação visual no deploy permanece em `docs/teste.md`.
+
+- **2026-08-28 (handoff curto para continuidade)** — Criado
+  `docs/NEXT_ENGINEER_HANDOFF.md` como resumo operacional para novos chats de
+  engenharia, com estado atual, bug ativo da coluna esquerda, regras de
+  validação e prompt de continuidade. `AI_CONTEXT.md`, `TASKS_NOW.md` e
+  `teste.md` passaram a apontar para esse caminho curto sem remover histórico
+  útil dos documentos longos.
+
 - **2026-08-27 (enquadramento visual global)** — Rotas autenticadas comuns
   ganharam um `AppChrome` com coluna pessoal atmosférica fixa à esquerda, do
   topo ao rodapé, e conteúdo principal adaptado à direita em telas largas. A

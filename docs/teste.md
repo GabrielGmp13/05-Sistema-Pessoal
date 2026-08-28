@@ -110,6 +110,9 @@ Codex.
 - [ ] Em tela larga, confirmar que as páginas comuns exibem coluna pessoal à
       esquerda do topo ao rodapé e conteúdo principal à direita sem comprimir
       textos, cards ou menus.
+- [ ] Reduzir a altura da janela ou aumentar temporariamente o zoom e confirmar
+      que a coluna pessoal esquerda rola com o mouse/trackpad sem cortar relógio,
+      calendário, linha temporal, perfil, tema ou sair.
 - [ ] Confirmar que a barra superior autenticada mostra somente navegação, sem
       perfil, seletor de tema ou botão sair.
 - [ ] Confirmar que editar perfil, trocar atmosfera e sair funcionam pela coluna
