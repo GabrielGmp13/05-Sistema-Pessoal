@@ -1,0 +1,49 @@
+.shell {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 18.5rem;
+  gap: clamp(0.85rem, 1.35vw, 1.4rem);
+  width: min(100%, 100rem);
+  margin: 0 auto;
+  padding: 0 clamp(0.75rem, 1.4vw, 1.25rem) 1.5rem;
+}
+
+.ambiente {
+  position: fixed;
+  z-index: -1;
+  inset: 3.5rem 0 0;
+  pointer-events: none;
+  background:
+    radial-gradient(34rem 20rem at 82% 8%, color-mix(in oklch, var(--season-accent, var(--accent)) 10%, transparent), transparent 70%),
+    radial-gradient(28rem 22rem at 10% 26%, color-mix(in oklch, var(--ambient-color, var(--ambient-fallback)) 8%, transparent), transparent 72%),
+    linear-gradient(135deg, color-mix(in oklch, var(--page-glow) 72%, transparent), transparent 32%),
+    linear-gradient(180deg, transparent, color-mix(in oklch, var(--page-depth) 32%, transparent));
+  opacity: 0.92;
+}
+
+.conteudo {
+  min-width: 0;
+}
+
+.conteudo :global(main) {
+  background-color: transparent;
+}
+
+@media (max-width: 1480px) {
+  .shell {
+    display: block;
+    width: 100%;
+    padding: 0;
+  }
+
+  .ambiente {
+    opacity: 0.7;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambiente {
+    background-attachment: initial;
+  }
+}

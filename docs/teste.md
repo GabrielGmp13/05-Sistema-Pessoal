@@ -107,6 +107,16 @@ Codex.
 
 ## Responsividade, acessibilidade e beta privado
 
+- [ ] Em tela larga, confirmar que as páginas comuns exibem conteúdo à esquerda
+      e coluna lateral à direita sem comprimir textos, cards ou menus.
+- [ ] Conferir relógio digital, calendário mensal, marcação de dias com eventos
+      e linha temporal de Agenda/provas nos temas Sol, Nublado, Estrelado e Lua.
+- [ ] Confirmar que login, prova ENEM e sessão focada de Revisão não exibem a
+      coluna lateral.
+- [ ] Em notebook estreito/mobile, confirmar que a coluna lateral recolhe e que
+      nenhuma página ganha rolagem horizontal por causa dela.
+- [ ] No bloco inferior da coluna, testar acesso a Configurações e troca de
+      atmosfera sem conflito com o seletor do topo.
 - [ ] Nas páginas alteradas, navegar apenas por teclado e confirmar foco visível,
       fechamento de modais e ausência de armadilhas de foco.
 - [ ] Conferir que cards, prévias, selects e botões não vazam horizontalmente em

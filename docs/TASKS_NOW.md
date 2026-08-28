@@ -11,6 +11,20 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
 **Próxima ação:** executar os retestes de `docs/teste.md` no deploy, com as contas e APIs reais.
 
+## Enquadramento visual global — 2026-08-27
+
+- [x] Rotas autenticadas comuns ganharam o `AppChrome`, com conteúdo principal
+      à esquerda e coluna lateral à direita em telas largas.
+- [x] A coluna lateral exibe relógio digital, calendário mensal, linha temporal
+      de Agenda/provas e bloco de perfil/tema, todos adaptados aos tokens de
+      iluminação e estação.
+- [x] Telas de foco (`/login`, prova ENEM e sessão focada de Revisão) ficam sem
+      coluna lateral para preservar concentração e largura útil.
+- [x] A coluna recolhe abaixo de 1480 px para não comprimir Biblioteca, Agenda
+      ou mobile.
+- [ ] Validar visualmente no deploy autenticado em telas largas, temas e
+      estações representativas.
+
 ## Correções consolidadas da homologação — lote de 2026-08-27
 
 - [x] Hub limitado a revisões, provas e obras realmente em andamento, com

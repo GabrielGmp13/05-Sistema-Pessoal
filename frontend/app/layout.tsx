@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
+import { AppChrome } from '@/components/AppChrome';
 import { GlobalNav } from '@/components/GlobalNav';
 
 export const metadata: Metadata = {
@@ -48,7 +49,7 @@ export default function RootLayout({
       <body>
         <ThemeProvider>
           <GlobalNav />
-          {children}
+          <AppChrome>{children}</AppChrome>
         </ThemeProvider>
       </body>
     </html>
