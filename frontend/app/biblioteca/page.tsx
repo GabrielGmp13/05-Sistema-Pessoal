@@ -187,7 +187,7 @@ export default function BibliotecaPage() {
   }
 
   return (
-    <>
+    <div className={layoutStyles.catalogo}>
       <div className={layoutStyles.sidebarWrapper}>
         <Sidebar
           itens={CATEGORIAS.map((c) => ({
@@ -208,6 +208,6 @@ export default function BibliotecaPage() {
       <div className={layoutStyles.contentWrapper}>
         {renderSection()}
       </div>
-    </>
+    </div>
   );
 }
