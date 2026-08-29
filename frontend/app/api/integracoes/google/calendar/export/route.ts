@@ -67,3 +67,41 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ erro: error instanceof Error ? error.message : 'Não foi possível exportar o compromisso.' }, { status: 502 })
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  const user = await getApiUser()
+  if (!user) return NextResponse.json({ erro: 'Não autenticado.' }, { status: 401 })
+  if (!googleConfigured()) return NextResponse.json({ erro: 'Configure Google OAuth no servidor.' }, { status: 503 })
+  const body = await request.json().catch(() => null) as { agendaUuid?: unknown } | null
+  const agendaUuid = typeof body?.agendaUuid === 'string' ? body.agendaUuid : ''
+  if (!/^[A-Za-z0-9_-]{8,100}$/.test(agendaUuid)) return NextResponse.json({ erro: 'Compromisso inválido.' }, { status: 400 })
+
+  try {
+    const admin = getServiceSupabase()
+    const { data: event, error } = await admin.from('agenda')
+      .select('uuid,google_calendar_event_id')
+      .eq('uuid', agendaUuid)
+      .eq('user_id', user.id)
+      .single()
+    if (error || !event) return NextResponse.json({ erro: 'Compromisso não encontrado.' }, { status: 404 })
+
+    if (event.google_calendar_event_id) {
+      await googleApi<void>(
+        user.id,
+        'calendar',
+        `https://www.googleapis.com/calendar/v3/calendars/primary/events/${encodeURIComponent(event.google_calendar_event_id)}`,
+        { method: 'DELETE' },
+      )
+    }
+
+    const sincronizadoEm = new Date().toISOString()
+    const { error: updateError } = await admin.from('agenda').update({
+      google_calendar_synced_at: sincronizadoEm,
+      updated_at: sincronizadoEm,
+    }).eq('uuid', agendaUuid).eq('user_id', user.id)
+    if (updateError) throw updateError
+    return NextResponse.json({ removido: true })
+  } catch (error) {
+    return NextResponse.json({ erro: error instanceof Error ? error.message : 'Não foi possível remover o compromisso do Google.' }, { status: 502 })
+  }
+}

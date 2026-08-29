@@ -262,6 +262,11 @@ Regra geral: qualquer grid de mais de uma coluna precisa de media query
 colapsando para coluna única em telas pequenas. Inputs numéricos em páginas
 mobile-first usam `inputmode="decimal"` / `inputmode="numeric"`.
 
+Na Agenda, mês e semana não são abas concorrentes: o calendário mensal aparece
+primeiro e o dia selecionado nele controla a semana detalhada logo abaixo. A
+linha cronológica da coluna pessoal é estritamente “Hoje” e não corta itens por
+quantidade; a própria coluna oferece a rolagem quando necessário.
+
 ## Animações
 
 Minimalistas por decisão: hover states, transições de opacidade/transform em

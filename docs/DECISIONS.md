@@ -1412,3 +1412,27 @@ projeto já distinguisse cards pergunta/resposta de lembretes de conteúdo.
 
 A correção é somente de composição, consulta e linguagem visual. Não altera
 schema, cards existentes, progresso SM-2 nem vínculos acadêmicos de flashcards.
+
+## DEC-072 — Calendar sincroniza automaticamente enquanto o site está aberto
+
+**Data:** 2026-08-29
+**Status:** ✅ Implementada localmente; homologação online pendente
+
+### Decisão
+
+- A sincronização continua segura e sem infraestrutura em segundo plano: roda
+  ao navegar, ao retomar a aba e a cada dois minutos enquanto o site está
+  aberto. Não há webhook ou atividade com o navegador fechado.
+- Criar/editar um compromisso local envia a mudança imediatamente; exclusão
+  local remove primeiro o evento remoto quando houver vínculo. Mudanças e
+  cancelamentos remotos são aplicados automaticamente, mantendo conflitos sem
+  sobrescrita silenciosa.
+- A Agenda apresenta mês e semana ao mesmo tempo. O dia escolhido no mês define
+  a semana detalhada abaixo. A coluna pessoal mostra todos os itens do dia atual.
+
+### Impacto
+
+O contrato existente de `google_calendar_event_id` e
+`google_calendar_synced_at` continua suficiente; não há migration, dependência
+ou custo recorrente novo. A conexão real precisa ser validada no deploy porque
+o OAuth de desenvolvimento não está configurado para `localhost`.

@@ -6,7 +6,7 @@ import { CalendarDays, ExternalLink, ImageIcon, Loader2, LogOut, RefreshCw, User
 import { useEffect, useMemo, useState } from 'react'
 
 import { listarEventosAgenda, type EventoAgenda } from '@/lib/agenda'
-import { dataLocalIso, dataLocalSomandoDias } from '@/lib/date'
+import { dataLocalIso } from '@/lib/date'
 import { listarProvasNoPeriodo, type Prova } from '@/lib/provas'
 import { getSignedUrl, getSession, sb } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
@@ -102,8 +102,9 @@ export function RightRail() {
   const [aviso, setAviso] = useState<string | null>(null)
 
   const hoje = dataLocalIso(agora)
-  const fimLinhaTempo = dataLocalSomandoDias(14, agora)
   const grade = useMemo(() => montarGradeMes(agora), [agora])
+  const inicioPainel = grade[0]?.iso ?? hoje
+  const fimPainel = grade.at(-1)?.iso ?? hoje
   const eventosPorDia = useMemo(() => {
     const mapa = new Map<string, number>()
     for (const evento of eventos) mapa.set(evento.data, (mapa.get(evento.data) ?? 0) + 1)
@@ -111,9 +112,9 @@ export function RightRail() {
     return mapa
   }, [eventos, provas])
   const linhaTempo = useMemo(() => [
-    ...eventos.map(criarItemEvento),
-    ...provas.map(criarItemProva),
-  ].sort(compararItens).slice(0, 8), [eventos, provas])
+    ...eventos.filter((evento) => evento.data === hoje).map(criarItemEvento),
+    ...provas.filter((prova) => prova.data === hoje).map(criarItemProva),
+  ].sort(compararItens), [eventos, hoje, provas])
 
   async function carregar() {
     setCarregando(true)
@@ -121,8 +122,8 @@ export function RightRail() {
 
     try {
       const [eventosResultado, provasResultado, sessaoResultado] = await Promise.allSettled([
-        listarEventosAgenda(hoje, fimLinhaTempo),
-        listarProvasNoPeriodo(hoje, fimLinhaTempo),
+        listarEventosAgenda(inicioPainel, fimPainel),
+        listarProvasNoPeriodo(inicioPainel, fimPainel),
         getSession(),
       ])
       const eventosData = eventosResultado.status === 'fulfilled' ? eventosResultado.value : null
@@ -173,10 +174,13 @@ export function RightRail() {
   useEffect(() => {
     const timeout = window.setTimeout(() => void carregar(), 0)
     const atualizarPerfil = () => void carregar()
+    const atualizarAgenda = () => void carregar()
     window.addEventListener('perfil-atualizado', atualizarPerfil)
+    window.addEventListener('agenda-atualizada', atualizarAgenda)
     return () => {
       window.clearTimeout(timeout)
       window.removeEventListener('perfil-atualizado', atualizarPerfil)
+      window.removeEventListener('agenda-atualizada', atualizarAgenda)
     }
     // Recarrega quando o dia muda; os demais dados podem ser atualizados pelo botão.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -273,7 +277,7 @@ export function RightRail() {
         <div className={styles.cardTopo}>
           <div>
             <span className={styles.eyebrow}>Agenda</span>
-            <h2>Próximos dias</h2>
+            <h2>Hoje</h2>
           </div>
           <button type="button" className={styles.atualizar} onClick={() => void carregar()} disabled={carregando}>
             {carregando ? <Loader2 aria-hidden="true" /> : <RefreshCw aria-hidden="true" />}
@@ -294,7 +298,7 @@ export function RightRail() {
             ))}
           </ol>
         ) : (
-          <p className={styles.vazio}>Nada marcado para os próximos dias.</p>
+          <p className={styles.vazio}>Nada marcado para hoje.</p>
         )}
         <Link href="/agenda" className={styles.linkAgenda}>
           Abrir agenda <ExternalLink aria-hidden="true" />

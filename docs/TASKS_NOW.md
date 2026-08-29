@@ -29,6 +29,18 @@ e APIs reais, incluindo altura reduzida e seletor de atmosfera na coluna pessoal
 - [ ] Validar visualmente estes ajustes depois da publicação do lote, incluindo
       entrada e saída da Biblioteca pela barra superior.
 
+## Agenda automática e composição conjunta — 2026-08-29
+
+- [x] Agenda passou a exibir mês completo e semana selecionada simultaneamente,
+      sem alternância que escondia uma das duas visões.
+- [x] Calendar sincroniza mudanças remotas ao navegar/retomar a aba e a cada
+      dois minutos; criação, edição e exclusão locais refletem imediatamente no
+      Google quando a conta está conectada.
+- [x] Linha cronológica da coluna pessoal mostra todos os compromissos e provas
+      do dia atual, sem limite artificial de oito itens futuros.
+- [ ] Retestar o fluxo bilateral no deploy, pois o OAuth local não está
+      configurado para `localhost`.
+
 ## Handoff curto para novo chat
 
 - [x] Criado `docs/NEXT_ENGINEER_HANDOFF.md` como ponto curto de retomada para

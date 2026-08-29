@@ -3,8 +3,8 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { BookOpen, Brain, CalendarDays, CalendarRange, ChevronDown, Code2, Dumbbell, FolderKanban, GraduationCap, Home, Languages, LogOut, Mail, NotebookTabs, Pencil } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
-import type { CSSProperties, MouseEvent as ReactMouseEvent } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import type { CSSProperties } from 'react'
 
 import { getSession, getSignedUrl, sb } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
@@ -76,11 +76,7 @@ export function GlobalNav() {
   const [painelAberto, setPainelAberto] = useState<'perfil' | 'tema' | null>(null)
   const perfilAreaRef = useRef<HTMLDivElement>(null)
   const perfilBotaoRef = useRef<HTMLButtonElement>(null)
-  const navegacaoPendenteRef = useRef<{
-    pathname: string
-    concluir: () => void
-    timeout: number
-  } | null>(null)
+  const navegacaoRef = useRef<HTMLElement>(null)
   const [perfil, setPerfil] = useState<{
     nome: string
     descricao: string | null
@@ -128,20 +124,21 @@ export function GlobalNav() {
     return () => window.clearTimeout(timeout)
   }, [pathname])
 
-  useEffect(() => {
-    const pendente = navegacaoPendenteRef.current
-    if (!pendente || pendente.pathname !== pathname) return
-    window.clearTimeout(pendente.timeout)
-    pendente.concluir()
-    navegacaoPendenteRef.current = null
-  }, [pathname])
+  useLayoutEffect(() => {
+    const navegacao = navegacaoRef.current
+    const ativo = navegacao?.querySelector<HTMLElement>('[aria-current="page"]')
+    if (!navegacao || !ativo) return
 
-  useEffect(() => () => {
-    const pendente = navegacaoPendenteRef.current
-    if (!pendente) return
-    window.clearTimeout(pendente.timeout)
-    pendente.concluir()
-  }, [])
+    navegacao.style.setProperty('--indicador-x', `${ativo.offsetLeft}px`)
+    navegacao.style.setProperty('--indicador-largura', `${ativo.offsetWidth}px`)
+    navegacao.style.setProperty('--indicador-opacidade', '1')
+
+    const frame = window.requestAnimationFrame(() => {
+      navegacao.dataset.indicadorPronto = 'true'
+      ativo.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' })
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [pathname, biblioteca])
 
   useEffect(() => {
     if (painelAberto !== 'perfil') return
@@ -189,47 +186,6 @@ export function GlobalNav() {
       router.refresh()
     } finally {
       setSaindo(false)
-    }
-  }
-
-  function navegarComTransicao(event: ReactMouseEvent<HTMLAnchorElement>, destino: string) {
-    if (
-      event.defaultPrevented
-      || event.button !== 0
-      || event.metaKey
-      || event.ctrlKey
-      || event.shiftKey
-      || event.altKey
-      || pathname === destino
-    ) return
-
-    const documento = document as Document & {
-      startViewTransition?: (atualizar: () => Promise<void>) => { finished: Promise<void> }
-    }
-    const reduzirMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (!documento.startViewTransition || reduzirMovimento) return
-
-    event.preventDefault()
-    const anterior = navegacaoPendenteRef.current
-    if (anterior) {
-      window.clearTimeout(anterior.timeout)
-      anterior.concluir()
-    }
-
-    let concluir!: () => void
-    const paginaAtualizada = new Promise<void>((resolve) => { concluir = resolve })
-    const timeout = window.setTimeout(concluir, 1800)
-    navegacaoPendenteRef.current = { pathname: destino, concluir, timeout }
-
-    try {
-      documento.startViewTransition(async () => {
-        router.push(destino)
-        await paginaAtualizada
-      })
-    } catch {
-      window.clearTimeout(timeout)
-      navegacaoPendenteRef.current = null
-      router.push(destino)
     }
   }
 
@@ -326,7 +282,8 @@ export function GlobalNav() {
           </div>
         ) : null}
 
-        <nav aria-label="Navegação principal" className={styles.navegacao}>
+        <nav ref={navegacaoRef} aria-label="Navegação principal" className={styles.navegacao}>
+          <span aria-hidden="true" className={styles.indicadorAtivo} />
           {links.map((link) => {
             const Icon = link.icon
             const active = isActive(pathname, link.href)
@@ -339,7 +296,6 @@ export function GlobalNav() {
                 aria-current={active ? 'page' : undefined}
                 title={link.label}
                 className={cn(styles.link, active && styles.linkAtivo)}
-                onClick={(event) => navegarComTransicao(event, link.href)}
               >
                 <Icon className="size-4" />
                 <span>{link.label}</span>

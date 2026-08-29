@@ -528,6 +528,9 @@
     animation: none;
   }
 
+  .navegacao[data-indicador-pronto='true'] .indicadorAtivo {
+    transition: none;
+  }
 }
 
 :global(.dark) .fragmentos {
@@ -540,7 +543,9 @@
 
 .navegacao {
   grid-area: navegacao;
+  position: relative;
   z-index: 2;
+  isolation: isolate;
   display: flex;
   align-items: center;
   justify-self: center;
@@ -558,11 +563,35 @@
   scrollbar-width: none;
 }
 
+.indicadorAtivo {
+  position: absolute;
+  z-index: 0;
+  top: 0.22rem;
+  left: 0;
+  width: var(--indicador-largura, 0);
+  height: 2.25rem;
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--accent-wash) 92%, var(--surface));
+  box-shadow: 0 2px 8px color-mix(in oklch, var(--foreground) 8%, transparent);
+  opacity: var(--indicador-opacidade, 0);
+  pointer-events: none;
+  transform: translateX(var(--indicador-x, 0));
+}
+
+.navegacao[data-indicador-pronto='true'] .indicadorAtivo {
+  transition:
+    width 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.15s ease;
+}
+
 .navegacao::-webkit-scrollbar {
   display: none;
 }
 
 .link {
+  position: relative;
+  z-index: 1;
   display: inline-flex;
   min-width: 0;
   height: 2.25rem;
@@ -593,9 +622,9 @@
 }
 
 .linkAtivo {
-  background: color-mix(in oklch, var(--accent-wash) 92%, var(--surface));
+  background: transparent;
   color: var(--text);
-  box-shadow: 0 2px 8px color-mix(in oklch, var(--foreground) 8%, transparent);
+  box-shadow: none;
   view-transition-name: navegacao-ativa;
 }
 

@@ -184,5 +184,6 @@ export async function googleApi<T>(userId: string, service: GoogleService, url: 
     const detail = await response.json().catch(() => null) as { error?: { message?: string } } | null
     throw new Error(detail?.error?.message || `Google respondeu com status ${response.status}.`)
   }
+  if (response.status === 204) return undefined as T
   return response.json() as Promise<T>
 }

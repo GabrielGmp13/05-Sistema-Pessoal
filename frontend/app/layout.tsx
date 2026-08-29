@@ -3,6 +3,7 @@ import './globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { AppChrome } from '@/components/AppChrome';
 import { GlobalNav } from '@/components/GlobalNav';
+import { CalendarAutoSync } from '@/components/CalendarAutoSync';
 
 export const metadata: Metadata = {
   title: 'Sistema Pessoal',
@@ -48,6 +49,7 @@ export default function RootLayout({
       </head>
       <body>
         <ThemeProvider>
+          <CalendarAutoSync />
           <GlobalNav />
           <AppChrome>{children}</AppChrome>
         </ThemeProvider>

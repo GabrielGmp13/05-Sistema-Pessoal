@@ -1,19 +1,19 @@
 'use client'
 
 import Link from 'next/link'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   BookOpenCheck,
   CalendarDays,
   Check,
   ChevronLeft,
   ChevronRight,
-  CloudDownload,
   CloudUpload,
   Clock3,
   Dumbbell,
   Edit3,
   Plus,
+  RefreshCw,
   Trash2,
   X,
 } from 'lucide-react'
@@ -131,7 +131,6 @@ function formatarPeriodo(inicio: Date, fim: Date) {
 
 export default function AgendaPage() {
   const [dataReferencia, setDataReferencia] = useState(hojeLocal())
-  const [visualizacao, setVisualizacao] = useState<'semana' | 'mes'>('semana')
   const [eventos, setEventos] = useState<EventoAgenda[]>([])
   const [provas, setProvas] = useState<Prova[]>([])
   const [materias, setMaterias] = useState<Materia[]>([])
@@ -150,6 +149,7 @@ export default function AgendaPage() {
   const [importandoCalendar, setImportandoCalendar] = useState(false)
   const [previaCalendar, setPreviaCalendar] = useState<EventoCalendarPrevia[]>([])
   const [selecionadosCalendar, setSelecionadosCalendar] = useState<Set<string>>(new Set())
+  const sincronizacaoEmCursoRef = useRef(false)
 
   const semana = useMemo(() => {
     const inicio = inicioDaSemana(dataReferencia)
@@ -169,9 +169,8 @@ export default function AgendaPage() {
     return { inicio, fim, dias, mes: referencia.getMonth() }
   }, [dataReferencia])
 
-  const periodoAtivo = visualizacao === 'semana' ? semana : mesCalendario
-  const inicioIso = isoLocal(periodoAtivo.inicio)
-  const fimIso = isoLocal(periodoAtivo.fim)
+  const inicioIso = isoLocal(mesCalendario.inicio)
+  const fimIso = isoLocal(mesCalendario.fim)
 
   const carregar = useCallback(async () => {
     setCarregando(true)
@@ -195,9 +194,79 @@ export default function AgendaPage() {
     setCarregando(false)
   }, [fimIso, inicioIso])
 
+  const sincronizarAutomaticamente = useCallback(async (informarResultado = false) => {
+    if (!googleConectado || sincronizacaoEmCursoRef.current) return
+    sincronizacaoEmCursoRef.current = true
+    setImportandoCalendar(true)
+    if (informarResultado) {
+      setErro('')
+      setMensagem('')
+    }
+
+    try {
+      const consulta = await fetch('/api/integracoes/google/calendar/import', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ inicio: inicioIso, fim: fimIso }),
+      })
+      const comparacao = await consulta.json() as { eventos?: EventoCalendarPrevia[]; erro?: string }
+      if (!consulta.ok) throw new Error(comparacao.erro || 'Não foi possível consultar o Google Calendar.')
+
+      const eventosRemotos = comparacao.eventos ?? []
+      const idsAplicaveis = eventosRemotos
+        .filter((evento) => ['novo', 'atualizar', 'cancelar'].includes(evento.acao))
+        .map((evento) => evento.id)
+      const conflitos = eventosRemotos.filter((evento) => evento.acao === 'conflito')
+      setPreviaCalendar(conflitos)
+      setSelecionadosCalendar(new Set())
+
+      if (idsAplicaveis.length > 0) {
+        const aplicacao = await fetch('/api/integracoes/google/calendar/import', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ inicio: inicioIso, fim: fimIso, aplicarIds: idsAplicaveis }),
+        })
+        const resultado = await aplicacao.json() as { erro?: string }
+        if (!aplicacao.ok) throw new Error(resultado.erro || 'Não foi possível aplicar as mudanças do Google Calendar.')
+      }
+
+      const eventosLocais = await listarEventosAgenda(inicioIso, fimIso)
+      const pendentes = (eventosLocais ?? []).filter((evento) => (
+        !evento.google_calendar_synced_at
+        || new Date(evento.updated_at).getTime() > new Date(evento.google_calendar_synced_at).getTime()
+      ))
+      for (const evento of pendentes) {
+        const envio = await fetch('/api/integracoes/google/calendar/export', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ agendaUuid: evento.uuid }),
+        })
+        if (!envio.ok) {
+          const resultado = await envio.json().catch(() => null) as { erro?: string } | null
+          throw new Error(resultado?.erro || `Não foi possível sincronizar “${evento.titulo}”.`)
+        }
+      }
+
+      await carregar()
+      window.dispatchEvent(new Event('agenda-atualizada'))
+      if (informarResultado) {
+        setMensagem(conflitos.length > 0
+          ? `Sincronização concluída com ${conflitos.length} conflito${conflitos.length === 1 ? '' : 's'} para revisar.`
+          : 'Agenda sincronizada com o Google Calendar.')
+      }
+    } catch (error) {
+      setErro(error instanceof Error ? error.message : 'Não foi possível sincronizar o Google Calendar.')
+    } finally {
+      sincronizacaoEmCursoRef.current = false
+      setImportandoCalendar(false)
+    }
+  }, [carregar, fimIso, googleConectado, inicioIso])
+
   useEffect(() => {
     const timeoutId = window.setTimeout(() => void carregar(), 0)
-    return () => window.clearTimeout(timeoutId)
+    const atualizarAgenda = () => void carregar()
+    window.addEventListener('agenda-atualizada', atualizarAgenda)
+    return () => {
+      window.clearTimeout(timeoutId)
+      window.removeEventListener('agenda-atualizada', atualizarAgenda)
+    }
   }, [carregar])
 
   useEffect(() => {
@@ -273,6 +342,19 @@ export default function AgendaPage() {
     }
   }
 
+  async function enviarMudancaAoGoogle(agendaUuid: string, method: 'POST' | 'DELETE' = 'POST') {
+    if (!googleConectado) return
+    const response = await fetch('/api/integracoes/google/calendar/export', {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ agendaUuid }),
+    })
+    if (!response.ok) {
+      const body = await response.json().catch(() => null) as { erro?: string } | null
+      throw new Error(body?.erro || 'A mudança foi salva aqui, mas não chegou ao Google Calendar.')
+    }
+  }
+
   async function salvarEvento(event: React.FormEvent) {
     event.preventDefault()
     if (!formulario.titulo.trim()) return
@@ -288,8 +370,15 @@ export default function AgendaPage() {
     if (!salvo) {
       setErro('Não foi possível salvar o compromisso.')
     } else {
+      try {
+        await enviarMudancaAoGoogle(salvo.uuid)
+        setMensagem(googleConectado ? 'Compromisso salvo e sincronizado com o Google Calendar.' : 'Compromisso salvo.')
+      } catch (error) {
+        setErro(error instanceof Error ? error.message : 'Compromisso salvo, mas não sincronizado com o Google Calendar.')
+      }
       setDialogAberto(false)
       await carregar()
+      window.dispatchEvent(new Event('agenda-atualizada'))
     }
     setSalvando(false)
   }
@@ -327,28 +416,6 @@ export default function AgendaPage() {
     }
   }
 
-  async function consultarGoogleCalendar() {
-    setImportandoCalendar(true)
-    setErro('')
-    setMensagem('')
-    try {
-      const response = await fetch('/api/integracoes/google/calendar/import', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ inicio: inicioIso, fim: fimIso }),
-      })
-      const body = await response.json() as { eventos?: EventoCalendarPrevia[]; erro?: string }
-      if (!response.ok) throw new Error(body.erro || 'Não foi possível consultar o Google Calendar.')
-      const eventos = body.eventos ?? []
-      setPreviaCalendar(eventos)
-      setSelecionadosCalendar(new Set(eventos.filter((evento) => ['novo', 'atualizar', 'cancelar'].includes(evento.acao)).map((evento) => evento.id)))
-      if (eventos.length === 0) setMensagem('Nenhum evento do Google Calendar neste período.')
-    } catch (error) {
-      setErro(error instanceof Error ? error.message : 'Não foi possível consultar o Google Calendar.')
-    } finally {
-      setImportandoCalendar(false)
-    }
-  }
-
   async function aplicarGoogleCalendar() {
     if (selecionadosCalendar.size === 0) return
     setImportandoCalendar(true)
@@ -373,15 +440,26 @@ export default function AgendaPage() {
 
   async function apagarEvento() {
     if (!eventoParaApagar) return
+    if (googleConectado) {
+      try {
+        await enviarMudancaAoGoogle(eventoParaApagar.uuid, 'DELETE')
+      } catch (error) {
+        setErro(error instanceof Error ? error.message : 'Não foi possível apagar o compromisso no Google Calendar.')
+        return
+      }
+    }
     const apagado = await deletarEventoAgenda(eventoParaApagar.uuid)
     if (!apagado) setErro('Não foi possível apagar o compromisso.')
-    else await carregar()
+    else {
+      setMensagem(googleConectado ? 'Compromisso apagado daqui e do Google Calendar.' : 'Compromisso apagado.')
+      await carregar()
+      window.dispatchEvent(new Event('agenda-atualizada'))
+    }
   }
 
   function navegarPeriodo(direcao: -1 | 1) {
     const atual = dataLocal(dataReferencia)
-    if (visualizacao === 'semana') atual.setDate(atual.getDate() + direcao * 7)
-    else atual.setMonth(atual.getMonth() + direcao, 1)
+    atual.setMonth(atual.getMonth() + direcao, 1)
     setDataReferencia(isoLocal(atual))
   }
 
@@ -399,8 +477,8 @@ export default function AgendaPage() {
       <div className="mb-5"><BackLink href="/">Voltar ao início</BackLink></div>
       <PageHeader
         title="Agenda"
-        description="Compromissos gerais, estudos, provas e treinos em visão semanal ou mensal."
-        actions={<><Button type="button" variant="outline" disabled={!googleConectado || importandoCalendar} onClick={() => void consultarGoogleCalendar()} title={googleConectado ? 'Comparar este período com o Google Calendar' : 'Conecte o Calendar em Configurações'}><CloudDownload />Importar Calendar</Button><Button type="button" onClick={() => abrirNovo(dataReferencia)}><Plus />Novo compromisso</Button></>}
+        description="Mês completo e semana selecionada, sincronizados automaticamente com o Google Calendar."
+        actions={<><Button type="button" variant="outline" disabled={!googleConectado || importandoCalendar} onClick={() => void sincronizarAutomaticamente(true)} title={googleConectado ? 'Sincronizar agora com o Google Calendar' : 'Conecte o Calendar em Configurações'}><RefreshCw className={importandoCalendar ? 'animate-spin' : ''} />{importandoCalendar ? 'Sincronizando...' : 'Sincronizar agora'}</Button><Button type="button" onClick={() => abrirNovo(dataReferencia)}><Plus />Novo compromisso</Button></>}
       />
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -408,10 +486,9 @@ export default function AgendaPage() {
           <Button type="button" variant="outline" size="icon" onClick={() => navegarPeriodo(-1)} aria-label="Período anterior"><ChevronLeft /></Button>
           <Button type="button" variant="outline" onClick={() => setDataReferencia(hojeLocal())}>Hoje</Button>
           <Button type="button" variant="outline" size="icon" onClick={() => navegarPeriodo(1)} aria-label="Próximo período"><ChevronRight /></Button>
-          <div className="ml-2 flex rounded-lg border border-border p-0.5"><Button type="button" size="sm" variant={visualizacao === 'semana' ? 'default' : 'ghost'} onClick={() => setVisualizacao('semana')}>Semana</Button><Button type="button" size="sm" variant={visualizacao === 'mes' ? 'default' : 'ghost'} onClick={() => setVisualizacao('mes')}>Mês</Button></div>
         </div>
         <div className="flex flex-col gap-1 sm:items-end">
-          <strong className="text-sm font-semibold">{visualizacao === 'semana' ? formatarPeriodo(semana.inicio, semana.fim) : dataLocal(dataReferencia).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</strong>
+          <strong className="text-sm font-semibold capitalize">{dataLocal(dataReferencia).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</strong>
           <Input type="date" value={dataReferencia} onChange={(event) => setDataReferencia(event.target.value)} className="w-40" aria-label="Escolher data" />
         </div>
       </div>
@@ -438,7 +515,28 @@ export default function AgendaPage() {
         </section>
       ) : null}
 
-      {visualizacao === 'semana' ? <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-7">
+      <section className="mt-6" aria-labelledby="agenda-mes-titulo">
+        <h2 id="agenda-mes-titulo" className="mb-3 text-lg font-semibold">Visão do mês</h2>
+        <div className="overflow-x-auto">
+          <div className="grid min-w-[46rem] grid-cols-7 border-l border-t border-border">
+            {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((dia) => <div key={dia} className="border-b border-r border-border bg-muted/50 px-2 py-2 text-center text-xs font-medium text-muted-foreground">{dia}</div>)}
+            {mesCalendario.dias.map((dia) => {
+              const data = isoLocal(dia)
+              const eventosDoDia = eventos.filter((evento) => evento.data === data)
+              const provasDoDia = provas.filter((prova) => prova.data === data)
+              const foraDoMes = dia.getMonth() !== mesCalendario.mes
+              const selecionado = data === dataReferencia
+              return <section key={data} className={`min-h-28 border-b border-r border-border p-2 ${foraDoMes ? 'bg-muted/25 text-muted-foreground' : 'bg-card'} ${selecionado ? 'ring-2 ring-inset ring-primary' : ''}`}><div className="flex items-center justify-between"><button type="button" className={`flex size-7 items-center justify-center rounded-full text-xs font-semibold ${data === hojeLocal() ? 'bg-primary text-primary-foreground' : ''}`} onClick={() => setDataReferencia(data)} aria-label={`Selecionar semana de ${data}`}>{dia.getDate()}</button><Button type="button" size="icon-xs" variant="ghost" onClick={() => abrirNovo(data)} aria-label={`Adicionar compromisso em ${data}`}><Plus /></Button></div><div className="mt-2 space-y-1">{provasDoDia.slice(0, 2).map((prova) => <div key={prova.uuid} className="truncate rounded bg-primary/10 px-1.5 py-1 text-[11px] text-primary" title={prova.titulo || 'Prova'}>{prova.titulo || 'Prova'}</div>)}{eventosDoDia.slice(0, 3).map((evento) => <button type="button" key={evento.uuid} className={`flex w-full items-center gap-1 truncate rounded px-1.5 py-1 text-left text-[11px] ${evento.concluido ? 'bg-muted line-through' : 'bg-secondary'}`} title={`${PRIORIDADE_LABEL[evento.prioridade]} · ${evento.titulo}`} aria-label={`${evento.titulo}, prioridade ${PRIORIDADE_LABEL[evento.prioridade].toLowerCase()}`} onClick={() => abrirEdicao(evento)}><span aria-hidden="true" className={`size-1.5 shrink-0 rounded-full ${evento.prioridade === 'alta' ? 'bg-warning' : evento.prioridade === 'baixa' ? 'bg-primary/45' : 'bg-muted-foreground/55'}`} /><span className="truncate">{evento.hora_inicio ? `${evento.hora_inicio.slice(0, 5)} ` : ''}{evento.titulo}</span></button>)}{eventosDoDia.length + provasDoDia.length > 5 ? <p className="text-[10px] text-muted-foreground">+{eventosDoDia.length + provasDoDia.length - 5} itens</p> : null}</div></section>
+            })}
+          </div>
+        </div>
+      </section>
+
+      <section className="mt-8" aria-labelledby="agenda-semana-titulo">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <div><h2 id="agenda-semana-titulo" className="text-lg font-semibold">Semana selecionada</h2><p className="mt-1 text-xs text-muted-foreground">{formatarPeriodo(semana.inicio, semana.fim)}</p></div>
+        </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-7">
         {semana.dias.map((dia) => {
           const data = isoLocal(dia)
           const eventosDoDia = eventos.filter((evento) => evento.data === data)
@@ -480,13 +578,8 @@ export default function AgendaPage() {
             </section>
           )
         })}
-      </div> : <div className="mt-6 overflow-x-auto"><div className="grid min-w-[46rem] grid-cols-7 border-l border-t border-border">{['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((dia) => <div key={dia} className="border-b border-r border-border bg-muted/50 px-2 py-2 text-center text-xs font-medium text-muted-foreground">{dia}</div>)}{mesCalendario.dias.map((dia) => {
-        const data = isoLocal(dia)
-        const eventosDoDia = eventos.filter((evento) => evento.data === data)
-        const provasDoDia = provas.filter((prova) => prova.data === data)
-        const foraDoMes = dia.getMonth() !== mesCalendario.mes
-        return <section key={data} className={`min-h-28 border-b border-r border-border p-2 ${foraDoMes ? 'bg-muted/25 text-muted-foreground' : 'bg-card'}`}><div className="flex items-center justify-between"><span className={`flex size-7 items-center justify-center rounded-full text-xs font-semibold ${data === hojeLocal() ? 'bg-primary text-primary-foreground' : ''}`}>{dia.getDate()}</span><Button type="button" size="icon-xs" variant="ghost" onClick={() => abrirNovo(data)} aria-label={`Adicionar compromisso em ${data}`}><Plus /></Button></div><div className="mt-2 space-y-1">{provasDoDia.slice(0, 2).map((prova) => <div key={prova.uuid} className="truncate rounded bg-primary/10 px-1.5 py-1 text-[11px] text-primary" title={prova.titulo || 'Prova'}>{prova.titulo || 'Prova'}</div>)}{eventosDoDia.slice(0, 3).map((evento) => <button type="button" key={evento.uuid} className={`flex w-full items-center gap-1 truncate rounded px-1.5 py-1 text-left text-[11px] ${evento.concluido ? 'bg-muted line-through' : 'bg-secondary'}`} title={`${PRIORIDADE_LABEL[evento.prioridade]} · ${evento.titulo}`} aria-label={`${evento.titulo}, prioridade ${PRIORIDADE_LABEL[evento.prioridade].toLowerCase()}`} onClick={() => abrirEdicao(evento)}><span aria-hidden="true" className={`size-1.5 shrink-0 rounded-full ${evento.prioridade === 'alta' ? 'bg-warning' : evento.prioridade === 'baixa' ? 'bg-primary/45' : 'bg-muted-foreground/55'}`} /><span className="truncate">{evento.hora_inicio ? `${evento.hora_inicio.slice(0, 5)} ` : ''}{evento.titulo}</span></button>)}{eventosDoDia.length + provasDoDia.length > 5 ? <p className="text-[10px] text-muted-foreground">+{eventosDoDia.length + provasDoDia.length - 5} itens</p> : null}</div></section>
-      })}</div></div>}
+        </div>
+      </section>
 
       {dialogAberto ? (
         <EventoDialog

@@ -20,6 +20,13 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — v2.1 pronta tecnicamente; homologação manual pendente
 
+- **2026-08-29 (Agenda automática e duas escalas visíveis)** — A Agenda passou
+  a manter o mês completo acima da semana selecionada. A conexão Calendar
+  consulta mudanças ao navegar, retomar a aba e em intervalo de dois minutos;
+  criação, edição e exclusão locais são enviadas imediatamente ao Google. A
+  coluna pessoal agora lista toda a agenda de hoje em ordem cronológica. Sem
+  migration ou dependência nova; OAuth bilateral depende de reteste no deploy.
+
 - **2026-08-29 (transições entre páginas e perfil compartilhado)** — A
   navegação superior ganhou troca curta de conteúdo e indicador ativo que se
   desloca entre módulos. Ao entrar ou sair da Biblioteca em tela larga, o card

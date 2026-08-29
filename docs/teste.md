@@ -85,6 +85,12 @@ Codex.
       mesmo evento remoto é atualizado, não duplicado.
 - [ ] Confirmar que provas continuam visíveis, mas não selecionáveis para
       importação/exportação como compromisso comum.
+- [ ] Confirmar que mês e semana aparecem juntos; escolher um dia no mês deve
+      atualizar a semana abaixo sem esconder o calendário mensal.
+- [ ] Com o site aberto em outra página, editar e apagar eventos no Google e
+      confirmar atualização automática em até dois minutos ou ao retomar a aba.
+- [ ] Criar, editar e apagar um compromisso no Sistema Pessoal e confirmar que
+      a mesma mudança aparece imediatamente no Google Calendar.
 
 ## Treino
 
