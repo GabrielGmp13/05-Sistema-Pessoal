@@ -16,6 +16,7 @@
   border-right: 1px solid color-mix(in oklch, var(--glass-border) 70%, transparent);
   padding: 0.85rem;
   scrollbar-width: thin;
+  view-transition-name: coluna-pessoal;
 }
 
 .rail::before {
@@ -282,6 +283,10 @@
 .controlesCard {
   overflow: visible;
   padding: 0;
+}
+
+.identidadeCard {
+  view-transition-name: perfil-pessoal;
 }
 
 .controlesCard {

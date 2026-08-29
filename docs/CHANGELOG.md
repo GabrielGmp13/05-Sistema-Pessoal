@@ -20,6 +20,14 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — v2.1 pronta tecnicamente; homologação manual pendente
 
+- **2026-08-29 (transições entre páginas e perfil compartilhado)** — A
+  navegação superior ganhou troca curta de conteúdo e indicador ativo que se
+  desloca entre módulos. Ao entrar ou sair da Biblioteca em tela larga, o card
+  de perfil da coluna pessoal se transforma no perfil compacto do topo, junto
+  do recolhimento suave da coluna. A implementação usa recurso nativo do
+  navegador, mantém fallback de navegação normal, respeita redução de movimento
+  e não adiciona dependência.
+
 - **2026-08-28 (hierarquia visual e conceito de revisão)** — Corrigida a
   composição da Biblioteca para não exibir a coluna pessoal junto da sidebar
   própria. O perfil, a atmosfera e a saída retornaram compactos ao topo desse

@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { BookOpen, Brain, CalendarDays, CalendarRange, ChevronDown, Code2, Dumbbell, FolderKanban, GraduationCap, Home, Languages, LogOut, Mail, NotebookTabs, Pencil } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import type { CSSProperties } from 'react'
+import type { CSSProperties, MouseEvent as ReactMouseEvent } from 'react'
 
 import { getSession, getSignedUrl, sb } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
@@ -76,6 +76,11 @@ export function GlobalNav() {
   const [painelAberto, setPainelAberto] = useState<'perfil' | 'tema' | null>(null)
   const perfilAreaRef = useRef<HTMLDivElement>(null)
   const perfilBotaoRef = useRef<HTMLButtonElement>(null)
+  const navegacaoPendenteRef = useRef<{
+    pathname: string
+    concluir: () => void
+    timeout: number
+  } | null>(null)
   const [perfil, setPerfil] = useState<{
     nome: string
     descricao: string | null
@@ -124,6 +129,21 @@ export function GlobalNav() {
   }, [pathname])
 
   useEffect(() => {
+    const pendente = navegacaoPendenteRef.current
+    if (!pendente || pendente.pathname !== pathname) return
+    window.clearTimeout(pendente.timeout)
+    pendente.concluir()
+    navegacaoPendenteRef.current = null
+  }, [pathname])
+
+  useEffect(() => () => {
+    const pendente = navegacaoPendenteRef.current
+    if (!pendente) return
+    window.clearTimeout(pendente.timeout)
+    pendente.concluir()
+  }, [])
+
+  useEffect(() => {
     if (painelAberto !== 'perfil') return
 
     function fecharAoClicarFora(event: PointerEvent) {
@@ -169,6 +189,47 @@ export function GlobalNav() {
       router.refresh()
     } finally {
       setSaindo(false)
+    }
+  }
+
+  function navegarComTransicao(event: ReactMouseEvent<HTMLAnchorElement>, destino: string) {
+    if (
+      event.defaultPrevented
+      || event.button !== 0
+      || event.metaKey
+      || event.ctrlKey
+      || event.shiftKey
+      || event.altKey
+      || pathname === destino
+    ) return
+
+    const documento = document as Document & {
+      startViewTransition?: (atualizar: () => Promise<void>) => { finished: Promise<void> }
+    }
+    const reduzirMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (!documento.startViewTransition || reduzirMovimento) return
+
+    event.preventDefault()
+    const anterior = navegacaoPendenteRef.current
+    if (anterior) {
+      window.clearTimeout(anterior.timeout)
+      anterior.concluir()
+    }
+
+    let concluir!: () => void
+    const paginaAtualizada = new Promise<void>((resolve) => { concluir = resolve })
+    const timeout = window.setTimeout(concluir, 1800)
+    navegacaoPendenteRef.current = { pathname: destino, concluir, timeout }
+
+    try {
+      documento.startViewTransition(async () => {
+        router.push(destino)
+        await paginaAtualizada
+      })
+    } catch {
+      window.clearTimeout(timeout)
+      navegacaoPendenteRef.current = null
+      router.push(destino)
     }
   }
 
@@ -278,6 +339,7 @@ export function GlobalNav() {
                 aria-current={active ? 'page' : undefined}
                 title={link.label}
                 className={cn(styles.link, active && styles.linkAtivo)}
+                onClick={(event) => navegarComTransicao(event, link.href)}
               >
                 <Icon className="size-4" />
                 <span>{link.label}</span>

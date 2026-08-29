@@ -113,8 +113,13 @@ Codex.
 - [ ] Na Biblioteca e em Gêneros, confirmar que aparece somente a sidebar da
       Biblioteca, sem perfil/relógio/calendário como segunda coluna esquerda.
 - [ ] Ao entrar na Biblioteca em tela larga, confirmar que o perfil aparece
-      compacto no início do topo, com animação curta, e que atmosfera e sair
-      continuam acessíveis sem criar espaços vazios ou apertar a navegação.
+      compacto no início do topo, transformando-se a partir do card da coluna
+      esquerda; ao sair da Biblioteca, confirmar o caminho inverso. O indicador
+      ativo da barra deve deslizar e o conteúdo trocar suavemente, sem piscar.
+      Atmosfera e sair continuam acessíveis sem criar espaços vazios ou apertar
+      a navegação.
+- [ ] Ativar “reduzir movimento” no sistema e confirmar que as páginas ainda
+      navegam normalmente, sem a transformação animada.
 - [ ] No catálogo da Biblioteca, rolar uma coleção longa e confirmar que a
       sidebar de categorias permanece imóvel enquanto somente a área de capas
       rola; em Gêneros e no mobile, confirmar rolagem normal da página.

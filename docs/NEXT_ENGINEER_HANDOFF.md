@@ -16,7 +16,8 @@ como mapa rápido do estado atual e das próximas ações.
 - A UI global recente usa `AppChrome` com coluna pessoal à esquerda em telas
   largas e barra superior dedicada somente à navegação. Biblioteca e telas de
   foco são exceções sem a coluna pessoal; na Biblioteca, perfil, atmosfera e
-  saída ficam compactos no topo e a sidebar local permanece fixa.
+  saída ficam compactos no topo e a sidebar local permanece fixa. A navegação
+  usa transições curtas e transforma o perfil entre a coluna e esse topo.
 
 ## Leitura mínima antes de editar
 

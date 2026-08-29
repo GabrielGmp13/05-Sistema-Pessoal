@@ -267,6 +267,14 @@ mobile-first usam `inputmode="decimal"` / `inputmode="numeric"`.
 Minimalistas por decisão: hover states, transições de opacidade/transform em
 toasts e modais, barra de progresso com `transition: width .3s`.
 
+Trocas iniciadas pela navegação global usam View Transitions quando disponíveis:
+conteúdo em até `.18s`, topo/indicador ativo em `.22s`–`.24s` e transformação
+do perfil em até `.36s`. O perfil é um elemento visual compartilhado entre o
+card da coluna pessoal e o resumo compacto da Biblioteca; ao sair, a animação
+se inverte. Não adicionar dependência ou duplicar a UI para produzir esse
+efeito. Navegadores incompatíveis mantêm a troca instantânea normal e
+`prefers-reduced-motion: reduce` elimina o movimento.
+
 ## Convenções de UI
 
 - Estados vazios sempre têm texto explicativo + call-to-action quando aplicável.

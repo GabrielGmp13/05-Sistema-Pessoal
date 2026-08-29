@@ -19,11 +19,15 @@ e APIs reais, incluindo altura reduzida e seletor de atmosfera na coluna pessoal
       própria; telas de foco continuam sem a coluna.
 - [x] Biblioteca recupera perfil/atmosfera/saída compactos no topo, com entrada
       animada, e mantém a sidebar fixa enquanto somente a coleção rola.
+- [x] Navegação global ganhou transição curta entre páginas, indicador ativo
+      deslizante e transformação do perfil entre a coluna pessoal e o topo da
+      Biblioteca, com alternativa sem movimento quando solicitada pelo sistema.
 - [x] Removidos os pequenos rótulos acima dos títulos principais das páginas,
       preservando os rótulos internos de seções e o banner da Biblioteca.
 - [x] Resumos de “revisões pendentes” passam a listar somente lembretes de
       conteúdo, sem transformar flashcards importados/manuais em obrigação.
-- [ ] Validar visualmente estes ajustes depois da publicação do lote.
+- [ ] Validar visualmente estes ajustes depois da publicação do lote, incluindo
+      entrada e saída da Biblioteca pela barra superior.
 
 ## Handoff curto para novo chat
 

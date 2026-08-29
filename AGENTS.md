@@ -15,12 +15,13 @@ Nesta ordem, sempre que iniciar uma sessão nova ou antes de propor mudanças es
 3. `docs/TASKS_NOW.md` — o que está em aberto agora
 4. `docs/DECISIONS.md` — decisões arquiteturais já tomadas (não reabrir sem informação nova)
 5. `docs/DATABASE.md` — schema real, nomes de coluna/tabela
+6. `docs/DESIGN.md` — paleta, escala de espaçamento, componentes já padronizados (ver seção "Interpretando pedidos visuais" abaixo)
 
 Nunca assumir nome de coluna, tabela, rota ou assinatura de função de memória — sempre conferir em `docs/DATABASE.md` ou lendo o arquivo real do projeto primeiro. O repositório é público (`github.com/GabrielGmp13/05-Sistema-Pessoal`), então ler o código real em vez de assumir é sempre possível.
 
 ## O que é este projeto
 
-Sistema Pessoal — gestão pessoal de longo prazo, uso individual (não é produto multiusuário). Desenvolvedor: Gabriel, Pernambuco/BR.
+Sistema Pessoal — gestão pessoal de longo prazo, uso individual (não é produto multiusuário). Desenvolvedor: Gabriel, Pernambuco/BR, sem background técnico em programação — as tarefas costumam ser descritas de forma visual/informal, não em termos de código (ver seção "Interpretando pedidos visuais do dono do projeto").
 
 Stack real (não inventar/assumir outra):
 - Next.js 16 (App Router) + React 19 + TypeScript
@@ -87,6 +88,53 @@ são os testes SQL locais em `backend/supabase/tests/`.
 10. **O banco de produção é a fonte da verdade, não o `.sql` local**, sempre que houver dúvida. Já aconteceu de arquivos de migration locais divergirem do que realmente rodou no Supabase (ver `docs/DATABASE.md`, seção "Migrações", nota de 2026-08) — em caso de dúvida real sobre schema, o caminho seguro é pedir um novo `supabase db dump` em vez de confiar cegamente no `.sql` do repositório.
 11. **Nunca editar uma baseline já aplicada.** Toda alteração futura de banco deve ser uma nova migration timestamped incremental, testada com `db reset --local --no-seed`, testes relevantes, revisão do SQL e `db push --dry-run` antes de qualquer autorização remota.
 12. **Acervo e snapshots não são migrations.** Nunca executar arquivos de `history/legacy-migrations/` ou `snapshots/`; somente `backend/supabase/migrations/` é cadeia operacional.
+13. **Pedido visual/de design ambíguo nunca é implementado direto.** Se o pedido admite mais de uma interpretação (ver seção "Interpretando pedidos visuais do dono do projeto"), o agente para e pergunta antes de tocar em código — mesmo que isso signifique não terminar a tarefa na mesma mensagem.
+
+## Interpretando pedidos visuais do dono do projeto
+
+O Gabriel não programa e descreve UI de forma leiga/visual. Isso já causou dois problemas recorrentes: (a) pedidos como "background do site" sem indicar *qual* elemento, e (b) telas que saem com excesso de separação visual entre elementos que deveriam estar agrupados. As regras abaixo existem pra resolver isso na raiz, não no retrabalho.
+
+**Regra geral:** `docs/DESIGN.md` é a fonte da verdade para paleta, escala de espaçamento e componentes padronizados — checar lá primeiro. Só perguntar ao Gabriel quando o pedido não estiver coberto por um padrão já documentado.
+
+### Quando parar e perguntar (antes de codar)
+
+- **"background"** sem indicar o elemento (página inteira? uma seção? um card específico?) e sem estar coberto por um padrão já existente em `docs/DESIGN.md`
+- Posição vaga: "mais pra cá", "mais próximo", "no topo", "do lado"
+- Estilo vago: "mais bonito", "mais moderno", "mais clean", "parece errado"
+- Cor sem referência (hex, nome, ou componente existente): "um azul", "algo escuro"
+- Espaçamento vago: "mais junto", "mais separado", "tá muito grande"
+- Pedido que depende de um elemento específico da tela sem apontar qual (nome de componente, seção ou arquivo)
+
+Formato da pergunta: objetiva, com 2-3 opções concretas para escolher — nunca "o que você quer dizer com background?" solto. Exemplo:
+```
+Antes de mexer: o background que você quer é do card de baixo, da seção
+inteira, ou da página toda? E a cor — mais parecida com [X] ou [Y]?
+```
+
+### Quando NÃO precisa perguntar
+
+- O pedido já é coberto por um padrão existente em `docs/DESIGN.md` (aplicar o padrão, não perguntar de novo)
+- O pedido é puramente técnico e sem ambiguidade ("corrige esse bug no revisao.html")
+- A mudança é pequena e reversível o suficiente pra implementar e perguntar depois "ficou assim, tá bom ou ajusto?"
+
+### Diretrizes para não gerar "camadas de separação" indevidas
+
+Esse problema normalmente vem de espaçamento uniforme demais (tudo com o mesmo espaço = o olho não agrupa nada). Aplicar por padrão, mesmo sem pedido explícito:
+
+- Usar a escala de espaçamento já definida em `docs/DESIGN.md`; se não houver, propor uma escala fixa em múltiplos de 8px (8/16/24/32/48/64) antes de estilizar componentes novos, em vez de inventar valores soltos.
+- Elementos relacionados (título + texto, ícone + label) ficam com espaço nitidamente menor entre si do que o espaço até o próximo grupo não relacionado.
+- Evitar bordas, sombras e containers extras sem razão clara — questionar cada camada visual nova antes de adicionar.
+- Antes de estilizar um componente novo, checar como componentes parecidos já existem no projeto (altura de botão, raio de borda, fonte) e manter consistência em vez de criar estilo próprio.
+
+### Glossário (expandir conforme surgirem novos termos recorrentes)
+
+| O Gabriel diz | Provavelmente quer dizer |
+|---|---|
+| "background do site" | cor/imagem de fundo — mas *perguntar* de qual seção |
+| "mais junto" / "mais próximo" | reduzir margin/padding entre elementos |
+| "solto" / "separado demais" | falta de agrupamento visual — revisar escala de espaçamento |
+| "parece errado" | inconsistência com o resto do site — comparar com componentes existentes em `docs/DESIGN.md` |
+| "mais limpo" | reduzir bordas/sombras/elementos visuais desnecessários |
 
 ## Ao terminar qualquer tarefa
 
@@ -94,6 +142,7 @@ Atualizar antes de encerrar a sessão:
 - `docs/TASKS_NOW.md` — marcar concluído, definir próxima ação
 - `docs/CHANGELOG.md` — se foi um marco relevante
 - `docs/DECISIONS.md` — se uma decisão arquitetural nova foi tomada
+- `docs/DESIGN.md` — se um novo padrão visual foi definido durante a tarefa (evita repetir a mesma pergunta de esclarecimento no futuro)
 
 Nunca deixar a documentação desalinhada do código real.
 
@@ -101,5 +150,6 @@ Nunca deixar a documentação desalinhada do código real.
 
 - Se uma tarefa pedida contradiz algo em `docs/DECISIONS.md` ou `docs/PROJECT_PRINCIPLES.md`, apontar isso explicitamente antes de implementar — não seguir o pedido silenciosamente se ele reabre algo já decidido.
 - Se não tiver certeza sobre um nome de coluna, rota ou assinatura de função, ler o arquivo real primeiro (o repositório está acessível via git) em vez de assumir.
+- Se não tiver certeza sobre a intenção visual de um pedido, seguir a seção "Interpretando pedidos visuais do dono do projeto" em vez de assumir uma interpretação.
 - Preferir respostas objetivas; quando houver mais de uma alternativa técnica, listar vantagens/desvantagens de cada uma.
-- Antes de gerar qualquer arquivo, rodar uma auditoria rápida mental: "isso está de acordo com o que `docs/DATABASE.md` e `docs/DECISIONS.md` dizem hoje?" — a documentação já passou por uma reconciliação completa contra o schema real em 2026-08 (ver `docs/CHANGELOG.md`), então ela é confiável como ponto de partida, mas não substitui checar o código quando a tarefa for tocar algo específico.
+- Antes de gerar qualquer arquivo, rodar uma auditoria rápida mental: "isso está de acordo com o que `docs/DATABASE.md`, `docs/DECISIONS.md` e `docs/DESIGN.md` dizem hoje?" — a documentação já passou por uma reconciliação completa contra o schema real em 2026-08 (ver `docs/CHANGELOG.md`), então ela é confiável como ponto de partida, mas não substitui checar o código quando a tarefa for tocar algo específico.

@@ -12,6 +12,7 @@
   box-shadow: 0 1px 0 color-mix(in oklch, var(--surface) 28%, transparent), 0 8px 26px color-mix(in oklch, var(--foreground) 5%, transparent);
   backdrop-filter: blur(18px) saturate(1.08);
   overflow: visible;
+  view-transition-name: barra-superior;
 }
 
 .headerTelaInteira {
@@ -65,11 +66,6 @@
   padding-block: 0.5rem;
 }
 
-.headerBiblioteca .perfilArea {
-  transform-origin: left center;
-  animation: perfilCompactoEntra 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
 .perfilRastro {
   position: absolute;
   z-index: 0;
@@ -99,6 +95,7 @@
   align-self: stretch;
   width: min(100%, 12rem);
   min-width: 0;
+  view-transition-name: perfil-pessoal;
 }
 
 .perfil {
@@ -526,25 +523,11 @@
   50% { transform: translate3d(2px, 3px, 0); opacity: 0.88; }
 }
 
-@keyframes perfilCompactoEntra {
-  from {
-    opacity: 0.55;
-    transform: translate3d(-0.75rem, 0.55rem, 0) scale(1.2);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .fragmentos i {
     animation: none;
   }
 
-  .headerBiblioteca .perfilArea {
-    animation: none;
-  }
 }
 
 :global(.dark) .fragmentos {
@@ -613,6 +596,7 @@
   background: color-mix(in oklch, var(--accent-wash) 92%, var(--surface));
   color: var(--text);
   box-shadow: 0 2px 8px color-mix(in oklch, var(--foreground) 8%, transparent);
+  view-transition-name: navegacao-ativa;
 }
 
 .sair {
