@@ -13,6 +13,16 @@ fluxos reais e a correção da coluna pessoal no deploy.
 **Próxima ação:** executar os retestes de `docs/teste.md` no deploy com as contas
 e APIs reais, incluindo altura reduzida e seletor de atmosfera na coluna pessoal.
 
+## Ajustes encontrados na homologação — 2026-08-28
+
+- [x] Biblioteca deixa de receber a coluna pessoal e mantém somente sua sidebar
+      própria; telas de foco continuam sem a coluna.
+- [x] Removidos os pequenos rótulos acima dos títulos principais das páginas,
+      preservando os rótulos internos de seções e o banner da Biblioteca.
+- [x] Resumos de “revisões pendentes” passam a listar somente lembretes de
+      conteúdo, sem transformar flashcards importados/manuais em obrigação.
+- [ ] Validar visualmente estes três ajustes depois da publicação do lote.
+
 ## Handoff curto para novo chat
 
 - [x] Criado `docs/NEXT_ENGINEER_HANDOFF.md` como ponto curto de retomada para

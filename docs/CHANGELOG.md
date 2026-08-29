@@ -20,6 +20,13 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — v2.1 pronta tecnicamente; homologação manual pendente
 
+- **2026-08-28 (hierarquia visual e conceito de revisão)** — Corrigida a
+  composição da Biblioteca para não exibir a coluna pessoal junto da sidebar
+  própria. Cabeçalhos comuns agora começam diretamente pelo título principal.
+  Início e Estudos deixaram de classificar flashcards como pendências de
+  conteúdo; somente lembretes vinculados por `referencia_uuid` entram nesses
+  resumos. Sem migration ou alteração dos cards existentes.
+
 - **2026-08-28 (scroll e robustez da coluna pessoal)** — A coluna lateral fixa
   passou a rolar verticalmente como uma área única em janelas baixas, sem scroll
   concorrente na linha temporal e sem cortar o seletor de atmosfera. O

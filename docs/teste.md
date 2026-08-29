@@ -110,6 +110,8 @@ Codex.
 - [ ] Em tela larga, confirmar que as páginas comuns exibem coluna pessoal à
       esquerda do topo ao rodapé e conteúdo principal à direita sem comprimir
       textos, cards ou menus.
+- [ ] Na Biblioteca e em Gêneros, confirmar que aparece somente a sidebar da
+      Biblioteca, sem perfil/relógio/calendário como segunda coluna esquerda.
 - [ ] Reduzir a altura da janela ou aumentar temporariamente o zoom e confirmar
       que a coluna pessoal esquerda rola com o mouse/trackpad sem cortar relógio,
       calendário, linha temporal, perfil, tema ou sair.
@@ -121,6 +123,12 @@ Codex.
       e linha temporal de Agenda/provas nos temas Sol, Nublado, Estrelado e Lua.
 - [ ] Confirmar que login, prova ENEM e sessão focada de Revisão não exibem a
       coluna lateral.
+- [ ] Nas páginas comuns, confirmar que o título principal começa diretamente
+      no topo do conteúdo, sem rótulo pequeno como “Sistema Pessoal v2”,
+      “Módulo”, “Conta” ou equivalente acima dele.
+- [ ] Criar ou importar um flashcard vencido e confirmar que ele continua na
+      ferramenta de Revisão Espaçada, mas não aparece como pendência de conteúdo
+      no Início nem no hub de Estudos.
 - [ ] Em notebook estreito/mobile, confirmar que a coluna lateral recolhe e que
       nenhuma página ganha rolagem horizontal por causa dela.
 - [ ] No bloco inferior da coluna, testar acesso a Configurações e troca de

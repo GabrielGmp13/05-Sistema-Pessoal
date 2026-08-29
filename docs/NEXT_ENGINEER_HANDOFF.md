@@ -14,7 +14,8 @@ como mapa rápido do estado atual e das próximas ações.
 - Produção e migrations estavam alinhadas até
   `20260827000100_homologacao_fluxos_pessoais.sql`.
 - A UI global recente usa `AppChrome` com coluna pessoal à esquerda em telas
-  largas e barra superior dedicada somente à navegação.
+  largas e barra superior dedicada somente à navegação. Biblioteca e telas de
+  foco são exceções sem a coluna pessoal.
 
 ## Leitura mínima antes de editar
 

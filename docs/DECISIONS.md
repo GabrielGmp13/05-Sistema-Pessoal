@@ -1370,3 +1370,33 @@ A migration `20260827000100_homologacao_fluxos_pessoais.sql` cria duas tabelas
 com RLS/GRANT, adiciona quatro FKs/campos opcionais e não altera dados existentes.
 O frontend foi liberado para publicação somente depois da aplicação autorizada;
 o pós-check confirmou histórico, objetos, FKs, RLS e GRANTs, seguido de dry-run vazio.
+
+## DEC-071 — Coluna pessoal não concorre com sidebar local e pendência significa conteúdo
+
+**Data:** 2026-08-28
+**Status:** ✅ Decisão corrigida pelo usuário; implementação local, homologação pendente
+
+### Contexto
+
+A primeira versão do `AppChrome` aplicou a coluna pessoal também à Biblioteca,
+criando duas colunas esquerdas concorrentes. O Dashboard e o hub de Estudos
+também apresentavam flashcards importados como “revisões pendentes”, embora o
+projeto já distinguisse cards pergunta/resposta de lembretes de conteúdo.
+
+### Decisão
+
+- A coluna pessoal aparece nas rotas autenticadas comuns, mas não em telas de
+  foco nem em `/biblioteca/*`, que já possui sidebar local própria (DEC-032).
+- Cabeçalhos de página comuns começam diretamente pelo título principal; os
+  pequenos rótulos acima do `<h1>` são removidos. Rótulos internos de seções e
+  o selo do banner da Biblioteca continuam existindo.
+- “Revisão pendente” nos resumos gerais significa somente lembrete de conteúdo
+  criado por `avaliarCardPorConteudo`, identificado por `modulo = 'estudos'` e
+  `referencia_uuid` preenchido. Flashcards manuais/importados continuam na
+  ferramenta de Revisão Espaçada, mas não são tratados como obrigação de
+  conteúdo no Início ou no hub de Estudos.
+
+### Impacto
+
+A correção é somente de composição, consulta e linguagem visual. Não altera
+schema, cards existentes, progresso SM-2 nem vínculos acadêmicos de flashcards.

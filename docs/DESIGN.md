@@ -83,8 +83,9 @@ Todas self-hosted em `.woff2` — nunca carregar de CDN externo.
 - Rotas autenticadas comuns passam pelo `AppChrome`: coluna pessoal fixa à
   esquerda, do topo ao rodapé da janela, e conteúdo principal à direita em
   telas largas. A coluna recolhe abaixo de `1480px` para preservar módulos
-  densos e mobile. Telas de foco, como prova ENEM e sessão de Revisão,
-  continuam em largura total.
+  densos e mobile. Telas de foco, como prova ENEM e sessão de Revisão, e todas
+  as rotas `/biblioteca/*` continuam em largura total; a Biblioteca já possui
+  sua própria sidebar local e nunca exibe as duas colunas juntas (DEC-071).
 - A coluna lateral usa a mesma atmosfera do site, não um tema independente:
   relógio digital, calendário do mês, linha temporal da Agenda/provas e resumo
   de perfil/tema herdam `--glass-background`, `--page-glow`,
@@ -93,6 +94,9 @@ Todas self-hosted em `.woff2` — nunca carregar de CDN externo.
   área de conteúdo. Perfil, controle de atmosfera e saída ficam na coluna
   pessoal. A área principal recebe gradientes discretos e linhas luminosas por
   tema/estação, criando profundidade sem reescrever os cards de cada módulo.
+- Cabeçalhos de página começam diretamente no título principal. Não usar
+  eyebrow/kicker pequeno acima do `<h1>`; rótulos pequenos permanecem válidos
+  dentro de seções e cards, onde ajudam a criar hierarquia (DEC-071).
 
 ### Layout por módulo com sidebar interna (DEC-032)
 Módulos com navegação por categoria (Biblioteca; possivelmente Treino/Estudos
@@ -164,16 +168,17 @@ navegação por categoria.
 4. **Rodapé** — ação secundária opcional e botão primário (ex: "+ Adicionar obra")
 
 Em telas largas, perfil, atmosfera e logout vivem na coluna pessoal esquerda
-(DEC-049 evoluída): avatar, nome e `user_metadata.background_url` aparecem no
-bloco de perfil da coluna, junto dos controles de editar, tema e sair. “Início”
-continua sendo o acesso à Home. A imagem real de background nunca é aplicada ao
-restante da barra superior: a continuidade visual fora do perfil usa apenas
-manchas e fragmentos abstratos em forma de pétalas/lascas. As partículas usam a
-cor ambiente configurável ou o fallback da iluminação, sem cobrir os links. A
-sidebar da Biblioteca não duplica perfil. Fragmentos pequenos e orgânicos nunca
-repetem ou esticam `background_url`, formam faixa sólida ou prejudicam a
-leitura. Os links ficam sobre uma cápsula translúcida com blur, borda e item
-ativo próprio, separando conteúdo e decoração.
+nas rotas comuns (DEC-049 evoluída): avatar, nome e
+`user_metadata.background_url` aparecem no bloco de perfil da coluna, junto dos
+controles de editar, tema e sair. “Início” continua sendo o acesso à Home. Na
+Biblioteca, a coluna pessoal inteira é omitida porque o módulo já possui sidebar
+própria (DEC-071). A imagem real de background nunca é aplicada ao restante da
+barra superior: a continuidade visual fora do perfil usa apenas manchas e
+fragmentos abstratos em forma de pétalas/lascas. As partículas usam a cor
+ambiente configurável ou o fallback da iluminação, sem cobrir os links.
+Fragmentos pequenos e orgânicos nunca repetem ou esticam `background_url`,
+formam faixa sólida ou prejudicam a leitura. Os links ficam sobre uma cápsula
+translúcida com blur, borda e item ativo próprio, separando conteúdo e decoração.
 Com Idiomas, Histórico e Programação, a faixa mantém rolagem horizontal abaixo
 de 960px; entre 960px e 1319px usa ícones com `aria-label`/tooltip, e a partir
 de 1320px volta a exibir os rótulos completos para evitar colisão com perfil e
