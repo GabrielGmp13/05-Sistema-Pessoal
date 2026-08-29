@@ -215,8 +215,12 @@ As decorações sazonais usam uma camada compartilhada no fundo de toda a faixa
 superior e outra atrás dos cards da coluna pessoal; não ficam limitadas à
 cápsula dos links. Primavera exibe pétalas suaves flutuando, verão pequenos
 brilhos solares, outono folhas secas voando e inverno flocos de neve caindo.
-Essas camadas usam `pointer-events: none`, ficam abaixo do conteúdo legível e
-viram composição estática quando `prefers-reduced-motion: reduce` está ativo.
+Somente a neve usa percurso vertical; as outras três estações atravessam a tela
+horizontalmente em trajetórias onduladas de vento. Na Biblioteca não existe
+coluna pessoal, portanto sua camada lateral também fica oculta e somente o topo
+é decorado. Essas camadas usam `pointer-events: none`, ficam abaixo do conteúdo
+legível e viram composição estática quando `prefers-reduced-motion: reduce` está
+ativo.
 
 Item ativo: pill com fundo derivado de `--success-muted`, contraste por
 `--success-foreground` e marcador interno sutil. A sidebar é um painel

@@ -5,18 +5,26 @@
   overflow: hidden;
   pointer-events: none;
   contain: paint;
+  transition: opacity 0.38s ease, visibility 0.38s ease;
 }
 
 .topo {
   --percurso-sazonal: 7.5rem;
-  --percurso-sazonal-meio: 3.6rem;
+  --voo-sazonal: 110vw;
+  --voo-sazonal-meio: 54vw;
   opacity: 0.84;
 }
 
 .lateral {
   --percurso-sazonal: 108vh;
-  --percurso-sazonal-meio: 52vh;
+  --voo-sazonal: 26rem;
+  --voo-sazonal-meio: 13rem;
   opacity: 0.62;
+}
+
+.oculta {
+  visibility: hidden;
+  opacity: 0;
 }
 
 .particula {
@@ -31,11 +39,13 @@
 }
 
 .primavera .particula {
+  left: -2rem !important;
+  top: var(--particula-topo);
   border-radius: 90% 12% 84% 18%;
   background: linear-gradient(145deg, color-mix(in oklch, var(--ambient-color, #db7894) 42%, #f4b6c8), color-mix(in oklch, var(--ambient-color, #db7894) 22%, #fff0f4));
   box-shadow: 0 0 0.7rem color-mix(in oklch, var(--ambient-color, #db7894) 24%, transparent);
   clip-path: polygon(4% 24%, 58% 0, 100% 43%, 72% 100%, 17% 78%);
-  animation: petalaDesce var(--particula-duracao) ease-in-out var(--particula-atraso) infinite;
+  animation: petalaVoa var(--particula-duracao) ease-in-out var(--particula-atraso) infinite;
 }
 
 .primavera .particula:nth-child(3n) {
@@ -43,11 +53,12 @@
 }
 
 .verao .particula {
+  left: -2rem !important;
   top: var(--particula-topo);
   border-radius: 50%;
   background: radial-gradient(circle, #fff8c9 0 18%, color-mix(in oklch, var(--ambient-color, #ffd66f) 24%, #ffd66f) 24% 42%, transparent 72%);
   box-shadow: 0 0 1rem color-mix(in oklch, #ffd66f 54%, transparent);
-  animation: brilhoSolar 5.8s ease-in-out var(--particula-atraso) infinite;
+  animation: brilhoVoa var(--particula-duracao) ease-in-out var(--particula-atraso) infinite;
 }
 
 .verao .particula:nth-child(4n) {
@@ -59,6 +70,8 @@
 }
 
 .outono .particula {
+  left: -2rem !important;
+  top: var(--particula-topo);
   width: 1rem;
   height: 0.5rem;
   border-radius: 88% 10% 76% 18%;
@@ -99,20 +112,20 @@
   display: none;
 }
 
-@keyframes petalaDesce {
-  0% { opacity: 0; transform: translate3d(0, -1rem, 0) rotate(var(--particula-rotacao)); }
+@keyframes petalaVoa {
+  0% { opacity: 0; transform: translate3d(-1rem, 0, 0) rotate(var(--particula-rotacao)); }
   12% { opacity: 0.72; }
-  48% { transform: translate3d(var(--particula-desvio), var(--percurso-sazonal-meio), 0) rotate(calc(var(--particula-rotacao) + 115deg)); }
+  48% { transform: translate3d(var(--voo-sazonal-meio), var(--particula-desvio), 0) rotate(calc(var(--particula-rotacao) + 115deg)); }
   88% { opacity: 0.6; }
-  100% { opacity: 0; transform: translate3d(calc(var(--particula-desvio) * -0.55), var(--percurso-sazonal), 0) rotate(calc(var(--particula-rotacao) + 250deg)); }
+  100% { opacity: 0; transform: translate3d(var(--voo-sazonal), var(--particula-desvio-inverso), 0) rotate(calc(var(--particula-rotacao) + 250deg)); }
 }
 
 @keyframes folhaVoa {
-  0% { opacity: 0; transform: translate3d(-1.5rem, -1rem, 0) rotate(var(--particula-rotacao)); }
+  0% { opacity: 0; transform: translate3d(-1.5rem, 0, 0) rotate(var(--particula-rotacao)); }
   10% { opacity: 0.78; }
-  50% { transform: translate3d(calc(var(--particula-desvio) + 2rem), var(--percurso-sazonal-meio), 0) rotate(calc(var(--particula-rotacao) + 230deg)); }
+  50% { transform: translate3d(var(--voo-sazonal-meio), var(--particula-desvio), 0) rotate(calc(var(--particula-rotacao) + 230deg)); }
   90% { opacity: 0.68; }
-  100% { opacity: 0; transform: translate3d(calc(var(--particula-desvio) - 1rem), var(--percurso-sazonal), 0) rotate(calc(var(--particula-rotacao) + 480deg)); }
+  100% { opacity: 0; transform: translate3d(var(--voo-sazonal), var(--particula-desvio-inverso), 0) rotate(calc(var(--particula-rotacao) + 480deg)); }
 }
 
 @keyframes neveCai {
@@ -122,12 +135,21 @@
   100% { opacity: 0; transform: translate3d(var(--particula-desvio), var(--percurso-sazonal), 0) rotate(210deg); }
 }
 
-@keyframes brilhoSolar {
-  0%, 100% { opacity: 0.2; transform: translate3d(-3px, 1px, 0) scale(0.7); }
-  50% { opacity: 0.9; transform: translate3d(5px, -3px, 0) scale(1.18); }
+@keyframes brilhoVoa {
+  0% { opacity: 0; transform: translate3d(-1rem, 0, 0) scale(0.68); }
+  14% { opacity: 0.52; }
+  50% { opacity: 0.9; transform: translate3d(var(--voo-sazonal-meio), var(--particula-desvio), 0) scale(1.18); }
+  86% { opacity: 0.48; }
+  100% { opacity: 0; transform: translate3d(var(--voo-sazonal), var(--particula-desvio-inverso), 0) scale(0.72); }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .primavera .particula,
+  .verao .particula,
+  .outono .particula {
+    left: var(--particula-esquerda) !important;
+  }
+
   .particula {
     top: var(--particula-topo);
     animation: none !important;

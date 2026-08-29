@@ -8,11 +8,13 @@ import styles from './SeasonalDecor.module.css'
 
 const particulas = Array.from({ length: 56 }, (_, indice) => ({
   left: `${1 + ((indice * 37) % 98)}%`,
+  '--particula-esquerda': `${1 + ((indice * 37) % 98)}%`,
   '--particula-topo': `${4 + ((indice * 43) % 88)}%`,
   '--particula-tamanho': `${5 + ((indice * 11) % 9)}px`,
   '--particula-atraso': `${-((indice * 0.73) % 13).toFixed(2)}s`,
   '--particula-duracao': `${8 + ((indice * 7) % 9)}s`,
   '--particula-desvio': `${-24 + ((indice * 19) % 49)}px`,
+  '--particula-desvio-inverso': `${24 - ((indice * 19) % 49)}px`,
   '--particula-rotacao': `${-70 + ((indice * 31) % 141)}deg`,
 } as CSSProperties))
 
@@ -24,13 +26,21 @@ const classesDecoracao: Record<Decoracao, string> = {
   nenhum: styles.nenhum,
 }
 
-export function SeasonalDecor({ variante, className }: { variante: 'topo' | 'lateral'; className?: string }) {
+export function SeasonalDecor({
+  variante,
+  className,
+  oculto = false,
+}: {
+  variante: 'topo' | 'lateral'
+  className?: string
+  oculto?: boolean
+}) {
   const { decoracao } = useTema()
 
   return (
     <span
       aria-hidden="true"
-      className={cn(styles.camada, styles[variante], classesDecoracao[decoracao], className)}
+      className={cn(styles.camada, styles[variante], classesDecoracao[decoracao], oculto && styles.oculta, className)}
     >
       {particulas.map((style, indice) => <i key={indice} className={styles.particula} style={style} />)}
     </span>

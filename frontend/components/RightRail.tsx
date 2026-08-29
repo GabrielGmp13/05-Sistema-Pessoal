@@ -207,7 +207,7 @@ export function RightRail({ recolhendo = false }: { recolhendo?: boolean }) {
 
   return (
     <aside className={cn(styles.rail, recolhendo && styles.railRecolhendo)} aria-label="Painel lateral pessoal" aria-hidden={recolhendo || undefined}>
-      <SeasonalDecor variante="lateral" />
+      <SeasonalDecor variante="lateral" oculto={recolhendo} />
       <section className={cn(styles.card, styles.identidadeCard)} aria-label="Perfil" data-perfil-amplo>
         <div className={styles.capaPerfil}>
           {perfil?.backgroundUrl ? (

@@ -25,7 +25,9 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
   cobre toda a faixa superior e o fundo da coluna pessoal. Primavera usa
   pétalas suaves, verão brilhos solares, outono folhas secas e inverno flocos de
   neve. As camadas não capturam cliques, respeitam redução de movimento e não
-  alteram a transição compartilhada com a Biblioteca.
+  alteram a transição compartilhada com a Biblioteca. Somente a neve cai;
+  pétalas, folhas e brilhos seguem trajetórias horizontais de vento. A camada
+  lateral é ocultada ao concluir a entrada na Biblioteca.
 
 - **2026-08-29 (Agenda automática e duas escalas visíveis)** — A Agenda passou
   a manter o mês completo acima da semana selecionada. A conexão Calendar

@@ -25,6 +25,9 @@ e APIs reais, incluindo altura reduzida e seletor de atmosfera na coluna pessoal
 - [x] Decorações sazonais passam a cobrir toda a faixa superior e o fundo da
       coluna pessoal: pétalas na primavera, brilhos solares no verão, folhas no
       outono e flocos de neve no inverno.
+- [x] Somente a neve cai verticalmente; pétalas, folhas e brilhos atravessam o
+      cenário com vento. A camada da coluna desaparece por completo na
+      Biblioteca, que mantém apenas a decoração do topo.
 - [x] Removidos os pequenos rótulos acima dos títulos principais das páginas,
       preservando os rótulos internos de seções e o banner da Biblioteca.
 - [x] Resumos de “revisões pendentes” passam a listar somente lembretes de
