@@ -169,6 +169,13 @@ export async function getGoogleAccessToken(userId: string, service: GoogleServic
   return tokens.access_token
 }
 
+export class GoogleApiError extends Error {
+  constructor(message: string, readonly status: number) {
+    super(message)
+    this.name = 'GoogleApiError'
+  }
+}
+
 export async function googleApi<T>(userId: string, service: GoogleService, url: string, init?: RequestInit): Promise<T> {
   const accessToken = await getGoogleAccessToken(userId, service)
   const response = await fetch(url, {
@@ -182,7 +189,7 @@ export async function googleApi<T>(userId: string, service: GoogleService, url: 
   })
   if (!response.ok) {
     const detail = await response.json().catch(() => null) as { error?: { message?: string } } | null
-    throw new Error(detail?.error?.message || `Google respondeu com status ${response.status}.`)
+    throw new GoogleApiError(detail?.error?.message || `Google respondeu com status ${response.status}.`, response.status)
   }
   if (response.status === 204) return undefined as T
   return response.json() as Promise<T>

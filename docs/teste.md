@@ -74,9 +74,11 @@ Codex.
       independente.
 - [ ] Criar no Google Calendar um evento com hora, um de dia inteiro e uma
       ocorrência recorrente dentro do período visível da Agenda.
-- [ ] Clicar **Importar Calendar**, revisar a prévia e aplicar; confirmar horários
-      em `America/Recife` e ausência de duplicação ao importar novamente.
-- [ ] Alterar o evento no Google, consultar outra vez e confirmar “Atualizar”.
+- [ ] Usar **Sincronizar agora** e confirmar horários em `America/Recife` e
+      ausência de duplicação. Depois, criar outro evento no Google e confirmar
+      que ele entra automaticamente com o site aberto (até dois minutos).
+- [ ] Alterar o evento no Google e confirmar que a atualização automática chega
+      à Agenda; repetir pelo botão apenas para testar a ação imediata.
 - [ ] Alterar um evento importado localmente e também no Google; confirmar que a
       prévia marca conflito e não sobrescreve automaticamente a edição local.
 - [ ] Cancelar um evento no Google, importar e confirmar que ele sai da Agenda

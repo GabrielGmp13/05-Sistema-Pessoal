@@ -218,7 +218,9 @@ brilhos solares, outono folhas secas voando e inverno flocos de neve caindo.
 Somente a neve usa percurso vertical; as outras três estações atravessam a tela
 horizontalmente em trajetórias onduladas de vento. Na Biblioteca não existe
 coluna pessoal, portanto sua camada lateral também fica oculta e somente o topo
-é decorado. Essas camadas usam `pointer-events: none`, ficam abaixo do conteúdo
+é decorado. As partículas da faixa superior levam o dobro do tempo para
+percorrer o caminho das equivalentes laterais, reduzindo sua velocidade pela
+metade. Essas camadas usam `pointer-events: none`, ficam abaixo do conteúdo
 legível e viram composição estática quando `prefers-reduced-motion: reduce` está
 ativo.
 

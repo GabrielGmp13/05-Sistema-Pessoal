@@ -42,6 +42,9 @@ e APIs reais, incluindo altura reduzida e seletor de atmosfera na coluna pessoal
 - [x] Calendar sincroniza mudanças remotas ao navegar/retomar a aba e a cada
       dois minutos; criação, edição e exclusão locais refletem imediatamente no
       Google quando a conta está conectada.
+- [x] Diagnóstico de Configurações passa a listar exatamente quais variáveis
+      server-side faltam; exclusão tolera evento já ausente no Google e eventos
+      importados não retornam como edição local por diferença de milissegundos.
 - [x] Linha cronológica da coluna pessoal mostra todos os compromissos e provas
       do dia atual, sem limite artificial de oito itens futuros.
 - [x] Perfil e controles de editar/tema/sair permanecem fixos nas extremidades
@@ -49,6 +52,20 @@ e APIs reais, incluindo altura reduzida e seletor de atmosfera na coluna pessoal
       uma área única, permitindo navegar por dias com muitos compromissos.
 - [ ] Retestar o fluxo bilateral no deploy, pois o OAuth local não está
       configurado para `localhost`.
+- [ ] Confirmar na Vercel as cinco variáveis OAuth Google, a service role do
+      Supabase e a conexão da conta em Configurações; a sincronização atual usa
+      somente o calendário primário e funciona enquanto o site está aberto.
+
+## Auditoria de APIs da Biblioteca e editor de PDF — 2026-08-29
+
+- [x] Timeout aplicado às consultas externas de metadados.
+- [x] Google Books alinhado ao contrato oficial com `GOOGLE_BOOKS_API_KEY`;
+      YouTube/TMDB continuam com chave, Jikan/iTunes/Artigos sem chave.
+- [x] Histórico revisado para o editor de PDF: somente upload/abertura e relógio
+      de aplicador estavam documentados; editor interno com desenho foi
+      preservado no Backlog como conceito ainda sem contrato detalhado.
+- [ ] Configurar e homologar em produção as chaves opcionais desejadas da
+      Biblioteca, especialmente Google Books, YouTube e TMDB.
 
 ## Handoff curto para novo chat
 
@@ -416,7 +433,8 @@ e APIs reais, incluindo altura reduzida e seletor de atmosfera na coluna pessoal
 - [x] Primeira API Route criada em `app/api/biblioteca/metadados/route.ts`, protegida pela sessão global e sem expor segredos no client
 - [x] YouTube preparado para título, canal, duração e thumbnail; requer `YOUTUBE_API_KEY` server-only e preserva o preenchimento manual sem ela
 - [x] TMDB preparado para busca básica de filmes/séries; requer `TMDB_API_KEY` server-only e preserva o preenchimento manual sem ela
-- [x] Google Books, Jikan (animes e mangás) e iTunes Search integrados sem chave
+- [x] Google Books integrado com chave server-side; Jikan (animes e mangás) e
+      iTunes Search integrados sem chave
 - [x] Busca passou a usar o próprio título com debounce e sugestões abaixo do campo; Vídeos também aceitam URL, sem campo/botão de busca separado
 - [ ] Validar manualmente resultados, seleção e fallback das sete fontes em produção; APIs públicas podem aplicar limites ou indisponibilidade temporária
 

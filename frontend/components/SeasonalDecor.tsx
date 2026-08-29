@@ -13,6 +13,7 @@ const particulas = Array.from({ length: 56 }, (_, indice) => ({
   '--particula-tamanho': `${5 + ((indice * 11) % 9)}px`,
   '--particula-atraso': `${-((indice * 0.73) % 13).toFixed(2)}s`,
   '--particula-duracao': `${8 + ((indice * 7) % 9)}s`,
+  '--particula-duracao-topo': `${(8 + ((indice * 7) % 9)) * 2}s`,
   '--particula-desvio': `${-24 + ((indice * 19) % 49)}px`,
   '--particula-desvio-inverso': `${24 - ((indice * 19) % 49)}px`,
   '--particula-rotacao': `${-70 + ((indice * 31) % 141)}deg`,

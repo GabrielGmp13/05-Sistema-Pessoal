@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { googleApi, googleConfigured } from '@/lib/server/google'
+import { GoogleApiError, googleApi, googleConfigured } from '@/lib/server/google'
 import { getApiUser, getServiceSupabase } from '@/lib/server/supabase'
 
 interface GoogleCalendarEvent { id?: string; htmlLink?: string }
@@ -86,12 +86,17 @@ export async function DELETE(request: NextRequest) {
     if (error || !event) return NextResponse.json({ erro: 'Compromisso não encontrado.' }, { status: 404 })
 
     if (event.google_calendar_event_id) {
-      await googleApi<void>(
-        user.id,
-        'calendar',
-        `https://www.googleapis.com/calendar/v3/calendars/primary/events/${encodeURIComponent(event.google_calendar_event_id)}`,
-        { method: 'DELETE' },
-      )
+      try {
+        await googleApi<void>(
+          user.id,
+          'calendar',
+          `https://www.googleapis.com/calendar/v3/calendars/primary/events/${encodeURIComponent(event.google_calendar_event_id)}`,
+          { method: 'DELETE' },
+        )
+      } catch (error) {
+        // A exclusão local ainda deve concluir quando o evento já foi apagado no Google.
+        if (!(error instanceof GoogleApiError) || ![404, 410].includes(error.status)) throw error
+      }
     }
 
     const sincronizadoEm = new Date().toISOString()

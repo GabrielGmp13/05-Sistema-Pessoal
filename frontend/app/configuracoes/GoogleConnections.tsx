@@ -17,6 +17,8 @@ interface GoogleConnectionStatus {
 interface GoogleStatus {
   configurado: boolean
   conexoes: Record<GoogleService, GoogleConnectionStatus>
+  erro?: string
+  diagnostico?: { tipo?: string; variaveis?: string[] }
 }
 
 const SERVICE_LABELS: Record<GoogleService, string> = {
@@ -54,9 +56,10 @@ export function GoogleConnections() {
   const carregarStatus = useCallback(async () => {
     try {
       const response = await fetch('/api/integracoes/google/status', { cache: 'no-store' })
-      const body = await response.json() as GoogleStatus & { erro?: string }
+      const body = await response.json() as GoogleStatus
+      if (typeof body.configurado === 'boolean' && body.conexoes) setStatus(body)
       if (!response.ok) throw new Error(body.erro || 'Não foi possível consultar a conexão.')
-      setStatus(body)
+      setErro('')
     } catch (error) {
       setErro(error instanceof Error ? error.message : 'Não foi possível consultar a conexão.')
     }
@@ -199,7 +202,12 @@ export function GoogleConnections() {
         {!status ? <Loader2 className="size-5 animate-spin text-muted-foreground" /> : null}
       </div>
 
-      {status && !status.configurado ? <div className="mt-4 rounded-lg border border-border bg-muted/40 p-3 text-sm">Configuração server-side ausente. Consulte <code>docs/INTEGRACOES_EXTERNAS.md</code>.</div> : null}
+      {status && !status.configurado ? <div className="mt-4 rounded-lg border border-border bg-muted/40 p-3 text-sm">
+        <p>Configuração server-side ausente. Adicione as variáveis abaixo na Vercel e faça um novo deploy:</p>
+        {status.diagnostico?.variaveis?.length ? <ul className="mt-2 list-inside list-disc font-mono text-xs">
+          {status.diagnostico.variaveis.map((variavel) => <li key={variavel}>{variavel}</li>)}
+        </ul> : null}
+      </div> : null}
 
       {status?.configurado ? <div className="mt-4 grid gap-3 md:grid-cols-2">
         {(['youtube', 'calendar'] as GoogleService[]).map((service) => {
@@ -234,8 +242,8 @@ export function GoogleConnections() {
         {proximaPaginaPlaylists ? <Button type="button" className="mt-3" variant="ghost" size="sm" disabled={processando} onClick={() => void carregarPlaylists(proximaPaginaPlaylists)}>Carregar mais playlists</Button> : null}
         {playlistAtiva && videos.length === 0 && !processando ? <p className="mt-4 text-sm text-muted-foreground">Nenhum vídeo importável nesta playlist.</p> : null}
         {videos.length > 0 ? <div className="mt-4"><div className="max-h-80 space-y-2 overflow-y-auto pr-1">{videos.map((video) => <label key={video.youtubeId} className="flex cursor-pointer items-start gap-3 rounded-lg border border-border p-3 hover:bg-muted/50"><input type="checkbox" className="mt-1 size-4" checked={selecionados.has(video.youtubeId)} onChange={() => alternarVideo(video.youtubeId)} /><span className="min-w-0"><strong className="block truncate text-sm">{video.titulo}</strong><span className="text-xs text-muted-foreground">{video.canal || video.youtubeId}</span></span></label>)}</div><div className="mt-3 flex flex-wrap gap-2">{proximaPaginaVideos && playlistAtiva ? <Button type="button" variant="outline" disabled={processando} onClick={() => void carregarVideos(playlistAtiva, proximaPaginaVideos)}>Carregar mais vídeos</Button> : null}<Button type="button" disabled={processando || selecionados.size === 0} onClick={() => void importarVideos()}>Importar {selecionados.size || ''} vídeo(s)</Button></div></div> : null}
-        <p className="mt-5 flex items-start gap-2 text-xs text-muted-foreground"><CalendarDays className="mt-0.5 size-3.5 shrink-0" />A exportação para o Google Calendar aparece em cada compromisso manual da Agenda. Provas de Estudos não são exportadas.</p>
       </div> : null}
+      {status?.conexoes.calendar.conectado ? <p className="mt-5 flex items-start gap-2 border-t border-border pt-5 text-xs text-muted-foreground"><CalendarDays className="mt-0.5 size-3.5 shrink-0" />A Agenda sincroniza automaticamente o calendário primário enquanto o site está aberto e envia imediatamente as criações, edições e exclusões locais. Provas de Estudos não são exportadas.</p> : null}
     </Card>
   )
 }

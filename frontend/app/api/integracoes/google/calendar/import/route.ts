@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
           uuid: crypto.randomUUID(), user_id: user.id, titulo: evento.titulo, tipo: 'geral', prioridade: 'normal',
           data: evento.data, hora_inicio: evento.horaInicio, duracao_minutos: evento.duracaoMinutos,
           descricao: evento.descricao, materia_uuid: null, conteudo_uuid: null, treino_uuid: null, concluido: false,
-          google_calendar_event_id: evento.id, google_calendar_synced_at: sincronizadoEm,
+          google_calendar_event_id: evento.id, google_calendar_synced_at: sincronizadoEm, updated_at: sincronizadoEm,
         })
         if (erroInsert) throw erroInsert
       } else if (evento.agendaUuid) {

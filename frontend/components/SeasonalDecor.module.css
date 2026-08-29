@@ -112,6 +112,10 @@
   display: none;
 }
 
+.topo .particula {
+  animation-duration: var(--particula-duracao-topo);
+}
+
 @keyframes petalaVoa {
   0% { opacity: 0; transform: translate3d(-1rem, 0, 0) rotate(var(--particula-rotacao)); }
   12% { opacity: 0.72; }

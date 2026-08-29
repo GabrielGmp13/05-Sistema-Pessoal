@@ -64,7 +64,7 @@ usuário em Supabase Auth**, pois as FKs podem remover dados em cascata.
 - [ ] Coração alterna favorito com um clique sem abrir o detalhe e sincroniza card/lista/painel
 - [ ] Duração/tempo aparece e edita corretamente nas oito categorias conforme o campo real
 - [ ] Notas de 0–5, gêneros, status e listas aninhadas preservam os valores após recarregar
-- [ ] YouTube/TMDB funcionam com chave; ausência de chave mantém cadastro manual; fontes públicas tratam indisponibilidade
+- [ ] YouTube/TMDB/Google Books funcionam com chave; ausência de chave mantém cadastro manual; Jikan/iTunes tratam indisponibilidade
 - [ ] Prévia de metadados identifica a fonte, mostra os campos úteis e orienta o cadastro manual quando a API limita ou falha
 - [ ] Vídeo pode ser vinculado a Curso sem duplicação no mesmo curso
 

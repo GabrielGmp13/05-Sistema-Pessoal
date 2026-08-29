@@ -26,7 +26,14 @@ Variáveis opcionais, usadas somente no servidor:
 
 - `YOUTUBE_API_KEY` — vídeos;
 - `TMDB_API_KEY` — filmes e séries;
+- `GOOGLE_BOOKS_API_KEY` — livros;
 - `BRAPI_TOKEN` — cotações sob demanda em Finanças.
+
+As conexões OAuth de YouTube e Google Calendar também exigem
+`SUPABASE_SERVICE_ROLE_KEY`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`,
+`GOOGLE_REDIRECT_URI` e `GOOGLE_TOKEN_ENCRYPTION_KEY`. A busca de lugares usa
+`GOOGLE_MAPS_API_KEY`. Consulte `docs/INTEGRACOES_EXTERNAS.md` para o preparo
+das APIs e dos redirects.
 
 Não versione `.env.local`, não use prefixo `NEXT_PUBLIC_` nessas chaves
 privadas e não use credenciais privilegiadas no frontend.
@@ -36,7 +43,9 @@ No desenvolvimento local, adicione as chaves opcionais que quiser habilitar a
 Na produção, use **Vercel → Project → Settings → Environment Variables**,
 marque **Production** e faça um redeploy. Sem `BRAPI_TOKEN`, as posições de
 investimento continuam funcionando e apenas a consulta de cotação fica inativa.
-Google Books, Jikan e iTunes Search funcionam sem chave.
+Jikan e iTunes Search funcionam sem chave. A Google Books API exige que a
+aplicação se identifique com `GOOGLE_BOOKS_API_KEY`, inclusive para dados
+públicos.
 
 ## Verificações
 

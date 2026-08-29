@@ -20,6 +20,14 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — v2.1 pronta tecnicamente; homologação manual pendente
 
+- **2026-08-29 (auditoria Calendar/APIs)** — A sincronização bilateral foi
+  reconciliada com a documentação e ganhou diagnóstico visível das variáveis
+  ausentes, tolerância a exclusão remota já concluída e timestamp estável na
+  importação. Google Books passou a exigir sua chave oficial; consultas de
+  metadados ganharam timeout. O histórico confirmou que o editor interno de PDF
+  com desenho não tinha contrato detalhado preservado. Os efeitos sazonais do
+  topo passaram à metade da velocidade, sem alterar a coluna lateral.
+
 - **2026-08-29 (atmosfera sazonal expandida)** — As decorações deixaram de
   ficar limitadas à cápsula de navegação e ganharam uma camada reutilizável que
   cobre toda a faixa superior e o fundo da coluna pessoal. Primavera usa

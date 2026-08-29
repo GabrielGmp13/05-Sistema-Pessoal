@@ -16,9 +16,10 @@ A infraestrutura segura possível no repositório foi concluída. Permanecem
 somente evoluções que ampliam o contrato já entregue ou exigem custo, política
 de conflito/publicação ou comportamento não definido.
 
-- [ ] Google Calendar automático em segundo plano, escolha de calendários e
-      resolução avançada de conflitos. A primeira via bidirecional manual com
-      prévia, deduplicação, atualização e cancelamento lógico já está entregue.
+- [ ] Google Calendar com o navegador fechado (webhook/canal + sync token),
+      escolha de calendários e resolução avançada de conflitos. A via
+      bidirecional automática enquanto o site está aberto, com deduplicação,
+      atualização e cancelamento lógico, já está entregue.
 - [ ] Google Photos Picker opcional. Uploads duráveis de Perfil, Receitas,
       Lugares, Biblioteca e provas/simulados já usam Supabase Storage privado.
 - [ ] Anki avançado: mídias embutidas e templates/JavaScript complexos. `.apkg`
@@ -140,9 +141,13 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
       Dia 2 5h), prazo persistido no navegador, gabarito de 90 questões e
       salvamento ao finalizar. A segunda rodada integrou tema/imagem da redação
       do Dia 1 e contagem explícita de respostas em branco (DEC-059).
-- [ ] Evolução do modo de prova: upload/abertura do PDF e visual alternativo de
-      "relógio de sala de aplicador" em blocos de 30 minutos. Exige contrato de
-      upload próprio; não bloqueia a base cronometrada já entregue.
+- [ ] Evolução do modo de prova: abrir o PDF dentro do próprio site, com um
+      visualizador/editor de arquivo e ferramentas de desenho ainda a detalhar,
+      além do visual alternativo de "relógio de sala de aplicador" em blocos de
+      30 minutos. A auditoria do histórico encontrou documentados apenas
+      upload/abertura e relógio; o contrato detalhado do editor não foi
+      preservado e precisa ser definido antes da implementação. Não bloqueia a
+      base cronometrada já entregue.
 - [ ] Vínculo direto entre um card de Revisão Espaçada e um compromisso da
       Agenda. A Agenda v2 já oferece horário/duração para estudo por matéria e
       conteúdo, mas não cria compromissos automaticamente a partir de cards.
@@ -193,7 +198,7 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
       rollback e signed URL; links externos permanecem fallback.
 - [x] Busca externa integrada aos formulários de Filmes, Séries, Animes,
       Mangás, Livros e Podcasts via TMDB, Jikan, Google Books e iTunes Search.
-      TMDB usa `TMDB_API_KEY` server-only; as fontes públicas mantêm fallback
+      TMDB e Google Books usam chaves server-only; Jikan e iTunes mantêm fallback
       manual quando há limite ou indisponibilidade temporária. A v2.1 tornou
       origem, prévia e orientação sobre limites mais explícitas.
 - [ ] Edição de itens já criados em listas aninhadas (elenco, trilha sonora, temporadas, openings/endings, volumes) — hoje só dá pra criar ou apagar; os únicos campos editáveis depois de criado são os toggles (`lido`, `filler`, `assistido`)
@@ -255,7 +260,7 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
 - [x] Importação mínima e segura de metadados Open Graph para Artigos.
 - [x] Extensão Edge/Chrome Manifest V3 para abrir Artigo/Vídeo pré-preenchido.
 - [x] Testes automatizados de funções puras e hardening MIME dos buckets.
-- [x] YouTube playlists e exportação unilateral do Calendar com OAuth server-side,
+- [x] YouTube playlists e primeira sincronização bilateral do Calendar com OAuth server-side,
       PKCE, cofre AES-256-GCM e revogação.
 - [x] Importação de playlist do YouTube por link, prévia/seleção e persistência
       do agrupamento na Biblioteca — fluxo base já publicado.

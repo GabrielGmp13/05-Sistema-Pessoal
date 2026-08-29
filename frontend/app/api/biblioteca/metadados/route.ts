@@ -98,6 +98,7 @@ async function jsonExterno(url: string): Promise<unknown> {
   try {
     response = await fetch(url, {
       cache: 'no-store',
+      signal: AbortSignal.timeout(10_000),
       headers: {
         Accept: 'application/json',
         'User-Agent': 'Sistema-Pessoal/2.0',
@@ -243,8 +244,10 @@ async function buscarTmdb(q: string, serie: boolean): Promise<ResultadoMetadados
   });
 }
 
-async function buscarGoogleLivros(q: string): Promise<ResultadoMetadados[]> {
-  const params = new URLSearchParams({ q, maxResults: '6', printType: 'books' });
+async function buscarGoogleLivros(q: string): Promise<ResultadoMetadados[] | null> {
+  const chave = process.env.GOOGLE_BOOKS_API_KEY;
+  if (!chave) return null;
+  const params = new URLSearchParams({ q, maxResults: '6', printType: 'books', key: chave });
   const data = (await jsonExterno(`https://www.googleapis.com/books/v1/volumes?${params}`)) as {
     items?: Array<{
       id: string;
@@ -393,7 +396,11 @@ export async function GET(request: NextRequest) {
     }
 
     if (resultados === null) {
-      const variavel = fonte === 'youtube' ? 'YOUTUBE_API_KEY' : 'TMDB_API_KEY';
+      const variavel = fonte === 'youtube'
+        ? 'YOUTUBE_API_KEY'
+        : fonte === 'google_livros'
+          ? 'GOOGLE_BOOKS_API_KEY'
+          : 'TMDB_API_KEY';
       return NextResponse.json({ disponivel: false, resultados: [], mensagem: `Importação automática indisponível. Configure ${variavel} no ambiente do servidor.` });
     }
     return NextResponse.json({ disponivel: true, resultados });

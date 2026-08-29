@@ -1,6 +1,6 @@
 # Integrações externas — configuração da v2.1
 
-Data da revisão: 2026-08-27.
+Data da revisão: 2026-08-29.
 
 ## Google OAuth
 
@@ -14,7 +14,8 @@ ao frontend.
 ### Configuração no Google Cloud
 
 1. Criar ou escolher um projeto no Google Cloud Console.
-2. Habilitar **YouTube Data API v3** e **Google Calendar API**.
+2. Habilitar **YouTube Data API v3**, **Google Calendar API**, **Books API** e,
+   se a busca de lugares for usada, **Places API (New)**.
 3. Configurar a tela de consentimento OAuth. Enquanto o app estiver em teste,
    adicionar a conta do Gabriel como usuário de teste.
 4. Criar credencial **OAuth client ID > Web application**.
@@ -30,6 +31,7 @@ GOOGLE_CLIENT_SECRET=
 GOOGLE_REDIRECT_URI=https://SEU-DOMINIO/api/integracoes/google/callback
 GOOGLE_TOKEN_ENCRYPTION_KEY=
 GOOGLE_MAPS_API_KEY=
+GOOGLE_BOOKS_API_KEY=
 ```
 
 `SUPABASE_SERVICE_ROLE_KEY`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_MAPS_API_KEY` e a chave de criptografia
@@ -63,6 +65,24 @@ provedor não responder, a remoção local continua sendo obrigatória.
   indisponíveis. A playlist especial “Assistir mais tarde” (`WL`) não pode ser
   lida por esse endpoint oficial e recebe uma mensagem explícita, sem simulação.
 
+## Metadados da Biblioteca
+
+- **Filmes e séries:** TMDB, com `TMDB_API_KEY` server-side.
+- **Vídeos:** YouTube Data API v3, com `YOUTUBE_API_KEY` para busca manual;
+  playlists da conta usam a conexão OAuth separada descrita acima.
+- **Livros:** Google Books, com `GOOGLE_BOOKS_API_KEY` server-side. A chave pode
+  ser do mesmo projeto Google, mas deve ser restrita à Books API.
+- **Animes e mangás:** Jikan, sem chave. É um serviço público externo e pode
+  limitar chamadas; o cadastro manual continua disponível.
+- **Podcasts:** iTunes Search da Apple, sem chave. O cadastro manual continua
+  disponível em caso de limite ou indisponibilidade.
+- **Artigos:** leitura server-side de Open Graph, sem chave, com bloqueio de
+  rede privada, redirects limitados, timeout e limite de tamanho.
+
+As consultas JSON externas têm timeout de 10 segundos para não deixar uma
+função do deploy presa quando o provedor estiver lento. Ausência de chave em
+YouTube, TMDB ou Google Books desativa somente a importação daquela fonte.
+
 ## YPT / Yeolpumta
 
 Não foi localizada API pública documentada nem contrato oficial verificável de
@@ -81,14 +101,19 @@ prévia e deduplicação definidas; não existe parser especulativo nesta versã
 - Compromissos sem hora viram evento de dia inteiro. Os demais usam
   `America/Recife`; sem duração explícita, o fallback é 60 minutos.
 - Provas de Estudos continuam somente leitura na Agenda e não exibem exportação.
-- O botão **Importar Calendar** consulta somente o período visível, expande
-  ocorrências recorrentes e mostra prévia antes de gravar. IDs remotos evitam
+- A sincronização consulta o mês atual (incluindo os dias visíveis das semanas
+  limítrofes) ao entrar/navegar, ao retomar a aba e a cada dois minutos enquanto
+  o site estiver aberto. O botão manual permite sincronizar imediatamente o
+  período visível. Ocorrências recorrentes são expandidas. IDs remotos evitam
   duplicação; mudanças remotas atualizam a linha e cancelamentos viram exclusão
   lógica. Se remoto e local mudaram desde a última sincronização, o item fica
   marcado como conflito e não é sobrescrito.
-- A sincronização é manual e usa o calendário primário. Escolha de calendários,
-  resolução interativa de conflito e sincronização automática em segundo plano
-  permanecem pós-v2.
+- Criações, edições e exclusões feitas na Agenda são enviadas imediatamente ao
+  Google. Se o evento já tiver sido removido no Google, a exclusão local ainda
+  conclui sem bloquear o usuário.
+- A implementação atual usa somente o calendário primário. Sincronização com o
+  navegador fechado exige webhook HTTPS e armazenamento de canal/sync token;
+  escolha de calendários e resolução interativa de conflito permanecem futuras.
 
 ## Google Places
 
