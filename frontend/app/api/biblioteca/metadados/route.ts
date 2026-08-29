@@ -401,7 +401,9 @@ export async function GET(request: NextRequest) {
         : fonte === 'google_livros'
           ? 'GOOGLE_BOOKS_API_KEY'
           : 'TMDB_API_KEY';
-      return NextResponse.json({ disponivel: false, resultados: [], mensagem: `Importação automática indisponível. Configure ${variavel} no ambiente do servidor.` });
+      const commit = process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7);
+      const referencia = commit ? ` O deployment em execução é o commit ${commit}.` : '';
+      return NextResponse.json({ disponivel: false, resultados: [], mensagem: `Importação automática indisponível. ${variavel} não chegou ao ambiente deste deployment.${referencia}` });
     }
     return NextResponse.json({ disponivel: true, resultados });
   } catch (error) {

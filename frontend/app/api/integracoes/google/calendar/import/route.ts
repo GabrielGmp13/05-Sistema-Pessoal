@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 import { classificarImportacaoCalendar, dataHoraRecife, EventoGoogleImportacao } from '@/lib/calendar-import'
-import { googleApi, googleConfigured } from '@/lib/server/google'
-import { getApiUser, getServiceSupabase } from '@/lib/server/supabase'
+import { GoogleApiError, googleApi, googleConfigured } from '@/lib/server/google'
+import { getApiUser, getServiceSupabase, SupabaseServerConfigurationError } from '@/lib/server/supabase'
+import { classifySupabaseFailure } from '@/lib/supabase-diagnostics'
 
 interface GoogleCalendarItem {
   id?: string
@@ -17,6 +18,33 @@ interface GoogleCalendarItem {
 }
 
 interface GoogleCalendarList { items?: GoogleCalendarItem[]; nextPageToken?: string }
+
+function mensagemSeguraCalendar(error: unknown) {
+  if (error instanceof GoogleApiError) {
+    if (error.status === 401) return 'A autorização do Google Calendar expirou ou foi revogada. Desconecte e conecte novamente a conta em Configurações.'
+    if (error.status === 403) {
+      const detalhe = error.message.toLowerCase()
+      if (detalhe.includes('has not been used') || detalhe.includes('disabled')) {
+        return 'A Google Calendar API não está ativada no mesmo projeto da credencial OAuth. Ative-a no Google Cloud e tente novamente.'
+      }
+      return 'O Google recusou o acesso ao calendário. Confirme a Google Calendar API e reconecte a conta em Configurações.'
+    }
+    if (error.status === 404) return 'O calendário principal da conta conectada não foi encontrado.'
+    if (error.status === 429) return 'O limite temporário da Google Calendar API foi atingido. Aguarde alguns minutos e tente novamente.'
+    return `A Google Calendar API respondeu com erro ${error.status}.`
+  }
+  if (error instanceof SupabaseServerConfigurationError) return error.message
+  const falhaSupabase = classifySupabaseFailure(error)
+  if (falhaSupabase === 'service_key_invalid') return 'A chave secreta server-side do Supabase foi recusada.'
+  if (falhaSupabase === 'table_missing' || falhaSupabase === 'column_missing') return 'O schema da integração Google está incompleto no banco configurado.'
+  if (falhaSupabase === 'permission_denied') return 'A integração Google não tem permissão para consultar o banco configurado.'
+  if (error instanceof Error) {
+    if (error.message.includes('não conectado')) return 'Google Calendar não conectado. Abra Configurações e conecte a conta.'
+    if (error.message.includes('refresh token')) return 'A conexão não possui autorização permanente. Desconecte e conecte novamente a conta Google.'
+    if (error.message.includes('renovar a conexão')) return 'Não foi possível renovar a conexão Google. Desconecte e conecte novamente a conta.'
+  }
+  return 'Não foi possível consultar ou importar o Google Calendar.'
+}
 
 function eventoImportavel(item: GoogleCalendarItem): EventoGoogleImportacao | null {
   if (!item.id) return null
@@ -114,6 +142,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ eventos: previa, aplicados })
   } catch (error) {
     console.error('[google-calendar-import]', { message: error instanceof Error ? error.message : 'Erro desconhecido' })
-    return NextResponse.json({ erro: 'Não foi possível consultar ou importar o Google Calendar.' }, { status: 502 })
+    return NextResponse.json({ erro: mensagemSeguraCalendar(error) }, { status: 502 })
   }
 }

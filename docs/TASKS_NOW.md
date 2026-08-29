@@ -45,6 +45,9 @@ e APIs reais, incluindo altura reduzida e seletor de atmosfera na coluna pessoal
 - [x] Diagnóstico de Configurações passa a listar exatamente quais variáveis
       server-side faltam; exclusão tolera evento já ausente no Google e eventos
       importados não retornam como edição local por diferença de milissegundos.
+- [x] Falhas da importação Calendar passam a distinguir autorização expirada,
+      API desativada, limite do Google, chave Supabase e schema/permissão; a
+      Biblioteca identifica o commit do deployment que não recebeu sua chave.
 - [x] Linha cronológica da coluna pessoal mostra todos os compromissos e provas
       do dia atual, sem limite artificial de oito itens futuros.
 - [x] Perfil e controles de editar/tema/sair permanecem fixos nas extremidades

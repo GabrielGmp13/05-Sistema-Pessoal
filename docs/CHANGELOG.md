@@ -27,6 +27,8 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
   metadados ganharam timeout. O histórico confirmou que o editor interno de PDF
   com desenho não tinha contrato detalhado preservado. Os efeitos sazonais do
   topo passaram à metade da velocidade, sem alterar a coluna lateral.
+  O diagnóstico posterior passou a diferenciar falhas seguras de Calendar e a
+  identificar o commit quando uma chave da Biblioteca não chega ao deployment.
 
 - **2026-08-29 (atmosfera sazonal expandida)** — As decorações deixaram de
   ficar limitadas à cápsula de navegação e ganharam uma camada reutilizável que
