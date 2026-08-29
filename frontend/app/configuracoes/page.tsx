@@ -168,8 +168,7 @@ export default function ConfiguracoesPage() {
     <main className="min-h-[calc(100vh-3.5rem)] bg-background text-foreground">
       <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 sm:py-10">
         <header>
-          <p className="font-mono text-xs font-semibold uppercase text-muted-foreground">Conta</p>
-          <h1 className="mt-2 text-3xl font-semibold">Perfil e configurações</h1>
+          <h1 className="text-3xl font-semibold">Perfil e configurações</h1>
           <p className="mt-2 text-sm text-muted-foreground">As informações abaixo aparecem no topo do sistema.</p>
         </header>
 

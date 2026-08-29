@@ -139,7 +139,7 @@ export default function LugaresPage() {
 
   return (
     <main className="min-h-[calc(100vh-3.5rem)] bg-background text-foreground"><div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
-      <header><p className="font-mono text-xs uppercase text-muted-foreground">Memórias e planos</p><h1 className="mt-2 text-3xl font-semibold">Lugares</h1><p className="mt-2 text-muted-foreground">Pesquise no Google Places ou cadastre manualmente destinos visitados e desejados.</p></header>
+      <header><h1 className="text-3xl font-semibold">Lugares</h1><p className="mt-2 text-muted-foreground">Pesquise no Google Places ou cadastre manualmente destinos visitados e desejados.</p></header>
       {erro ? <p role="alert" className="mt-5 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm">{erro}</p> : null}
 
       <section className="mt-8 rounded-xl border border-border bg-card p-4 text-card-foreground shadow-sm">

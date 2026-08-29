@@ -82,7 +82,6 @@ export default function CursoListaPage() {
         <BackLink href="/estudos">Voltar ao Hub</BackLink>
       </div>
       <PageHeader
-        eyebrow="Mundo Curso"
         title="Cursos"
         description="Acompanhe seus cursos livres, o progresso das aulas e a carga horária total."
       />

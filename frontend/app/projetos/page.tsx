@@ -162,8 +162,7 @@ export default function ProjetosPage() {
     <main className="min-h-[calc(100vh-3.5rem)] bg-background text-foreground">
       <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
         <header>
-          <p className="font-mono text-xs font-semibold uppercase text-muted-foreground">Organização</p>
-          <h1 className="mt-2 text-3xl font-semibold">Projetos</h1>
+          <h1 className="text-3xl font-semibold">Projetos</h1>
           <p className="mt-2 text-sm text-muted-foreground">Acompanhe iniciativas e mova tarefas entre etapas simples.</p>
         </header>
 

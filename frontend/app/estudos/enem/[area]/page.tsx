@@ -41,7 +41,7 @@ export default function AreaEnemPage() {
         <div className="mb-5">
           <BackLink href="/estudos/enem">Voltar ao ENEM</BackLink>
         </div>
-        <PageHeader eyebrow="ENEM" title="Área não encontrada" />
+        <PageHeader title="Área não encontrada" />
       </PageShell>
     )
   }
@@ -52,7 +52,6 @@ export default function AreaEnemPage() {
         <BackLink href="/estudos/enem">Voltar ao ENEM</BackLink>
       </div>
       <PageHeader
-        eyebrow="Área do ENEM"
         title={AREA_ENEM_LABELS[areaParam]}
         description="Matérias desta área. Provas e simulados vinculados aparecem dentro de cada matéria."
       />

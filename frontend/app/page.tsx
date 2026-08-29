@@ -29,7 +29,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { EventoAgenda, listarEventosAgenda } from '@/lib/agenda'
 import { dataLocalIso } from '@/lib/date'
 import { listarProvasNoPeriodo, listarProximasProvas, Prova } from '@/lib/provas'
-import { CardRevisao, listarCardsRevisao } from '@/lib/revisao'
+import { CardRevisao, listarRevisoesPendentes } from '@/lib/revisao'
 import { buscarResumoTempoEstudo, ResumoTempoEstudo } from '@/lib/sessoes-estudo'
 import { listarProjetos, listarTodasTarefasProjetos, Projeto, TarefaProjeto } from '@/lib/projetos'
 import { listarReceitas, Receita } from '@/lib/receitas'
@@ -172,7 +172,7 @@ export default function HomePage() {
       listarEventosAgenda(dataHoje, daquiSeteDias),
       listarProvasNoPeriodo(dataHoje, dataHoje),
       listarProximasProvas(),
-      listarCardsRevisao(),
+      listarRevisoesPendentes(0),
       listarProjetos(),
       listarReceitas(),
       buscarDadosInsights(),
@@ -230,10 +230,7 @@ export default function HomePage() {
       <div className="mx-auto flex w-full max-w-6xl flex-col px-4 py-8 sm:px-6 sm:py-10">
         <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-3xl">
-            <p className="font-mono text-xs font-semibold uppercase text-muted-foreground">
-              Sistema Pessoal v2
-            </p>
-            <h1 className="mt-3 text-3xl font-semibold leading-tight sm:text-4xl">
+            <h1 className="text-3xl font-semibold leading-tight sm:text-4xl">
               Visão geral
             </h1>
             <p className="mt-3 max-w-2xl text-base leading-relaxed text-muted-foreground">

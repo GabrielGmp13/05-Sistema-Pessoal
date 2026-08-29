@@ -311,7 +311,6 @@ export default function RevisaoPage() {
         <BackLink href="/">Voltar ao início</BackLink>
       </div>
       <PageHeader
-        eyebrow="Módulo"
         title="Revisão Espaçada"
         description="Revise o que está pendente e registre o resultado para calcular o próximo intervalo."
       />

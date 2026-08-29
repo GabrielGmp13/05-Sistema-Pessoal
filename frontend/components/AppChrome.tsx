@@ -6,14 +6,15 @@ import type { ReactNode } from 'react'
 import { RightRail } from './RightRail'
 import styles from './AppChrome.module.css'
 
-const ROTAS_FOCO = [
+const ROTAS_SEM_COLUNA_PESSOAL = [
   '/login',
+  '/biblioteca',
   '/revisao/sessao',
   '/estudos/enem/gabarito',
 ]
 
 function deveUsarTelaInteira(pathname: string) {
-  return ROTAS_FOCO.some((rota) => pathname === rota || pathname.startsWith(`${rota}/`))
+  return ROTAS_SEM_COLUNA_PESSOAL.some((rota) => pathname === rota || pathname.startsWith(`${rota}/`))
 }
 
 export function AppChrome({ children }: { children: ReactNode }) {

@@ -2,7 +2,6 @@ import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
-import { MonoLabel } from '@/components/study/mono-label'
 
 export function PageShell({
   children,
@@ -39,13 +38,11 @@ export function BackLink({
 }
 
 export function PageHeader({
-  eyebrow,
   title,
   description,
   actions,
   className,
 }: {
-  eyebrow?: string
   title: string
   description?: string
   actions?: React.ReactNode
@@ -59,7 +56,6 @@ export function PageHeader({
       )}
     >
       <div className="flex flex-col gap-2">
-        {eyebrow ? <MonoLabel>{eyebrow}</MonoLabel> : null}
         <h1 className="text-pretty text-2xl font-semibold tracking-tight sm:text-3xl">
           {title}
         </h1>

@@ -386,7 +386,7 @@ export default function MateriaDetalhePage() {
         <div className="mb-5">
           <BackLink href="/estudos">Voltar</BackLink>
         </div>
-        <PageHeader eyebrow="Matéria" title="Matéria não encontrada" />
+        <PageHeader title="Matéria não encontrada" />
         <div className="mt-8">
           <EmptyState
             title="Essa matéria não existe"
@@ -406,7 +406,6 @@ export default function MateriaDetalhePage() {
         <BackLink href={origem.href}>Voltar a {origem.label}</BackLink>
       </div>
       <PageHeader
-        eyebrow={`Matéria · ${origem.label}`}
         title={materia.nome}
         actions={
           taxaAcerto != null ? (

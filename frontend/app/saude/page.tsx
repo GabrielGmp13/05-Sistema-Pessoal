@@ -184,7 +184,7 @@ export default function SaudePage() {
   return (
     <main className="min-h-[calc(100vh-3.5rem)] bg-background text-foreground">
       <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
-        <header><p className="font-mono text-xs uppercase text-muted-foreground">Bem-estar</p><h1 className="mt-2 text-3xl font-semibold">Saúde</h1><p className="mt-2 text-muted-foreground">Registros manuais para acompanhar o que muda no dia a dia.</p></header>
+        <header><h1 className="text-3xl font-semibold">Saúde</h1><p className="mt-2 text-muted-foreground">Registros manuais para acompanhar o que muda no dia a dia.</p></header>
         {erro ? <p role="alert" className="mt-5 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm">{erro}</p> : null}
 
         <section className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-5" aria-label="Resumo de saúde">

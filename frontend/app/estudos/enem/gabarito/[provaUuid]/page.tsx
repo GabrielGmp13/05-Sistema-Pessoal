@@ -426,7 +426,7 @@ export default function GabaritoProvaPage() {
         <div className="mb-5">
           <BackLink href="/estudos/enem">Voltar ao ENEM</BackLink>
         </div>
-        <PageHeader eyebrow="Gabarito" title="Prova não encontrada" />
+        <PageHeader title="Prova não encontrada" />
       </PageShell>
     )
   }
@@ -439,7 +439,6 @@ export default function GabaritoProvaPage() {
         <BackLink href="/estudos/enem">Voltar ao ENEM</BackLink>
       </div>
       <PageHeader
-        eyebrow={prova.tipo === 'enem_dia1' ? 'Dia 1' : 'Dia 2'}
         title={modoProva ? 'Fazer prova ENEM' : 'Gabarito digital'}
         description={modoProva ? 'O cronômetro usa a duração oficial do dia. Marque as respostas; questões sem letra serão salvas em branco ao finalizar.' : 'Marque a letra de cada questão, igual ao cartão-resposta oficial. Quem ficar sem clique é contado como em branco quando você salvar.'}
       />

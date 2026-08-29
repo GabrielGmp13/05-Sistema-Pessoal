@@ -52,7 +52,6 @@ export default function EscolaPage() {
         <BackLink href="/estudos">Voltar ao Hub</BackLink>
       </div>
       <PageHeader
-        eyebrow="Mundo Escola"
         title="Escola"
         description="Matérias fixas da escola. Provas, atividades e simulados ficam dentro de cada matéria."
       />

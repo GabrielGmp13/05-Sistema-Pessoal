@@ -126,8 +126,7 @@ export default function ProgramacaoPage() {
     <main className="min-h-[calc(100vh-3.5rem)] bg-background text-foreground">
       <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
         <header>
-          <p className="font-mono text-xs font-semibold uppercase text-muted-foreground">Visão especializada de Projetos</p>
-          <h1 className="mt-2 text-3xl font-semibold">Programação</h1>
+          <h1 className="text-3xl font-semibold">Programação</h1>
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground">Acompanhe projetos de software, linguagem principal, repositório e status sem criar um catálogo paralelo.</p>
         </header>
 

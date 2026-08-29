@@ -205,8 +205,7 @@ export default function IdiomasPage() {
     <main className="min-h-[calc(100vh-3.5rem)] bg-background text-foreground">
       <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
         <header>
-          <p className="font-mono text-xs font-semibold uppercase text-muted-foreground">Aprendizado contínuo</p>
-          <h1 className="mt-2 text-3xl font-semibold">Idiomas</h1>
+          <h1 className="text-3xl font-semibold">Idiomas</h1>
           <p className="mt-2 text-sm text-muted-foreground">Organize vocabulário, práticas e tempo dedicado sem depender de serviços externos.</p>
         </header>
 

@@ -87,7 +87,7 @@ export default function AreaEstudosPage() {
   return (
     <PageShell>
       <BackLink href="/estudos">Voltar a Estudos</BackLink>
-      <div className="mt-5"><PageHeader eyebrow="Área de Estudos" title={config.titulo} description={config.descricao} /></div>
+      <div className="mt-5"><PageHeader title={config.titulo} description={config.descricao} /></div>
 
       {erro ? <p role="alert" className="mt-5 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">{erro}</p> : null}
 

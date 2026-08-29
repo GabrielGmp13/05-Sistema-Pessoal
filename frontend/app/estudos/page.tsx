@@ -105,7 +105,6 @@ export default function EstudosHubPage() {
   return (
     <PageShell>
       <PageHeader
-        eyebrow="Módulo"
         title="Estudos"
         description="Seu ponto central de estudos. Escolha um mundo e veja rapidamente o que está pendente."
       />

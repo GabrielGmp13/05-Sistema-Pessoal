@@ -159,7 +159,7 @@ export default function CursoDetalhePage() {
         <div className="mb-5">
           <BackLink href="/estudos/curso">Voltar aos Cursos</BackLink>
         </div>
-        <PageHeader eyebrow="Curso" title="Curso não encontrado" />
+        <PageHeader title="Curso não encontrado" />
         <div className="mt-8">
           <EmptyState
             title="Esse curso não existe"
@@ -176,7 +176,6 @@ export default function CursoDetalhePage() {
         <BackLink href="/estudos/curso">Voltar aos Cursos</BackLink>
       </div>
       <PageHeader
-        eyebrow={curso.plataforma ?? 'Curso'}
         title={curso.nome}
         description={
           curso.carga_horaria_total_horas != null

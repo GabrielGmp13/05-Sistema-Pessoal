@@ -398,7 +398,6 @@ export default function AgendaPage() {
     <PageShell className="max-w-7xl">
       <div className="mb-5"><BackLink href="/">Voltar ao início</BackLink></div>
       <PageHeader
-        eyebrow="Planejamento"
         title="Agenda"
         description="Compromissos gerais, estudos, provas e treinos em visão semanal ou mensal."
         actions={<><Button type="button" variant="outline" disabled={!googleConectado || importandoCalendar} onClick={() => void consultarGoogleCalendar()} title={googleConectado ? 'Comparar este período com o Google Calendar' : 'Conecte o Calendar em Configurações'}><CloudDownload />Importar Calendar</Button><Button type="button" onClick={() => abrirNovo(dataReferencia)}><Plus />Novo compromisso</Button></>}

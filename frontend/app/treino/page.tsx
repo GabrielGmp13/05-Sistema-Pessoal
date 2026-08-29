@@ -111,7 +111,6 @@ export default function TreinoHubPage() {
       <div className={styles.container}>
         <header className={styles.cabecalho}>
           <div>
-            <p className={styles.eyebrow}>Rotina física</p>
             <h1 className={styles.titulo}>Treino</h1>
             <p className={styles.subtitulo}>Planos, sessões recentes e evolução corporal em uma única visão.</p>
           </div>

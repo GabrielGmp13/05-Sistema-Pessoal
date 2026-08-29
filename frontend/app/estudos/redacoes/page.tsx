@@ -170,7 +170,6 @@ export default function RedacoesPage() {
         <BackLink href="/estudos">Voltar ao Hub</BackLink>
       </div>
       <PageHeader
-        eyebrow="Mundo Redações"
         title="Redações"
         description="Registre suas redações com a nota de cada uma das cinco competências e acompanhe sua evolução."
       />

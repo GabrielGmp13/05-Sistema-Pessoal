@@ -106,7 +106,7 @@ export default function HistoricoPage() {
     <main className="min-h-[calc(100vh-3.5rem)] bg-background text-foreground">
       <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
         <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div><p className="font-mono text-xs font-semibold uppercase text-muted-foreground">Retrospectiva</p><h1 className="mt-2 text-3xl font-semibold">Histórico de atividades</h1><p className="mt-2 max-w-2xl text-sm text-muted-foreground">Veja quando você registrou atividades ao longo do ano. A Agenda continua responsável apenas pelo planejamento futuro.</p></div>
+          <div><h1 className="text-3xl font-semibold">Histórico de atividades</h1><p className="mt-2 max-w-2xl text-sm text-muted-foreground">Veja quando você registrou atividades ao longo do ano. A Agenda continua responsável apenas pelo planejamento futuro.</p></div>
           <div className="flex items-center gap-2"><Button type="button" variant="outline" size="icon" aria-label="Ano anterior" onClick={() => mudarAno(ano - 1)}><ChevronLeft /></Button><strong className="min-w-16 text-center font-mono">{ano}</strong><Button type="button" variant="outline" size="icon" aria-label="Próximo ano" disabled={ano >= anoAtual} onClick={() => mudarAno(ano + 1)}><ChevronRight /></Button></div>
         </header>
 

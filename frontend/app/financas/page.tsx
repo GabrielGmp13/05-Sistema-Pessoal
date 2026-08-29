@@ -219,7 +219,7 @@ export default function FinancasPage() {
 
   return (
     <main className="min-h-[calc(100vh-3.5rem)] bg-background text-foreground"><div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
-      <header className="flex flex-wrap items-end justify-between gap-4"><div><p className="font-mono text-xs uppercase text-muted-foreground">Organização pessoal</p><h1 className="mt-2 text-3xl font-semibold">Finanças</h1><p className="mt-2 text-muted-foreground">Entradas, saídas, objetivos e posições de investimento em um só lugar.</p></div><label className="text-xs font-medium text-muted-foreground">Mês<Input type="month" value={periodo} onChange={(e) => setPeriodo(e.target.value)} className="mt-1 w-44" /></label></header>
+      <header className="flex flex-wrap items-end justify-between gap-4"><div><h1 className="text-3xl font-semibold">Finanças</h1><p className="mt-2 text-muted-foreground">Entradas, saídas, objetivos e posições de investimento em um só lugar.</p></div><label className="text-xs font-medium text-muted-foreground">Mês<Input type="month" value={periodo} onChange={(e) => setPeriodo(e.target.value)} className="mt-1 w-44" /></label></header>
       {erro ? <p role="alert" className="mt-5 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm">{erro}</p> : null}
       <section className="mt-7 grid gap-3 sm:grid-cols-3"><Resumo icon={ArrowUpRight} label="Entradas" valor={entradas} positive /><Resumo icon={ArrowDownLeft} label="Saídas" valor={saidas} /><Resumo icon={WalletCards} label="Saldo" valor={saldo} positive={saldo >= 0} /></section>
 

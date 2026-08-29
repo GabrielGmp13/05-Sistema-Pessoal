@@ -405,9 +405,10 @@ export async function avaliarCardPorConteudo(
 // ---------------------------------------------------------------------------
 // Revisões pendentes — usado no card do Hub de Estudos ("Revisões
 // pendentes"). Só cards do módulo 'estudos', vencidos ou a vencer nos
-// próximos N dias, ordenados por data (mais urgente primeiro). `pergunta`
-// já guarda o nome do conteúdo (ver avaliarCardPorConteudo), então não
-// precisa de join com `conteudos` pra exibir.
+// próximos N dias, ordenados por data (mais urgente primeiro). Somente os
+// lembretes criados por avaliarCardPorConteudo possuem referencia_uuid; cards
+// manuais/importados podem ter matéria/conteúdo para filtro, mas continuam
+// sendo ferramentas de estudo e não pendências de conteúdo.
 // ---------------------------------------------------------------------------
 
 export async function listarRevisoesPendentes(diasNoFuturo = 7): Promise<CardRevisao[] | null> {
@@ -421,6 +422,7 @@ export async function listarRevisoesPendentes(diasNoFuturo = 7): Promise<CardRev
     .eq('deleted', false)
     .eq('arquivado', false)
     .eq('modulo', 'estudos')
+    .not('referencia_uuid', 'is', null)
     .lte('proxima_revisao', dataLocalSomandoDias(diasNoFuturo))
     .order('proxima_revisao')
 

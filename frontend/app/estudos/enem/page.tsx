@@ -106,7 +106,6 @@ export default function EnemPage() {
         <BackLink href="/estudos">Voltar ao Hub</BackLink>
       </div>
       <PageHeader
-        eyebrow="Mundo ENEM"
         title="ENEM"
         description="Áreas de conhecimento fixas do exame. Entre em uma área pra ver suas matérias, ou gerencie a prova oficial aqui embaixo."
       />
