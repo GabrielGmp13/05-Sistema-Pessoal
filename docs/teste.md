@@ -112,6 +112,12 @@ Codex.
       textos, cards ou menus.
 - [ ] Na Biblioteca e em Gêneros, confirmar que aparece somente a sidebar da
       Biblioteca, sem perfil/relógio/calendário como segunda coluna esquerda.
+- [ ] Ao entrar na Biblioteca em tela larga, confirmar que o perfil aparece
+      compacto no início do topo, com animação curta, e que atmosfera e sair
+      continuam acessíveis sem criar espaços vazios ou apertar a navegação.
+- [ ] No catálogo da Biblioteca, rolar uma coleção longa e confirmar que a
+      sidebar de categorias permanece imóvel enquanto somente a área de capas
+      rola; em Gêneros e no mobile, confirmar rolagem normal da página.
 - [ ] Reduzir a altura da janela ou aumentar temporariamente o zoom e confirmar
       que a coluna pessoal esquerda rola com o mouse/trackpad sem cortar relógio,
       calendário, linha temporal, perfil, tema ou sair.

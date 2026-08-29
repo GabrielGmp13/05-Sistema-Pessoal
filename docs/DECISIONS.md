@@ -1387,6 +1387,12 @@ projeto já distinguisse cards pergunta/resposta de lembretes de conteúdo.
 
 - A coluna pessoal aparece nas rotas autenticadas comuns, mas não em telas de
   foco nem em `/biblioteca/*`, que já possui sidebar local própria (DEC-032).
+  Na Biblioteca, perfil, atmosfera e saída reaparecem em formato compacto na
+  barra superior, com uma transição curta que sugere a redução da coluna sem
+  duplicá-la.
+- No catálogo principal da Biblioteca, a sidebar local permanece imóvel dentro
+  da janela e somente a área de coleção rola. A página de Gêneros e o mobile
+  mantêm rolagem normal da página inteira.
 - Cabeçalhos de página comuns começam diretamente pelo título principal; os
   pequenos rótulos acima do `<h1>` são removidos. Rótulos internos de seções e
   o selo do banner da Biblioteca continuam existindo.

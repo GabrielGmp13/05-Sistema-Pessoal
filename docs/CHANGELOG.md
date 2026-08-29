@@ -22,9 +22,11 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 - **2026-08-28 (hierarquia visual e conceito de revisão)** — Corrigida a
   composição da Biblioteca para não exibir a coluna pessoal junto da sidebar
-  própria. Cabeçalhos comuns agora começam diretamente pelo título principal.
-  Início e Estudos deixaram de classificar flashcards como pendências de
-  conteúdo; somente lembretes vinculados por `referencia_uuid` entram nesses
+  própria. O perfil, a atmosfera e a saída retornaram compactos ao topo desse
+  módulo, com animação curta; no catálogo, a sidebar fica imóvel e apenas a
+  coleção rola. Cabeçalhos comuns agora começam diretamente pelo título
+  principal. Início e Estudos deixaram de classificar flashcards como pendências
+  de conteúdo; somente lembretes vinculados por `referencia_uuid` entram nesses
   resumos. Sem migration ou alteração dos cards existentes.
 
 - **2026-08-28 (scroll e robustez da coluna pessoal)** — A coluna lateral fixa

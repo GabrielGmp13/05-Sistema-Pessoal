@@ -85,7 +85,9 @@ Todas self-hosted em `.woff2` — nunca carregar de CDN externo.
   telas largas. A coluna recolhe abaixo de `1480px` para preservar módulos
   densos e mobile. Telas de foco, como prova ENEM e sessão de Revisão, e todas
   as rotas `/biblioteca/*` continuam em largura total; a Biblioteca já possui
-  sua própria sidebar local e nunca exibe as duas colunas juntas (DEC-071).
+  sua própria sidebar local e nunca exibe as duas colunas juntas. Perfil,
+  atmosfera e saída ocupam o topo em formato compacto somente nesse módulo
+  (DEC-071).
 - A coluna lateral usa a mesma atmosfera do site, não um tema independente:
   relógio digital, calendário do mês, linha temporal da Agenda/provas e resumo
   de perfil/tema herdam `--glass-background`, `--page-glow`,
@@ -103,8 +105,10 @@ Módulos com navegação por categoria (Biblioteca; possivelmente Treino/Estudos
 no futuro) usam `layout.tsx` próprio dentro da pasta de rota do módulo,
 envolvendo a página com uma sidebar lateral compacta e conteúdo fluido. Na
 Biblioteca, a sidebar usa largura estável de `13.25rem` a `15.25rem`, enquanto
-o conjunto fica centralizado em até `1440px`. Troca de categoria é estado de
-cliente (`useState`), sem reload nem URL nova.
+o conjunto fica centralizado em até `1440px`. No catálogo desktop, a sidebar
+permanece imóvel e a coleção possui a única rolagem vertical; Gêneros e mobile
+usam a rolagem normal da página. Troca de categoria é estado de cliente
+(`useState`), sem reload nem URL nova.
 
 ---
 
@@ -172,10 +176,12 @@ nas rotas comuns (DEC-049 evoluída): avatar, nome e
 `user_metadata.background_url` aparecem no bloco de perfil da coluna, junto dos
 controles de editar, tema e sair. “Início” continua sendo o acesso à Home. Na
 Biblioteca, a coluna pessoal inteira é omitida porque o módulo já possui sidebar
-própria (DEC-071). A imagem real de background nunca é aplicada ao restante da
-barra superior: a continuidade visual fora do perfil usa apenas manchas e
-fragmentos abstratos em forma de pétalas/lascas. As partículas usam a cor
-ambiente configurável ou o fallback da iluminação, sem cobrir os links.
+própria; seu perfil reaparece compacto na barra superior com atmosfera e saída,
+preservando os acessos sem criar uma segunda coluna (DEC-071). A imagem real de
+background nunca é aplicada ao restante da barra superior: a continuidade
+visual fora do perfil usa apenas manchas e fragmentos abstratos em forma de
+pétalas/lascas. As partículas usam a cor ambiente configurável ou o fallback
+da iluminação, sem cobrir os links.
 Fragmentos pequenos e orgânicos nunca repetem ou esticam `background_url`,
 formam faixa sólida ou prejudicam a leitura. Os links ficam sobre uma cápsula
 translúcida com blur, borda e item ativo próprio, separando conteúdo e decoração.

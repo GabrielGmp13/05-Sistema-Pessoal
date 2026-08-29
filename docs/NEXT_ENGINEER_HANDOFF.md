@@ -15,7 +15,8 @@ como mapa rápido do estado atual e das próximas ações.
   `20260827000100_homologacao_fluxos_pessoais.sql`.
 - A UI global recente usa `AppChrome` com coluna pessoal à esquerda em telas
   largas e barra superior dedicada somente à navegação. Biblioteca e telas de
-  foco são exceções sem a coluna pessoal.
+  foco são exceções sem a coluna pessoal; na Biblioteca, perfil, atmosfera e
+  saída ficam compactos no topo e a sidebar local permanece fixa.
 
 ## Leitura mínima antes de editar
 
