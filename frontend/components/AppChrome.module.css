@@ -4,6 +4,26 @@
   min-height: calc(100dvh - 3.5rem);
   margin-left: var(--app-rail-width, 20.25rem);
   padding: 0 clamp(1rem, 1.8vw, 2rem) 1.5rem;
+  transition:
+    margin-left 0.72s cubic-bezier(0.22, 1, 0.36, 1),
+    padding 0.6s ease;
+}
+
+.shellBiblioteca {
+  margin-left: 0;
+  padding: 0;
+}
+
+:global(html[data-rota-transicao='entrando-biblioteca']) .shell {
+  margin-left: 0;
+  padding: 0;
+  transition-delay: 1.48s;
+}
+
+:global(html[data-rota-transicao='saindo-biblioteca']) .shellBiblioteca {
+  margin-left: var(--app-rail-width, 20.25rem);
+  padding: 0 clamp(1rem, 1.8vw, 2rem) 1.5rem;
+  transition-delay: 0s;
 }
 
 .ambiente {
@@ -23,6 +43,47 @@
   position: relative;
   min-width: 0;
   max-width: 96rem;
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition:
+    opacity 0.34s ease,
+    transform 0.42s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, opacity;
+}
+
+:global(html[data-pagina-saida='esquerda']) .conteudo {
+  opacity: 0;
+  transform: translate3d(-5.5rem, 0, 0);
+}
+
+:global(html[data-pagina-saida='direita']) .conteudo {
+  opacity: 0;
+  transform: translate3d(5.5rem, 0, 0);
+}
+
+:global(html[data-pagina-entrada='direita']) .conteudo {
+  opacity: 0;
+  transform: translate3d(5.5rem, 0, 0);
+  transition: none;
+}
+
+:global(html[data-pagina-entrada='esquerda']) .conteudo {
+  opacity: 0;
+  transform: translate3d(-5.5rem, 0, 0);
+  transition: none;
+}
+
+:global(html[data-pagina-entrada-pronta='true']) .conteudo {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition:
+    opacity 0.4s ease,
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.conteudoBiblioteca {
+  width: 100%;
+  max-width: none;
 }
 
 .conteudo::before {

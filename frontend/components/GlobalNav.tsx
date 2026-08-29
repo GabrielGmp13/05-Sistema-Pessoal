@@ -4,13 +4,29 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { BookOpen, Brain, CalendarDays, CalendarRange, ChevronDown, Code2, Dumbbell, FolderKanban, GraduationCap, Home, Languages, LogOut, Mail, NotebookTabs, Pencil } from 'lucide-react'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import type { CSSProperties } from 'react'
+import type { CSSProperties, MouseEvent as ReactMouseEvent } from 'react'
+import { createPortal } from 'react-dom'
 
 import { getSession, getSignedUrl, sb } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
 import { ThemeToggle } from './ThemeToggle'
 import { useTema, type Decoracao } from './ThemeProvider'
 import styles from './GlobalNav.module.css'
+
+type CaixaPerfil = {
+  left: number
+  top: number
+  width: number
+  height: number
+}
+
+type VooPerfil = {
+  origem: CaixaPerfil
+  destino: CaixaPerfil
+  final: 'compacto' | 'amplo'
+  iniciou: boolean
+  finalizando: boolean
+}
 
 const links = [
   { href: '/', label: 'Início', icon: Home },
@@ -74,9 +90,18 @@ export function GlobalNav() {
   const biblioteca = pathname === '/biblioteca' || pathname.startsWith('/biblioteca/')
   const [saindo, setSaindo] = useState(false)
   const [painelAberto, setPainelAberto] = useState<'perfil' | 'tema' | null>(null)
+  const [rotaTransicao, setRotaTransicao] = useState<'entrando-biblioteca' | 'saindo-biblioteca' | null>(null)
+  const [vooPerfil, setVooPerfil] = useState<VooPerfil | null>(null)
   const perfilAreaRef = useRef<HTMLDivElement>(null)
   const perfilBotaoRef = useRef<HTMLButtonElement>(null)
   const navegacaoRef = useRef<HTMLElement>(null)
+  const rotaTimeoutRef = useRef<number | null>(null)
+  const destinoTransicaoRef = useRef<string | null>(null)
+  const destinoPaginaRef = useRef<string | null>(null)
+  const entradaPaginaRef = useRef<'esquerda' | 'direita'>('direita')
+  const saidaPaginaTimeoutRef = useRef<number | null>(null)
+  const navegacaoPaginaTimeoutRef = useRef<number | null>(null)
+  const limpezaPaginaTimeoutRef = useRef<number | null>(null)
   const [perfil, setPerfil] = useState<{
     nome: string
     descricao: string | null
@@ -86,8 +111,6 @@ export function GlobalNav() {
   } | null>(null)
 
   useEffect(() => {
-    if (!biblioteca) return
-
     let ativo = true
     async function carregarPerfil() {
       try {
@@ -117,12 +140,78 @@ export function GlobalNav() {
       ativo = false
       window.removeEventListener('perfil-atualizado', carregarPerfil)
     }
-  }, [biblioteca])
+  }, [])
 
   useEffect(() => {
     const timeout = window.setTimeout(() => setPainelAberto(null), 0)
     return () => window.clearTimeout(timeout)
   }, [pathname])
+
+  useEffect(() => () => {
+    if (rotaTimeoutRef.current !== null) window.clearTimeout(rotaTimeoutRef.current)
+    if (saidaPaginaTimeoutRef.current !== null) window.clearTimeout(saidaPaginaTimeoutRef.current)
+    if (navegacaoPaginaTimeoutRef.current !== null) window.clearTimeout(navegacaoPaginaTimeoutRef.current)
+    if (limpezaPaginaTimeoutRef.current !== null) window.clearTimeout(limpezaPaginaTimeoutRef.current)
+    delete document.documentElement.dataset.paginaSaida
+    delete document.documentElement.dataset.paginaEntrada
+    delete document.documentElement.dataset.paginaEntradaPronta
+  }, [])
+
+  useLayoutEffect(() => {
+    if (pathname !== destinoPaginaRef.current) return
+
+    if (saidaPaginaTimeoutRef.current !== null) {
+      window.clearTimeout(saidaPaginaTimeoutRef.current)
+      saidaPaginaTimeoutRef.current = null
+    }
+    document.documentElement.dataset.paginaEntrada = entradaPaginaRef.current
+    delete document.documentElement.dataset.paginaSaida
+    delete document.documentElement.dataset.paginaEntradaPronta
+
+    const frame = window.requestAnimationFrame(() => {
+      document.documentElement.dataset.paginaEntradaPronta = 'true'
+    })
+    limpezaPaginaTimeoutRef.current = window.setTimeout(() => {
+      delete document.documentElement.dataset.paginaEntrada
+      delete document.documentElement.dataset.paginaEntradaPronta
+      destinoPaginaRef.current = null
+      navegacaoPaginaTimeoutRef.current = null
+      limpezaPaginaTimeoutRef.current = null
+    }, 540)
+    return () => window.cancelAnimationFrame(frame)
+  }, [pathname])
+
+  useLayoutEffect(() => {
+    if (!rotaTransicao || pathname !== destinoTransicaoRef.current) return
+
+    setRotaTransicao(null)
+    setVooPerfil((atual) => atual ? { ...atual, finalizando: true } : null)
+    destinoTransicaoRef.current = null
+    rotaTimeoutRef.current = window.setTimeout(() => {
+      setVooPerfil(null)
+      rotaTimeoutRef.current = null
+    }, 260)
+  }, [pathname, rotaTransicao])
+
+  useLayoutEffect(() => {
+    if (!rotaTransicao) return
+    document.documentElement.dataset.rotaTransicao = rotaTransicao
+    return () => { delete document.documentElement.dataset.rotaTransicao }
+  }, [rotaTransicao])
+
+  useLayoutEffect(() => {
+    if (!vooPerfil || vooPerfil.iniciou) return
+    let segundoFrame = 0
+    const primeiroFrame = window.requestAnimationFrame(() => {
+      segundoFrame = window.requestAnimationFrame(() => {
+        setVooPerfil((atual) => atual ? { ...atual, iniciou: true } : null)
+      })
+    })
+    return () => {
+      window.cancelAnimationFrame(primeiroFrame)
+      window.cancelAnimationFrame(segundoFrame)
+    }
+  }, [vooPerfil])
 
   useLayoutEffect(() => {
     const navegacao = navegacaoRef.current
@@ -189,6 +278,92 @@ export function GlobalNav() {
     }
   }
 
+  function prepararMovimentoPagina(destino: string, atrasoSaida = 0) {
+    const indiceAtual = links.findIndex((link) => isActive(pathname, link.href))
+    const indiceDestino = links.findIndex((link) => link.href === destino)
+    if (indiceAtual < 0 || indiceDestino < 0 || indiceAtual === indiceDestino) return false
+
+    const destinoFicaADireita = indiceDestino > indiceAtual
+    const iniciarSaida = () => {
+      document.documentElement.dataset.paginaSaida = destinoFicaADireita ? 'esquerda' : 'direita'
+    }
+
+    destinoPaginaRef.current = destino
+    entradaPaginaRef.current = destinoFicaADireita ? 'direita' : 'esquerda'
+    if (atrasoSaida > 0) {
+      saidaPaginaTimeoutRef.current = window.setTimeout(iniciarSaida, atrasoSaida)
+    } else {
+      iniciarSaida()
+    }
+    return true
+  }
+
+  function navegarEntreBiblioteca(event: ReactMouseEvent<HTMLAnchorElement>, destino: string) {
+    if (
+      event.button !== 0
+      || event.metaKey
+      || event.ctrlKey
+      || event.shiftKey
+      || event.altKey
+    ) return
+
+    const entrando = !biblioteca && destino === '/biblioteca'
+    const saindoDaBiblioteca = biblioteca && destino !== '/biblioteca'
+    if (!entrando && !saindoDaBiblioteca) {
+      if (destinoPaginaRef.current !== null) {
+        event.preventDefault()
+        return
+      }
+      if (!prepararMovimentoPagina(destino)) return
+      event.preventDefault()
+      navegacaoPaginaTimeoutRef.current = window.setTimeout(() => router.push(destino), 360)
+      return
+    }
+    const coluna = document.querySelector<HTMLElement>('[aria-label="Painel lateral pessoal"]')
+    if (!coluna || window.getComputedStyle(coluna).display === 'none') return
+
+    if (rotaTimeoutRef.current !== null) return
+
+    const perfilAmplo = coluna.querySelector<HTMLElement>('[data-perfil-amplo]')
+    const perfilCompacto = perfilAreaRef.current
+    if (!perfilAmplo || (saindoDaBiblioteca && !perfilCompacto)) return
+    event.preventDefault()
+
+    const caixaPerfilAmplo = perfilAmplo.getBoundingClientRect()
+    const caixaAmpla = {
+      left: caixaPerfilAmplo.left,
+      top: caixaPerfilAmplo.top,
+      width: caixaPerfilAmplo.width,
+      height: caixaPerfilAmplo.height,
+    }
+    const caixaCompacta = entrando
+      ? {
+          left: Math.max(12, (window.innerWidth - 1920) / 2 + 12),
+          top: 6,
+          width: 168,
+          height: 44,
+        }
+      : (() => {
+          const caixa = perfilCompacto!.getBoundingClientRect()
+          return { left: caixa.left, top: caixa.top, width: caixa.width, height: caixa.height }
+        })()
+
+    setVooPerfil({
+      origem: entrando ? caixaAmpla : caixaCompacta,
+      destino: entrando ? caixaCompacta : caixaAmpla,
+      final: entrando ? 'compacto' : 'amplo',
+      iniciou: false,
+      finalizando: false,
+    })
+    setRotaTransicao(entrando ? 'entrando-biblioteca' : 'saindo-biblioteca')
+    destinoTransicaoRef.current = destino
+    prepararMovimentoPagina(destino, 1880)
+
+    rotaTimeoutRef.current = window.setTimeout(() => {
+      router.push(destino)
+    }, 2450)
+  }
+
   const inicial = perfil?.nome.charAt(0).toUpperCase() || 'U'
 
   return (
@@ -201,18 +376,12 @@ export function GlobalNav() {
       style={estiloAtmosfera}
     >
       <div className={cn(styles.barra, biblioteca && styles.barraBiblioteca)}>
-        {biblioteca ? (
-          <span
-            aria-hidden="true"
-            className={cn(styles.perfilRastro, perfil?.backgroundUrl && styles.perfilRastroComImagem)}
-          />
-        ) : null}
         <span aria-hidden="true" className={cn(styles.fragmentos, classesDecoracao[decoracao])}>
           {particulas.map((style, indice) => <i key={indice} style={style} />)}
         </span>
 
         {biblioteca ? (
-          <div ref={perfilAreaRef} className={styles.perfilArea}>
+          <div ref={perfilAreaRef} className={styles.perfilArea} data-perfil-compacto>
             <button
               ref={perfilBotaoRef}
               type="button"
@@ -296,6 +465,7 @@ export function GlobalNav() {
                 aria-current={active ? 'page' : undefined}
                 title={link.label}
                 className={cn(styles.link, active && styles.linkAtivo)}
+                onClick={(event) => navegarEntreBiblioteca(event, link.href)}
               >
                 <Icon className="size-4" />
                 <span>{link.label}</span>
@@ -318,6 +488,39 @@ export function GlobalNav() {
           </div>
         ) : null}
       </div>
+
+      {vooPerfil ? createPortal(
+        <div
+          aria-hidden="true"
+          className={cn(
+            styles.perfilViajante,
+            vooPerfil.final === 'compacto' ? styles.perfilViajanteCompactando : styles.perfilViajanteExpandindo,
+            vooPerfil.iniciou && styles.perfilViajanteEmCurso,
+            vooPerfil.finalizando && styles.perfilViajanteFinalizando,
+          )}
+          style={{
+            left: vooPerfil.iniciou ? vooPerfil.destino.left : vooPerfil.origem.left,
+            top: vooPerfil.iniciou ? vooPerfil.destino.top : vooPerfil.origem.top,
+            width: vooPerfil.iniciou ? vooPerfil.destino.width : vooPerfil.origem.width,
+            height: vooPerfil.iniciou ? vooPerfil.destino.height : vooPerfil.origem.height,
+          }}
+        >
+          <span className={styles.perfilViajanteFundo}>
+            {perfil?.backgroundUrl ? <span style={{ backgroundImage: `url(${perfil.backgroundUrl})` }} /> : null}
+          </span>
+          <span className={styles.perfilViajanteAvatar}>
+            {perfil?.avatarUrl
+              ? <span style={{ backgroundImage: `url(${perfil.avatarUrl})` }} />
+              : <span>{inicial}</span>}
+          </span>
+          <span className={styles.perfilViajanteTexto}>
+            <small>Perfil</small>
+            <strong>{perfil?.nome || 'Perfil'}</strong>
+            {perfil?.descricao ? <em>{perfil.descricao}</em> : null}
+          </span>
+        </div>,
+        document.body,
+      ) : null}
     </header>
   )
 }

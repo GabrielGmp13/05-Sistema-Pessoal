@@ -24,16 +24,18 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
   a manter o mês completo acima da semana selecionada. A conexão Calendar
   consulta mudanças ao navegar, retomar a aba e em intervalo de dois minutos;
   criação, edição e exclusão locais são enviadas imediatamente ao Google. A
-  coluna pessoal agora lista toda a agenda de hoje em ordem cronológica. Sem
-  migration ou dependência nova; OAuth bilateral depende de reteste no deploy.
+  coluna pessoal agora lista toda a agenda de hoje em ordem cronológica. Perfil,
+  relógio, calendário e controles ficam imóveis; apenas essa linha cronológica
+  rola e absorve a altura restante da coluna. Sem migration ou dependência nova;
+  OAuth bilateral depende de reteste no deploy.
 
 - **2026-08-29 (transições entre páginas e perfil compartilhado)** — A
-  navegação superior ganhou troca curta de conteúdo e indicador ativo que se
-  desloca entre módulos. Ao entrar ou sair da Biblioteca em tela larga, o card
-  de perfil da coluna pessoal se transforma no perfil compacto do topo, junto
-  do recolhimento suave da coluna. A implementação usa recurso nativo do
-  navegador, mantém fallback de navegação normal, respeita redução de movimento
-  e não adiciona dependência.
+  navegação superior ganhou troca direcional de conteúdo e indicador ativo que
+  se desloca entre módulos. Ao entrar ou sair da Biblioteca em tela larga, o
+  card de perfil da coluna pessoal percorre uma transição encadeada até o perfil
+  compacto do topo, junto do recolhimento da coluna. O estado final usa as
+  mesmas medidas da interface real para evitar duplicação e “teleporte”; a
+  implementação respeita redução de movimento e não adiciona dependência.
 
 - **2026-08-28 (hierarquia visual e conceito de revisão)** — Corrigida a
   composição da Biblioteca para não exibir a coluna pessoal junto da sidebar

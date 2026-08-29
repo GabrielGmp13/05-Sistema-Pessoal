@@ -10,13 +10,12 @@
   height: 100dvh;
   min-width: 0;
   gap: 0.72rem;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden;
   overscroll-behavior: contain;
   border-right: 1px solid color-mix(in oklch, var(--glass-border) 70%, transparent);
   padding: 0.85rem;
   scrollbar-width: thin;
-  view-transition-name: coluna-pessoal;
+  transition: border-color 0.24s ease;
 }
 
 .rail::before {
@@ -29,6 +28,12 @@
     linear-gradient(180deg, color-mix(in oklch, var(--glass-background) 82%, transparent), color-mix(in oklch, var(--page-depth) 28%, transparent));
   content: '';
   opacity: 0.9;
+  transform: translate3d(0, 0, 0);
+  transform-origin: bottom center;
+  transition:
+    opacity 0.72s ease,
+    transform 1.12s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform, opacity;
 }
 
 .card {
@@ -47,7 +52,41 @@
     inset 0 1px 0 color-mix(in oklch, var(--surface) 72%, transparent);
   color: var(--text);
   backdrop-filter: blur(16px) saturate(1.08);
+  transform-origin: top left;
+  transition:
+    opacity 0.62s ease,
+    transform 1.12s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.72s ease;
 }
+
+.railRecolhendo,
+:global(html[data-rota-transicao='entrando-biblioteca']) .rail {
+  overflow: hidden;
+  border-right-color: transparent;
+  pointer-events: none;
+}
+
+.railRecolhendo::before,
+:global(html[data-rota-transicao='entrando-biblioteca']) .rail::before {
+  opacity: 0;
+  transform: translate3d(0, 100%, 0);
+}
+
+.railRecolhendo > .card:not(.identidadeCard),
+:global(html[data-rota-transicao='entrando-biblioteca']) .rail > .card:not(.identidadeCard) {
+  opacity: 0;
+  filter: blur(3px);
+  transform: translate3d(0, calc(100dvh + 2rem), 0);
+}
+
+.railRecolhendo > .card:nth-of-type(2) { transition-delay: 0.04s; }
+.railRecolhendo > .card:nth-of-type(3) { transition-delay: 0.12s; }
+.railRecolhendo > .card:nth-of-type(4) { transition-delay: 0.2s; }
+.railRecolhendo > .card:nth-of-type(5) { transition-delay: 0.28s; }
+:global(html[data-rota-transicao='entrando-biblioteca']) .rail > .card:nth-of-type(2) { transition-delay: 0.02s; }
+:global(html[data-rota-transicao='entrando-biblioteca']) .rail > .card:nth-of-type(3) { transition-delay: 0.08s; }
+:global(html[data-rota-transicao='entrando-biblioteca']) .rail > .card:nth-of-type(4) { transition-delay: 0.14s; }
+:global(html[data-rota-transicao='entrando-biblioteca']) .rail > .card:nth-of-type(5) { transition-delay: 0.2s; }
 
 .card::before {
   position: absolute;
@@ -201,6 +240,27 @@
   list-style: none;
 }
 
+.agendaCard {
+  display: flex;
+  min-height: 7.5rem;
+  flex: 1 1 auto;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.agendaCard .linhaTempo {
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 0.2rem;
+  scrollbar-width: thin;
+}
+
+.agendaCard .linkAgenda {
+  flex: 0 0 auto;
+}
+
 .linhaTempo li {
   position: relative;
   display: grid;
@@ -285,18 +345,89 @@
   padding: 0;
 }
 
-.identidadeCard {
-  view-transition-name: perfil-pessoal;
+.railRecolhendo .identidadeCard,
+:global(html[data-rota-transicao='entrando-biblioteca']) .rail .identidadeCard,
+:global(html[data-rota-transicao='saindo-biblioteca']) .rail .identidadeCard {
+  visibility: hidden;
 }
+
+.capaPerfil,
+.perfilCorpo,
+.avatar {
+  transition: transform 1.18s cubic-bezier(0.22, 1, 0.36, 1) 0.28s;
+}
+
+:global(html[data-rota-transicao='entrando-biblioteca']) .rail .capaPerfil {
+  transform: translate3d(0, -0.65rem, 0) scaleY(0.76);
+}
+
+:global(html[data-rota-transicao='entrando-biblioteca']) .rail .perfilCorpo {
+  transform: translate3d(-0.1rem, -1.5rem, 0) scale(1.38);
+}
+
+:global(html[data-rota-transicao='entrando-biblioteca']) .rail .avatar {
+  transform: translate3d(0, -0.12rem, 0) scale(1.08);
+}
+
+:global(html[data-rota-transicao='saindo-biblioteca']) .railRecolhendo {
+  overflow: hidden;
+  border-right-color: color-mix(in oklch, var(--glass-border) 70%, transparent);
+}
+
+:global(html[data-rota-transicao='saindo-biblioteca']) .railRecolhendo::before {
+  opacity: 0.9;
+  transform: translate3d(0, 0, 0);
+  transition-delay: 1.08s;
+}
+
+:global(html[data-rota-transicao='saindo-biblioteca']) .railRecolhendo .identidadeCard {
+  visibility: hidden;
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+  transition:
+    opacity 0.24s ease 1.58s,
+    transform 0.62s cubic-bezier(0.22, 1, 0.36, 1) 1.48s;
+}
+
+:global(html[data-rota-transicao='saindo-biblioteca']) .railRecolhendo > .card:not(.identidadeCard) {
+  opacity: 1;
+  filter: none;
+  transform: translate3d(0, 0, 0);
+  transition-delay: 1.08s;
+}
+
+:global(html[data-rota-transicao='saindo-biblioteca']) .railRecolhendo > .card:nth-of-type(4) { transition-delay: 1.12s; }
+:global(html[data-rota-transicao='saindo-biblioteca']) .railRecolhendo > .card:nth-of-type(3) { transition-delay: 1.18s; }
+:global(html[data-rota-transicao='saindo-biblioteca']) .railRecolhendo > .card:nth-of-type(2) { transition-delay: 1.24s; }
 
 .controlesCard {
   /* Mantém o painel fixo de atmosfera relativo à viewport, não a este card. */
+  flex: 0 0 auto;
   backdrop-filter: none;
 }
 
+.identidadeCard {
+  min-height: 8.7rem;
+  overflow: hidden;
+  background: color-mix(in oklch, var(--surface-2) 84%, var(--ambient-color, var(--ambient-fallback)));
+}
+
+.identidadeCard::before {
+  z-index: 1;
+  background: linear-gradient(
+    0deg,
+    color-mix(in oklch, var(--ambient-color, var(--ambient-fallback)) 64%, var(--surface)) 0%,
+    color-mix(in oklch, var(--ambient-color, var(--ambient-fallback)) 48%, var(--surface) 52%) 32%,
+    color-mix(in oklch, var(--ambient-color, var(--ambient-fallback)) 26%, transparent) 58%,
+    transparent 78%
+  );
+  opacity: 0.96;
+}
+
 .capaPerfil {
-  position: relative;
-  height: 5.2rem;
+  position: absolute;
+  z-index: 0;
+  inset: 0;
   overflow: hidden;
   background:
     radial-gradient(circle at 22% 18%, color-mix(in oklch, var(--ambient-color, var(--ambient-fallback)) 28%, transparent), transparent 46%),
@@ -308,14 +439,7 @@
   inset: 0;
   background-position: center;
   background-size: cover;
-  opacity: 0.8;
-}
-
-.capaPerfil::after {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, transparent 32%, color-mix(in oklch, var(--surface) 78%, transparent));
-  content: '';
+  opacity: 0.9;
 }
 
 .capaPerfil > svg {
@@ -329,12 +453,16 @@
 }
 
 .perfilCorpo {
-  position: relative;
-  z-index: 1;
+  position: absolute;
+  z-index: 2;
+  right: 0;
+  bottom: 0;
+  left: 0;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
+  align-items: end;
   gap: 0.65rem;
-  padding: 0 0.9rem 0.85rem;
+  padding: 0.75rem 0.9rem 0.85rem;
 }
 
 .avatar {
@@ -344,7 +472,7 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  margin-top: -1.35rem;
+  margin-top: 0;
   border: 3px solid var(--surface);
   border-radius: 50%;
   background: var(--surface-2);
@@ -454,4 +582,5 @@
     animation: none;
     transition: none;
   }
+
 }

@@ -92,6 +92,10 @@ Todas self-hosted em `.woff2` — nunca carregar de CDN externo.
   relógio digital, calendário do mês, linha temporal da Agenda/provas e resumo
   de perfil/tema herdam `--glass-background`, `--page-glow`,
   `--season-accent` e demais tokens globais.
+- Perfil, relógio e calendário são blocos fixos dentro da coluna. O card de
+  controles (editar, atmosfera e sair) fica fixo junto ao rodapé. A Agenda
+  cresce ou encolhe para preencher o espaço entre eles e somente sua lista
+  cronológica possui rolagem vertical; a coluna inteira não rola.
 - Em telas largas, o topo global mostra somente a navegação principal dentro da
   área de conteúdo. Perfil, controle de atmosfera e saída ficam na coluna
   pessoal. A área principal recebe gradientes discretos e linhas luminosas por
@@ -265,19 +269,21 @@ mobile-first usam `inputmode="decimal"` / `inputmode="numeric"`.
 Na Agenda, mês e semana não são abas concorrentes: o calendário mensal aparece
 primeiro e o dia selecionado nele controla a semana detalhada logo abaixo. A
 linha cronológica da coluna pessoal é estritamente “Hoje” e não corta itens por
-quantidade; a própria coluna oferece a rolagem quando necessário.
+quantidade; somente a lista cronológica oferece rolagem quando necessário.
 
 ## Animações
 
 Minimalistas por decisão: hover states, transições de opacidade/transform em
 toasts e modais, barra de progresso com `transition: width .3s`.
 
-Trocas iniciadas pela navegação global usam View Transitions quando disponíveis:
-conteúdo em até `.18s`, topo/indicador ativo em `.22s`–`.24s` e transformação
-do perfil em até `.36s`. O perfil é um elemento visual compartilhado entre o
-card da coluna pessoal e o resumo compacto da Biblioteca; ao sair, a animação
-se inverte. Não adicionar dependência ou duplicar a UI para produzir esse
-efeito. Navegadores incompatíveis mantêm a troca instantânea normal e
+Trocas iniciadas pela navegação global usam uma sequência React/CSS controlada.
+O conteúdo atual sai horizontalmente e o novo entra pelo lado correspondente à
+ordem dos módulos no topo; o indicador ativo desliza até o novo item. Ao entrar
+na Biblioteca em tela larga, os blocos inferiores da coluna descem, o perfil se
+compacta e ocupa o topo antes de o catálogo assumir a largura total. Ao sair, a
+sequência percorre o caminho inverso. Os pontos finais reutilizam as mesmas
+medidas e aparência dos componentes reais para não haver piscada, duplicação ou
+“teleporte” ao concluir. Não adicionar dependência para esse efeito e
 `prefers-reduced-motion: reduce` elimina o movimento.
 
 ## Convenções de UI

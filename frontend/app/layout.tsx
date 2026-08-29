@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import './globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { AppChrome } from '@/components/AppChrome';
@@ -45,7 +46,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: SCRIPT_ANTI_FLASH }} />
+        <Script id="tema-anti-flash" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: SCRIPT_ANTI_FLASH }} />
       </head>
       <body>
         <ThemeProvider>

@@ -1390,15 +1390,19 @@ projeto já distinguisse cards pergunta/resposta de lembretes de conteúdo.
   Na Biblioteca, perfil, atmosfera e saída reaparecem em formato compacto na
   barra superior, com uma transição curta que sugere a redução da coluna sem
   duplicá-la.
-- A navegação global usa transições nativas do navegador: o item ativo se
-  desloca entre os módulos, o conteúdo troca com opacidade/movimento mínimos e
-  o perfil mantém uma identidade visual compartilhada entre o card da coluna e
-  o resumo compacto da Biblioteca. A saída da Biblioteca executa o caminho
-  inverso. Navegadores sem suporte continuam com a navegação normal, sem
-  polyfill ou dependência; `prefers-reduced-motion` desativa o movimento.
+- A navegação global usa uma sequência React/CSS controlada: o item ativo se
+  desloca entre os módulos, o conteúdo entra e sai horizontalmente conforme a
+  ordem do topo e o perfil mantém uma identidade visual compartilhada entre o
+  card da coluna e o resumo compacto da Biblioteca. A saída da Biblioteca
+  executa o percurso inverso. Os pontos finais coincidem com os componentes
+  reais para não existir troca visual depois da animação; não há polyfill ou
+  dependência e `prefers-reduced-motion` desativa o movimento.
 - No catálogo principal da Biblioteca, a sidebar local permanece imóvel dentro
   da janela e somente a área de coleção rola. A página de Gêneros e o mobile
   mantêm rolagem normal da página inteira.
+- Na coluna pessoal das rotas comuns, perfil, relógio, calendário e controles
+  permanecem fixos. A Agenda ocupa a altura restante e somente sua lista
+  cronológica rola quando os compromissos excedem o espaço disponível.
 - Cabeçalhos de página comuns começam diretamente pelo título principal; os
   pequenos rótulos acima do `<h1>` são removidos. Rótulos internos de seções e
   o selo do banner da Biblioteca continuam existindo.

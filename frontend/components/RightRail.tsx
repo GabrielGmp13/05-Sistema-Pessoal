@@ -91,7 +91,7 @@ function criarItemProva(prova: Prova): ItemLinhaTempo {
   }
 }
 
-export function RightRail() {
+export function RightRail({ recolhendo = false }: { recolhendo?: boolean }) {
   const router = useRouter()
   const [agora, setAgora] = useState(() => new Date())
   const [carregando, setCarregando] = useState(true)
@@ -205,8 +205,8 @@ export function RightRail() {
   }
 
   return (
-    <aside className={styles.rail} aria-label="Painel lateral pessoal">
-      <section className={cn(styles.card, styles.identidadeCard)} aria-label="Perfil">
+    <aside className={cn(styles.rail, recolhendo && styles.railRecolhendo)} aria-label="Painel lateral pessoal" aria-hidden={recolhendo || undefined}>
+      <section className={cn(styles.card, styles.identidadeCard)} aria-label="Perfil" data-perfil-amplo>
         <div className={styles.capaPerfil}>
           {perfil?.backgroundUrl ? (
             <span aria-hidden="true" style={{ backgroundImage: `url(${perfil.backgroundUrl})` }} />
@@ -236,11 +236,11 @@ export function RightRail() {
 
       <section className={cn(styles.card, styles.relogioCard)} aria-label="Relógio">
         <span className={styles.eyebrow}>Agora</span>
-        <strong className={styles.hora}>
+        <strong className={styles.hora} suppressHydrationWarning>
           {agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
         </strong>
-        <span className={styles.segundos}>{agora.toLocaleTimeString('pt-BR', { second: '2-digit' })}s</span>
-        <p>{FORMATADOR_DATA.format(agora)}</p>
+        <span className={styles.segundos} suppressHydrationWarning>{agora.toLocaleTimeString('pt-BR', { second: '2-digit' })}s</span>
+        <p suppressHydrationWarning>{FORMATADOR_DATA.format(agora)}</p>
       </section>
 
       <section className={styles.card} aria-label="Calendário do mês">
@@ -273,7 +273,7 @@ export function RightRail() {
         </div>
       </section>
 
-      <section className={styles.card} aria-label="Linha do tempo da agenda">
+      <section className={cn(styles.card, styles.agendaCard)} aria-label="Linha do tempo da agenda">
         <div className={styles.cardTopo}>
           <div>
             <span className={styles.eyebrow}>Agenda</span>

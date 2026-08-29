@@ -38,6 +38,9 @@ e APIs reais, incluindo altura reduzida e seletor de atmosfera na coluna pessoal
       Google quando a conta está conectada.
 - [x] Linha cronológica da coluna pessoal mostra todos os compromissos e provas
       do dia atual, sem limite artificial de oito itens futuros.
+- [x] Perfil, relógio, calendário e controles de editar/tema/sair permanecem
+      fixos na coluna; somente a linha cronológica da Agenda rola, ocupando o
+      espaço disponível até o bloco de controles no rodapé.
 - [ ] Retestar o fluxo bilateral no deploy, pois o OAuth local não está
       configurado para `localhost`.
 
