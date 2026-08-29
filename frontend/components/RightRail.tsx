@@ -11,6 +11,7 @@ import { listarProvasNoPeriodo, type Prova } from '@/lib/provas'
 import { getSignedUrl, getSession, sb } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
 import { ThemeToggle } from './ThemeToggle'
+import { SeasonalDecor } from './SeasonalDecor'
 import styles from './RightRail.module.css'
 
 type PerfilResumo = {
@@ -206,6 +207,7 @@ export function RightRail({ recolhendo = false }: { recolhendo?: boolean }) {
 
   return (
     <aside className={cn(styles.rail, recolhendo && styles.railRecolhendo)} aria-label="Painel lateral pessoal" aria-hidden={recolhendo || undefined}>
+      <SeasonalDecor variante="lateral" />
       <section className={cn(styles.card, styles.identidadeCard)} aria-label="Perfil" data-perfil-amplo>
         <div className={styles.capaPerfil}>
           {perfil?.backgroundUrl ? (
@@ -234,77 +236,79 @@ export function RightRail({ recolhendo = false }: { recolhendo?: boolean }) {
         </div>
       </section>
 
-      <section className={cn(styles.card, styles.relogioCard)} aria-label="Relógio">
-        <span className={styles.eyebrow}>Agora</span>
-        <strong className={styles.hora} suppressHydrationWarning>
-          {agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-        </strong>
-        <span className={styles.segundos} suppressHydrationWarning>{agora.toLocaleTimeString('pt-BR', { second: '2-digit' })}s</span>
-        <p suppressHydrationWarning>{FORMATADOR_DATA.format(agora)}</p>
-      </section>
+      <div className={styles.mioloScroll}>
+        <section className={cn(styles.card, styles.relogioCard)} aria-label="Relógio">
+          <span className={styles.eyebrow}>Agora</span>
+          <strong className={styles.hora} suppressHydrationWarning>
+            {agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+          </strong>
+          <span className={styles.segundos} suppressHydrationWarning>{agora.toLocaleTimeString('pt-BR', { second: '2-digit' })}s</span>
+          <p suppressHydrationWarning>{FORMATADOR_DATA.format(agora)}</p>
+        </section>
 
-      <section className={styles.card} aria-label="Calendário do mês">
-        <div className={styles.cardTopo}>
-          <div>
-            <span className={styles.eyebrow}>Calendário</span>
-            <h2>{FORMATADOR_MES.format(agora)}</h2>
+        <section className={styles.card} aria-label="Calendário do mês">
+          <div className={styles.cardTopo}>
+            <div>
+              <span className={styles.eyebrow}>Calendário</span>
+              <h2>{FORMATADOR_MES.format(agora)}</h2>
+            </div>
+            <CalendarDays aria-hidden="true" />
           </div>
-          <CalendarDays aria-hidden="true" />
-        </div>
-        <div className={styles.calendario}>
-          {DIAS_SEMANA.map((dia, indice) => <span key={`${dia}-${indice}`} className={styles.diaSemana}>{dia}</span>)}
-          {grade.map((dia) => {
-            const quantidade = eventosPorDia.get(dia.iso) ?? 0
-            return (
-              <span
-                key={dia.iso}
-                className={cn(
-                  styles.dia,
-                  dia.foraDoMes && styles.diaFora,
-                  dia.iso === hoje && styles.diaHoje,
-                  quantidade > 0 && styles.diaComEvento,
-                )}
-                title={quantidade ? `${quantidade} item(ns)` : undefined}
-              >
-                {dia.dia}
-              </span>
-            )
-          })}
-        </div>
-      </section>
+          <div className={styles.calendario}>
+            {DIAS_SEMANA.map((dia, indice) => <span key={`${dia}-${indice}`} className={styles.diaSemana}>{dia}</span>)}
+            {grade.map((dia) => {
+              const quantidade = eventosPorDia.get(dia.iso) ?? 0
+              return (
+                <span
+                  key={dia.iso}
+                  className={cn(
+                    styles.dia,
+                    dia.foraDoMes && styles.diaFora,
+                    dia.iso === hoje && styles.diaHoje,
+                    quantidade > 0 && styles.diaComEvento,
+                  )}
+                  title={quantidade ? `${quantidade} item(ns)` : undefined}
+                >
+                  {dia.dia}
+                </span>
+              )
+            })}
+          </div>
+        </section>
 
-      <section className={cn(styles.card, styles.agendaCard)} aria-label="Linha do tempo da agenda">
-        <div className={styles.cardTopo}>
-          <div>
-            <span className={styles.eyebrow}>Agenda</span>
-            <h2>Hoje</h2>
+        <section className={cn(styles.card, styles.agendaCard)} aria-label="Linha do tempo da agenda">
+          <div className={styles.cardTopo}>
+            <div>
+              <span className={styles.eyebrow}>Agenda</span>
+              <h2>Hoje</h2>
+            </div>
+            <button type="button" className={styles.atualizar} onClick={() => void carregar()} disabled={carregando}>
+              {carregando ? <Loader2 aria-hidden="true" /> : <RefreshCw aria-hidden="true" />}
+              <span className="sr-only">Atualizar agenda lateral</span>
+            </button>
           </div>
-          <button type="button" className={styles.atualizar} onClick={() => void carregar()} disabled={carregando}>
-            {carregando ? <Loader2 aria-hidden="true" /> : <RefreshCw aria-hidden="true" />}
-            <span className="sr-only">Atualizar agenda lateral</span>
-          </button>
-        </div>
-        {carregando && !linhaTempo.length ? (
-          <p className={styles.vazio} role="status">Carregando próximos itens...</p>
-        ) : linhaTempo.length ? (
-          <ol className={styles.linhaTempo}>
-            {linhaTempo.map((item) => (
-              <li key={item.id}>
-                <span className={cn(styles.marcador, item.tipo === 'prova' && styles.marcadorProva)} />
-                <time dateTime={item.data}>{new Date(`${item.data}T12:00:00`).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}</time>
-                <strong>{item.titulo}</strong>
-                <small>{formatarHora(item.hora)} · {item.detalhe}</small>
-              </li>
-            ))}
-          </ol>
-        ) : (
-          <p className={styles.vazio}>Nada marcado para hoje.</p>
-        )}
-        <Link href="/agenda" className={styles.linkAgenda}>
-          Abrir agenda <ExternalLink aria-hidden="true" />
-        </Link>
-        {aviso ? <p className={styles.aviso} role="status">{aviso}</p> : null}
-      </section>
+          {carregando && !linhaTempo.length ? (
+            <p className={styles.vazio} role="status">Carregando próximos itens...</p>
+          ) : linhaTempo.length ? (
+            <ol className={styles.linhaTempo}>
+              {linhaTempo.map((item) => (
+                <li key={item.id}>
+                  <span className={cn(styles.marcador, item.tipo === 'prova' && styles.marcadorProva)} />
+                  <time dateTime={item.data}>{new Date(`${item.data}T12:00:00`).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}</time>
+                  <strong>{item.titulo}</strong>
+                  <small>{formatarHora(item.hora)} · {item.detalhe}</small>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <p className={styles.vazio}>Nada marcado para hoje.</p>
+          )}
+          <Link href="/agenda" className={styles.linkAgenda}>
+            Abrir agenda <ExternalLink aria-hidden="true" />
+          </Link>
+          {aviso ? <p className={styles.aviso} role="status">{aviso}</p> : null}
+        </section>
+      </div>
 
       <section className={cn(styles.card, styles.controlesCard)} aria-label="Perfil e tema">
         <div className={styles.perfilAcoes}>

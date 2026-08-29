@@ -2,6 +2,7 @@
   --season-glow: color-mix(in oklch, var(--ambient-fallback) 8%, transparent);
   position: sticky;
   z-index: 40;
+  isolation: isolate;
   top: 0;
   margin-left: var(--app-rail-width, 20.25rem);
   border-bottom: 1px solid color-mix(in oklch, var(--border) 78%, transparent);
@@ -51,6 +52,7 @@
 
 .barra {
   position: relative;
+  z-index: 1;
   isolation: isolate;
   display: grid;
   grid-template-areas: 'navegacao';
@@ -647,158 +649,6 @@
 
 .editarPerfil:focus-visible {
   box-shadow: 0 0 0 3px color-mix(in oklch, var(--accent) 30%, transparent);
-}
-
-.fragmentos {
-  position: absolute;
-  z-index: 0;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-  -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 16%, rgb(0 0 0 / 78%) 42%, rgb(0 0 0 / 28%) 72%, transparent 96%);
-  mask-image: linear-gradient(90deg, #000 0%, #000 16%, rgb(0 0 0 / 78%) 42%, rgb(0 0 0 / 28%) 72%, transparent 96%);
-}
-
-.fragmentos i {
-  position: absolute;
-  display: block;
-  left: 0;
-  top: 0;
-  width: 0.8rem;
-  height: 0.45rem;
-  background: linear-gradient(
-    135deg,
-    color-mix(in oklch, var(--cor-ambiente) 76%, transparent),
-    color-mix(in oklch, var(--cor-ambiente) 38%, var(--surface))
-  );
-  box-shadow: 0 0 0.65rem color-mix(in oklch, var(--accent-wash-forte) 20%, transparent);
-  border-radius: 100% 8% 85% 12%;
-  clip-path: polygon(0 48%, 34% 3%, 91% 13%, 100% 49%, 68% 94%, 18% 82%);
-  filter: saturate(1.12) contrast(1.03);
-  transform: rotate(var(--petala-rotacao));
-  animation: petalaFlutua 3.8s ease-in-out var(--petala-atraso) infinite;
-}
-
-.fragmentos i:nth-child(3n) {
-  border-radius: 12% 92% 18% 82%;
-  clip-path: polygon(4% 20%, 62% 0, 100% 42%, 74% 100%, 18% 78%);
-}
-
-.fragmentos i:nth-child(4n) {
-  border-radius: 85% 16% 92% 10%;
-  clip-path: polygon(0 38%, 28% 0, 94% 24%, 76% 100%, 16% 82%);
-}
-
-.primavera i:nth-child(even) {
-  background: linear-gradient(145deg, color-mix(in oklch, var(--cor-ambiente) 46%, #6fa874), color-mix(in oklch, var(--cor-ambiente) 68%, transparent));
-}
-
-.primavera i:nth-child(3n + 1) {
-  background: linear-gradient(145deg, color-mix(in oklch, var(--cor-ambiente) 58%, #db7894), color-mix(in oklch, var(--cor-ambiente) 28%, #f3b6c4));
-}
-
-.primavera i:nth-child(5n) {
-  box-shadow: 0 0 0.8rem color-mix(in oklch, var(--cor-ambiente) 32%, transparent);
-}
-
-.fragmentosComImagem i {
-  filter: saturate(1.24) contrast(1.04);
-}
-
-.verao i {
-  width: 0.72rem;
-  height: 0.72rem;
-  border-radius: 50%;
-  clip-path: none;
-  background: radial-gradient(circle, color-mix(in oklch, var(--cor-ambiente) 42%, #fff2ad) 0 18%, color-mix(in oklch, var(--cor-ambiente) 22%, #f5bd5b) 28%, transparent 72%);
-  box-shadow: 0 0 1rem color-mix(in oklch, var(--cor-ambiente) 28%, #f6c45f);
-  filter: blur(0.25px);
-  animation-name: brilhoFlutua;
-}
-
-.verao i:nth-child(4n) {
-  width: 1.35rem;
-  height: 2px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, transparent, color-mix(in oklch, var(--cor-ambiente) 35%, #fff0a1), transparent);
-  box-shadow: 0 0 0.75rem color-mix(in oklch, #ffd77a 45%, transparent);
-}
-
-.verao i:nth-child(5n) { transform: scale(1.45); }
-
-.outono i {
-  width: 1rem;
-  height: 0.42rem;
-  border-radius: 85% 8% 78% 12%;
-  clip-path: polygon(0 48%, 42% 4%, 100% 31%, 70% 100%, 20% 82%);
-  background: linear-gradient(145deg, color-mix(in oklch, var(--cor-ambiente) 58%, #b8662e), color-mix(in oklch, var(--cor-ambiente) 24%, #e5a04f));
-  box-shadow: 0 0.25rem 0.65rem color-mix(in oklch, #7e4726 18%, transparent);
-  animation-name: folhaFlutua;
-}
-
-.outono i:nth-child(3n) {
-  background: linear-gradient(145deg, #a85d32, color-mix(in oklch, var(--cor-ambiente) 28%, #7d8440));
-}
-
-.inverno i {
-  width: min(var(--particula-tamanho, 7px), 8px) !important;
-  height: min(var(--particula-tamanho, 7px), 8px) !important;
-  border-radius: 50%;
-  clip-path: none;
-  background: color-mix(in oklch, #f7fbff 78%, var(--cor-ambiente));
-  box-shadow: 0 0 0.65rem color-mix(in oklch, #d8efff 52%, transparent);
-  animation-name: neveFlutua;
-}
-
-.inverno i:nth-child(5n) {
-  width: 9px !important;
-  height: 9px !important;
-  border-radius: 0;
-  clip-path: polygon(50% 0, 61% 38%, 100% 50%, 61% 62%, 50% 100%, 39% 62%, 0 50%, 39% 38%);
-  background: color-mix(in oklch, #f7fbff 84%, var(--cor-ambiente));
-}
-
-.nenhum {
-  display: none;
-}
-
-@keyframes petalaFlutua {
-  0%, 100% {
-    transform: translate3d(0, 0, 0) rotate(var(--petala-rotacao));
-  }
-  50% {
-    transform: translate3d(var(--petala-deslocamento), -2px, 0) rotate(calc(var(--petala-rotacao) + 8deg));
-  }
-}
-
-@keyframes brilhoFlutua {
-  0%, 100% { opacity: 0.38; transform: scale(0.82); }
-  50% { opacity: 0.82; transform: scale(1.16); }
-}
-
-@keyframes folhaFlutua {
-  0%, 100% { transform: translate3d(-2px, 0, 0) rotate(var(--petala-rotacao)); }
-  50% { transform: translate3d(7px, -1px, 0) rotate(calc(var(--petala-rotacao) + 14deg)); }
-}
-
-@keyframes neveFlutua {
-  0%, 100% { transform: translate3d(0, -2px, 0); opacity: 0.48; }
-  50% { transform: translate3d(2px, 3px, 0); opacity: 0.88; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .fragmentos i {
-    animation: none;
-  }
-
-  .navegacao[data-indicador-pronto='true'] .indicadorAtivo {
-    transition: none;
-  }
-
-}
-
-:global(.dark) .fragmentos {
-  filter: saturate(1.08) brightness(1.2);
 }
 
 .navegacao {

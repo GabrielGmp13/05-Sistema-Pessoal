@@ -1,0 +1,137 @@
+.camada {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  contain: paint;
+}
+
+.topo {
+  --percurso-sazonal: 7.5rem;
+  --percurso-sazonal-meio: 3.6rem;
+  opacity: 0.84;
+}
+
+.lateral {
+  --percurso-sazonal: 108vh;
+  --percurso-sazonal-meio: 52vh;
+  opacity: 0.62;
+}
+
+.particula {
+  position: absolute;
+  display: block;
+  left: 0;
+  top: -1.25rem;
+  width: var(--particula-tamanho);
+  height: var(--particula-tamanho);
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.primavera .particula {
+  border-radius: 90% 12% 84% 18%;
+  background: linear-gradient(145deg, color-mix(in oklch, var(--ambient-color, #db7894) 42%, #f4b6c8), color-mix(in oklch, var(--ambient-color, #db7894) 22%, #fff0f4));
+  box-shadow: 0 0 0.7rem color-mix(in oklch, var(--ambient-color, #db7894) 24%, transparent);
+  clip-path: polygon(4% 24%, 58% 0, 100% 43%, 72% 100%, 17% 78%);
+  animation: petalaDesce var(--particula-duracao) ease-in-out var(--particula-atraso) infinite;
+}
+
+.primavera .particula:nth-child(3n) {
+  background: linear-gradient(145deg, color-mix(in oklch, var(--ambient-color, #8abf91) 28%, #94c99a), color-mix(in oklch, var(--ambient-color, #8abf91) 38%, transparent));
+}
+
+.verao .particula {
+  top: var(--particula-topo);
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff8c9 0 18%, color-mix(in oklch, var(--ambient-color, #ffd66f) 24%, #ffd66f) 24% 42%, transparent 72%);
+  box-shadow: 0 0 1rem color-mix(in oklch, #ffd66f 54%, transparent);
+  animation: brilhoSolar 5.8s ease-in-out var(--particula-atraso) infinite;
+}
+
+.verao .particula:nth-child(4n) {
+  width: 1.15rem;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, #fff3a4, transparent);
+  box-shadow: 0 0 0.8rem color-mix(in oklch, #ffd66f 62%, transparent);
+}
+
+.outono .particula {
+  width: 1rem;
+  height: 0.5rem;
+  border-radius: 88% 10% 76% 18%;
+  background: linear-gradient(145deg, color-mix(in oklch, var(--ambient-color, #a85d32) 22%, #b8662e), #df9746);
+  box-shadow: 0 0.25rem 0.7rem color-mix(in oklch, #6f3d22 22%, transparent);
+  clip-path: polygon(0 48%, 42% 4%, 100% 31%, 70% 100%, 20% 82%);
+  animation: folhaVoa var(--particula-duracao) ease-in-out var(--particula-atraso) infinite;
+}
+
+.outono .particula:nth-child(3n) {
+  background: linear-gradient(145deg, #98502d, #8b823d);
+}
+
+.inverno .particula {
+  width: var(--particula-tamanho);
+  height: var(--particula-tamanho);
+  background: linear-gradient(90deg, transparent 43%, #f7fbff 43% 57%, transparent 57%);
+  filter: drop-shadow(0 0 0.32rem color-mix(in oklch, #d8efff 64%, transparent));
+  animation: neveCai var(--particula-duracao) linear var(--particula-atraso) infinite;
+}
+
+.inverno .particula::before,
+.inverno .particula::after {
+  position: absolute;
+  top: 43%;
+  left: 0;
+  width: 100%;
+  height: 14%;
+  border-radius: 999px;
+  background: #f7fbff;
+  content: '';
+}
+
+.inverno .particula::before { transform: rotate(60deg); }
+.inverno .particula::after { transform: rotate(-60deg); }
+
+.nenhum {
+  display: none;
+}
+
+@keyframes petalaDesce {
+  0% { opacity: 0; transform: translate3d(0, -1rem, 0) rotate(var(--particula-rotacao)); }
+  12% { opacity: 0.72; }
+  48% { transform: translate3d(var(--particula-desvio), var(--percurso-sazonal-meio), 0) rotate(calc(var(--particula-rotacao) + 115deg)); }
+  88% { opacity: 0.6; }
+  100% { opacity: 0; transform: translate3d(calc(var(--particula-desvio) * -0.55), var(--percurso-sazonal), 0) rotate(calc(var(--particula-rotacao) + 250deg)); }
+}
+
+@keyframes folhaVoa {
+  0% { opacity: 0; transform: translate3d(-1.5rem, -1rem, 0) rotate(var(--particula-rotacao)); }
+  10% { opacity: 0.78; }
+  50% { transform: translate3d(calc(var(--particula-desvio) + 2rem), var(--percurso-sazonal-meio), 0) rotate(calc(var(--particula-rotacao) + 230deg)); }
+  90% { opacity: 0.68; }
+  100% { opacity: 0; transform: translate3d(calc(var(--particula-desvio) - 1rem), var(--percurso-sazonal), 0) rotate(calc(var(--particula-rotacao) + 480deg)); }
+}
+
+@keyframes neveCai {
+  0% { opacity: 0; transform: translate3d(0, -1rem, 0) rotate(0deg); }
+  12% { opacity: 0.86; }
+  88% { opacity: 0.72; }
+  100% { opacity: 0; transform: translate3d(var(--particula-desvio), var(--percurso-sazonal), 0) rotate(210deg); }
+}
+
+@keyframes brilhoSolar {
+  0%, 100% { opacity: 0.2; transform: translate3d(-3px, 1px, 0) scale(0.7); }
+  50% { opacity: 0.9; transform: translate3d(5px, -3px, 0) scale(1.18); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .particula {
+    top: var(--particula-topo);
+    animation: none !important;
+    opacity: 0.42;
+    transform: rotate(var(--particula-rotacao));
+  }
+}

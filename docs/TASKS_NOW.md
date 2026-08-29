@@ -22,6 +22,9 @@ e APIs reais, incluindo altura reduzida e seletor de atmosfera na coluna pessoal
 - [x] Navegação global ganhou transição curta entre páginas, indicador ativo
       deslizante e transformação do perfil entre a coluna pessoal e o topo da
       Biblioteca, com alternativa sem movimento quando solicitada pelo sistema.
+- [x] Decorações sazonais passam a cobrir toda a faixa superior e o fundo da
+      coluna pessoal: pétalas na primavera, brilhos solares no verão, folhas no
+      outono e flocos de neve no inverno.
 - [x] Removidos os pequenos rótulos acima dos títulos principais das páginas,
       preservando os rótulos internos de seções e o banner da Biblioteca.
 - [x] Resumos de “revisões pendentes” passam a listar somente lembretes de
@@ -38,9 +41,9 @@ e APIs reais, incluindo altura reduzida e seletor de atmosfera na coluna pessoal
       Google quando a conta está conectada.
 - [x] Linha cronológica da coluna pessoal mostra todos os compromissos e provas
       do dia atual, sem limite artificial de oito itens futuros.
-- [x] Perfil, relógio, calendário e controles de editar/tema/sair permanecem
-      fixos na coluna; somente a linha cronológica da Agenda rola, ocupando o
-      espaço disponível até o bloco de controles no rodapé.
+- [x] Perfil e controles de editar/tema/sair permanecem fixos nas extremidades
+      da coluna; o miolo com relógio, calendário e Agenda completa rola como
+      uma área única, permitindo navegar por dias com muitos compromissos.
 - [ ] Retestar o fluxo bilateral no deploy, pois o OAuth local não está
       configurado para `localhost`.
 

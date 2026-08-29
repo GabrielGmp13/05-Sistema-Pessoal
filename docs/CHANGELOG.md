@@ -20,14 +20,21 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — v2.1 pronta tecnicamente; homologação manual pendente
 
+- **2026-08-29 (atmosfera sazonal expandida)** — As decorações deixaram de
+  ficar limitadas à cápsula de navegação e ganharam uma camada reutilizável que
+  cobre toda a faixa superior e o fundo da coluna pessoal. Primavera usa
+  pétalas suaves, verão brilhos solares, outono folhas secas e inverno flocos de
+  neve. As camadas não capturam cliques, respeitam redução de movimento e não
+  alteram a transição compartilhada com a Biblioteca.
+
 - **2026-08-29 (Agenda automática e duas escalas visíveis)** — A Agenda passou
   a manter o mês completo acima da semana selecionada. A conexão Calendar
   consulta mudanças ao navegar, retomar a aba e em intervalo de dois minutos;
   criação, edição e exclusão locais são enviadas imediatamente ao Google. A
-  coluna pessoal agora lista toda a agenda de hoje em ordem cronológica. Perfil,
-  relógio, calendário e controles ficam imóveis; apenas essa linha cronológica
-  rola e absorve a altura restante da coluna. Sem migration ou dependência nova;
-  OAuth bilateral depende de reteste no deploy.
+  coluna pessoal agora lista toda a agenda de hoje em ordem cronológica. Perfil
+  e controles ficam imóveis no topo e rodapé; o miolo com relógio, calendário e
+  Agenda rola como uma área única. Sem migration ou dependência nova; OAuth
+  bilateral depende de reteste no deploy.
 
 - **2026-08-29 (transições entre páginas e perfil compartilhado)** — A
   navegação superior ganhou troca direcional de conteúdo e indicador ativo que

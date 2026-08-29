@@ -92,10 +92,10 @@ Todas self-hosted em `.woff2` — nunca carregar de CDN externo.
   relógio digital, calendário do mês, linha temporal da Agenda/provas e resumo
   de perfil/tema herdam `--glass-background`, `--page-glow`,
   `--season-accent` e demais tokens globais.
-- Perfil, relógio e calendário são blocos fixos dentro da coluna. O card de
-  controles (editar, atmosfera e sair) fica fixo junto ao rodapé. A Agenda
-  cresce ou encolhe para preencher o espaço entre eles e somente sua lista
-  cronológica possui rolagem vertical; a coluna inteira não rola.
+- Perfil e o card de controles (editar, atmosfera e sair) são blocos fixos no
+  topo e no rodapé da coluna. Entre eles há uma única área rolável contendo
+  relógio, calendário e o card completo da Agenda. Assim, todos os compromissos
+  continuam alcançáveis sem deslocar a identidade nem as ações permanentes.
 - Em telas largas, o topo global mostra somente a navegação principal dentro da
   área de conteúdo. Perfil, controle de atmosfera e saída ficam na coluna
   pessoal. A área principal recebe gradientes discretos e linhas luminosas por
@@ -211,6 +211,13 @@ resumo do perfil e aplicada apenas a partículas, brilhos e rastros — nunca à
 barra inteira. Na tela de login, onde não há logout, o controlador permanece
 como ação isolada no topo direito.
 
+As decorações sazonais usam uma camada compartilhada no fundo de toda a faixa
+superior e outra atrás dos cards da coluna pessoal; não ficam limitadas à
+cápsula dos links. Primavera exibe pétalas suaves flutuando, verão pequenos
+brilhos solares, outono folhas secas voando e inverno flocos de neve caindo.
+Essas camadas usam `pointer-events: none`, ficam abaixo do conteúdo legível e
+viram composição estática quando `prefers-reduced-motion: reduce` está ativo.
+
 Item ativo: pill com fundo derivado de `--success-muted`, contraste por
 `--success-foreground` e marcador interno sutil. A sidebar é um painel
 arredondado independente, sem duplicar perfil e sem rolagem interna em alturas
@@ -269,7 +276,7 @@ mobile-first usam `inputmode="decimal"` / `inputmode="numeric"`.
 Na Agenda, mês e semana não são abas concorrentes: o calendário mensal aparece
 primeiro e o dia selecionado nele controla a semana detalhada logo abaixo. A
 linha cronológica da coluna pessoal é estritamente “Hoje” e não corta itens por
-quantidade; somente a lista cronológica oferece rolagem quando necessário.
+quantidade; ela cresce dentro do miolo rolável junto do relógio e calendário.
 
 ## Animações
 

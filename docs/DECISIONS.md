@@ -1400,9 +1400,9 @@ projeto já distinguisse cards pergunta/resposta de lembretes de conteúdo.
 - No catálogo principal da Biblioteca, a sidebar local permanece imóvel dentro
   da janela e somente a área de coleção rola. A página de Gêneros e o mobile
   mantêm rolagem normal da página inteira.
-- Na coluna pessoal das rotas comuns, perfil, relógio, calendário e controles
-  permanecem fixos. A Agenda ocupa a altura restante e somente sua lista
-  cronológica rola quando os compromissos excedem o espaço disponível.
+- Na coluna pessoal das rotas comuns, perfil e controles permanecem fixos no
+  topo e rodapé. Relógio, calendário e o card completo da Agenda formam o miolo
+  rolável, de modo que dias com muitos compromissos continuem navegáveis.
 - Cabeçalhos de página comuns começam diretamente pelo título principal; os
   pequenos rótulos acima do `<h1>` são removidos. Rótulos internos de seções e
   o selo do banner da Biblioteca continuam existindo.

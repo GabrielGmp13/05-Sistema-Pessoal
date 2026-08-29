@@ -10,7 +10,8 @@ import { createPortal } from 'react-dom'
 import { getSession, getSignedUrl, sb } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
 import { ThemeToggle } from './ThemeToggle'
-import { useTema, type Decoracao } from './ThemeProvider'
+import { SeasonalDecor } from './SeasonalDecor'
+import { useTema } from './ThemeProvider'
 import styles from './GlobalNav.module.css'
 
 type CaixaPerfil = {
@@ -45,31 +46,6 @@ const links = [
 const ROTAS_DIARIO = ['/diario', '/saude', '/financas', '/lugares', '/receitas']
 const ROTAS_TELA_INTEIRA = ['/revisao/sessao', '/estudos/enem/gabarito']
 
-const particulas = Array.from({ length: 56 }, (_, indice) => {
-  const progresso = ((indice * 37) % 101) / 100
-  const esquerda = 3 + Math.pow(progresso, 1.7) * 94
-  const proximidadeDoPerfil = 1 - esquerda / 140
-
-  return {
-    left: `${esquerda}%`,
-    top: `${5 + ((indice * 43) % 82)}%`,
-    width: `${7 + ((indice * 11) % 13)}px`,
-    height: `${4 + ((indice * 7) % 8)}px`,
-    opacity: Math.max(0.16, 0.6 * proximidadeDoPerfil),
-    '--petala-rotacao': `${-68 + ((indice * 37) % 136)}deg`,
-    '--petala-deslocamento': `${2 + (indice % 4)}px`,
-    '--petala-atraso': `${-(indice % 9) * 0.31}s`,
-  } as CSSProperties
-})
-
-const classesDecoracao: Record<Decoracao, string> = {
-  primavera: styles.primavera,
-  verao: styles.verao,
-  outono: styles.outono,
-  inverno: styles.inverno,
-  nenhum: styles.nenhum,
-}
-
 function isActive(pathname: string, href: string) {
   if (href === '/') return pathname === '/'
   if (href === '/diario') {
@@ -83,7 +59,7 @@ function usaTelaInteira(pathname: string) {
 }
 
 export function GlobalNav() {
-  const { decoracao, corAmbiente, definirCorAmbiente } = useTema()
+  const { corAmbiente, definirCorAmbiente } = useTema()
   const pathname = usePathname()
   const router = useRouter()
   const ocultarNavegacao = pathname === '/login'
@@ -375,11 +351,8 @@ export function GlobalNav() {
       )}
       style={estiloAtmosfera}
     >
+      <SeasonalDecor variante="topo" />
       <div className={cn(styles.barra, biblioteca && styles.barraBiblioteca)}>
-        <span aria-hidden="true" className={cn(styles.fragmentos, classesDecoracao[decoracao])}>
-          {particulas.map((style, indice) => <i key={indice} style={style} />)}
-        </span>
-
         {biblioteca ? (
           <div ref={perfilAreaRef} className={styles.perfilArea} data-perfil-compacto>
             <button

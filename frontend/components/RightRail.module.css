@@ -38,6 +38,7 @@
 
 .card {
   position: relative;
+  z-index: 1;
   flex: 0 0 auto;
   overflow: hidden;
   border: 1px solid color-mix(in oklch, var(--glass-border) 78%, transparent);
@@ -59,6 +60,27 @@
     filter 0.72s ease;
 }
 
+.mioloScroll {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 0.72rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 0.2rem;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  transform-origin: top left;
+  transition:
+    opacity 0.62s ease,
+    transform 1.12s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.72s ease;
+}
+
 .railRecolhendo,
 :global(html[data-rota-transicao='entrando-biblioteca']) .rail {
   overflow: hidden;
@@ -72,21 +94,19 @@
   transform: translate3d(0, 100%, 0);
 }
 
-.railRecolhendo > .card:not(.identidadeCard),
-:global(html[data-rota-transicao='entrando-biblioteca']) .rail > .card:not(.identidadeCard) {
+.railRecolhendo > .mioloScroll,
+.railRecolhendo > .controlesCard,
+:global(html[data-rota-transicao='entrando-biblioteca']) .rail > .mioloScroll,
+:global(html[data-rota-transicao='entrando-biblioteca']) .rail > .controlesCard {
   opacity: 0;
   filter: blur(3px);
   transform: translate3d(0, calc(100dvh + 2rem), 0);
 }
 
-.railRecolhendo > .card:nth-of-type(2) { transition-delay: 0.04s; }
-.railRecolhendo > .card:nth-of-type(3) { transition-delay: 0.12s; }
-.railRecolhendo > .card:nth-of-type(4) { transition-delay: 0.2s; }
-.railRecolhendo > .card:nth-of-type(5) { transition-delay: 0.28s; }
-:global(html[data-rota-transicao='entrando-biblioteca']) .rail > .card:nth-of-type(2) { transition-delay: 0.02s; }
-:global(html[data-rota-transicao='entrando-biblioteca']) .rail > .card:nth-of-type(3) { transition-delay: 0.08s; }
-:global(html[data-rota-transicao='entrando-biblioteca']) .rail > .card:nth-of-type(4) { transition-delay: 0.14s; }
-:global(html[data-rota-transicao='entrando-biblioteca']) .rail > .card:nth-of-type(5) { transition-delay: 0.2s; }
+.railRecolhendo > .mioloScroll { transition-delay: 0.04s; }
+.railRecolhendo > .controlesCard { transition-delay: 0.28s; }
+:global(html[data-rota-transicao='entrando-biblioteca']) .rail > .mioloScroll { transition-delay: 0.02s; }
+:global(html[data-rota-transicao='entrando-biblioteca']) .rail > .controlesCard { transition-delay: 0.2s; }
 
 .card::before {
   position: absolute;
@@ -241,23 +261,6 @@
 }
 
 .agendaCard {
-  display: flex;
-  min-height: 7.5rem;
-  flex: 1 1 auto;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.agendaCard .linhaTempo {
-  min-height: 0;
-  flex: 1 1 auto;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding-right: 0.2rem;
-  scrollbar-width: thin;
-}
-
-.agendaCard .linkAgenda {
   flex: 0 0 auto;
 }
 
@@ -389,16 +392,16 @@
     transform 0.62s cubic-bezier(0.22, 1, 0.36, 1) 1.48s;
 }
 
-:global(html[data-rota-transicao='saindo-biblioteca']) .railRecolhendo > .card:not(.identidadeCard) {
+:global(html[data-rota-transicao='saindo-biblioteca']) .railRecolhendo > .mioloScroll,
+:global(html[data-rota-transicao='saindo-biblioteca']) .railRecolhendo > .controlesCard {
   opacity: 1;
   filter: none;
   transform: translate3d(0, 0, 0);
   transition-delay: 1.08s;
 }
 
-:global(html[data-rota-transicao='saindo-biblioteca']) .railRecolhendo > .card:nth-of-type(4) { transition-delay: 1.12s; }
-:global(html[data-rota-transicao='saindo-biblioteca']) .railRecolhendo > .card:nth-of-type(3) { transition-delay: 1.18s; }
-:global(html[data-rota-transicao='saindo-biblioteca']) .railRecolhendo > .card:nth-of-type(2) { transition-delay: 1.24s; }
+:global(html[data-rota-transicao='saindo-biblioteca']) .railRecolhendo > .controlesCard { transition-delay: 1.12s; }
+:global(html[data-rota-transicao='saindo-biblioteca']) .railRecolhendo > .mioloScroll { transition-delay: 1.18s; }
 
 .controlesCard {
   /* Mantém o painel fixo de atmosfera relativo à viewport, não a este card. */
