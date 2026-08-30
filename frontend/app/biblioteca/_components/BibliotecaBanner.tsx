@@ -75,7 +75,6 @@ export default function BibliotecaBanner({
         ) : null}
 
         <div className={styles.conteudo}>
-          <p className={styles.selo}>Categoria ativa</p>
           <h1 className={styles.titulo}>{titulo}</h1>
           <p className={styles.contagem}>{textoContagem}</p>
           <button type="button" className={styles.btnAdicionar} onClick={onAdicionar}>
@@ -105,10 +104,6 @@ export default function BibliotecaBanner({
       </div>
 
       <div className={styles.colecaoCabecalho}>
-        <div>
-          <p className={styles.colecaoSelo}>Biblioteca pessoal</p>
-          <h2>Sua coleção</h2>
-        </div>
         <div className={styles.colecaoAcoes}>
           <div className={styles.ordenacao} ref={menuRef}>
             <button

@@ -238,13 +238,14 @@ um módulo com sidebar.
 
 **Estrutura:**
 - Card de aproximadamente `230px`, borda e sombra discretas, sem full bleed
-- Selo pequeno "Categoria ativa", título grande, contagem e botão de adicionar
+- Título grande, contagem e botão de adicionar, sem selo redundante acima
 - Mini-colagem lateral de até quatro capas/thumbnails reais e distintos
 - Fallback abstrato elegante; a imagem estática antiga pode aparecer apenas
   como textura de baixa opacidade quando não houver capa real
-- Logo abaixo, cabeçalho "Sua coleção" com contador em pill e menu de ordenação
-  por recência, título, nota, favoritos ou status. A ordenação é local e atua
-  sobre a lista já filtrada pela busca.
+- Logo abaixo, somente contador em pill e menu de ordenação por recência,
+  título, nota, favoritos ou status, alinhados à direita. A linha fica a 15 px
+  do banner e da grade, sem divisor ou rótulos de coleção. A ordenação é local
+  e atua sobre a lista já filtrada pela busca.
 - O hero rola normalmente e usa os tokens globais nos temas claro e escuro
 
 ---

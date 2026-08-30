@@ -20,6 +20,11 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — v2.1 pronta tecnicamente; homologação manual pendente
 
+- **2026-08-30 (hierarquia dos banners da Biblioteca)** — Removidos
+  “Categoria ativa”, “Biblioteca pessoal” e “Sua coleção” de todas as
+  categorias. A linha de ordenação ficou alinhada à direita, sem divisor, com
+  15 px entre o banner superior e a grade de obras.
+
 - **2026-08-30 (busca complementar da Biblioteca)** — Anime e Mangá passaram
   a consultar AniList primeiro e manter Jikan como fallback, corrigindo buscas
   vazias durante respostas `504` da Jikan sem exigir chave nova. Livros passaram

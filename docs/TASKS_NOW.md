@@ -32,6 +32,8 @@ e APIs reais, incluindo altura reduzida e seletor de atmosfera na coluna pessoal
       preservando os rótulos internos de seções e o banner da Biblioteca.
 - [x] Resumos de “revisões pendentes” passam a listar somente lembretes de
       conteúdo, sem transformar flashcards importados/manuais em obrigação.
+- [x] Banners da Biblioteca removem os rótulos redundantes de categoria e
+      coleção; a ordenação fica isolada a 15 px do banner e da grade.
 - [ ] Validar visualmente estes ajustes depois da publicação do lote, incluindo
       entrada e saída da Biblioteca pela barra superior.
 
