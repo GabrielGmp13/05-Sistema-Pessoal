@@ -6,31 +6,37 @@ Referência visual para qualquer IA ou dev gerar páginas novas sem quebrar a co
 
 ## Paleta de cores
 
-**Atualizada em 2026-08-12 (DEC-049)** — a paleta aprovada na DEC-037 é o
-padrão de todos os módulos, incluindo Biblioteca. A antiga exceção dourada
-da Biblioteca foi removida após o teste manual final.
+**Atualizada em 2026-08-30** — revisão das cinco iluminações a partir da
+proposta do v0, com contraste recalculado e correção dos consumidores de cor.
+A fonte única de tokens continua a da DEC-037/049, incluindo Biblioteca;
+não há tema independente por módulo. Valores completos e limites da validação
+estão em `THEMES_AUDIT.md` e `frontend/tests/theme-contrast.test.ts`.
 
 Diferente da DEC-034 (só modo escuro), esta paleta tem **modos claros e
 escuros reais**, organizados como iluminações no controlador de atmosfera
 (DEC-039/049/060/061): Sol, Suave, Nublado, Estrelado e Lua.
 
 ```css
-/* Claro (:root), suave (.soft), nublado (.cloudy), estrelado (.starry) e
+/* Claro (:root), suave (.soft), nublado (.cloudy), estrelado (.dark.starry) e
    escuro (.dark) — valores completos em oklch() no
    globals.css real. Vocabulário shadcn (--background/--card/--primary...)
-   é a fonte da verdade; vocabulário antigo (--bg/--surface/--accent...)
+   é a fonte da verdade; vocabulário antigo (--bg/--surface/--acao...)
    é alias, consumido pelos CSS Modules de Treino/Dashboard sem alteração
    de componente. Ver ARCHITECTURE.md → Stack mista de estilização. */
---bg:      var(--background)
---surface: var(--card)
---surface-2: var(--muted)
---accent:  var(--accent-foreground)   /* cor legível de destaque — texto/ícone/borda ativa */
---accent-wash: var(--accent)          /* fundo do wash — item ativo da sidebar */
---accent-wash-forte: color-mix(in oklch, var(--accent) 55%, var(--accent-foreground) 20%)
---acao:   var(--primary)
---acao-texto: var(--primary-foreground)
---text:    var(--foreground)
---texto-secundario: var(--muted-foreground)
+--bg: var(--background);
+--surface: var(--card);
+--surface-2: color-mix(in oklch, var(--muted) 94%, var(--season-surface));
+--accent-wash: color-mix(in oklch, var(--accent) 88%, var(--season-accent));
+--accent-wash-forte: color-mix(in oklch, var(--accent-wash) 72%, var(--accent-foreground));
+--acao: var(--primary);
+--acao-texto: var(--primary-foreground);
+--text: var(--foreground);
+--texto-secundario: var(--muted-foreground);
+--texto-terciario: var(--muted-foreground);
+--info: var(--primary);
+--erro: var(--destructive);
+--erro-forte: var(--destructive);
+--aviso: var(--warning);
 ```
  
 Cada iluminação altera o conjunto semântico completo, não apenas o fundo:
@@ -51,15 +57,28 @@ Estrelado e Lua aprofundam azul-marinho/carvão sem reduzir contraste. O card de
 Shape mantém foto full-bleed com clipping arredondado, título no topo e dados
 corporais concentrados em um rodapé com overlay legível.
 
-Cores secundárias usadas em contexto (não são variáveis CSS formais, mas aparecem consistentemente):
+### Contrato de cores e contraste
 
-| Uso | Cor | Contexto |
+`--accent` é fundo semântico, não alias de texto. Para texto nesse fundo usar
+`--accent-foreground`; para foco de teclado usar `--ring`, nunca uma cor
+sazonal decorativa de baixo contraste.
+
+| Uso | Tokens | Contexto |
 |---|---|---|
-| Sucesso / feito | `#4ade80` (verde) | Calendário — treino concluído |
-| Info / destaque | `#63b3ed` (azul) | Calendário — PR batido |
-| Erro / atenção | `#ff6b6b` / `#f87171` | Botões destrutivos, alertas, atraso |
-| Aviso | `#fb923c` (laranja) | Estados intermediários |
-| Texto terciário / placeholder | `#333` a `#444` | Estados vazios, ícones desligados |
+| Sucesso / feito | `--success` | Texto/ícone de estado sobre página/card |
+| Aviso / intermediário | `--warning` | Texto de aviso e estrelas interativas |
+| Badge sólido de sucesso/aviso | `--success` + `--success-foreground`, ou `--warning` + `--warning-foreground` | Texto inverso somente sobre o fundo sólido correspondente |
+| Estado com fundo suave | `--foreground` sobre `--success-muted` ou wash de aviso | Não usar o texto inverso do badge sólido |
+| Info / PR | `--primary` + `--primary-foreground` | Badge preenchido |
+| Erro / destrutivo | `--destructive` | Texto e borda; botão com wash de 10%, hover de 20% |
+| Texto secundário / vazio | `--muted-foreground` | Nunca cinza hexadecimal fixo |
+
+Testar pares de texto normal a 4,5:1 e indicadores essenciais de controle a
+3:1. A regressão automatizada cobre os pares declarados nos cinco temas ×
+cinco decorações, incluindo transparências destrutivas; não certifica fotos,
+cores de dados escolhidas pelo usuário ou todas as sobreposições possíveis.
+Scrims pretos, texto branco sobre capas, máscaras e cores figurativas de
+pétalas/folhas/neve permanecem intencionais e inventariados na auditoria.
 
 ## Tipografia
 
@@ -130,10 +149,10 @@ padding: 1–1.5rem;
 | Tipo | Estilo |
 |---|---|
 | Primário | fundo `--acao`, texto `--acao-texto`, `border-radius: 6–8px`, `font-weight: 700` |
-| Secundário dourado (ex: "Adicionar" no banner) | fundo `--accent-wash-forte`, texto `--accent`, sem borda |
+| Ação do banner da Biblioteca | fundo misturado de `--success`/`--primary`, texto `--primary-foreground`, sem cor dourada fixa |
 | Fantasma | sem fundo, borda `--border`, texto secundário, hover clareia borda |
-| Destrutivo | sem fundo, borda `#ff6b6b`, hover preenche com `rgba(255,107,107,.1)` |
-| Ícone | sem fundo, borda `--border`, padding curto, hover borda `--accent` |
+| Destrutivo | texto `--destructive`; CSS Modules usam borda temática, shadcn usa wash de 10% e hover de 20% |
+| Ícone | sem fundo, borda `--border`, padding curto, foco `--ring` |
 
 Transições nunca acima de `.2s`.
 
@@ -144,7 +163,7 @@ border: 1px solid var(--border);
 border-radius: 6–8px;
 padding: .5–.65rem;
 ```
-Foco: borda muda para `--accent`.
+Foco: borda muda para `--ring`.
 
 ### Modais
 ```css
@@ -159,7 +178,7 @@ Sempre com header (título + botão fechar `✕`), body, footer (botão fantasma
 position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
 background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
 ```
-Duas variantes: `.ok` (borda `--accent`) e `.erro` (borda `#ff6b6b`).
+Duas variantes: `.ok` (borda semântica de sucesso) e `.erro` (borda `--destructive`).
 
 ---
 

@@ -10,8 +10,30 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 novos vínculos de temporadas e complementos no deploy.
 **Banco:** produção e cadeia local estão alinhadas até `20260830000100_anime_related_works.sql` (68 tabelas).
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** executar os retestes de `docs/teste.md` no deploy com as contas
-e APIs reais, incluindo altura reduzida e seletor de atmosfera na coluna pessoal.
+**Próxima ação:** homologar a revisão dos cinco temas no deploy; depois retomar
+com Gabriel as referências do v0 para os painéis flutuantes da Biblioteca.
+Os retestes de `docs/teste.md` com contas/APIs reais continuam pendentes.
+
+## Revisão de temas guiada pelo v0 — 2026-08-30
+
+- [x] Revisadas as cinco iluminações e os tokens sazonais, mantendo nomes,
+      persistência, layout e animações existentes.
+- [x] Contrastes da proposta recalculados; corrigidos sucesso/aviso,
+      texto destrutivo no hover e bordas translúcidas insuficientes.
+- [x] Cores fixas de interface em Treino, Histórico e estrelas passaram a
+      seguir tokens; corrigido texto inverso usado em superfícies suaves.
+- [x] `THEMES_AUDIT.md` registra os valores finais, razões calculadas,
+      aplicação do tema e exceções intencionais de imagem/dados/decoração.
+- [x] Regressão automatizada cobre cinco iluminações × cinco decorações.
+- [x] Typecheck e build aprovados; 55 testes Node passam, incluindo 27 de
+      temas/contratos. Lint: 6 erros e 5 avisos em arquivos não alterados neste
+      lote; nenhum apontamento nos arquivos de código modificados.
+- [x] Login e seletor de atmosfera exercitados nas 25 combinações locais,
+      sem overflow no viewport testado; sessão local desautenticada.
+- [ ] Validar visualmente as páginas autenticadas em produção, principalmente
+      estados, formulários, sidebar e capas nos cinco temas, desktop/mobile.
+- [ ] Retomar o redesign dos painéis flutuantes da Biblioteca com as
+      referências refinadas pelo usuário; não foi redesenhado neste lote.
 
 ## Ajustes encontrados na homologação — 2026-08-28
 

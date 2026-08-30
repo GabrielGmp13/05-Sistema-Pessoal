@@ -20,6 +20,14 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — v2.1 pronta tecnicamente; homologação manual pendente
 
+- **2026-08-30 (revisão das cinco iluminações)** — Paleta do v0 adaptada aos
+  tokens existentes, com correção das razões de contraste da proposta e dos
+  usos de sucesso/aviso/destrutivo. Treino, Histórico e estrelas deixam de
+  usar cores fixas de interface; foco utiliza `--ring`. Auditoria documenta
+  valores finais, exceções e regressão automatizada dos 25 pares de
+  iluminação/decoração. Layout, animações, persistência e banco preservados;
+  revisão visual autenticada permanece pendente.
+
 - **2026-08-30 (painel de obra e schema relacionado)** — O painel somente
   leitura das obras ganhou margens superior e inferior no desktop, altura pelo
   conteúdo e rolagem interna limitada à janela; mobile permanece em tela
