@@ -324,3 +324,9 @@ O editor de Anime usa uma janela larga (até 960 px), formulário básico em dua
 colunas no desktop e uma coluna no celular. Temporadas e complementos mostram
 a obra externa com capa e metadados antes da confirmação. A ordem de consumo é
 uma linha do tempo vertical numerada, com ações explícitas para mover cada obra.
+
+Seletores de obras relacionadas não expõem campos técnicos soltos: busca,
+resultado escolhido com capa/metadados e uma única ação de confirmação formam
+um bloco visual. Falhas de persistência aparecem no próprio bloco. Período,
+duração média por episódio e nota geral são cartões somente leitura; a nota é
+atribuída em cada temporada.

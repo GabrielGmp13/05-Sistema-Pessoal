@@ -19,6 +19,7 @@ export interface AnimeTemporada {
   capa_url: string | null;
   sinopse: string | null;
   ano_lancamento: number | null;
+  ano_termino: number | null;
   duracao_minutos: number | null;
   anilist_id: string | null;
   mal_id: string | null;
@@ -26,6 +27,13 @@ export interface AnimeTemporada {
   link_mal: string | null;
   formato: string | null;
   tipo_relacao: string | null;
+  diretor: string | null;
+  roteirista: string | null;
+  produtores: string | null;
+  estudio: string | null;
+  character_designer: string | null;
+  animador_chefe: string | null;
+  compositor: string | null;
   updated_at: string;
   deleted: boolean;
 }

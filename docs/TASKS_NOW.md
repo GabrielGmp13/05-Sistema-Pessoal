@@ -116,6 +116,15 @@ e APIs reais, incluindo altura reduzida e seletor de atmosfera na coluna pessoal
       largo, responsivo e organizado em duas colunas no desktop.
 - [ ] Aplicar `20260830000100_anime_related_works.sql` em produção antes de
       homologar o novo editor no deploy.
+- [x] Busca de Anime combina autocomplete parcial do Kitsu com identidade e
+      detalhes AniList; `shingek` já encontra a franquia sem palavra completa.
+- [x] Sugestões percorrem a cadeia limitada de prequelas/sequelas para incluir
+      temporadas intermediárias, e seleção recebe detalhes técnicos completos.
+- [x] Dublagem removida de todos os formulários e do painel de detalhes.
+- [x] Período, duração média e nota geral do Anime tornam-se derivados das
+      obras/temporadas vinculadas; notas continuam editáveis por temporada.
+- [x] Seletores de temporada/complemento ganham confirmação visual própria e
+      erro visível quando o banco rejeita a inclusão.
 
 ## Handoff curto para novo chat
 

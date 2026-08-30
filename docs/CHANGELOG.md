@@ -915,3 +915,6 @@ A migration `20260821000100_biblioteca_capas_storage.sql` passou reset e 15 test
 - Temporadas e complementos passam a preservar a obra externa selecionada, a
   equipe técnica é preenchida pela AniList, músicas aceitam trilha sonora e a
   ordem de consumo ganha edição visual em linha do tempo.
+- Busca parcial ganha Kitsu como autocomplete e percorre a cadeia de relações
+  AniList; dublagem some do painel, campos gerais viram derivados e os seletores
+  de obras vinculadas passam a confirmar seleção e exibir falhas de salvamento.

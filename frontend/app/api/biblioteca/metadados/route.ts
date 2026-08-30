@@ -15,6 +15,7 @@ const FONTES: FonteMetadados[] = [
   'jikan_anime',
   'jikan_manga',
   'anilist_relacoes',
+  'anilist_detalhe',
   'musica',
   'itunes_podcast',
   'artigo',
@@ -368,6 +369,21 @@ async function buscarGoogleLivros(q: string): Promise<ResultadoMetadados[] | nul
 }
 
 async function buscarJikan(q: string, manga: boolean): Promise<ResultadoMetadados[]> {
+  if (!manga) {
+    const [anilist, kitsu] = await Promise.allSettled([buscarAniList(q, false), buscarKitsu(q)]);
+    const combinados = [
+      ...(anilist.status === 'fulfilled' ? anilist.value : []),
+      ...(kitsu.status === 'fulfilled' ? kitsu.value : []),
+    ];
+    const vistos = new Set<string>();
+    const unicos = combinados.filter((item) => {
+      const chave = item.anilistId ? `anilist:${item.anilistId}` : `${item.titulo.toLocaleLowerCase('pt-BR')}|${item.ano ?? ''}`;
+      if (vistos.has(chave)) return false;
+      vistos.add(chave);
+      return true;
+    });
+    if (unicos.length > 0) return unicos.slice(0, 30);
+  }
   try {
     const resultadosAniList = await buscarAniList(q, manga);
     if (resultadosAniList.length > 0) return resultadosAniList;
@@ -437,7 +453,7 @@ async function buscarJikan(q: string, manga: boolean): Promise<ResultadoMetadado
 async function buscarAniList(q: string, manga: boolean): Promise<ResultadoMetadados[]> {
   const query = `
     query ($search: String!, $type: MediaType!) {
-      Page(page: 1, perPage: 8) {
+      Page(page: 1, perPage: 25) {
         media(search: $search, type: $type, isAdult: false, sort: SEARCH_MATCH) {
           id idMal format status description(asHtml: false) duration episodes chapters volumes siteUrl
           title { romaji english native }
@@ -445,7 +461,7 @@ async function buscarAniList(q: string, manga: boolean): Promise<ResultadoMetada
           coverImage { extraLarge large medium }
           genres
           studios(isMain: true) { nodes { name } }
-          staff(perPage: 50) { edges { role node { name { full } } } }
+          staff(perPage: 25) { edges { role node { name { full } } } }
         }
       }
     }
@@ -503,7 +519,46 @@ async function buscarAniList(q: string, manga: boolean): Promise<ResultadoMetada
   });
 }
 
-async function buscarRelacoesAniList(q: string): Promise<ResultadoMetadados[]> {
+async function buscarKitsu(q: string): Promise<ResultadoMetadados[]> {
+  const params = new URLSearchParams({ 'filter[text]': q, 'page[limit]': '15', include: 'mappings' });
+  const resposta = (await jsonExterno(`https://kitsu.io/api/edge/anime?${params}`)) as {
+    data?: Array<{
+      id: string;
+      attributes?: {
+        canonicalTitle?: string; titles?: Record<string, string>; synopsis?: string;
+        startDate?: string; endDate?: string; subtype?: string; episodeCount?: number;
+        episodeLength?: number; posterImage?: { large?: string; medium?: string };
+      };
+      relationships?: { mappings?: { data?: Array<{ id: string }> } };
+    }>;
+    included?: Array<{ id: string; attributes?: { externalSite?: string; externalId?: string } }>;
+  };
+  const mappings = new Map((resposta.included ?? []).map((item) => [item.id, item.attributes]));
+  return (resposta.data ?? []).map((item) => {
+    const externos = (item.relationships?.mappings?.data ?? []).map((ref) => mappings.get(ref.id));
+    const anilist = externos.find((valor) => valor?.externalSite === 'anilist/anime')?.externalId;
+    const mal = externos.find((valor) => valor?.externalSite === 'myanimelist/anime')?.externalId;
+    const attrs = item.attributes;
+    return {
+      id: `kitsu:${item.id}`,
+      titulo: attrs?.titles?.ja_jp ?? attrs?.canonicalTitle ?? 'Título não informado',
+      subtitulo: attrs?.titles?.en ?? attrs?.canonicalTitle,
+      descricao: attrs?.synopsis,
+      capaUrl: attrs?.posterImage?.large ?? attrs?.posterImage?.medium,
+      ano: ano(attrs?.startDate),
+      anoTermino: ano(attrs?.endDate),
+      duracaoMinutos: attrs?.episodeLength,
+      episodios: attrs?.episodeCount,
+      formato: attrs?.subtype?.toUpperCase().replace(/-/g, '_'),
+      anilistId: anilist,
+      malId: mal,
+      linkOficial: anilist ? `https://anilist.co/anime/${anilist}` : `https://kitsu.io/anime/${item.id}`,
+      siteOrigem: 'Kitsu',
+    } satisfies ResultadoMetadados;
+  });
+}
+
+async function buscarRelacoesDiretasAniList(q: string): Promise<ResultadoMetadados[]> {
   const id = Number(q);
   if (!Number.isInteger(id) || id <= 0) return [];
   const query = `
@@ -550,6 +605,80 @@ async function buscarRelacoesAniList(q: string): Promise<ResultadoMetadados[]> {
         siteOrigem: 'AniList',
       } satisfies ResultadoMetadados;
     });
+}
+
+async function buscarDetalheAniList(q: string): Promise<ResultadoMetadados[]> {
+  const id = Number(q);
+  if (!Number.isInteger(id) || id <= 0) return [];
+  const query = `query ($id: Int!) { Media(id: $id, type: ANIME) {
+    id idMal format description(asHtml: false) duration episodes siteUrl
+    title { romaji english native } startDate { year } endDate { year }
+    coverImage { extraLarge large medium } genres
+    studios(isMain: false) { nodes { name } }
+    staff(perPage: 25) { edges { role node { name { full } } } }
+  } }`;
+  const resposta = (await jsonExternoPost('https://graphql.anilist.co', { query, variables: { id } })) as {
+    data?: { Media?: {
+      id: number; idMal?: number | null; format?: string | null; description?: string | null; duration?: number | null; episodes?: number | null; siteUrl?: string;
+      title?: { romaji?: string | null; english?: string | null; native?: string | null };
+      startDate?: { year?: number | null }; endDate?: { year?: number | null };
+      coverImage?: { extraLarge?: string | null; large?: string | null; medium?: string | null };
+      genres?: string[]; studios?: { nodes?: Array<{ name?: string }> };
+      staff?: { edges?: Array<{ role?: string; node?: { name?: { full?: string } } }> };
+    } };
+  };
+  const item = resposta.data?.Media;
+  if (!item) return [];
+  const pessoas = (padrao: RegExp) => (item.staff?.edges ?? []).filter((pessoa) => padrao.test(pessoa.role ?? '')).map((pessoa) => pessoa.node?.name?.full).filter((nome): nome is string => Boolean(nome));
+  const unir = (valores: string[]) => [...new Set(valores)].join(', ') || undefined;
+  return [{
+    id: `anilist:${item.id}`,
+    titulo: item.title?.romaji ?? item.title?.english ?? item.title?.native ?? 'Título não informado',
+    subtitulo: item.title?.english ?? item.title?.native ?? undefined,
+    descricao: item.description?.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() || undefined,
+    capaUrl: item.coverImage?.extraLarge ?? item.coverImage?.large ?? item.coverImage?.medium ?? undefined,
+    ano: item.startDate?.year ?? undefined,
+    anoTermino: item.endDate?.year ?? undefined,
+    duracaoMinutos: item.duration ?? undefined,
+    episodios: item.episodes ?? undefined,
+    formato: item.format ?? undefined,
+    anilistId: String(item.id), malId: item.idMal ? String(item.idMal) : undefined, linkOficial: item.siteUrl,
+    estudio: unir((item.studios?.nodes ?? []).map((estudio) => estudio.name).filter((nome): nome is string => Boolean(nome))),
+    diretor: unir(pessoas(/(^|chief |assistant )director/i)),
+    roteirista: unir(pessoas(/series composition|script|screenplay/i)),
+    produtores: unir(pessoas(/producer|production/i)),
+    characterDesigner: unir(pessoas(/character design/i)),
+    animadorChefe: unir(pessoas(/chief animation director/i)),
+    compositor: unir(pessoas(/music|soundtrack composition/i)),
+    generos: item.genres ?? [], siteOrigem: 'AniList',
+  }];
+}
+
+async function buscarRelacoesAniList(q: string): Promise<ResultadoMetadados[]> {
+  const raiz = Number(q);
+  if (!Number.isInteger(raiz) || raiz <= 0) return [];
+  const visitados = new Set<string>([String(raiz)]);
+  const reunidos = new Map<string, ResultadoMetadados>();
+  let fronteira = [String(raiz)];
+
+  for (let profundidade = 0; profundidade < 5 && fronteira.length > 0 && visitados.size <= 16; profundidade += 1) {
+    const lotes = await Promise.allSettled(fronteira.map((id) => buscarRelacoesDiretasAniList(id)));
+    const proxima: string[] = [];
+    for (const lote of lotes) {
+      if (lote.status !== 'fulfilled') continue;
+      for (const obra of lote.value) {
+        if (obra.anilistId !== String(raiz)) reunidos.set(obra.anilistId ?? obra.id, obra);
+        const ehCadeia = ['PREQUEL', 'SEQUEL'].includes(obra.tipoRelacao ?? '') && ['TV', 'TV_SHORT'].includes(obra.formato ?? '');
+        if (ehCadeia && obra.anilistId && !visitados.has(obra.anilistId) && visitados.size < 16) {
+          visitados.add(obra.anilistId);
+          proxima.push(obra.anilistId);
+        }
+      }
+    }
+    fronteira = proxima;
+  }
+
+  return [...reunidos.values()].sort((a, b) => (a.ano ?? 9999) - (b.ano ?? 9999));
 }
 
 async function buscarMusica(q: string): Promise<ResultadoMetadados[]> {
@@ -627,6 +756,7 @@ export async function GET(request: NextRequest) {
       case 'jikan_anime': resultados = await buscarJikan(q, false); break;
       case 'jikan_manga': resultados = await buscarJikan(q, true); break;
       case 'anilist_relacoes': resultados = await buscarRelacoesAniList(q); break;
+      case 'anilist_detalhe': resultados = await buscarDetalheAniList(q); break;
       case 'musica': resultados = await buscarMusica(q); break;
       case 'itunes_podcast': resultados = await buscarItunes(q); break;
       case 'artigo': resultados = await buscarArtigo(q); break;

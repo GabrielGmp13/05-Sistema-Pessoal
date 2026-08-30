@@ -6,6 +6,7 @@ export type FonteMetadados =
   | 'jikan_anime'
   | 'jikan_manga'
   | 'anilist_relacoes'
+  | 'anilist_detalhe'
   | 'musica'
   | 'itunes_podcast'
   | 'artigo';
@@ -67,4 +68,27 @@ export async function buscarMetadados(
   }
 
   return data;
+}
+
+export async function completarResultadoAniList(resultado: ResultadoMetadados): Promise<ResultadoMetadados> {
+  let completo = resultado;
+  try {
+    if (resultado.anilistId) {
+      const detalhe = await buscarMetadados('anilist_detalhe', resultado.anilistId);
+      if (detalhe.resultados[0]) completo = { ...resultado, ...detalhe.resultados[0], tipoRelacao: resultado.tipoRelacao };
+    }
+  } catch { /* A obra continua utilizável com os dados da busca. */ }
+  if (completo.diretor && completo.roteirista && completo.produtores && completo.estudio) return completo;
+  try {
+    const tmdb = await buscarMetadados('tmdb_serie', completo.subtitulo ?? completo.titulo);
+    const candidato = tmdb.resultados.find((item) => !completo.ano || !item.ano || Math.abs(item.ano - completo.ano) <= 1) ?? tmdb.resultados[0];
+    if (candidato) completo = {
+      ...completo,
+      diretor: completo.diretor ?? candidato.diretor,
+      roteirista: completo.roteirista ?? candidato.roteirista,
+      produtores: completo.produtores ?? candidato.produtores,
+      estudio: completo.estudio ?? candidato.estudio,
+    };
+  } catch { /* TMDB é complemento opcional. */ }
+  return completo;
 }

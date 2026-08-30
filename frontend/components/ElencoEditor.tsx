@@ -11,14 +11,12 @@ import {
 import styles from './ListaEditavel.module.css';
 
 interface Props {
-  tipoObra: TipoObraElenco;
+  tipoObra: Exclude<TipoObraElenco, 'anime'>;
   obraUuid: string;
 }
 
 const VAZIO = {
   ator: '',
-  dublador_original: '',
-  dublador_br: '',
   personagem: '',
   foto_url: '',
 };
@@ -28,8 +26,6 @@ export default function ElencoEditor({ tipoObra, obraUuid }: Props) {
   const [novo, setNovo] = useState(VAZIO);
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
-
-  const ehAnime = tipoObra === 'anime';
 
   async function carregar() {
     setCarregando(true);
@@ -44,12 +40,10 @@ export default function ElencoEditor({ tipoObra, obraUuid }: Props) {
   }, [obraUuid]);
 
   async function adicionar() {
-    if (ehAnime ? !novo.dublador_original.trim() : !novo.ator.trim()) return;
+    if (!novo.ator.trim()) return;
     setSalvando(true);
     const criado = await criarElenco(tipoObra, obraUuid, {
-      ator: ehAnime ? undefined : novo.ator,
-      dublador_original: ehAnime ? novo.dublador_original : undefined,
-      dublador_br: ehAnime ? novo.dublador_br || undefined : undefined,
+      ator: novo.ator,
       personagem: novo.personagem || undefined,
       foto_url: novo.foto_url || undefined,
       ordem: itens.length,
@@ -68,7 +62,7 @@ export default function ElencoEditor({ tipoObra, obraUuid }: Props) {
 
   return (
     <div className={styles.wrapper}>
-      <h4>{ehAnime ? 'Dublagem' : 'Elenco'}</h4>
+      <h4>Elenco</h4>
       {carregando ? (
         <p className={styles.vazio}>Carregando...</p>
       ) : (
@@ -77,9 +71,7 @@ export default function ElencoEditor({ tipoObra, obraUuid }: Props) {
             <li key={item.uuid}>
               <span>
                 <strong>
-                  {ehAnime
-                    ? [item.dublador_original, item.dublador_br].filter(Boolean).join(' / ')
-                    : item.ator}
+                  {item.ator}
                 </strong>
                 {item.personagem ? ` — ${item.personagem}` : ''}
               </span>
@@ -90,33 +82,18 @@ export default function ElencoEditor({ tipoObra, obraUuid }: Props) {
           ))}
           {itens.length === 0 && (
             <li className={styles.vazio}>
-              {ehAnime ? 'Nenhum dublador ainda.' : 'Nenhum ator ainda.'}
+              Nenhum ator ainda.
             </li>
           )}
         </ul>
       )}
 
       <div className={styles.linhaAdicionar}>
-        {ehAnime ? (
-          <>
-            <input
-              placeholder="Dublador original (japonês)"
-              value={novo.dublador_original}
-              onChange={(e) => setNovo({ ...novo, dublador_original: e.target.value })}
-            />
-            <input
-              placeholder="Dublador BR (opcional)"
-              value={novo.dublador_br}
-              onChange={(e) => setNovo({ ...novo, dublador_br: e.target.value })}
-            />
-          </>
-        ) : (
-          <input
-            placeholder="Ator"
-            value={novo.ator}
-            onChange={(e) => setNovo({ ...novo, ator: e.target.value })}
-          />
-        )}
+        <input
+          placeholder="Ator"
+          value={novo.ator}
+          onChange={(e) => setNovo({ ...novo, ator: e.target.value })}
+        />
         <input
           placeholder="Personagem (opcional)"
           value={novo.personagem}

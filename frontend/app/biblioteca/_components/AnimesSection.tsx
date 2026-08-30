@@ -15,7 +15,6 @@ import OpeningsEndingsEditor from '@/components/OpeningsEndingsEditor';
 import TemporadasAnimeEditor from '@/components/TemporadasAnimesEditor';
 import ComplementosEditor from '@/components/ComplementosEditor';
 import OrdemConsumoEditor from '@/components/OrdemConsumoEditor';
-import StarRating from '@/components/StarRating';
 import BuscaMetadados from './BuscaMetadados';
 import SeletorGenero from '@/components/SeletorGenero';
 import BibliotecaBanner from './BibliotecaBanner';
@@ -27,6 +26,9 @@ import { ordenarItensBiblioteca, type OrdenacaoBiblioteca } from '@/lib/bibliote
 import styles from './BibliotecaSection.module.css';
 import CapaUploadField from './CapaUploadField';
 import { persistirComCapaEBanner, removerArquivosBiblioteca } from '@/lib/biblioteca-capas';
+import { listarTemporadasAnime } from '@/lib/animes-temporadas';
+import { listarComplementosDoAnime } from '@/lib/filmes';
+import { completarResultadoAniList } from '@/lib/biblioteca-metadados';
 
 const STATUS_LABEL: Record<string, string> = {
   quero_ver: 'Quero ver',
@@ -160,6 +162,9 @@ export default function AnimesSection({
       sinopse: anime.sinopse ?? '',
       ano_lancamento: anime.ano_lancamento ?? undefined,
       ano_termino: anime.ano_termino ?? undefined,
+      ano_obra_inicio: anime.ano_obra_inicio ?? anime.ano_lancamento ?? undefined,
+      ano_obra_fim: anime.ano_obra_fim ?? anime.ano_termino ?? undefined,
+      duracao_obra_minutos: anime.duracao_obra_minutos ?? anime.duracao_minutos ?? undefined,
       duracao_minutos: anime.duracao_minutos ?? undefined,
       diretor: anime.diretor ?? '',
       roteirista: anime.roteirista ?? '',
@@ -238,6 +243,40 @@ export default function AnimesSection({
     }
     setAnimes((atuais) => atuais.map((item) => item.uuid === atualizado.uuid ? atualizado : item));
     setPainelAnime((atual) => atual?.uuid === atualizado.uuid ? atualizado : atual);
+  }
+
+  async function sincronizarResumoObra() {
+    if (!editandoUuid) return;
+    const [temporadas, complementos] = await Promise.all([
+      listarTemporadasAnime(editandoUuid),
+      listarComplementosDoAnime(editandoUuid),
+    ]);
+    if (!temporadas || !complementos) return;
+    const anos = [form.ano_obra_inicio, form.ano_obra_fim, ...temporadas.flatMap((item) => [item.ano_lancamento, item.ano_termino]), ...complementos.map((item) => item.ano_lancamento)]
+      .filter((valor): valor is number => typeof valor === 'number');
+    const duracoes = [form.duracao_obra_minutos, ...temporadas.map((item) => item.duracao_minutos)]
+      .filter((valor): valor is number => typeof valor === 'number' && valor > 0);
+    const notas = temporadas.map((item) => item.minha_nota).filter((valor): valor is number => typeof valor === 'number');
+    const juntar = (principal: string | null | undefined, valores: Array<string | null>) => {
+      const partes = [principal, ...valores].flatMap((valor) => valor?.split(/\s*[,/]\s*/) ?? []).map((valor) => valor.trim()).filter(Boolean);
+      return [...new Set(partes)].join(' / ') || undefined;
+    };
+    const derivados: AnimeInput = {
+      nome_original: form.nome_original,
+      ano_lancamento: anos.length ? Math.min(...anos) : undefined,
+      ano_termino: anos.length ? Math.max(...anos) : undefined,
+      duracao_minutos: duracoes.length ? Math.round(duracoes.reduce((total, valor) => total + valor, 0) / duracoes.length) : undefined,
+      nota: notas.length ? Math.round((notas.reduce((total, valor) => total + valor, 0) / notas.length) * 10) / 10 : null,
+      diretor: juntar(form.diretor, [...temporadas.map((item) => item.diretor), ...complementos.map((item) => item.diretor)]),
+      roteirista: juntar(form.roteirista, [...temporadas.map((item) => item.roteirista), ...complementos.map((item) => item.roteirista)]),
+      produtores: juntar(form.produtores, [...temporadas.map((item) => item.produtores), ...complementos.map((item) => item.produtores)]),
+      estudio: juntar(form.estudio, [...temporadas.map((item) => item.estudio), ...complementos.map((item) => item.estudio)]),
+      character_designer: juntar(form.character_designer, temporadas.map((item) => item.character_designer)),
+      animador_chefe: juntar(form.animador_chefe, temporadas.map((item) => item.animador_chefe)),
+      compositor: juntar(form.compositor, temporadas.map((item) => item.compositor)),
+    };
+    const atualizado = await atualizarAnime(editandoUuid, derivados);
+    if (atualizado) setForm((atual) => ({ ...atual, ...derivados }));
   }
 
   function montarInfoGeral(anime: Anime): CampoInfo[] {
@@ -355,7 +394,8 @@ export default function AnimesSection({
               <BuscaMetadados
                 fonte="jikan_anime"
                 termo={form.nome_original}
-                onSelect={(resultado) => {
+                onSelect={(resultadoInicial) => { void (async () => {
+                  const resultado = await completarResultadoAniList(resultadoInicial);
                   setForm((atual) => ({
                   ...atual,
                   nome_original: resultado.titulo,
@@ -364,8 +404,10 @@ export default function AnimesSection({
                   mal_id: resultado.malId ?? resultado.identificadorExterno ?? atual.mal_id,
                   capa_url: resultado.capaUrl ?? atual.capa_url,
                   ano_lancamento: resultado.ano ?? atual.ano_lancamento,
+                  ano_obra_inicio: resultado.ano ?? atual.ano_obra_inicio,
+                  ano_obra_fim: resultado.anoTermino ?? resultado.ano ?? atual.ano_obra_fim,
                   sinopse: resultado.descricao ?? atual.sinopse,
-                  estudio: resultado.autor ?? atual.estudio,
+                  estudio: resultado.estudio ?? resultado.autor ?? atual.estudio,
                   produtores: resultado.produtores ?? atual.produtores,
                   diretor: resultado.diretor ?? atual.diretor,
                   roteirista: resultado.roteirista ?? atual.roteirista,
@@ -377,6 +419,7 @@ export default function AnimesSection({
                   link_anilist: resultado.linkOficial ?? atual.link_anilist,
                   link_mal: resultado.malId ? `https://myanimelist.net/anime/${resultado.malId}` : atual.link_mal,
                   duracao_minutos: resultado.duracaoMinutos ?? atual.duracao_minutos,
+                  duracao_obra_minutos: resultado.duracaoMinutos ?? atual.duracao_obra_minutos,
                   }));
                   if (resultado.generos?.length) void (async () => {
                     const userId = await getUserId();
@@ -385,7 +428,7 @@ export default function AnimesSection({
                     setGeneros(resolvidos.generos);
                     setGenerosSelecionados(resolvidos.selecionados);
                   })();
-                }}
+                })(); }}
               />
               <CapaUploadField arquivo={arquivoCapa} onChange={setArquivoCapa} />
               <CapaUploadField arquivo={arquivoBanner} onChange={setArquivoBanner} label="Banner do dispositivo" />
@@ -411,25 +454,11 @@ export default function AnimesSection({
                   <option value="abandonado">Abandonado</option>
                 </select>
               </label>
-              <StarRating
-                value={form.nota}
-                onChange={(nota) => setForm({ ...form, nota: nota ?? undefined })}
-              />
-              <label>
-                Ano de lançamento
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  value={form.ano_lancamento ?? ''}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      ano_lancamento:
-                        e.target.value === '' ? undefined : Number(e.target.value),
-                    })
-                  }
-                />
-              </label>
+              <div className={styles.camposDerivados}>
+                <span><small>Período calculado</small><strong>{form.ano_lancamento ?? '—'}–{form.ano_termino ?? '—'}</strong></span>
+                <span><small>Duração média calculada</small><strong>{form.duracao_minutos ? `${form.duracao_minutos} min/ep` : '—'}</strong></span>
+                <span><small>Nota geral das temporadas</small><strong>{form.nota != null ? `${Number(form.nota).toFixed(1)} / 5` : 'Sem notas'}</strong></span>
+              </div>
               <label className={styles.checkboxLabel}>
                 <input
                   type="checkbox"
@@ -437,36 +466,6 @@ export default function AnimesSection({
                   onChange={(e) => setForm({ ...form, favorito: e.target.checked })}
                 />
                 Favorito
-              </label>
-              <label>
-                Ano de término (vazio = em andamento)
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  value={form.ano_termino ?? ''}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      ano_termino: e.target.value === '' ? undefined : Number(e.target.value),
-                    })
-                  }
-                />
-              </label>
-              <label>
-                Duração média por episódio (min)
-                <input
-                  type="number"
-                  min={1}
-                  inputMode="numeric"
-                  value={form.duracao_minutos ?? ''}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      duracao_minutos:
-                        e.target.value === '' ? undefined : Number(e.target.value),
-                    })
-                  }
-                />
               </label>
               <div>
                 <div style={{ fontSize: '0.82rem', color: 'var(--texto-secundario)', marginBottom: '0.4rem' }}>
@@ -556,9 +555,9 @@ export default function AnimesSection({
 
             {editandoUuid && (
               <div className={styles.modalBody}>
-                <TemporadasAnimeEditor animeUuid={editandoUuid} anilistId={form.anilist_id} />
+                <TemporadasAnimeEditor animeUuid={editandoUuid} anilistId={form.anilist_id} onChanged={sincronizarResumoObra} />
                 <OpeningsEndingsEditor animeUuid={editandoUuid} />
-                <ComplementosEditor animeUuid={editandoUuid} anilistId={form.anilist_id} />
+                <ComplementosEditor animeUuid={editandoUuid} anilistId={form.anilist_id} onChanged={sincronizarResumoObra} />
                 <OrdemConsumoEditor animeUuid={editandoUuid} />
               </div>
             )}

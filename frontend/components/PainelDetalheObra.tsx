@@ -56,7 +56,7 @@ export default function PainelDetalheObra({
 
     async function carregar() {
       setCarregando(true);
-      const elencoPromise = listarElenco(tipoObra, obraUuid);
+      const elencoPromise = tipoObra === 'anime' ? Promise.resolve([]) : listarElenco(tipoObra, obraUuid);
       const trilhaPromise =
         tipoObra !== 'anime' ? listarTrilhaSonora(tipoObra, obraUuid) : Promise.resolve([]);
       const temporadasSeriePromise =
@@ -149,7 +149,7 @@ export default function PainelDetalheObra({
                 <div className={styles.scrollHorizontal}>
                   {temporadas.map((t) => (
                     <div key={t.uuid} className={styles.cardTemporada}>
-                      <strong>Temporada {t.numero}</strong>
+                      <strong>{'nome_original' in t && t.nome_original ? t.nome_original : `Temporada ${t.numero}`}</strong>
                       {t.numero_episodios != null && <p>{t.numero_episodios} episódios</p>}
                       {t.minha_nota != null && <p>Minha nota: {t.minha_nota}</p>}
                       {t.nota_imdb != null && <p>IMDb: {t.nota_imdb}</p>}
@@ -160,13 +160,13 @@ export default function PainelDetalheObra({
             </section>
           )}
 
-          <section className={styles.secao}>
-            <h2>{tipoObra === 'anime' ? 'Dublagem' : 'Elenco'}</h2>
+          {tipoObra !== 'anime' && <section className={styles.secao}>
+            <h2>Elenco</h2>
             {carregando ? (
               <p className={styles.vazio}>Carregando...</p>
             ) : elenco.length === 0 ? (
               <p className={styles.vazio}>
-                {tipoObra === 'anime' ? 'Nenhum dublador registrado.' : 'Nenhum ator registrado.'}
+                Nenhum ator registrado.
               </p>
             ) : (
               <div className={styles.scrollHorizontal}>
@@ -177,16 +177,14 @@ export default function PainelDetalheObra({
                       style={item.foto_url ? { backgroundImage: `url(${item.foto_url})` } : {}}
                     />
                     <strong>
-                      {tipoObra === 'anime'
-                        ? [item.dublador_original, item.dublador_br].filter(Boolean).join(' / ')
-                        : item.ator}
+                      {item.ator}
                     </strong>
                     {item.personagem && <p>{item.personagem}</p>}
                   </div>
                 ))}
               </div>
             )}
-          </section>
+          </section>}
 
           {tipoObra === 'anime' ? (
             <section className={styles.secao}>
@@ -200,7 +198,7 @@ export default function PainelDetalheObra({
                   {openingsEndings.map((item) => (
                     <div key={item.uuid} className={styles.cardMusica}>
                       <strong>
-                        {item.tipo === 'opening' ? 'OP' : 'ED'} — {item.nome}
+                        {item.tipo === 'opening' ? 'OP' : item.tipo === 'ending' ? 'ED' : 'OST'} — {item.nome}
                       </strong>
                       {item.artista && <p>{item.artista}</p>}
                       {item.link_video && (

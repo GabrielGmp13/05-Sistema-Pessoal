@@ -15,6 +15,9 @@ export interface Anime {
   sinopse: string | null;
   ano_lancamento: number | null;
   ano_termino: number | null;
+  ano_obra_inicio: number | null;
+  ano_obra_fim: number | null;
+  duracao_obra_minutos: number | null;
   classificacao_indicativa: string | null;
   duracao_minutos: number | null; // duração média por episódio
   mal_id: string | null;

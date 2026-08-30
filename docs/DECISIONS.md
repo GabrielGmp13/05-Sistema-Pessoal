@@ -1464,4 +1464,12 @@ identidade da entrada AniList escolhida (títulos, capa, sinopse, IDs, links,
 formato e duração). Complementos continuam obras completas em `filmes`. IMDb
 não será mesclado neste fluxo: sua API oficial depende de assinatura e AWS Data
 Exchange, contrariando o princípio de custo zero; AniList permanece fonte
-principal para relações e equipe técnica de anime.
+principal para relações e equipe técnica de anime. Quando a equipe estiver
+incompleta, o TMDB já configurado pode complementar criação/direção, roteiro,
+produção e estúdios; ele nunca substitui a identidade AniList da obra.
+
+Busca digitada usa AniList e Kitsu em conjunto: o Kitsu cobre prefixos ainda
+incompletos que a busca da AniList não resolve (por exemplo `shingek`), enquanto
+o detalhe escolhido é reidratado pela AniList. Relações de temporada percorrem
+a cadeia limitada de prequelas/sequelas, em vez de mostrar apenas vizinhos do
+primeiro nível.

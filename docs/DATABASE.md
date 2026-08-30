@@ -78,6 +78,7 @@ dessas duas pastas deve ser executado como migration.
 | `20260822000300` | `20260822000300_biblioteca_playlists.sql` | ✅ Reset local e 17 scripts SQL aprovados; aplicada em produção em 2026-08-22 após dry-run exclusivo; pós-check confirmou histórico, 66 tabelas, RLS, policies, GRANTs, índices e FKs compostas; dry-run final vazio |
 | `20260827000100` | `20260827000100_homologacao_fluxos_pessoais.sql` | ✅ Reset e 18 scripts SQL aprovados; aplicada em produção em 2026-08-27 após dry-run exclusivo; pós-check confirmou histórico, tabelas, campos, FKs, RLS e GRANTs; dry-run final vazio |
 | `20260829000100` | `20260829000100_agenda_service_role_grant.sql` | ✅ Reset completo e 18 scripts SQL aprovados; aplicada em produção em 2026-08-29 após dry-run exclusivo; pós-check confirmou CRUD do `service_role`, histórico único e dry-run final vazio |
+| `20260830000100` | `20260830000100_anime_related_works.sql` | ⏳ Pendente: reset local bloqueado porque Docker Desktop estava desligado; ainda não aplicada em produção |
 
 > **Estado confirmado (2026-08-29):** produção e cadeia local estão alinhadas
 > até `20260829000100_agenda_service_role_grant.sql`, com 68 tabelas, seis buckets
@@ -448,6 +449,9 @@ banner_path              TEXT,
 sinopse                  TEXT,
 ano_lancamento           INTEGER,
 ano_termino              INTEGER,
+ano_obra_inicio          INTEGER,
+ano_obra_fim             INTEGER,
+duracao_obra_minutos     INTEGER,
 classificacao_indicativa TEXT,
 duracao_minutos          INTEGER,
 mal_id                   TEXT,
@@ -616,6 +620,7 @@ nome_traduzido    TEXT,
 capa_url          TEXT,
 sinopse           TEXT,
 ano_lancamento    INTEGER,
+ano_termino       INTEGER,
 duracao_minutos   INTEGER,
 anilist_id        TEXT,
 mal_id            TEXT,
@@ -623,6 +628,13 @@ link_anilist      TEXT,
 link_mal          TEXT,
 formato           TEXT,
 tipo_relacao      TEXT,
+diretor           TEXT,
+roteirista        TEXT,
+produtores        TEXT,
+estudio           TEXT,
+character_designer TEXT,
+animador_chefe    TEXT,
+compositor        TEXT,
 nota_imdb         NUMERIC(3,1),
 minha_nota        NUMERIC(2,1),
 data_assisti      DATE,

@@ -9,6 +9,7 @@ const FONTE_LABEL: Record<FonteMetadados, string> = {
   youtube: 'YouTube', tmdb_filme: 'TMDB', tmdb_serie: 'TMDB', google_livros: 'Google Books + Open Library',
   jikan_anime: 'AniList + Jikan', jikan_manga: 'AniList + Jikan', itunes_podcast: 'iTunes',
   anilist_relacoes: 'relações da AniList', musica: 'YouTube + Apple Music',
+  anilist_detalhe: 'AniList',
   artigo: 'site do artigo',
 };
 
@@ -28,7 +29,11 @@ export default function BuscaMetadados({ fonte, termo, onSelect, formatos, relac
 
   useEffect(() => {
     const consulta = termo.trim();
-    if (consulta.length < 2) return;
+    if (consulta.length < 2) {
+      setResultados([]);
+      setMensagem('');
+      return;
+    }
 
     if (termosSelecionados.current.delete(consulta)) return;
 
@@ -51,7 +56,7 @@ export default function BuscaMetadados({ fonte, termo, onSelect, formatos, relac
       } finally {
         if (!controller.signal.aborted) setBuscando(false);
       }
-    }, 550);
+    }, 280);
 
     return () => {
       window.clearTimeout(timeoutId);
@@ -82,7 +87,7 @@ export default function BuscaMetadados({ fonte, termo, onSelect, formatos, relac
               }}
             >
               {resultado.capaUrl ? <img src={resultado.capaUrl} alt="" /> : <span className={styles.resultadoSemCapa} />}
-              <span><strong>{resultado.titulo}</strong><small>{[resultado.autor ?? resultado.subtitulo, resultado.ano, resultado.idioma?.toUpperCase(), resultado.siteOrigem, resultado.duracaoMinutos ? `${resultado.duracaoMinutos} min` : null].filter(Boolean).join(' · ')}</small>{resultado.descricao ? <em>{resultado.descricao}</em> : null}</span>
+              <span><strong>{resultado.titulo}</strong><small>{[resultado.subtitulo ?? resultado.autor, resultado.formato, resultado.ano, resultado.episodios ? `${resultado.episodios} episódios` : null, resultado.idioma?.toUpperCase(), resultado.siteOrigem, resultado.duracaoMinutos ? `${resultado.duracaoMinutos} min` : null].filter(Boolean).join(' · ')}</small>{resultado.descricao ? <em>{resultado.descricao}</em> : null}</span>
             </button>
           ))}
           <p className={styles.fonteMetadados}>A disponibilidade e as quotas pertencem ao provedor. Falhas nunca bloqueiam o cadastro manual.</p>
