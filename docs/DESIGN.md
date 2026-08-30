@@ -335,4 +335,6 @@ O painel somente leitura aberto ao clicar numa obra é uma janela flutuante no
 desktop: mantém 40 px de respiro no topo e embaixo, nunca se estica apenas para
 alcançar o rodapé e limita sua altura ao espaço disponível. Conteúdo excedente
 rola dentro do próprio painel. Em telas de até 680 px continua em tela inteira
-para não desperdiçar área útil.
+para não desperdiçar área útil. O painel é renderizado diretamente no `body`
+por portal, pois o contêiner animado do `AppChrome` usa `transform` e não pode
+ser o referencial de posicionamento de uma sobreposição fixa à tela.

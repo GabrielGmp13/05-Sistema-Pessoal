@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { listarElenco, ElencoItem, TipoObraElenco } from '@/lib/elenco';
 import { listarTrilhaSonora, TrilhaSonoraItem } from '@/lib/trilha-sonora';
 import { listarTemporadas, SerieTemporada } from '@/lib/series-temporadas';
@@ -49,6 +50,21 @@ export default function PainelDetalheObra({
   const [carregando, setCarregando] = useState(true);
   const [bannerPrivado, setBannerPrivado] = useState<string | null>(null);
   const [capaPrivada, setCapaPrivada] = useState<string | null>(null);
+  const [alvoPortal, setAlvoPortal] = useState<HTMLElement | null>(null);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => setAlvoPortal(document.body), 0);
+    return () => window.clearTimeout(timeoutId);
+  }, []);
+
+  useEffect(() => {
+    if (!aberto) return;
+    const overflowAnterior = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = overflowAnterior;
+    };
+  }, [aberto]);
 
   useEffect(() => {
     if (!aberto) return;
@@ -107,11 +123,11 @@ export default function PainelDetalheObra({
     return () => { ativo = false; };
   }, [bannerPath, capaPath]);
 
-  if (!aberto) return null;
+  if (!aberto || !alvoPortal) return null;
   const imagemTopo = bannerPrivado || bannerUrl || capaPrivada || capaUrl || null;
   const temporadas = tipoObra === 'anime' ? temporadasAnime : temporadasSerie;
 
-  return (
+  return createPortal(
     <div className={styles.overlay} onClick={onFechar}>
       <div className={styles.painel} onClick={(e) => e.stopPropagation()}>
         <button className={styles.btnFechar} onClick={onFechar} title="Fechar (Esc)">
@@ -237,6 +253,7 @@ export default function PainelDetalheObra({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    alvoPortal,
   );
 }
