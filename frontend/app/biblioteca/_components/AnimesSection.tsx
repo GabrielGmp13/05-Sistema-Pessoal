@@ -1,4 +1,5 @@
 'use client';
+import { historicoObra } from '@/components/painel-obra-dados';
 
 import { useEffect, useRef, useState } from 'react';
 import {
@@ -300,6 +301,8 @@ export default function AnimesSection({
     campos.push({ label: 'Status', valor: STATUS_LABEL[anime.status] ?? anime.status });
     if (anime.nota != null) campos.push({ label: 'Nota', valor: `${anime.nota} / 5` });
     if (anime.diretor) campos.push({ label: 'Direção', valor: anime.diretor });
+    if (anime.roteirista) campos.push({ label: 'Roteiro', valor: anime.roteirista });
+    if (anime.produtores) campos.push({ label: 'Produção', valor: anime.produtores });
     if (anime.estudio) campos.push({ label: 'Estúdio', valor: anime.estudio });
     if (anime.character_designer)
       campos.push({ label: 'Character Designer', valor: anime.character_designer });
@@ -310,7 +313,7 @@ export default function AnimesSection({
       campos.push({ label: 'Duração/ep', valor: `${anime.duracao_minutos} min` });
     if (anime.sinopse) campos.push({ label: 'Sinopse', valor: anime.sinopse });
     if (anime.comentario) campos.push({ label: 'Comentário', valor: anime.comentario });
-    return campos;
+    return [...campos, ...historicoObra(anime)];
   }
 
   const itensFiltrados = busca
@@ -595,9 +598,14 @@ export default function AnimesSection({
         <PainelDetalheObra
           aberto={!!painelAnime}
           onFechar={() => setPainelAnime(null)}
+          onEditar={() => abrirEdicao(painelAnime)}
+          favorito={painelAnime.favorito}
+          generos={(generosPorItem[painelAnime.uuid] ?? []).map(g => g.nome)}
+          links={[{ label: 'AniList', url: painelAnime.link_anilist }, { label: 'MyAnimeList', url: painelAnime.link_mal }]}
           tipoObra="anime"
           obraUuid={painelAnime.uuid}
-          titulo={painelAnime.nome_traduzido || painelAnime.nome_original}
+          titulo={tituloComSigla(painelAnime.nome_original)}
+          subtitulo={painelAnime.nome_traduzido ? tituloComSigla(painelAnime.nome_traduzido) : null}
           bannerUrl={painelAnime.banner_url}
           bannerPath={painelAnime.banner_path}
           capaUrl={painelAnime.capa_url}

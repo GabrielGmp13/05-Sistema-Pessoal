@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import PainelSimples from '@/components/PainelSimples';
+import PainelPlaylist from '@/components/PainelPlaylist';
+import painelStyles from '@/components/PainelDetalheObra.module.css';
 import type { CampoInfo } from '@/components/PainelDetalheObra';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import StarRating from '@/components/StarRating';
@@ -32,7 +34,6 @@ import CapaUploadField from './CapaUploadField';
 import { persistirComCapa, removerArquivosBiblioteca } from '@/lib/biblioteca-capas';
 import {
   listarPlaylistsVideos,
-  listarVideosDaPlaylist,
   type VideoPlaylist,
 } from '@/lib/videos-playlists';
 
@@ -111,8 +112,6 @@ export default function VideosSection({
   const [mensagem, setMensagem] = useState<string | null>(null);
   const [playlists, setPlaylists] = useState<VideoPlaylist[]>([]);
   const [playlistAberta, setPlaylistAberta] = useState<VideoPlaylist | null>(null);
-  const [videosPlaylist, setVideosPlaylist] = useState<Video[]>([]);
-  const [carregandoPlaylist, setCarregandoPlaylist] = useState(false);
   const [modalPlaylistAberto, setModalPlaylistAberto] = useState(false);
   const [linkPlaylist, setLinkPlaylist] = useState('');
   const [previewPlaylist, setPreviewPlaylist] = useState<PlaylistPreview | null>(null);
@@ -281,14 +280,8 @@ export default function VideosSection({
     }
   }
 
-  async function abrirPlaylist(playlist: VideoPlaylist) {
+  function abrirPlaylist(playlist: VideoPlaylist) {
     setPlaylistAberta(playlist);
-    setVideosPlaylist([]);
-    setCarregandoPlaylist(true);
-    const resultado = await listarVideosDaPlaylist(playlist.uuid);
-    if (resultado === null) setErro('Não foi possível abrir a playlist.');
-    else setVideosPlaylist(resultado);
-    setCarregandoPlaylist(false);
   }
 
   async function abrirVinculoCurso(video: Video) {
@@ -539,24 +532,9 @@ export default function VideosSection({
         </div>
       )}
 
-      {playlistAberta && (
-        <div className={styles.modalOverlay} onClick={() => setPlaylistAberta(null)}>
-          <div className={`${styles.modal} ${styles.modalPlaylist}`} onClick={(event) => event.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <div><h2>{playlistAberta.nome}</h2><p className={styles.modalDescricao}>{playlistAberta.quantidade_videos} vídeo(s) · {playlistAberta.origem === 'youtube_link' ? 'Link do YouTube' : 'Conta conectada'}</p></div>
-              <button type="button" className={styles.btnIcon} onClick={() => setPlaylistAberta(null)}>×</button>
-            </div>
-            <div className={styles.modalBody}>
-              {carregandoPlaylist ? <p className={styles.playlistsVazio}>Carregando...</p> : videosPlaylist.length > 0 ? <div className={styles.playlistVideosPreview}>{videosPlaylist.map((video) => (
-                <button type="button" key={video.uuid} className={styles.playlistVideoLink} onClick={() => { setPlaylistAberta(null); setPainelVideo(video); }}>
-                  <strong>{video.titulo}</strong><small>{video.canal ?? 'Vídeo da Biblioteca'}</small>
-                </button>
-              ))}</div> : <p className={styles.playlistsVazio}>Nenhum vídeo vinculado está disponível.</p>}
-              <a className={styles.playlistOrigemLink} href={playlistAberta.origem_url} target="_blank" rel="noreferrer">Abrir playlist no YouTube</a>
-            </div>
-          </div>
-        </div>
-      )}
+      {playlistAberta && <PainelPlaylist key={playlistAberta.uuid} playlist={playlistAberta}
+        onFechar={() => setPlaylistAberta(null)}
+        onAbrirVideo={(video) => { setPlaylistAberta(null); setPainelVideo(video); }} />}
 
       {modalAberto && (
         <div className={styles.modalOverlay} onClick={fecharModal}>
@@ -671,6 +649,11 @@ export default function VideosSection({
         <PainelSimples
           aberto
           onFechar={() => setPainelVideo(null)}
+          onEditar={() => abrirEdicao(painelVideo)}
+          favorito={painelVideo.favorito}
+          tipoObra="video"
+          obraUuid={painelVideo.uuid}
+          capaPath={painelVideo.capa_path}
           titulo={painelVideo.titulo}
           capaUrl={painelVideo.capa_url}
           infoGeral={montarInfo(painelVideo)}
@@ -679,7 +662,7 @@ export default function VideosSection({
         >
           <button
             type="button"
-            className={styles.btnPrimario}
+            className={painelStyles.btnSecundario}
             onClick={() => void abrirVinculoCurso(painelVideo)}
           >
             Usar em Curso

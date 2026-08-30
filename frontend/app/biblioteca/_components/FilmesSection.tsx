@@ -1,4 +1,5 @@
 'use client';
+import { historicoObra } from '@/components/painel-obra-dados';
 
 import { useEffect, useState } from 'react';
 import {
@@ -198,7 +199,8 @@ export default function FilmesSection({
     if (filme.duracao_minutos)
       campos.push({ label: 'Duração', valor: `${filme.duracao_minutos} min` });
     if (filme.comentario) campos.push({ label: 'Comentário', valor: filme.comentario });
-    return campos;
+    if (filme.sinopse) campos.push({ label: 'Sinopse', valor: filme.sinopse });
+    return [...campos, ...historicoObra(filme)];
   }
 
   async function confirmarExclusao() {
@@ -475,6 +477,11 @@ export default function FilmesSection({
         <PainelDetalheObra
           aberto={!!painelFilme}
           onFechar={() => setPainelFilme(null)}
+          onEditar={() => abrirEdicao(painelFilme)}
+          favorito={painelFilme.favorito}
+          generos={(generosPorFilme[painelFilme.uuid] ?? []).map(g => g.nome)}
+          subtitulo={painelFilme.titulo_original}
+          links={[{ label: 'IMDb', url: painelFilme.link_imdb }, { label: 'Site oficial', url: painelFilme.link_oficial }]}
           tipoObra="filme"
           obraUuid={painelFilme.uuid}
           titulo={painelFilme.titulo}

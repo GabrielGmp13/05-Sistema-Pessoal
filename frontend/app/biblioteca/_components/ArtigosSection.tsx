@@ -259,6 +259,12 @@ export default function ArtigosSection({
         <PainelSimples
           aberto
           onFechar={() => setPainelArtigo(null)}
+          onEditar={() => abrirEdicao(painelArtigo)}
+          favorito={painelArtigo.favorito}
+          tipoObra="artigo"
+          obraUuid={painelArtigo.uuid}
+          capaUrl={painelArtigo.capa_url}
+          capaPath={painelArtigo.capa_path}
           titulo={painelArtigo.titulo}
           infoGeral={montarInfo(painelArtigo)}
           linkUrl={painelArtigo.url}

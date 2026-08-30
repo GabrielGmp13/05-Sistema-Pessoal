@@ -1,4 +1,5 @@
 'use client';
+import { historicoObra } from '@/components/painel-obra-dados';
 
 import { useEffect, useState } from 'react';
 import {
@@ -213,7 +214,7 @@ export default function SeriesSection({
     if (serie.duracao_minutos)
       campos.push({ label: 'Duração/ep', valor: `${serie.duracao_minutos} min` });
     if (serie.comentario) campos.push({ label: 'Comentário', valor: serie.comentario });
-    return campos;
+    return [...campos, ...historicoObra(serie)];
   }
 
   async function confirmarExclusao() {
@@ -531,6 +532,10 @@ export default function SeriesSection({
         <PainelDetalheObra
           aberto={!!painelSerie}
           onFechar={() => setPainelSerie(null)}
+          onEditar={() => abrirEdicao(painelSerie)}
+          favorito={painelSerie.favorito}
+          generos={(generosPorItem[painelSerie.uuid] ?? []).map(g => g.nome)}
+          links={[{ label: 'IMDb', url: painelSerie.link_imdb }, { label: 'Site oficial', url: painelSerie.link_oficial }]}
           tipoObra="serie"
           obraUuid={painelSerie.uuid}
           titulo={painelSerie.titulo}

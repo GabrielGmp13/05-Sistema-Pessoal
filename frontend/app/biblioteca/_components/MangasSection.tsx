@@ -1,4 +1,5 @@
 'use client';
+import { historicoObra } from '@/components/painel-obra-dados';
 
 import { useEffect, useState } from 'react';
 import {
@@ -225,7 +226,7 @@ export default function MangasSection({
     if (manga.duracao_minutos)
       campos.push({ label: 'Tempo estimado', valor: `${manga.duracao_minutos} min` });
     if (manga.comentario) campos.push({ label: 'Comentário', valor: manga.comentario });
-    return campos;
+    return [...campos, ...historicoObra(manga)];
   }
 
   async function alternarFavorito(manga: Manga) {
@@ -527,7 +528,13 @@ export default function MangasSection({
         <PainelSimples
           aberto={!!painelManga}
           onFechar={() => setPainelManga(null)}
-          titulo={painelManga.titulo_traduzido || painelManga.titulo}
+          onEditar={() => abrirEdicao(painelManga)}
+          favorito={painelManga.favorito}
+          tipoObra="manga"
+          obraUuid={painelManga.uuid}
+          generos={(generosPorItem[painelManga.uuid] ?? []).map(g => g.nome)}
+          titulo={painelManga.titulo}
+          subtitulo={painelManga.titulo_traduzido}
           bannerUrl={painelManga.banner_url}
           bannerPath={painelManga.banner_path}
           capaUrl={painelManga.capa_url}

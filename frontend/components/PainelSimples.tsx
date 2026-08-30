@@ -1,102 +1,53 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { getSignedUrl } from '@/lib/supabase';
+import { useEffect, useState, type ReactNode } from 'react';
+import { listarVolumes, type MangaVolume } from '@/lib/mangas-volumes';
+import { listarAnotacoesLivro, type LivroAnotacao } from '@/lib/livros-anotacoes';
+import PainelObraLayout, { ResumoObra, EncerramentoObra, type IdentidadeObra } from './PainelObraLayout';
+import { AcompanhamentoObra, AnotacoesObra, ProgressoLeitura, VolumesObra } from './PainelObraLeitura';
 import styles from './PainelDetalheObra.module.css';
-import type { CampoInfo } from './PainelDetalheObra';
 
-interface PainelSimplesProps {
-  aberto: boolean;
-  onFechar: () => void;
-  titulo: string;
-  bannerUrl?: string | null;
-  bannerPath?: string | null;
-  capaUrl?: string | null;
-  capaPath?: string | null;
-  infoGeral: CampoInfo[];
-  linkUrl?: string;
-  linkLabel?: string;
-  children?: React.ReactNode; // seções extras específicas do tipo (ex: volumes, anotações)
+type Props = Omit<IdentidadeObra, 'tipoObra'> & {
+  aberto: boolean; obraUuid: string; tipoObra: 'manga' | 'livro' | 'podcast' | 'video' | 'artigo';
+  linkUrl?: string | null; linkLabel?: string; children?: ReactNode;
+  paginaAtual?: number | null; paginasTotal?: number | null;
+};
+export default function PainelSimples(props: Props) {
+  return props.aberto ? <SimplesAberto key={props.tipoObra + props.obraUuid} {...props} /> : null;
 }
-
-// Versão simplificada do painel de detalhe, para tipos de mídia sem
-// elenco/trilha sonora (Mangás, Livros, Podcasts). Mesmo visual/comportamento
-// do PainelDetalheObra (leitura, fecha com Esc/backdrop/✕) — ver DESIGN.md.
-export default function PainelSimples({
-  aberto,
-  onFechar,
-  titulo,
-  bannerUrl,
-  bannerPath,
-  capaUrl,
-  capaPath,
-  infoGeral,
-  linkUrl,
-  linkLabel = 'Abrir link',
-  children,
-}: PainelSimplesProps) {
-  const [bannerPrivado, setBannerPrivado] = useState<string | null>(null);
-  const [capaPrivada, setCapaPrivada] = useState<string | null>(null);
+function SimplesAberto({ tipoObra, obraUuid, linkUrl, linkLabel = 'Abrir link', children, paginaAtual, paginasTotal, ...props }: Props) {
+  const [volumes, setVolumes] = useState<MangaVolume[]>([]);
+  const [anotacoes, setAnotacoes] = useState<LivroAnotacao[]>([]);
+  const [carregando, setCarregando] = useState(tipoObra === 'manga' || tipoObra === 'livro');
+  const [erro, setErro] = useState(false);
   useEffect(() => {
-    function aoTeclar(e: KeyboardEvent) {
-      if (e.key === 'Escape') onFechar();
-    }
-    if (aberto) document.addEventListener('keydown', aoTeclar);
-    return () => document.removeEventListener('keydown', aoTeclar);
-  }, [aberto, onFechar]);
-  useEffect(() => {
+    if (tipoObra !== 'manga' && tipoObra !== 'livro') return;
     let ativo = true;
-    void Promise.all([
-      bannerPath ? getSignedUrl('capas', bannerPath) : null,
-      capaPath ? getSignedUrl('capas', capaPath) : null,
-    ]).then(([banner, capa]) => { if (ativo) { setBannerPrivado(banner); setCapaPrivada(capa); } });
+    async function carregar() {
+      try {
+        if (tipoObra === 'manga') {
+          const res = await listarVolumes(obraUuid);
+          if (ativo) { setVolumes(res ?? []); setErro(res === null); }
+        } else {
+          const res = await listarAnotacoesLivro(obraUuid);
+          if (ativo) { setAnotacoes(res ?? []); setErro(res === null); }
+        }
+      } catch { if (ativo) setErro(true); }
+      finally { if (ativo) setCarregando(false); }
+    }
+    void carregar();
     return () => { ativo = false; };
-  }, [bannerPath, capaPath]);
-
-  if (!aberto) return null;
-  const imagemTopo = bannerPrivado || bannerUrl || capaPrivada || capaUrl || null;
-
-  return (
-    <div className={styles.overlay} onClick={onFechar}>
-      <div className={styles.painel} onClick={(e) => e.stopPropagation()}>
-        <button className={styles.btnFechar} onClick={onFechar} title="Fechar (Esc)">
-          ✕
-        </button>
-
-        {imagemTopo && (
-          <div className={styles.banner} style={{ backgroundImage: `url(${imagemTopo})` }} />
-        )}
-
-        <div className={styles.conteudo}>
-          <h1 className={styles.titulo}>{titulo}</h1>
-
-          {infoGeral.length > 0 && (
-            <section className={styles.secao}>
-              <div className={styles.infoGrid}>
-                {infoGeral.map((campo) => (
-                  <div key={campo.label} className={styles.infoItem}>
-                    <span className={styles.infoLabel}>{campo.label}</span>
-                    <span className={styles.infoValor}>{campo.valor}</span>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {linkUrl && (
-            <a
-              className={styles.linkExterno}
-              href={linkUrl}
-              target="_blank"
-              rel="noreferrer"
-            >
-              {linkLabel}
-            </a>
-          )}
-
-          {children}
-        </div>
-      </div>
-    </div>
-  );
+  }, [tipoObra, obraUuid]);
+  const detalhes = props.infoGeral.filter(c => !['Capítulo atual', 'Episódio atual'].includes(c.label)
+    && !(tipoObra === 'livro' && c.label === 'Progresso'));
+  return <PainelObraLayout {...props} tipoObra={tipoObra} links={[...(props.links ?? []), { label: linkLabel, url: linkUrl }]} acoes={children}>
+    <ResumoObra infoGeral={detalhes} />
+    {tipoObra === 'livro' && <ProgressoLeitura atual={paginaAtual} total={paginasTotal} />}
+    {(tipoObra === 'manga' || tipoObra === 'podcast') && <AcompanhamentoObra tipo={tipoObra} campos={props.infoGeral} />}
+    {carregando && <p className={styles.status} role="status">Carregando detalhes da obra...</p>}
+    {erro && <p className={styles.erro} role="alert">Não foi possível carregar todos os detalhes. Feche e abra a obra para tentar novamente.</p>}
+    {tipoObra === 'manga' && <VolumesObra volumes={volumes} />}
+    {tipoObra === 'livro' && <AnotacoesObra anotacoes={anotacoes} />}
+    <EncerramentoObra infoGeral={props.infoGeral} />
+  </PainelObraLayout>;
 }

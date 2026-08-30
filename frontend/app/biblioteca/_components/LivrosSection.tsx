@@ -1,4 +1,5 @@
 'use client';
+import { historicoObra } from '@/components/painel-obra-dados';
 
 import { useEffect, useState } from 'react';
 import {
@@ -233,7 +234,7 @@ export default function LivrosSection({
     if (livro.duracao_minutos)
       campos.push({ label: 'Duração/tempo', valor: `${livro.duracao_minutos} min` });
     if (livro.comentario) campos.push({ label: 'Comentário', valor: livro.comentario });
-    return campos;
+    return [...campos, ...historicoObra(livro)];
   }
 
   const itensFiltrados = busca
@@ -519,6 +520,13 @@ export default function LivrosSection({
         <PainelSimples
           aberto={!!painelLivro}
           onFechar={() => setPainelLivro(null)}
+          onEditar={() => abrirEdicao(painelLivro)}
+          favorito={painelLivro.favorito}
+          tipoObra="livro"
+          obraUuid={painelLivro.uuid}
+          generos={(generosPorItem[painelLivro.uuid] ?? []).map(g => g.nome)}
+          paginaAtual={painelLivro.pagina_atual}
+          paginasTotal={painelLivro.paginas_total}
           titulo={painelLivro.titulo}
           bannerUrl={painelLivro.banner_url}
           bannerPath={painelLivro.banner_path}

@@ -1,4 +1,5 @@
 'use client';
+import { historicoObra } from '@/components/painel-obra-dados';
 
 import { useEffect, useState } from 'react';
 import {
@@ -209,7 +210,7 @@ export default function PodcastsSection({
     if (podcast.duracao_minutos)
       campos.push({ label: 'Duração/ep', valor: `${podcast.duracao_minutos} min` });
     if (podcast.comentario) campos.push({ label: 'Comentário', valor: podcast.comentario });
-    return campos;
+    return [...campos, ...historicoObra(podcast)];
   }
 
   const itensFiltrados = busca
@@ -417,6 +418,12 @@ export default function PodcastsSection({
         <PainelSimples
           aberto={!!painelPodcast}
           onFechar={() => setPainelPodcast(null)}
+          onEditar={() => abrirEdicao(painelPodcast)}
+          favorito={painelPodcast.favorito}
+          tipoObra="podcast"
+          obraUuid={painelPodcast.uuid}
+          generos={(generosPorItem[painelPodcast.uuid] ?? []).map(g => g.nome)}
+          links={[{ label: 'Ouvir podcast', url: painelPodcast.link_oficial }]}
           titulo={painelPodcast.titulo}
           bannerUrl={painelPodcast.banner_url}
           bannerPath={painelPodcast.banner_path}
