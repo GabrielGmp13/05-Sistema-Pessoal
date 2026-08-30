@@ -42,7 +42,8 @@ export default function TemporadasAnimeEditor({ animeUuid, anilistId, onChanged 
   }
 
   useEffect(() => {
-    carregar();
+    const timeoutId = window.setTimeout(() => void carregar(), 0);
+    return () => window.clearTimeout(timeoutId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [animeUuid]);
 

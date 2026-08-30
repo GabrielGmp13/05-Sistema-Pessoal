@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Anime,
   AnimeInput,
@@ -86,6 +86,8 @@ export default function AnimesSection({
 
   const [modalAberto, setModalAberto] = useState(false);
   const [editandoUuid, setEditandoUuid] = useState<string | null>(null);
+  const [criacaoEmAndamento, setCriacaoEmAndamento] = useState(false);
+  const detalhesRef = useRef<HTMLDivElement | null>(null);
   const [form, setForm] = useState<AnimeInput>(FORM_VAZIO);
   const [arquivoCapa, setArquivoCapa] = useState<File | null>(null);
   const [arquivoBanner, setArquivoBanner] = useState<File | null>(null);
@@ -143,6 +145,7 @@ export default function AnimesSection({
 
   function abrirNovo() {
     setEditandoUuid(null);
+    setCriacaoEmAndamento(true);
     setForm(FORM_VAZIO);
     setArquivoCapa(null);
     setArquivoBanner(null);
@@ -151,6 +154,7 @@ export default function AnimesSection({
   }
 
   function abrirEdicao(anime: Anime) {
+    setCriacaoEmAndamento(false);
     setArquivoCapa(null);
     setArquivoBanner(null);
     setEditandoUuid(anime.uuid);
@@ -189,6 +193,7 @@ export default function AnimesSection({
   function fecharModal() {
     setModalAberto(false);
     setEditandoUuid(null);
+    setCriacaoEmAndamento(false);
   }
 
   async function salvar(e: React.FormEvent) {
@@ -196,6 +201,7 @@ export default function AnimesSection({
     if (!form.nome_original?.trim()) return;
 
     setSalvando(true);
+    const primeiraEtapaDaCriacao = !editandoUuid;
     const atual = editandoUuid ? animes.find((anime) => anime.uuid === editandoUuid) : null;
     const persistencia = await persistirComCapaEBanner({ categoria: 'animes', arquivoCapa, arquivoBanner, capaPathAtual: atual?.capa_path, bannerPathAtual: atual?.banner_path, persistir: ({ capaPath, bannerPath }) => {
       const dados = { ...form, ...(capaPath ? { capa_path: capaPath } : {}), ...(bannerPath ? { banner_path: bannerPath } : {}) };
@@ -216,6 +222,9 @@ export default function AnimesSection({
       setArquivoCapa(null);
       setArquivoBanner(null);
       if (erroGeneros) setErro('Anime salvo, mas não foi possível salvar os gêneros.');
+      if (primeiraEtapaDaCriacao) {
+        window.setTimeout(() => detalhesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+      }
     }
     setSalvando(false);
   }
@@ -377,7 +386,7 @@ export default function AnimesSection({
         <div className={styles.modalOverlay} onClick={fecharModal}>
           <div className={`${styles.modal} ${styles.modalAnime}`} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <h2>{editandoUuid ? 'Editar anime' : 'Novo anime'}</h2>
+              <h2>{criacaoEmAndamento ? `Novo anime · ${editandoUuid ? 'Etapa 2 de 2' : 'Etapa 1 de 2'}` : 'Editar anime'}</h2>
               <button className={styles.btnIcon} onClick={fecharModal}>
                 ✕
               </button>
@@ -548,13 +557,19 @@ export default function AnimesSection({
                   {editandoUuid ? 'Concluir' : 'Cancelar'}
                 </button>
                 <button type="submit" className={styles.btnPrimario} disabled={salvando}>
-                  {salvando ? 'Salvando...' : editandoUuid ? 'Salvar alterações' : 'Salvar e continuar'}
+                  {salvando ? 'Salvando...' : editandoUuid ? 'Atualizar informações principais' : 'Salvar e adicionar temporadas'}
                 </button>
               </div>
             </form>
 
             {editandoUuid && (
-              <div className={styles.modalBody}>
+              <div ref={detalhesRef} className={styles.modalBody}>
+                {criacaoEmAndamento && (
+                  <div className={styles.etapaCriacao}>
+                    <strong>Anime criado. Agora complete a mesma criação.</strong>
+                    <span>Adicione temporadas, músicas, complementos e a ordem de consumo antes de concluir.</span>
+                  </div>
+                )}
                 <TemporadasAnimeEditor animeUuid={editandoUuid} anilistId={form.anilist_id} onChanged={sincronizarResumoObra} />
                 <OpeningsEndingsEditor animeUuid={editandoUuid} />
                 <ComplementosEditor animeUuid={editandoUuid} anilistId={form.anilist_id} onChanged={sincronizarResumoObra} />
