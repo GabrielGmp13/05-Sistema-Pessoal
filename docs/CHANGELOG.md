@@ -20,6 +20,15 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — v2.1 pronta tecnicamente; homologação manual pendente
 
+- **2026-08-29 (Agenda diária e grade semanal)** — O mês passou a abrir um
+  painel central com todos os compromissos e provas do dia, incluindo descrição,
+  edição, conclusão e exclusão segura; dias passados recebem um corte horizontal
+  integral. A semana foi compactada em sete colunas sobre uma grade de 24 horas
+  com rolagem própria e eventos posicionados por horário/duração. A linha do
+  tempo lateral destaca com “Agora” o compromisso correspondente ao horário
+  atual. A conclusão permanece local em `agenda.concluido`, pronta para futura
+  atualização pelos módulos vinculados, começando por Treino.
+
 - **2026-08-29 (auditoria Calendar/APIs)** — A sincronização bilateral foi
   reconciliada com a documentação e ganhou diagnóstico visível das variáveis
   ausentes, tolerância a exclusão remota já concluída e timestamp estável na

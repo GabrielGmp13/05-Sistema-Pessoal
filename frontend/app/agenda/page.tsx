@@ -139,6 +139,7 @@ export default function AgendaPage() {
   const [formulario, setFormulario] = useState<FormularioEvento>(FORMULARIO_VAZIO)
   const [eventoEditando, setEventoEditando] = useState<EventoAgenda | null>(null)
   const [eventoParaApagar, setEventoParaApagar] = useState<EventoAgenda | null>(null)
+  const [diaAberto, setDiaAberto] = useState<string | null>(null)
   const [dialogAberto, setDialogAberto] = useState(false)
   const [carregando, setCarregando] = useState(true)
   const [salvando, setSalvando] = useState(false)
@@ -386,7 +387,10 @@ export default function AgendaPage() {
   async function alternarConcluido(evento: EventoAgenda) {
     const atualizado = await atualizarEventoAgenda(evento.uuid, { concluido: !evento.concluido })
     if (!atualizado) setErro('Não foi possível atualizar o compromisso.')
-    else await carregar()
+    else {
+      await carregar()
+      window.dispatchEvent(new Event('agenda-atualizada'))
+    }
   }
 
   async function alternarEventoEditando() {
@@ -526,7 +530,8 @@ export default function AgendaPage() {
               const provasDoDia = provas.filter((prova) => prova.data === data)
               const foraDoMes = dia.getMonth() !== mesCalendario.mes
               const selecionado = data === dataReferencia
-              return <section key={data} className={`min-h-28 border-b border-r border-border p-2 ${foraDoMes ? 'bg-muted/25 text-muted-foreground' : 'bg-card'} ${selecionado ? 'ring-2 ring-inset ring-primary' : ''}`}><div className="flex items-center justify-between"><button type="button" className={`flex size-7 items-center justify-center rounded-full text-xs font-semibold ${data === hojeLocal() ? 'bg-primary text-primary-foreground' : ''}`} onClick={() => setDataReferencia(data)} aria-label={`Selecionar semana de ${data}`}>{dia.getDate()}</button><Button type="button" size="icon-xs" variant="ghost" onClick={() => abrirNovo(data)} aria-label={`Adicionar compromisso em ${data}`}><Plus /></Button></div><div className="mt-2 space-y-1">{provasDoDia.slice(0, 2).map((prova) => <div key={prova.uuid} className="truncate rounded bg-primary/10 px-1.5 py-1 text-[11px] text-primary" title={prova.titulo || 'Prova'}>{prova.titulo || 'Prova'}</div>)}{eventosDoDia.slice(0, 3).map((evento) => <button type="button" key={evento.uuid} className={`flex w-full items-center gap-1 truncate rounded px-1.5 py-1 text-left text-[11px] ${evento.concluido ? 'bg-muted line-through' : 'bg-secondary'}`} title={`${PRIORIDADE_LABEL[evento.prioridade]} · ${evento.titulo}`} aria-label={`${evento.titulo}, prioridade ${PRIORIDADE_LABEL[evento.prioridade].toLowerCase()}`} onClick={() => abrirEdicao(evento)}><span aria-hidden="true" className={`size-1.5 shrink-0 rounded-full ${evento.prioridade === 'alta' ? 'bg-warning' : evento.prioridade === 'baixa' ? 'bg-primary/45' : 'bg-muted-foreground/55'}`} /><span className="truncate">{evento.hora_inicio ? `${evento.hora_inicio.slice(0, 5)} ` : ''}{evento.titulo}</span></button>)}{eventosDoDia.length + provasDoDia.length > 5 ? <p className="text-[10px] text-muted-foreground">+{eventosDoDia.length + provasDoDia.length - 5} itens</p> : null}</div></section>
+              const passado = data < hojeLocal()
+              return <section key={data} className={`relative min-h-28 cursor-pointer border-b border-r border-border p-2 transition-colors hover:bg-muted/35 ${foraDoMes ? 'bg-muted/25 text-muted-foreground' : 'bg-card'} ${selecionado ? 'ring-2 ring-inset ring-primary' : ''}`} onClick={() => { setDataReferencia(data); setDiaAberto(data) }} aria-label={`Abrir agenda de ${data}`}><div className="flex items-center justify-between"><span className={`flex size-7 items-center justify-center rounded-full text-xs font-semibold ${data === hojeLocal() ? 'bg-primary text-primary-foreground' : ''}`}>{dia.getDate()}</span><Button type="button" size="icon-xs" variant="ghost" onClick={(event) => { event.stopPropagation(); abrirNovo(data) }} aria-label={`Adicionar compromisso em ${data}`}><Plus /></Button></div><div className="mt-2 space-y-1">{provasDoDia.slice(0, 2).map((prova) => <div key={prova.uuid} className="truncate rounded bg-primary/10 px-1.5 py-1 text-[11px] text-primary" title={prova.titulo || 'Prova'}>{prova.titulo || 'Prova'}</div>)}{eventosDoDia.slice(0, 3).map((evento) => <button type="button" key={evento.uuid} className={`flex w-full items-center gap-1 truncate rounded px-1.5 py-1 text-left text-[11px] ${evento.concluido ? 'bg-muted line-through' : 'bg-secondary'}`} title={`${PRIORIDADE_LABEL[evento.prioridade]} · ${evento.titulo}`} aria-label={`${evento.titulo}, prioridade ${PRIORIDADE_LABEL[evento.prioridade].toLowerCase()}`} onClick={(event) => { event.stopPropagation(); abrirEdicao(evento) }}><span aria-hidden="true" className={`size-1.5 shrink-0 rounded-full ${evento.prioridade === 'alta' ? 'bg-warning' : evento.prioridade === 'baixa' ? 'bg-primary/45' : 'bg-muted-foreground/55'}`} /><span className="truncate">{evento.hora_inicio ? `${evento.hora_inicio.slice(0, 5)} ` : ''}{evento.titulo}</span></button>)}{eventosDoDia.length + provasDoDia.length > 5 ? <p className="text-[10px] text-muted-foreground">+{eventosDoDia.length + provasDoDia.length - 5} itens</p> : null}</div>{passado ? <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-1/2 z-10 h-px bg-muted-foreground/55" /> : null}</section>
             })}
           </div>
         </div>
@@ -536,50 +541,10 @@ export default function AgendaPage() {
         <div className="mb-3 flex items-center justify-between gap-3">
           <div><h2 id="agenda-semana-titulo" className="text-lg font-semibold">Semana selecionada</h2><p className="mt-1 text-xs text-muted-foreground">{formatarPeriodo(semana.inicio, semana.fim)}</p></div>
         </div>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-7">
-        {semana.dias.map((dia) => {
-          const data = isoLocal(dia)
-          const eventosDoDia = eventos.filter((evento) => evento.data === data)
-          const provasDoDia = provas.filter((prova) => prova.data === data)
-          const hoje = data === hojeLocal()
-
-          return (
-            <section key={data} className={`min-w-0 border-t-2 pt-3 ${hoje ? 'border-primary' : 'border-border'}`}>
-              <div className="mb-3 flex items-center justify-between gap-2">
-                <div>
-                  <p className="text-xs font-medium uppercase text-muted-foreground">{formatarDia(dia)}</p>
-                  <h2 className="mt-1 text-xl font-semibold tabular-nums">{dia.getDate()}</h2>
-                </div>
-                <Button type="button" variant="ghost" size="icon-sm" onClick={() => abrirNovo(data)} aria-label={`Adicionar compromisso em ${data}`}><Plus /></Button>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                {carregando ? <div className="h-20 animate-pulse rounded-lg bg-muted" /> : null}
-                {!carregando && eventosDoDia.length === 0 && provasDoDia.length === 0 ? (
-                  <p className="py-4 text-xs text-muted-foreground">Sem compromissos</p>
-                ) : null}
-                {provasDoDia.map((prova) => (
-                  <ProvaAgenda key={prova.uuid} prova={prova} materia={prova.materia_uuid ? materiasPorUuid.get(prova.materia_uuid) : undefined} />
-                ))}
-                {eventosDoDia.map((evento) => (
-                  <EventoCard
-                    key={evento.uuid}
-                    evento={evento}
-                    materia={evento.materia_uuid ? materiasPorUuid.get(evento.materia_uuid) : undefined}
-                    treino={evento.treino_uuid ? treinosPorUuid.get(evento.treino_uuid) : undefined}
-                    onEditar={() => abrirEdicao(evento)}
-                    onApagar={() => setEventoParaApagar(evento)}
-                    onAlternar={() => void alternarConcluido(evento)}
-                    onExportar={googleConectado ? () => void exportarGoogleCalendar(evento) : undefined}
-                    exportando={exportandoUuid === evento.uuid}
-                  />
-                ))}
-              </div>
-            </section>
-          )
-        })}
-        </div>
+        <AgendaSemanal dias={semana.dias} eventos={eventos} provas={provas} carregando={carregando} onAbrirDia={(data) => { setDataReferencia(data); setDiaAberto(data) }} onNovo={abrirNovo} onEditar={abrirEdicao} onAlternar={alternarConcluido} />
       </section>
+
+      {diaAberto ? <DiaAgendaDialog data={diaAberto} eventos={eventos.filter((evento) => evento.data === diaAberto)} provas={provas.filter((prova) => prova.data === diaAberto)} materiasPorUuid={materiasPorUuid} treinosPorUuid={treinosPorUuid} onClose={() => setDiaAberto(null)} onNovo={() => { setDiaAberto(null); abrirNovo(diaAberto) }} onEditar={(evento) => { setDiaAberto(null); abrirEdicao(evento) }} onApagar={(evento) => { setDiaAberto(null); setEventoParaApagar(evento) }} onAlternar={(evento) => void alternarConcluido(evento)} /> : null}
 
       {dialogAberto ? (
         <EventoDialog
@@ -595,6 +560,9 @@ export default function AgendaPage() {
           onClose={() => setDialogAberto(false)}
           onSubmit={salvarEvento}
           onAlternarConcluido={eventoEditando ? alternarEventoEditando : undefined}
+          onApagar={eventoEditando ? () => { setDialogAberto(false); setEventoParaApagar(eventoEditando) } : undefined}
+          onExportar={eventoEditando && googleConectado ? () => void exportarGoogleCalendar(eventoEditando) : undefined}
+          exportando={eventoEditando ? exportandoUuid === eventoEditando.uuid : false}
         />
       ) : null}
 
@@ -610,15 +578,105 @@ export default function AgendaPage() {
   )
 }
 
-function EventoCard({ evento, materia, treino, onEditar, onApagar, onAlternar, onExportar, exportando }: {
+const ALTURA_HORA = 48
+
+function minutosDoHorario(hora: string) {
+  const [horas, minutos] = hora.slice(0, 5).split(':').map(Number)
+  return horas * 60 + minutos
+}
+
+function AgendaSemanal({ dias, eventos, provas, carregando, onAbrirDia, onNovo, onEditar, onAlternar }: {
+  dias: Date[]
+  eventos: EventoAgenda[]
+  provas: Prova[]
+  carregando: boolean
+  onAbrirDia: (data: string) => void
+  onNovo: (data: string) => void
+  onEditar: (evento: EventoAgenda) => void
+  onAlternar: (evento: EventoAgenda) => Promise<void>
+}) {
+  const eventosComHora = eventos.filter((evento) => evento.hora_inicio && dias.some((dia) => isoLocal(dia) === evento.data))
+  const itensDiaInteiro = dias.map((dia) => {
+    const data = isoLocal(dia)
+    return {
+      data,
+      eventos: eventos.filter((evento) => evento.data === data && !evento.hora_inicio),
+      provas: provas.filter((prova) => prova.data === data),
+    }
+  })
+
+  return (
+    <div className="overflow-hidden rounded-xl border border-border bg-card text-card-foreground">
+      <div className="overflow-x-auto">
+        <div className="min-w-[58rem]">
+          <div className="grid grid-cols-[4rem_repeat(7,minmax(0,1fr))] border-b border-border bg-muted/35">
+            <div className="border-r border-border p-2 text-[10px] text-muted-foreground">GMT-3</div>
+            {dias.map((dia) => {
+              const data = isoLocal(dia)
+              const hoje = data === hojeLocal()
+              return <button type="button" key={data} onClick={() => onAbrirDia(data)} className={`border-r border-border px-2 py-2 text-center last:border-r-0 ${hoje ? 'bg-primary/10 text-primary' : ''}`}><span className="block text-[10px] font-semibold uppercase text-muted-foreground">{formatarDia(dia)}</span><strong className="mt-0.5 block text-lg tabular-nums">{dia.getDate()}</strong></button>
+            })}
+          </div>
+
+          <div className="grid grid-cols-[4rem_repeat(7,minmax(0,1fr))] border-b border-border">
+            <div className="border-r border-border px-1 py-2 text-[10px] text-muted-foreground">Dia inteiro</div>
+            {itensDiaInteiro.map((item) => <div key={item.data} className="min-h-12 space-y-1 border-r border-border p-1 last:border-r-0">{item.provas.map((prova) => <button type="button" key={prova.uuid} onClick={() => onAbrirDia(item.data)} className="block w-full truncate rounded bg-primary/10 px-1.5 py-1 text-left text-[10px] text-primary">{prova.titulo || 'Prova'}</button>)}{item.eventos.map((evento) => <button type="button" key={evento.uuid} onClick={() => onEditar(evento)} className={`block w-full truncate rounded bg-secondary px-1.5 py-1 text-left text-[10px] ${evento.concluido ? 'line-through opacity-60' : ''}`}>{evento.titulo}</button>)}{item.eventos.length === 0 && item.provas.length === 0 ? <button type="button" onClick={() => onNovo(item.data)} className="block w-full py-1 text-center text-xs text-muted-foreground/60 hover:text-foreground" aria-label={`Adicionar compromisso em ${item.data}`}><Plus className="mx-auto size-3" /></button> : null}</div>)}
+          </div>
+
+          <div className="max-h-[34rem] overflow-y-auto">
+            <div className="relative grid grid-cols-[4rem_repeat(7,minmax(0,1fr))]" style={{ height: `${24 * ALTURA_HORA}px` }}>
+              <div className="relative border-r border-border">
+                {Array.from({ length: 24 }, (_, hora) => <span key={hora} className="absolute right-2 -translate-y-1/2 text-[10px] tabular-nums text-muted-foreground" style={{ top: `${hora * ALTURA_HORA}px` }}>{String(hora).padStart(2, '0')}:00</span>)}
+              </div>
+              {dias.map((dia) => {
+                const data = isoLocal(dia)
+                const eventosDoDia = eventosComHora.filter((evento) => evento.data === data)
+                return <div key={data} className="relative border-r border-border last:border-r-0">{Array.from({ length: 24 }, (_, hora) => <span aria-hidden="true" key={hora} className="absolute inset-x-0 border-t border-border/70" style={{ top: `${hora * ALTURA_HORA}px` }} />)}{eventosDoDia.map((evento) => {
+                  const inicio = minutosDoHorario(evento.hora_inicio!)
+                  const duracao = evento.duracao_minutos ?? 60
+                  const altura = Math.max(32, Math.min(duracao, 1440 - inicio) * ALTURA_HORA / 60)
+                  return <article key={evento.uuid} className={`absolute inset-x-1 z-10 overflow-hidden rounded-md border border-primary/35 bg-primary/10 p-1 text-[10px] shadow-sm ${evento.concluido ? 'opacity-55' : ''}`} style={{ top: `${inicio * ALTURA_HORA / 60}px`, height: `${altura}px` }}><button type="button" onClick={() => onEditar(evento)} className="block w-full truncate text-left font-semibold"><span className={evento.concluido ? 'line-through' : ''}>{evento.titulo}</span><span className="block font-normal text-muted-foreground">{evento.hora_inicio!.slice(0, 5)}{evento.duracao_minutos ? ` · ${evento.duracao_minutos} min` : ''}</span></button><button type="button" onClick={() => void onAlternar(evento)} className="absolute bottom-1 right-1 rounded bg-card/90 px-1.5 py-0.5 font-medium shadow-sm hover:bg-card" aria-label={evento.concluido ? `Reabrir ${evento.titulo}` : `Concluir ${evento.titulo}`}><Check className="mr-0.5 inline size-3" />{evento.concluido ? 'Reabrir' : 'Concluir'}</button></article>
+                })}</div>
+              })}
+              {carregando ? <div className="pointer-events-none absolute inset-0 z-20 animate-pulse bg-muted/30" /> : null}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function DiaAgendaDialog({ data, eventos, provas, materiasPorUuid, treinosPorUuid, onClose, onNovo, onEditar, onApagar, onAlternar }: {
+  data: string
+  eventos: EventoAgenda[]
+  provas: Prova[]
+  materiasPorUuid: Map<string, Materia>
+  treinosPorUuid: Map<string, Treino>
+  onClose: () => void
+  onNovo: () => void
+  onEditar: (evento: EventoAgenda) => void
+  onApagar: (evento: EventoAgenda) => void
+  onAlternar: (evento: EventoAgenda) => void
+}) {
+  useEffect(() => {
+    function fechar(event: KeyboardEvent) { if (event.key === 'Escape') onClose() }
+    window.addEventListener('keydown', fechar)
+    return () => window.removeEventListener('keydown', fechar)
+  }, [onClose])
+
+  const tituloData = dataLocal(data).toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })
+  const itens = [...eventos].sort((a, b) => (a.hora_inicio ?? '99:99').localeCompare(b.hora_inicio ?? '99:99'))
+  return <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" role="presentation" onMouseDown={onClose}><div role="dialog" aria-modal="true" aria-labelledby="dia-agenda-titulo" className="max-h-[88vh] w-full max-w-3xl overflow-y-auto rounded-xl border border-border bg-card p-5 text-card-foreground shadow-xl" onMouseDown={(event) => event.stopPropagation()}><div className="flex items-start justify-between gap-4 border-b border-border pb-4"><div><p className="text-xs font-medium uppercase text-muted-foreground">Agenda do dia</p><h2 id="dia-agenda-titulo" className="mt-1 text-xl font-semibold capitalize">{tituloData}</h2><p className="mt-1 text-sm text-muted-foreground">{eventos.length + provas.length} {eventos.length + provas.length === 1 ? 'item' : 'itens'}</p></div><Button type="button" variant="ghost" size="icon" onClick={onClose} aria-label="Fechar"><X /></Button></div><div className="mt-5 space-y-3">{provas.map((prova) => <ProvaAgenda key={prova.uuid} prova={prova} materia={prova.materia_uuid ? materiasPorUuid.get(prova.materia_uuid) : undefined} />)}{itens.map((evento) => <EventoCard key={evento.uuid} evento={evento} materia={evento.materia_uuid ? materiasPorUuid.get(evento.materia_uuid) : undefined} treino={evento.treino_uuid ? treinosPorUuid.get(evento.treino_uuid) : undefined} onEditar={() => onEditar(evento)} onApagar={() => onApagar(evento)} onAlternar={() => onAlternar(evento)} />)}{eventos.length === 0 && provas.length === 0 ? <div className="rounded-lg border border-dashed border-border px-4 py-10 text-center text-sm text-muted-foreground">Nada marcado para este dia.</div> : null}</div><div className="mt-5 flex justify-end border-t border-border pt-4"><Button type="button" onClick={onNovo}><Plus />Novo compromisso</Button></div></div></div>
+}
+
+function EventoCard({ evento, materia, treino, onEditar, onApagar, onAlternar }: {
   evento: EventoAgenda
   materia?: Materia
   treino?: Treino
   onEditar: () => void
-  onApagar: () => void
+  onApagar?: () => void
   onAlternar: () => void
-  onExportar?: () => void
-  exportando: boolean
 }) {
   const Icon = evento.tipo === 'estudo' ? BookOpenCheck : evento.tipo === 'treino' ? Dumbbell : CalendarDays
   return (
@@ -640,10 +698,9 @@ function EventoCard({ evento, materia, treino, onEditar, onApagar, onAlternar, o
         </div>
       </div>
       <div className="mt-3 flex justify-end gap-1 border-t border-border pt-2">
-        {onExportar ? <Button type="button" variant="ghost" size="icon-xs" disabled={exportando} onClick={onExportar} aria-label={evento.google_calendar_event_id ? 'Atualizar no Google Calendar' : 'Exportar para Google Calendar'} title={evento.google_calendar_event_id ? 'Atualizar no Google Calendar' : 'Exportar para Google Calendar'}><CloudUpload className={exportando ? 'animate-pulse' : ''} /></Button> : null}
         <Button type="button" variant="outline" size="sm" onClick={onAlternar} aria-label={evento.concluido ? 'Reabrir compromisso' : 'Concluir compromisso'}><Check />{evento.concluido ? 'Reabrir' : 'Concluir'}</Button>
         <Button type="button" variant="ghost" size="icon-xs" onClick={onEditar} aria-label="Editar compromisso"><Edit3 /></Button>
-        <Button type="button" variant="ghost" size="icon-xs" onClick={onApagar} aria-label="Apagar compromisso"><Trash2 /></Button>
+        {onApagar ? <Button type="button" variant="ghost" size="icon-xs" onClick={onApagar} aria-label="Apagar compromisso"><Trash2 /></Button> : null}
       </div>
     </article>
   )
@@ -666,7 +723,7 @@ function ProvaAgenda({ prova, materia }: { prova: Prova; materia?: Materia }) {
   return prova.materia_uuid ? <Link href={`/estudos/materia/${prova.materia_uuid}`} className="outline-none focus-visible:ring-[3px] focus-visible:ring-ring/30">{conteudo}</Link> : conteudo
 }
 
-function EventoDialog({ formulario, editando, salvando, concluido, materias, conteudos, treinos, onChange, onMudarTipo, onClose, onSubmit, onAlternarConcluido }: {
+function EventoDialog({ formulario, editando, salvando, concluido, materias, conteudos, treinos, onChange, onMudarTipo, onClose, onSubmit, onAlternarConcluido, onApagar, onExportar, exportando }: {
   formulario: FormularioEvento
   editando: boolean
   salvando: boolean
@@ -679,6 +736,9 @@ function EventoDialog({ formulario, editando, salvando, concluido, materias, con
   onClose: () => void
   onSubmit: (event: React.FormEvent) => void
   onAlternarConcluido?: () => void
+  onApagar?: () => void
+  onExportar?: () => void
+  exportando: boolean
 }) {
   useEffect(() => {
     function fechar(event: KeyboardEvent) { if (event.key === 'Escape') onClose() }
@@ -718,7 +778,7 @@ function EventoDialog({ formulario, editando, salvando, concluido, materias, con
           {formulario.tipo === 'treino' ? <Field label="Treino" htmlFor="evento-treino" className="sm:col-span-2"><Select id="evento-treino" required value={formulario.treinoUuid} onChange={(event) => onChange((atual) => ({ ...atual, treinoUuid: event.target.value }))}><option value="">Selecione</option>{treinos.map((treino) => <option key={treino.uuid} value={treino.uuid}>{treino.nome}</option>)}</Select></Field> : null}
 
           <Field label="Descrição" htmlFor="evento-descricao" optional className="sm:col-span-2"><Textarea id="evento-descricao" value={formulario.descricao} onChange={(event) => onChange((atual) => ({ ...atual, descricao: event.target.value }))} /></Field>
-          <div className="flex flex-wrap justify-end gap-2 border-t border-border pt-4 sm:col-span-2">{onAlternarConcluido ? <Button type="button" variant="secondary" onClick={onAlternarConcluido} disabled={salvando} className="mr-auto"><Check />{concluido ? 'Reabrir compromisso' : 'Concluir compromisso'}</Button> : null}<Button type="button" variant="outline" onClick={onClose} disabled={salvando}>Cancelar</Button><Button type="submit" disabled={salvando}>{salvando ? 'Salvando...' : 'Salvar'}</Button></div>
+          <div className="flex flex-wrap justify-end gap-2 border-t border-border pt-4 sm:col-span-2">{onAlternarConcluido ? <Button type="button" variant="secondary" onClick={onAlternarConcluido} disabled={salvando} className="mr-auto"><Check />{concluido ? 'Reabrir compromisso' : 'Concluir compromisso'}</Button> : null}{onExportar ? <Button type="button" variant="outline" onClick={onExportar} disabled={salvando || exportando}><CloudUpload className={exportando ? 'animate-pulse' : ''} />{exportando ? 'Enviando...' : 'Enviar ao Google'}</Button> : null}{onApagar ? <Button type="button" variant="ghost" onClick={onApagar} disabled={salvando} className="text-destructive"><Trash2 />Apagar</Button> : null}<Button type="button" variant="outline" onClick={onClose} disabled={salvando}>Cancelar</Button><Button type="submit" disabled={salvando}>{salvando ? 'Salvando...' : 'Salvar'}</Button></div>
         </form>
       </div>
     </div>

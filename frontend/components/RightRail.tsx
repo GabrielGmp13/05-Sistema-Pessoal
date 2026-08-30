@@ -29,6 +29,8 @@ type ItemLinhaTempo = {
   titulo: string
   tipo: 'agenda' | 'prova'
   detalhe: string
+  duracaoMinutos: number | null
+  concluido: boolean
 }
 
 const DIAS_SEMANA = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S']
@@ -70,6 +72,11 @@ function formatarHora(hora: string | null) {
   return hora ? hora.slice(0, 5) : 'Dia todo'
 }
 
+function minutosDoHorarioRail(hora: string) {
+  const [horas, minutos] = hora.slice(0, 5).split(':').map(Number)
+  return horas * 60 + minutos
+}
+
 function criarItemEvento(evento: EventoAgenda): ItemLinhaTempo {
   return {
     id: `agenda-${evento.uuid}`,
@@ -78,6 +85,8 @@ function criarItemEvento(evento: EventoAgenda): ItemLinhaTempo {
     titulo: evento.titulo,
     tipo: 'agenda',
     detalhe: evento.tipo === 'estudo' ? 'Estudo' : evento.tipo === 'treino' ? 'Treino' : 'Agenda',
+    duracaoMinutos: evento.duracao_minutos,
+    concluido: evento.concluido,
   }
 }
 
@@ -89,6 +98,8 @@ function criarItemProva(prova: Prova): ItemLinhaTempo {
     titulo: prova.titulo || 'Prova sem título',
     tipo: 'prova',
     detalhe: 'Prova',
+    duracaoMinutos: null,
+    concluido: prova.feita,
   }
 }
 
@@ -116,6 +127,7 @@ export function RightRail({ recolhendo = false }: { recolhendo?: boolean }) {
     ...eventos.filter((evento) => evento.data === hoje).map(criarItemEvento),
     ...provas.filter((prova) => prova.data === hoje).map(criarItemProva),
   ].sort(compararItens), [eventos, hoje, provas])
+  const minutosAgora = agora.getHours() * 60 + agora.getMinutes()
 
   async function carregar() {
     setCarregando(true)
@@ -291,14 +303,18 @@ export function RightRail({ recolhendo = false }: { recolhendo?: boolean }) {
             <p className={styles.vazio} role="status">Carregando próximos itens...</p>
           ) : linhaTempo.length ? (
             <ol className={styles.linhaTempo}>
-              {linhaTempo.map((item) => (
-                <li key={item.id}>
+              {linhaTempo.map((item) => {
+                const inicio = item.hora ? minutosDoHorarioRail(item.hora) : null
+                const atual = inicio !== null && minutosAgora >= inicio && minutosAgora < inicio + (item.duracaoMinutos ?? 60)
+                return (
+                <li key={item.id} className={cn(atual && styles.itemAtual, item.concluido && styles.itemConcluido)}>
                   <span className={cn(styles.marcador, item.tipo === 'prova' && styles.marcadorProva)} />
                   <time dateTime={item.data}>{new Date(`${item.data}T12:00:00`).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}</time>
                   <strong>{item.titulo}</strong>
                   <small>{formatarHora(item.hora)} · {item.detalhe}</small>
+                  {atual ? <span className={styles.agoraBadge}>Agora</span> : null}
                 </li>
-              ))}
+              )})}
             </ol>
           ) : (
             <p className={styles.vazio}>Nada marcado para hoje.</p>

@@ -8,7 +8,7 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 **Fase atual:** v2.1 — lote consolidado de correções da homologação tecnicamente concluído; homologação manual continua obrigatória. A v1 está aposentada (DEC-031) e `frontend/` é o único frontend ativo.
 **Bloqueio:** nenhum bloqueio técnico ou migration pendente; resta validar os
 fluxos reais e a correção da coluna pessoal no deploy.
-**Banco:** produção e cadeia local estão alinhadas até `20260827000100_homologacao_fluxos_pessoais.sql` (68 tabelas).
+**Banco:** produção e cadeia local estão alinhadas até `20260829000100_agenda_service_role_grant.sql` (68 tabelas).
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
 **Próxima ação:** executar os retestes de `docs/teste.md` no deploy com as contas
 e APIs reais, incluindo altura reduzida e seletor de atmosfera na coluna pessoal.
@@ -59,6 +59,16 @@ e APIs reais, incluindo altura reduzida e seletor de atmosfera na coluna pessoal
       bilateral do Google Calendar.
 - [x] Linha cronológica da coluna pessoal mostra todos os compromissos e provas
       do dia atual, sem limite artificial de oito itens futuros.
+- [x] Calendário mensal abre um painel completo do dia e corta dias passados
+      com uma linha horizontal atravessando toda a célula.
+- [x] Semana detalhada usa sete colunas sobre uma grade horária compacta e
+      rolável; compromissos abrem a edição e oferecem concluir/reabrir local.
+- [x] Compromisso cujo intervalo contém a hora atual recebe destaque “Agora”
+      na linha cronológica da coluna pessoal.
+- [ ] Validar no deploy a nova grade semanal, o painel diário, dias passados e
+      o destaque do compromisso atual com dados reais do Calendar.
+- [ ] Integrar futuramente a conclusão dos módulos de origem (começando por
+      Treino) ao campo `agenda.concluido` do compromisso vinculado.
 - [x] Perfil e controles de editar/tema/sair permanecem fixos nas extremidades
       da coluna; o miolo com relógio, calendário e Agenda completa rola como
       uma área única, permitindo navegar por dias com muitos compromissos.
