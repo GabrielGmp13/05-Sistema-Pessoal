@@ -14,6 +14,8 @@ const FONTES: FonteMetadados[] = [
   'google_livros',
   'jikan_anime',
   'jikan_manga',
+  'anilist_relacoes',
+  'musica',
   'itunes_podcast',
   'artigo',
 ];
@@ -172,6 +174,7 @@ async function buscarYoutube(q: string): Promise<ResultadoMetadados[] | null> {
     duracaoSegundos: duracaoIso8601(item.contentDetails?.duration),
     identificadorExterno: item.id,
     linkOficial: `https://www.youtube.com/watch?v=${item.id}`,
+    siteOrigem: 'YouTube',
   }));
 }
 
@@ -474,6 +477,9 @@ async function buscarAniList(q: string, manga: boolean): Promise<ResultadoMetada
       duracaoMinutos: manga ? undefined : item.duration ?? undefined,
       linkOficial: item.siteUrl,
       identificadorExterno: item.idMal ? String(item.idMal) : undefined,
+      anilistId: String(item.id),
+      malId: item.idMal ? String(item.idMal) : undefined,
+      episodios: item.episodes ?? undefined,
       estudio: manga ? undefined : item.studios?.nodes?.map((estudio) => estudio.name).filter(Boolean).join(', ') || undefined,
       generos: item.genres ?? [],
       anoTermino: item.endDate?.year ?? undefined,
@@ -481,6 +487,73 @@ async function buscarAniList(q: string, manga: boolean): Promise<ResultadoMetada
       siteOrigem: 'AniList',
     };
   });
+}
+
+async function buscarRelacoesAniList(q: string): Promise<ResultadoMetadados[]> {
+  const id = Number(q);
+  if (!Number.isInteger(id) || id <= 0) return [];
+  const query = `
+    query ($id: Int!) {
+      Media(id: $id, type: ANIME) {
+        relations { edges { relationType(version: 2) node {
+          id idMal type format episodes duration description(asHtml: false) siteUrl
+          title { romaji english native }
+          startDate { year }
+          coverImage { extraLarge large medium }
+        } } }
+      }
+    }
+  `;
+  const data = (await jsonExternoPost('https://graphql.anilist.co', { query, variables: { id } })) as {
+    data?: { Media?: { relations?: { edges?: Array<{
+      relationType?: string; node?: {
+        id: number; idMal?: number | null; type?: string; format?: string; episodes?: number | null;
+        duration?: number | null; description?: string | null; siteUrl?: string;
+        title?: { romaji?: string | null; english?: string | null; native?: string | null };
+        startDate?: { year?: number | null };
+        coverImage?: { extraLarge?: string | null; large?: string | null; medium?: string | null };
+      };
+    }> } } };
+  };
+  return (data.data?.Media?.relations?.edges ?? [])
+    .filter((edge) => edge.node?.type === 'ANIME')
+    .map((edge) => {
+      const item = edge.node!;
+      return {
+        id: `anilist:${item.id}`,
+        titulo: item.title?.romaji ?? item.title?.english ?? item.title?.native ?? 'Título não informado',
+        subtitulo: item.title?.english ?? item.title?.native ?? undefined,
+        descricao: item.description?.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() || undefined,
+        capaUrl: item.coverImage?.extraLarge ?? item.coverImage?.large ?? item.coverImage?.medium ?? undefined,
+        ano: item.startDate?.year ?? undefined,
+        duracaoMinutos: item.duration ?? undefined,
+        linkOficial: item.siteUrl,
+        anilistId: String(item.id),
+        malId: item.idMal ? String(item.idMal) : undefined,
+        episodios: item.episodes ?? undefined,
+        formato: item.format,
+        tipoRelacao: edge.relationType,
+        siteOrigem: 'AniList',
+      } satisfies ResultadoMetadados;
+    });
+}
+
+async function buscarMusica(q: string): Promise<ResultadoMetadados[]> {
+  const params = new URLSearchParams({ term: q, media: 'music', entity: 'song', country: 'BR', limit: '6' });
+  const data = (await jsonExterno(`https://itunes.apple.com/search?${params}`)) as {
+    results?: Array<{ trackId: number; trackName?: string; artistName?: string; artworkUrl100?: string; trackViewUrl?: string; trackTimeMillis?: number }>;
+  };
+  const itunes = (data.results ?? []).map((item) => ({
+    id: `itunes:${item.trackId}`,
+    titulo: item.trackName ?? 'Faixa sem título',
+    autor: item.artistName,
+    capaUrl: item.artworkUrl100?.replace('100x100', '300x300'),
+    linkOficial: item.trackViewUrl,
+    duracaoSegundos: item.trackTimeMillis ? Math.round(item.trackTimeMillis / 1000) : undefined,
+    siteOrigem: 'Apple Music / iTunes',
+  }));
+  const youtube = await buscarYoutube(q);
+  return [...(youtube ?? []), ...itunes].slice(0, 12);
 }
 
 function statusPublicacaoJikan(status?: string | null): ResultadoMetadados['statusPublicacao'] {
@@ -539,6 +612,8 @@ export async function GET(request: NextRequest) {
       case 'google_livros': resultados = await buscarGoogleLivros(q); break;
       case 'jikan_anime': resultados = await buscarJikan(q, false); break;
       case 'jikan_manga': resultados = await buscarJikan(q, true); break;
+      case 'anilist_relacoes': resultados = await buscarRelacoesAniList(q); break;
+      case 'musica': resultados = await buscarMusica(q); break;
       case 'itunes_podcast': resultados = await buscarItunes(q); break;
       case 'artigo': resultados = await buscarArtigo(q); break;
     }

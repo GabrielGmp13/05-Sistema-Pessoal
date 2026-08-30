@@ -22,6 +22,7 @@ const STATUS_LABEL: Record<string, string> = {
 
 interface BibliotecaCardProps {
   titulo: string;
+  subtitulo?: string | null;
   capaUrl: string | null;
   capaPath?: string | null;
   favorito: boolean;
@@ -41,6 +42,7 @@ interface BibliotecaCardProps {
 
 export default function BibliotecaCard({
   titulo,
+  subtitulo,
   capaUrl,
   capaPath,
   favorito,
@@ -136,6 +138,7 @@ export default function BibliotecaCard({
 
       <div className={styles.body} onClick={onClick}>
         <h3 className={styles.nome}>{titulo}</h3>
+        {subtitulo ? <p className={styles.subtitulo}>{subtitulo}</p> : null}
 
         <div className={styles.linhaMeta}>
           {ano != null ? <span>{ano}</span> : null}

@@ -11,7 +11,6 @@ import {
 } from '@/lib/animes';
 import PainelDetalheObra, { CampoInfo } from '@/components/PainelDetalheObra';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
-import ElencoEditor from '@/components/ElencoEditor';
 import OpeningsEndingsEditor from '@/components/OpeningsEndingsEditor';
 import TemporadasAnimeEditor from '@/components/TemporadasAnimesEditor';
 import ComplementosEditor from '@/components/ComplementosEditor';
@@ -52,6 +51,17 @@ const FORM_VAZIO: AnimeInput = {
   comentario: '',
   favorito: false,
 };
+
+function tituloComSigla(titulo?: string | null): string {
+  const limpo = titulo?.trim() ?? '';
+  const palavras = limpo.match(/[\p{L}\p{N}]+/gu) ?? [];
+  if (palavras.length < 2) return limpo;
+  const particulasJaponesas = new Set(['no', 'wa', 'ga', 'wo', 'ni', 'de', 'to']);
+  const sigla = palavras.map((palavra) => particulasJaponesas.has(palavra.toLowerCase())
+    ? palavra[0].toLowerCase()
+    : palavra[0].toUpperCase()).join('');
+  return `${limpo} · ${sigla}`;
+}
 
 interface AnimesSectionProps {
   gatilhoAdicionar: number;
@@ -160,6 +170,12 @@ export default function AnimesSection({
       compositor: anime.compositor ?? '',
       comentario: anime.comentario ?? '',
       favorito: anime.favorito,
+      mal_id: anime.mal_id ?? undefined,
+      anilist_id: anime.anilist_id ?? undefined,
+      link_mal: anime.link_mal ?? undefined,
+      link_anilist: anime.link_anilist ?? undefined,
+      capa_url: anime.capa_url ?? undefined,
+      banner_url: anime.banner_url ?? undefined,
     });
     setGenerosSelecionados(generosPorItem[anime.uuid]?.map((g) => g.uuid) ?? []);
     setModalAberto(true);
@@ -189,8 +205,11 @@ export default function AnimesSection({
       const { error: erroGeneros } = userId
         ? await salvarGenerosDoItem(sb, userId, 'animes', resultado.uuid, generosSelecionados)
         : { error: 'Sessão indisponível' };
-      fecharModal();
       await carregar();
+      setEditandoUuid(resultado.uuid);
+      setForm((atual) => ({ ...atual, ...resultado, nome_original: resultado.nome_original }));
+      setArquivoCapa(null);
+      setArquivoBanner(null);
       if (erroGeneros) setErro('Anime salvo, mas não foi possível salvar os gêneros.');
     }
     setSalvando(false);
@@ -292,7 +311,8 @@ export default function AnimesSection({
           {itensOrdenados.map((anime) => (
             <BibliotecaCard
               key={anime.uuid}
-              titulo={anime.nome_traduzido || anime.nome_original}
+              titulo={tituloComSigla(anime.nome_original)}
+              subtitulo={anime.nome_traduzido && anime.nome_traduzido !== anime.nome_original ? tituloComSigla(anime.nome_traduzido) : null}
               capaUrl={anime.capa_url}
               capaPath={anime.capa_path}
               favorito={anime.favorito}
@@ -340,7 +360,8 @@ export default function AnimesSection({
                   ...atual,
                   nome_original: resultado.titulo,
                   nome_traduzido: resultado.subtitulo ?? atual.nome_traduzido,
-                  mal_id: resultado.identificadorExterno ?? atual.mal_id,
+                  anilist_id: resultado.anilistId ?? atual.anilist_id,
+                  mal_id: resultado.malId ?? resultado.identificadorExterno ?? atual.mal_id,
                   capa_url: resultado.capaUrl ?? atual.capa_url,
                   ano_lancamento: resultado.ano ?? atual.ano_lancamento,
                   sinopse: resultado.descricao ?? atual.sinopse,
@@ -348,7 +369,8 @@ export default function AnimesSection({
                   produtores: resultado.produtores ?? atual.produtores,
                   classificacao_indicativa: resultado.classificacaoIndicativa ?? atual.classificacao_indicativa,
                   ano_termino: resultado.anoTermino ?? atual.ano_termino,
-                  link_mal: resultado.linkOficial ?? atual.link_mal,
+                  link_anilist: resultado.linkOficial ?? atual.link_anilist,
+                  link_mal: resultado.malId ? `https://myanimelist.net/anime/${resultado.malId}` : atual.link_mal,
                   duracao_minutos: resultado.duracaoMinutos ?? atual.duracao_minutos,
                   }));
                   if (resultado.generos?.length) void (async () => {
@@ -519,20 +541,19 @@ export default function AnimesSection({
 
               <div className={styles.modalFooter}>
                 <button type="button" className={styles.btnGhost} onClick={fecharModal}>
-                  Cancelar
+                  {editandoUuid ? 'Concluir' : 'Cancelar'}
                 </button>
                 <button type="submit" className={styles.btnPrimario} disabled={salvando}>
-                  {salvando ? 'Salvando...' : 'Salvar'}
+                  {salvando ? 'Salvando...' : editandoUuid ? 'Salvar alterações' : 'Salvar e continuar'}
                 </button>
               </div>
             </form>
 
             {editandoUuid && (
               <div className={styles.modalBody}>
-                <TemporadasAnimeEditor animeUuid={editandoUuid} />
-                <ElencoEditor tipoObra="anime" obraUuid={editandoUuid} />
+                <TemporadasAnimeEditor animeUuid={editandoUuid} anilistId={form.anilist_id} />
                 <OpeningsEndingsEditor animeUuid={editandoUuid} />
-                <ComplementosEditor animeUuid={editandoUuid} />
+                <ComplementosEditor animeUuid={editandoUuid} anilistId={form.anilist_id} />
                 <OrdemConsumoEditor animeUuid={editandoUuid} />
               </div>
             )}

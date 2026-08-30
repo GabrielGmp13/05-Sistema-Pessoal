@@ -902,3 +902,13 @@ localmente, ganha de qualquer `.dark` herdada).
 Finanças ganhou parcelamento e recorrência mensal finitos; Biblioteca recebeu capa privada nas oito categorias e metadados Open Graph seguros para Artigos; a extensão Manifest V3 abre Artigo/Vídeo pré-preenchido sem acessar sessão; BRAPI ganhou cache curto; seis testes Node iniciam a cobertura automatizada. Integrações Google foram auditadas nas fontes oficiais e permanecem sem UI de conexão falsa até haver armazenamento cifrado de refresh token.
 
 A migration `20260821000100_biblioteca_capas_storage.sql` passou reset e 15 testes SQL, foi a única listada no dry-run remoto, foi aplicada em produção e teve colunas, bucket privado, limite de 3 MB, MIME types, policies, histórico e dry-run final vazio confirmados.
+## 2026-08-30 — Cadastro completo de Anime no mesmo fluxo
+
+- Corrigido o contrato AniList: IDs e links de AniList e MyAnimeList deixam de
+  ser misturados no preenchimento automático.
+- Criação mantém o modal aberto depois do primeiro salvamento para configurar
+  temporadas, openings/endings, complementos e ordem de consumo.
+- Temporadas e complementos passam a pesquisar relações da própria obra na
+  AniList; músicas combinam YouTube com Apple Music/iTunes.
+- Cards exibem nomes original/traduzido e siglas calculadas, e dubladores deixam
+  de aparecer somente no cadastro de Anime.

@@ -185,6 +185,17 @@
   line-height: 1.28;
 }
 
+.subtitulo {
+  margin: -0.08rem 0 0;
+  color: var(--texto-secundario);
+  font-size: 0.72rem;
+  line-height: 1.28;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 .linhaMeta {
   display: flex;
   align-items: center;

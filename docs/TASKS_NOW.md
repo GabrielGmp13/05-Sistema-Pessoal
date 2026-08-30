@@ -94,6 +94,18 @@ e APIs reais, incluindo altura reduzida e seletor de atmosfera na coluna pessoal
       preservado no Backlog como conceito ainda sem contrato detalhado.
 - [ ] Homologar no deploy Anime, Mangá e Livros com títulos em português;
       configurar as chaves opcionais restantes, especialmente YouTube e TMDB.
+- [x] Cadastro de Anime passa a continuar aberto depois do primeiro salvamento,
+      permitindo concluir temporadas, músicas, complementos e ordem de consumo
+      sem fechar e reabrir a obra.
+- [x] Relações da AniList alimentam seletores separados de temporadas e
+      complementos; temporadas permanecem dentro do anime principal e não
+      criam cards independentes na coleção.
+- [x] Openings e endings recebem busca combinada no YouTube e no catálogo
+      público do Apple Music/iTunes, preservando preenchimento manual.
+- [x] Cards de Anime exibem nome original e traduzido com siglas calculadas;
+      a interface de dubladores foi retirada somente do fluxo de Anime.
+- [ ] Homologar no deploy a criação contínua de um Anime completo, incluindo
+      relações reais da AniList e uma música encontrada pelos dois provedores.
 
 ## Handoff curto para novo chat
 

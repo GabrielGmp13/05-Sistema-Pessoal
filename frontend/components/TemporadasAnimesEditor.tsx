@@ -8,20 +8,26 @@ import {
   AnimeTemporada,
 } from '@/lib/animes-temporadas';
 import EpisodiosEditor from './EpisodiosEditor';
+import BuscaMetadados from '@/app/biblioteca/_components/BuscaMetadados';
+import type { ResultadoMetadados } from '@/lib/biblioteca-metadados';
 import styles from './ListaEditavel.module.css';
 
 interface Props {
   animeUuid: string;
+  anilistId?: string | null;
 }
 
 const VAZIO = { numero: '', numero_episodios: '', minha_nota: '' };
+const FORMATOS_TEMPORADA = ['TV', 'TV_SHORT'];
+const RELACOES_TEMPORADA = ['SEQUEL', 'PREQUEL'];
 
-export default function TemporadasAnimeEditor({ animeUuid }: Props) {
+export default function TemporadasAnimeEditor({ animeUuid, anilistId }: Props) {
   const [itens, setItens] = useState<AnimeTemporada[]>([]);
   const [novo, setNovo] = useState(VAZIO);
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
   const [expandidaUuid, setExpandidaUuid] = useState<string | null>(null);
+  const [relacaoSelecionada, setRelacaoSelecionada] = useState<ResultadoMetadados | null>(null);
 
   async function carregar() {
     setCarregando(true);
@@ -46,6 +52,7 @@ export default function TemporadasAnimeEditor({ animeUuid }: Props) {
     });
     if (criada) {
       setNovo(VAZIO);
+      setRelacaoSelecionada(null);
       await carregar();
     }
     setSalvando(false);
@@ -60,6 +67,23 @@ export default function TemporadasAnimeEditor({ animeUuid }: Props) {
   return (
     <div className={styles.wrapper}>
       <h4>Temporadas</h4>
+      {anilistId ? (
+        <BuscaMetadados
+          fonte="anilist_relacoes"
+          termo={anilistId}
+          formatos={FORMATOS_TEMPORADA}
+          relacoes={RELACOES_TEMPORADA}
+          onSelect={(resultado) => {
+            setRelacaoSelecionada(resultado);
+            setNovo({
+              numero: String(Math.max(1, itens.length + 1)),
+              numero_episodios: resultado.episodios ? String(resultado.episodios) : '',
+              minha_nota: '',
+            });
+          }}
+        />
+      ) : <p className={styles.vazio}>Selecione um resultado da AniList no cadastro principal para pesquisar temporadas.</p>}
+      {relacaoSelecionada ? <p className={styles.vazio}>Selecionada: <strong>{relacaoSelecionada.titulo}</strong>. Confirme o número abaixo.</p> : null}
       {carregando ? (
         <p className={styles.vazio}>Carregando...</p>
       ) : (

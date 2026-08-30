@@ -8,6 +8,7 @@ import styles from './BibliotecaSection.module.css';
 const FONTE_LABEL: Record<FonteMetadados, string> = {
   youtube: 'YouTube', tmdb_filme: 'TMDB', tmdb_serie: 'TMDB', google_livros: 'Google Books + Open Library',
   jikan_anime: 'AniList + Jikan', jikan_manga: 'AniList + Jikan', itunes_podcast: 'iTunes',
+  anilist_relacoes: 'relações da AniList', musica: 'YouTube + Apple Music',
   artigo: 'site do artigo',
 };
 
@@ -15,9 +16,11 @@ interface BuscaMetadadosProps {
   fonte: FonteMetadados;
   termo: string;
   onSelect: (resultado: ResultadoMetadados) => void;
+  formatos?: string[];
+  relacoes?: string[];
 }
 
-export default function BuscaMetadados({ fonte, termo, onSelect }: BuscaMetadadosProps) {
+export default function BuscaMetadados({ fonte, termo, onSelect, formatos, relacoes }: BuscaMetadadosProps) {
   const [resultados, setResultados] = useState<ResultadoMetadados[]>([]);
   const [mensagem, setMensagem] = useState('');
   const [buscando, setBuscando] = useState(false);
@@ -35,8 +38,12 @@ export default function BuscaMetadados({ fonte, termo, onSelect }: BuscaMetadado
       setMensagem('');
       try {
         const resposta = await buscarMetadados(fonte, consulta, controller.signal);
-        setResultados(resposta.resultados);
-        setMensagem(resposta.mensagem ?? (resposta.resultados.length === 0 ? 'Nenhum resultado encontrado. Continue preenchendo manualmente.' : ''));
+        const resultadosFiltrados = resposta.resultados.filter((resultado) =>
+          (!formatos || formatos.includes(resultado.formato ?? '')) &&
+          (!relacoes || relacoes.includes(resultado.tipoRelacao ?? ''))
+        );
+        setResultados(resultadosFiltrados);
+        setMensagem(resposta.mensagem ?? (resultadosFiltrados.length === 0 ? 'Nenhum resultado compatível encontrado. Continue preenchendo manualmente.' : ''));
       } catch (error) {
         if (error instanceof DOMException && error.name === 'AbortError') return;
         setResultados([]);
@@ -50,7 +57,7 @@ export default function BuscaMetadados({ fonte, termo, onSelect }: BuscaMetadado
       window.clearTimeout(timeoutId);
       controller.abort();
     };
-  }, [fonte, termo]);
+  }, [fonte, termo, formatos, relacoes]);
 
   const consultaValida = termo.trim().length >= 2;
 

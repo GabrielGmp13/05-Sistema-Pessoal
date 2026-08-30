@@ -313,3 +313,9 @@ medidas e aparência dos componentes reais para não haver piscada, duplicação
 - Toda ação destrutiva passa por modal de confirmação — nunca `confirm()` nativo do browser.
 - Toda lista que pode ficar vazia tem um elemento `.vazio` dedicado.
 - `esc()`/sanitização é obrigatório em qualquer interpolação de dado do usuário em `innerHTML` (raramente usado no projeto React — a maioria já é seguro por padrão via JSX).
+## Títulos de Anime na coleção (2026-08-30)
+
+Cards de Anime apresentam primeiro o nome original com sigla calculada e,
+quando diferente, o nome traduzido com sua sigla em uma segunda linha de menor
+ênfase. Exemplo: `Shingeki no Kyojin · SnK` e `Attack on Titan · AOT`. A sigla
+é apenas apresentação e não cria coluna no banco.

@@ -9,6 +9,7 @@ import {
   TipoOpeningEnding,
 } from '@/lib/openings-endings';
 import styles from './ListaEditavel.module.css';
+import BuscaMetadados from '@/app/biblioteca/_components/BuscaMetadados';
 
 interface Props {
   animeUuid: string;
@@ -21,6 +22,7 @@ export default function OpeningsEndingsEditor({ animeUuid }: Props) {
   const [novo, setNovo] = useState(VAZIO);
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
+  const [busca, setBusca] = useState('');
 
   async function carregar() {
     setCarregando(true);
@@ -59,6 +61,13 @@ export default function OpeningsEndingsEditor({ animeUuid }: Props) {
   return (
     <div className={styles.wrapper}>
       <h4>Openings / Endings</h4>
+      <div className={styles.linhaAdicionar}>
+        <input placeholder="Pesquisar música, artista ou anime" value={busca} onChange={(e) => setBusca(e.target.value)} />
+      </div>
+      <BuscaMetadados fonte="musica" termo={busca} onSelect={(resultado) => {
+        setNovo((atual) => ({ ...atual, nome: resultado.titulo, artista: resultado.autor ?? '', link_video: resultado.linkOficial ?? '' }));
+        setBusca('');
+      }} />
       {carregando ? (
         <p className={styles.vazio}>Carregando...</p>
       ) : (
@@ -97,7 +106,7 @@ export default function OpeningsEndingsEditor({ animeUuid }: Props) {
           onChange={(e) => setNovo({ ...novo, artista: e.target.value })}
         />
         <input
-          placeholder="Link do vídeo (opcional)"
+          placeholder="Link da música ou vídeo (opcional)"
           value={novo.link_video}
           onChange={(e) => setNovo({ ...novo, link_video: e.target.value })}
         />

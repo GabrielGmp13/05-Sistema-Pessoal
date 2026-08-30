@@ -3,9 +3,12 @@
 import { useEffect, useState } from 'react';
 import { listarComplementosDoAnime, criarFilme, Filme } from '@/lib/filmes';
 import styles from './ListaEditavel.module.css';
+import BuscaMetadados from '@/app/biblioteca/_components/BuscaMetadados';
+import type { ResultadoMetadados } from '@/lib/biblioteca-metadados';
 
 interface Props {
   animeUuid: string;
+  anilistId?: string | null;
 }
 
 type TipoComplemento = 'filme' | 'ova' | 'ona' | 'special';
@@ -18,15 +21,17 @@ const LABEL_TIPO: Record<TipoComplemento, string> = {
 };
 
 const VAZIO = { titulo: '', tipo_complemento: 'ova' as TipoComplemento };
+const FORMATOS_COMPLEMENTO = ['MOVIE', 'OVA', 'ONA', 'SPECIAL'];
 
 // Complementos (filme/OVA/ONA/Special) não são tabela própria — DEC-025:
 // são linhas reais em `filmes`, com anime_uuid apontando pra este anime.
 // Editáveis normalmente na tela de Filmes da Biblioteca também.
-export default function ComplementosEditor({ animeUuid }: Props) {
+export default function ComplementosEditor({ animeUuid, anilistId }: Props) {
   const [itens, setItens] = useState<Filme[]>([]);
   const [novo, setNovo] = useState(VAZIO);
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
+  const [selecionado, setSelecionado] = useState<ResultadoMetadados | null>(null);
 
   async function carregar() {
     setCarregando(true);
@@ -47,9 +52,15 @@ export default function ComplementosEditor({ animeUuid }: Props) {
       titulo: novo.titulo,
       anime_uuid: animeUuid,
       tipo_complemento: novo.tipo_complemento,
+      capa_url: selecionado?.capaUrl,
+      ano_lancamento: selecionado?.ano,
+      duracao_minutos: selecionado?.duracaoMinutos,
+      link_anilist: selecionado?.linkOficial,
+      link_mal: selecionado?.malId ? `https://myanimelist.net/anime/${selecionado.malId}` : undefined,
     });
     if (criado) {
       setNovo(VAZIO);
+      setSelecionado(null);
       await carregar();
     }
     setSalvando(false);
@@ -61,6 +72,13 @@ export default function ComplementosEditor({ animeUuid }: Props) {
       <p className={styles.vazio} style={{ marginBottom: '0.5rem' }}>
         Cada complemento é um filme real, editável também na tela de Filmes.
       </p>
+      {anilistId ? <BuscaMetadados fonte="anilist_relacoes" termo={anilistId} formatos={FORMATOS_COMPLEMENTO} onSelect={(resultado) => {
+        const tipos: Record<string, TipoComplemento> = { MOVIE: 'filme', OVA: 'ova', ONA: 'ona', SPECIAL: 'special' };
+        const tipo = tipos[resultado.formato ?? ''];
+        if (!tipo) return;
+        setSelecionado(resultado);
+        setNovo({ titulo: resultado.subtitulo || resultado.titulo, tipo_complemento: tipo });
+      }} /> : <p className={styles.vazio}>Selecione um resultado da AniList no cadastro principal para pesquisar complementos.</p>}
       {carregando ? (
         <p className={styles.vazio}>Carregando...</p>
       ) : (

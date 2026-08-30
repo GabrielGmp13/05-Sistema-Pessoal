@@ -1445,3 +1445,16 @@ O contrato existente de `google_calendar_event_id` e
 `google_calendar_synced_at` continua suficiente; não há migration, dependência
 ou custo recorrente novo. A conexão real precisa ser validada no deploy porque
 o OAuth de desenvolvimento não está configurado para `localhost`.
+## DEC-073 — Temporadas de Anime são partes da obra principal (2026-08-30)
+
+**Decisão:** temporadas encontradas como mídias separadas pela AniList são
+importadas para `animes_temporadas` do anime principal. Elas não criam novos
+cards em `animes`. Filmes, OVA, ONA e especiais relacionados continuam como
+complementos reais em `filmes`, conforme DEC-025. A criação básica salva a obra
+e mantém o mesmo modal aberto para completar essas relações, músicas e ordem de
+consumo. Openings/endings podem ser pesquisados no YouTube e no catálogo
+público Apple Music/iTunes, sem tornar qualquer provedor obrigatório.
+
+**Motivo:** a coleção deve representar a obra/franquia que Gabriel acompanha,
+sem poluir a grade com uma entrada por temporada, mas preservando episódios e
+avaliações por temporada no modelo já existente.
