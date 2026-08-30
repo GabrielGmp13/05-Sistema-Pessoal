@@ -48,6 +48,15 @@ e APIs reais, incluindo altura reduzida e seletor de atmosfera na coluna pessoal
 - [x] Falhas da importação Calendar passam a distinguir autorização expirada,
       API desativada, limite do Google, chave Supabase e schema/permissão; a
       Biblioteca identifica o commit do deployment que não recebeu sua chave.
+- [x] Diagnóstico em produção isolou `permission_denied`: `agenda` concedia
+      CRUD somente a `authenticated`, embora a sincronização use `service_role`.
+- [x] Reset completo e 18 scripts SQL aprovam
+      `20260829000100_agenda_service_role_grant.sql` localmente.
+- [x] Precheck e dry-run listaram somente a migration de GRANT; aplicação em
+      produção e pós-check confirmaram privilégio, histórico único e dry-run
+      final vazio.
+- [ ] Retestar no site publicado importação, atualização e cancelamento
+      bilateral do Google Calendar.
 - [x] Linha cronológica da coluna pessoal mostra todos os compromissos e provas
       do dia atual, sem limite artificial de oito itens futuros.
 - [x] Perfil e controles de editar/tema/sair permanecem fixos nas extremidades

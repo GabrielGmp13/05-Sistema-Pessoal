@@ -67,6 +67,10 @@ SELECT pg_temp.assert_true(
   'colunas de idempotência da Agenda ausentes'
 );
 SELECT pg_temp.assert_true(
+  has_table_privilege('service_role', 'public.agenda', 'SELECT, INSERT, UPDATE, DELETE'),
+  'service_role deve possuir CRUD na Agenda para sincronização bilateral'
+);
+SELECT pg_temp.assert_true(
   (SELECT count(*) = 4 FROM information_schema.columns WHERE table_schema = 'public' AND ((table_name = 'receitas' AND column_name = 'foto_path') OR (table_name = 'lugares' AND column_name = 'capa_path') OR (table_name = 'provas' AND column_name = 'arquivo_path') OR (table_name = 'simulados' AND column_name = 'arquivo_path'))),
   'paths privados por domínio ausentes'
 );

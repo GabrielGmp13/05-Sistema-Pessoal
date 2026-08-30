@@ -77,9 +77,10 @@ dessas duas pastas deve ser executado como migration.
 | `20260822000200` | `20260822000200_integracoes_google_servicos.sql` | ✅ Reset e 16 testes SQL aprovados; aplicada em produção em 2026-08-22 após dry-run exclusivo; pós-check confirmou `servico`, domínio, PK composta, GRANT/RLS/policies, histórico e dry-run vazio |
 | `20260822000300` | `20260822000300_biblioteca_playlists.sql` | ✅ Reset local e 17 scripts SQL aprovados; aplicada em produção em 2026-08-22 após dry-run exclusivo; pós-check confirmou histórico, 66 tabelas, RLS, policies, GRANTs, índices e FKs compostas; dry-run final vazio |
 | `20260827000100` | `20260827000100_homologacao_fluxos_pessoais.sql` | ✅ Reset e 18 scripts SQL aprovados; aplicada em produção em 2026-08-27 após dry-run exclusivo; pós-check confirmou histórico, tabelas, campos, FKs, RLS e GRANTs; dry-run final vazio |
+| `20260829000100` | `20260829000100_agenda_service_role_grant.sql` | ✅ Reset completo e 18 scripts SQL aprovados; aplicada em produção em 2026-08-29 após dry-run exclusivo; pós-check confirmou CRUD do `service_role`, histórico único e dry-run final vazio |
 
-> **Estado confirmado (2026-08-27):** produção e cadeia local estão alinhadas
-> até `20260827000100_homologacao_fluxos_pessoais.sql`, com 68 tabelas, seis buckets
+> **Estado confirmado (2026-08-29):** produção e cadeia local estão alinhadas
+> até `20260829000100_agenda_service_role_grant.sql`, com 68 tabelas, seis buckets
 > privados, 18 policies em `storage.objects` e dry-run remoto vazio.
 
 As três baselines foram adotadas no histórico remoto em 2026-08-08 por
@@ -209,6 +210,12 @@ deleted     BOOLEAN DEFAULT FALSE
 > `google_calendar_event_id TEXT` e `google_calendar_synced_at TIMESTAMPTZ`.
 > O índice único parcial `(user_id, google_calendar_event_id)` garante que a
 > exportação unilateral atualize o mesmo evento em vez de duplicá-lo.
+>
+> A sincronização bilateral server-side também depende de CRUD explícito para
+> `service_role`. A baseline e as migrations anteriores concediam `agenda`
+> somente a `authenticated`; `20260829000100_agenda_service_role_grant.sql`
+> corrige esse privilégio sem alterar RLS, policies, colunas ou dados. Aplicada
+> em produção em 2026-08-29, com privilégio e histórico confirmados.
 
 ### `revisao_espacada`
 ```sql

@@ -29,6 +29,11 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
   topo passaram à metade da velocidade, sem alterar a coluna lateral.
   O diagnóstico posterior passou a diferenciar falhas seguras de Calendar e a
   identificar o commit quando uma chave da Biblioteca não chega ao deployment.
+  O reteste revelou o `GRANT` ausente de `agenda` para `service_role`; foi
+  preparada uma migration incremental mínima, sem mudança de RLS ou dados. O
+  reset completo e os 18 scripts SQL locais foram aprovados; após dry-run
+  exclusivo, a migration foi aplicada em produção e confirmada por privilégio,
+  histórico único e dry-run final vazio.
 
 - **2026-08-29 (atmosfera sazonal expandida)** — As decorações deixaram de
   ficar limitadas à cápsula de navegação e ganharam uma camada reutilizável que
