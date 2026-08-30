@@ -112,6 +112,28 @@ async function jsonExterno(url: string): Promise<unknown> {
   return response.json();
 }
 
+async function jsonExternoPost(url: string, body: unknown): Promise<unknown> {
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      method: 'POST',
+      cache: 'no-store',
+      signal: AbortSignal.timeout(10_000),
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'User-Agent': 'Sistema-Pessoal/2.1',
+      },
+      body: JSON.stringify(body),
+    });
+  } catch {
+    console.error('[biblioteca/metadados] Falha ao acessar serviço externo:', new URL(url).hostname);
+    throw new Error('Serviço externo temporariamente indisponível.');
+  }
+  if (!response.ok) throw new Error(`Serviço externo respondeu com status ${response.status}`);
+  return response.json();
+}
+
 async function buscarYoutube(q: string): Promise<ResultadoMetadados[] | null> {
   const chave = process.env.YOUTUBE_API_KEY;
   if (!chave) return null;
@@ -244,57 +266,114 @@ async function buscarTmdb(q: string, serie: boolean): Promise<ResultadoMetadados
   });
 }
 
-async function buscarGoogleLivros(q: string): Promise<ResultadoMetadados[] | null> {
-  const chave = process.env.GOOGLE_BOOKS_API_KEY;
-  if (!chave) return null;
-  const params = new URLSearchParams({ q, maxResults: '6', printType: 'books', key: chave });
-  const data = (await jsonExterno(`https://www.googleapis.com/books/v1/volumes?${params}`)) as {
-    items?: Array<{
-      id: string;
-      volumeInfo?: {
-        title?: string;
-        subtitle?: string;
-        authors?: string[];
-        publisher?: string;
-        publishedDate?: string;
-        pageCount?: number;
-        language?: string;
-        description?: string;
-        infoLink?: string;
-        imageLinks?: { thumbnail?: string };
-        industryIdentifiers?: Array<{ type?: string; identifier?: string }>;
-        categories?: string[];
-      };
+type VolumeGoogle = {
+  id: string;
+  volumeInfo?: {
+    title?: string; subtitle?: string; authors?: string[]; publisher?: string;
+    publishedDate?: string; pageCount?: number; language?: string; description?: string;
+    infoLink?: string; imageLinks?: { thumbnail?: string };
+    industryIdentifiers?: Array<{ type?: string; identifier?: string }>;
+    categories?: string[];
+  };
+};
+
+function mapearLivroGoogle(item: VolumeGoogle): ResultadoMetadados {
+  const info = item.volumeInfo ?? {};
+  const isbn = info.industryIdentifiers?.find((valor) => valor.type === 'ISBN_13')?.identifier
+    ?? info.industryIdentifiers?.find((valor) => valor.type === 'ISBN_10')?.identifier;
+  return {
+    id: `google:${item.id}`,
+    titulo: info.title ?? 'Livro sem título',
+    subtitulo: info.subtitle,
+    autor: info.authors?.join(', '),
+    descricao: info.description,
+    capaUrl: info.imageLinks?.thumbnail?.replace('http://', 'https://'),
+    ano: ano(info.publishedDate),
+    identificadorExterno: item.id,
+    isbn,
+    editora: info.publisher,
+    idioma: info.language,
+    paginas: info.pageCount,
+    linkOficial: info.infoLink,
+    generos: info.categories ?? [],
+    siteOrigem: 'Google Books',
+  };
+}
+
+async function buscarGoogleLivrosFonte(q: string, chave: string, somentePortugues: boolean): Promise<ResultadoMetadados[]> {
+  const params = new URLSearchParams({ q, maxResults: '10', printType: 'books', orderBy: 'relevance', key: chave });
+  if (somentePortugues) params.set('langRestrict', 'pt');
+  const data = (await jsonExterno(`https://www.googleapis.com/books/v1/volumes?${params}`)) as { items?: VolumeGoogle[] };
+  return (data.items ?? []).map(mapearLivroGoogle);
+}
+
+async function buscarOpenLibrary(q: string): Promise<ResultadoMetadados[]> {
+  const params = new URLSearchParams({
+    q,
+    lang: 'pt',
+    limit: '10',
+    fields: 'key,title,author_name,first_publish_year,cover_i,isbn,language,publisher,number_of_pages_median,editions,editions.key,editions.title,editions.language,editions.isbn,editions.publisher,editions.number_of_pages,editions.cover_i',
+  });
+  const data = (await jsonExterno(`https://openlibrary.org/search.json?${params}`)) as {
+    docs?: Array<{
+      key: string; title?: string; author_name?: string[]; first_publish_year?: number;
+      cover_i?: number; isbn?: string[]; language?: string[]; publisher?: string[];
+      number_of_pages_median?: number;
+      editions?: { docs?: Array<{ key?: string; title?: string; language?: string[]; isbn?: string[]; publisher?: string[]; number_of_pages?: number; cover_i?: number }> };
     }>;
   };
-
-  return (data.items ?? []).map((item) => {
-    const info = item.volumeInfo ?? {};
-    const isbn = info.industryIdentifiers?.find((valor) => valor.type === 'ISBN_13')?.identifier
-      ?? info.industryIdentifiers?.find((valor) => valor.type === 'ISBN_10')?.identifier;
+  return (data.docs ?? []).map((obra) => {
+    const edicao = obra.editions?.docs?.[0];
+    const chave = edicao?.key ?? obra.key;
+    const capa = edicao?.cover_i ?? obra.cover_i;
+    const idiomas = edicao?.language ?? obra.language ?? [];
     return {
-      id: item.id,
-      titulo: info.title ?? 'Livro sem título',
-      subtitulo: info.subtitle,
-      autor: info.authors?.join(', '),
-      descricao: info.description,
-      capaUrl: info.imageLinks?.thumbnail?.replace('http://', 'https://'),
-      ano: ano(info.publishedDate),
-      identificadorExterno: item.id,
-      isbn,
-      editora: info.publisher,
-      idioma: info.language,
-      paginas: info.pageCount,
-      linkOficial: info.infoLink,
-      generos: info.categories ?? [],
+      id: `openlibrary:${chave}`,
+      titulo: edicao?.title ?? obra.title ?? 'Livro sem título',
+      autor: obra.author_name?.join(', '),
+      capaUrl: capa ? `https://covers.openlibrary.org/b/id/${capa}-M.jpg` : undefined,
+      ano: obra.first_publish_year,
+      isbn: edicao?.isbn?.[0] ?? obra.isbn?.[0],
+      editora: edicao?.publisher?.[0] ?? obra.publisher?.[0],
+      idioma: idiomas.includes('por') ? 'pt' : idiomas[0],
+      paginas: edicao?.number_of_pages ?? obra.number_of_pages_median,
+      linkOficial: `https://openlibrary.org${chave}`,
+      siteOrigem: 'Open Library',
     };
   });
 }
 
+function removerLivrosDuplicados(resultados: ResultadoMetadados[]) {
+  const vistos = new Set<string>();
+  return resultados.filter((resultado) => {
+    const chave = resultado.isbn?.replace(/\D/g, '') || `${resultado.titulo.toLocaleLowerCase('pt-BR')}|${resultado.autor?.toLocaleLowerCase('pt-BR') ?? ''}`;
+    if (vistos.has(chave)) return false;
+    vistos.add(chave);
+    return true;
+  });
+}
+
+async function buscarGoogleLivros(q: string): Promise<ResultadoMetadados[] | null> {
+  const chave = process.env.GOOGLE_BOOKS_API_KEY;
+  const consultas = await Promise.allSettled([
+    ...(chave ? [buscarGoogleLivrosFonte(q, chave, true), buscarGoogleLivrosFonte(q, chave, false)] : []),
+    buscarOpenLibrary(q),
+  ]);
+  const resultados = consultas.flatMap((consulta) => consulta.status === 'fulfilled' ? consulta.value : []);
+  if (resultados.length === 0 && !chave) return null;
+  return removerLivrosDuplicados(resultados).sort((a, b) => Number(b.idioma === 'pt') - Number(a.idioma === 'pt')).slice(0, 12);
+}
+
 async function buscarJikan(q: string, manga: boolean): Promise<ResultadoMetadados[]> {
+  try {
+    const resultadosAniList = await buscarAniList(q, manga);
+    if (resultadosAniList.length > 0) return resultadosAniList;
+  } catch {
+    // A Jikan permanece como segunda fonte pública quando a AniList oscilar.
+  }
   const tipo = manga ? 'manga' : 'anime';
   const params = new URLSearchParams({ q, limit: '6', sfw: 'true' });
-  const data = (await jsonExterno(`https://api.jikan.moe/v4/${tipo}?${params}`)) as {
+  let data: {
     data?: Array<{
       mal_id: number;
       title?: string;
@@ -319,8 +398,13 @@ async function buscarJikan(q: string, manga: boolean): Promise<ResultadoMetadado
       demographics?: Array<{ name?: string }>;
     }>;
   };
+  try {
+    data = (await jsonExterno(`https://api.jikan.moe/v4/${tipo}?${params}`)) as typeof data;
+  } catch {
+    return buscarAniList(q, manga);
+  }
 
-  return (data.data ?? []).map((item) => ({
+  const resultados = (data.data ?? []).map((item) => ({
     id: String(item.mal_id),
     titulo: item.title ?? 'Título não informado',
     subtitulo: item.title_english ?? undefined,
@@ -339,7 +423,64 @@ async function buscarJikan(q: string, manga: boolean): Promise<ResultadoMetadado
     editora: manga ? item.serializations?.map((valor) => valor.name).filter(Boolean).join(', ') || undefined : undefined,
     anoTermino: ano(item.aired?.to ?? item.published?.to),
     statusPublicacao: manga ? statusPublicacaoJikan(item.status) : undefined,
+    siteOrigem: 'Jikan / MyAnimeList',
   }));
+  return resultados;
+}
+
+async function buscarAniList(q: string, manga: boolean): Promise<ResultadoMetadados[]> {
+  const query = `
+    query ($search: String!, $type: MediaType!) {
+      Page(page: 1, perPage: 8) {
+        media(search: $search, type: $type, isAdult: false, sort: SEARCH_MATCH) {
+          id idMal status description(asHtml: false) duration episodes chapters volumes siteUrl
+          title { romaji english native }
+          startDate { year } endDate { year }
+          coverImage { extraLarge large medium }
+          genres
+          studios(isMain: true) { nodes { name } }
+          staff(perPage: 12) { edges { role node { name { full } } } }
+        }
+      }
+    }
+  `;
+  const data = (await jsonExternoPost('https://graphql.anilist.co', {
+    query,
+    variables: { search: q, type: manga ? 'MANGA' : 'ANIME' },
+  })) as {
+    data?: { Page?: { media?: Array<{
+      id: number; idMal?: number | null; status?: string | null; description?: string | null;
+      duration?: number | null; episodes?: number | null; chapters?: number | null; volumes?: number | null;
+      siteUrl?: string; title?: { romaji?: string | null; english?: string | null; native?: string | null };
+      startDate?: { year?: number | null }; endDate?: { year?: number | null };
+      coverImage?: { extraLarge?: string | null; large?: string | null; medium?: string | null };
+      genres?: string[]; studios?: { nodes?: Array<{ name?: string }> };
+      staff?: { edges?: Array<{ role?: string; node?: { name?: { full?: string } } }> };
+    }> } };
+  };
+  return (data.data?.Page?.media ?? []).map((item) => {
+    const autores = (item.staff?.edges ?? [])
+      .filter((pessoa) => manga && /(story|art|original creator)/i.test(pessoa.role ?? ''))
+      .map((pessoa) => pessoa.node?.name?.full)
+      .filter((nome): nome is string => Boolean(nome));
+    return {
+      id: `anilist:${item.id}`,
+      titulo: item.title?.romaji ?? item.title?.english ?? item.title?.native ?? 'Título não informado',
+      subtitulo: item.title?.english ?? item.title?.native ?? undefined,
+      autor: manga ? [...new Set(autores)].join(', ') || undefined : item.studios?.nodes?.map((estudio) => estudio.name).filter(Boolean).join(', ') || undefined,
+      descricao: item.description?.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() || undefined,
+      capaUrl: item.coverImage?.extraLarge ?? item.coverImage?.large ?? item.coverImage?.medium ?? undefined,
+      ano: item.startDate?.year ?? undefined,
+      duracaoMinutos: manga ? undefined : item.duration ?? undefined,
+      linkOficial: item.siteUrl,
+      identificadorExterno: item.idMal ? String(item.idMal) : undefined,
+      estudio: manga ? undefined : item.studios?.nodes?.map((estudio) => estudio.name).filter(Boolean).join(', ') || undefined,
+      generos: item.genres ?? [],
+      anoTermino: item.endDate?.year ?? undefined,
+      statusPublicacao: manga ? statusPublicacaoAniList(item.status) : undefined,
+      siteOrigem: 'AniList',
+    };
+  });
 }
 
 function statusPublicacaoJikan(status?: string | null): ResultadoMetadados['statusPublicacao'] {
@@ -348,6 +489,13 @@ function statusPublicacaoJikan(status?: string | null): ResultadoMetadados['stat
   if (normalizado.includes('hiatus')) return 'hiato';
   if (normalizado.includes('discontinued') || normalizado.includes('cancel')) return 'cancelada';
   return normalizado ? 'em_andamento' : undefined;
+}
+
+function statusPublicacaoAniList(status?: string | null): ResultadoMetadados['statusPublicacao'] {
+  if (status === 'FINISHED') return 'concluida';
+  if (status === 'HIATUS') return 'hiato';
+  if (status === 'CANCELLED') return 'cancelada';
+  return status ? 'em_andamento' : undefined;
 }
 
 async function buscarItunes(q: string): Promise<ResultadoMetadados[]> {

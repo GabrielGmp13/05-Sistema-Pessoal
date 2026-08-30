@@ -60,7 +60,7 @@ e APIs reais, incluindo altura reduzida e seletor de atmosfera na coluna pessoal
 - [x] Linha cronológica da coluna pessoal mostra todos os compromissos e provas
       do dia atual, sem limite artificial de oito itens futuros.
 - [x] Calendário mensal abre um painel completo do dia e corta dias passados
-      com uma linha horizontal atravessando toda a célula.
+      com uma linha diagonal da ponta inferior esquerda à superior direita.
 - [x] Semana detalhada usa sete colunas sobre uma grade horária compacta e
       rolável; compromissos abrem a edição e oferecem concluir/reabrir local.
 - [x] Compromisso cujo intervalo contém a hora atual recebe destaque “Agora”
@@ -83,11 +83,15 @@ e APIs reais, incluindo altura reduzida e seletor de atmosfera na coluna pessoal
 - [x] Timeout aplicado às consultas externas de metadados.
 - [x] Google Books alinhado ao contrato oficial com `GOOGLE_BOOKS_API_KEY`;
       YouTube/TMDB continuam com chave, Jikan/iTunes/Artigos sem chave.
+- [x] Busca de Anime e Mangá usa AniList como fonte pública principal e Jikan
+      como fallback, evitando ficar vazia durante as falhas `504` da Jikan.
+- [x] Livros combinam Google Books em português, busca geral e Open Library;
+      resultados são deduplicados e edições em português aparecem primeiro.
 - [x] Histórico revisado para o editor de PDF: somente upload/abertura e relógio
       de aplicador estavam documentados; editor interno com desenho foi
       preservado no Backlog como conceito ainda sem contrato detalhado.
-- [ ] Configurar e homologar em produção as chaves opcionais desejadas da
-      Biblioteca, especialmente Google Books, YouTube e TMDB.
+- [ ] Homologar no deploy Anime, Mangá e Livros com títulos em português;
+      configurar as chaves opcionais restantes, especialmente YouTube e TMDB.
 
 ## Handoff curto para novo chat
 

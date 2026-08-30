@@ -896,6 +896,11 @@ sem inflar o primeiro schema nem misturar responsabilidades de outros módulos.
 - Não há scraping, dependência nova, mudança de schema ou fonte de verdade;
   os resultados apenas preenchem colunas já existentes antes da confirmação
   do usuário.
+- **Evolução de 2026-08-30:** Anime e Mangá consultam AniList como fonte
+  pública principal e Jikan como fallback. Livros agregam Google Books e Open
+  Library, priorizando português e deduplicando por ISBN ou título/autor. As
+  fontes complementares continuam dentro da mesma API Route, sem chave nova,
+  dependência ou persistência automática.
 
 ---
 

@@ -283,8 +283,9 @@ Na Agenda, mês e semana não são abas concorrentes: o calendário mensal apare
 primeiro e o dia selecionado nele controla a semana detalhada logo abaixo. A
 linha cronológica da coluna pessoal é estritamente “Hoje” e não corta itens por
 quantidade; ela cresce dentro do miolo rolável junto do relógio e calendário.
-Dias anteriores recebem uma linha horizontal contínua atravessando a célula do
-mês. Clicar numa célula abre um painel central com todos os itens e descrições
+Dias anteriores recebem uma linha diagonal contínua a 45 graus, da ponta
+inferior esquerda à ponta superior direita da célula do mês. Clicar numa célula
+abre um painel central com todos os itens e descrições
 daquele dia. A semana usa cabeçalho de sete dias e grade horária vertical em
 uma área de altura limitada com rolagem própria; eventos são posicionados pelo
 horário e duração e mantêm a ação local de concluir/reabrir. Na coluna pessoal,

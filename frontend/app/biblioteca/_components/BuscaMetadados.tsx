@@ -6,8 +6,8 @@ import { buscarMetadados, type FonteMetadados, type ResultadoMetadados } from '@
 import styles from './BibliotecaSection.module.css';
 
 const FONTE_LABEL: Record<FonteMetadados, string> = {
-  youtube: 'YouTube', tmdb_filme: 'TMDB', tmdb_serie: 'TMDB', google_livros: 'Google Books',
-  jikan_anime: 'Jikan', jikan_manga: 'Jikan', itunes_podcast: 'iTunes',
+  youtube: 'YouTube', tmdb_filme: 'TMDB', tmdb_serie: 'TMDB', google_livros: 'Google Books + Open Library',
+  jikan_anime: 'AniList + Jikan', jikan_manga: 'AniList + Jikan', itunes_podcast: 'iTunes',
   artigo: 'site do artigo',
 };
 
@@ -75,7 +75,7 @@ export default function BuscaMetadados({ fonte, termo, onSelect }: BuscaMetadado
               }}
             >
               {resultado.capaUrl ? <img src={resultado.capaUrl} alt="" /> : <span className={styles.resultadoSemCapa} />}
-              <span><strong>{resultado.titulo}</strong><small>{[resultado.autor ?? resultado.subtitulo, resultado.ano, resultado.duracaoMinutos ? `${resultado.duracaoMinutos} min` : null].filter(Boolean).join(' · ')}</small>{resultado.descricao ? <em>{resultado.descricao}</em> : null}</span>
+              <span><strong>{resultado.titulo}</strong><small>{[resultado.autor ?? resultado.subtitulo, resultado.ano, resultado.idioma?.toUpperCase(), resultado.siteOrigem, resultado.duracaoMinutos ? `${resultado.duracaoMinutos} min` : null].filter(Boolean).join(' · ')}</small>{resultado.descricao ? <em>{resultado.descricao}</em> : null}</span>
             </button>
           ))}
           <p className={styles.fonteMetadados}>A disponibilidade e as quotas pertencem ao provedor. Falhas nunca bloqueiam o cadastro manual.</p>

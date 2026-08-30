@@ -20,6 +20,15 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — v2.1 pronta tecnicamente; homologação manual pendente
 
+- **2026-08-30 (busca complementar da Biblioteca)** — Anime e Mangá passaram
+  a consultar AniList primeiro e manter Jikan como fallback, corrigindo buscas
+  vazias durante respostas `504` da Jikan sem exigir chave nova. Livros passaram
+  a combinar Google Books em português, Google geral e Open Library, com
+  deduplicação e prioridade para edição portuguesa. A identificação da fonte e
+  do idioma ficou visível em cada sugestão. O corte dos dias passados na Agenda
+  passou a atravessar a célula em diagonal, do canto inferior esquerdo ao canto
+  superior direito.
+
 - **2026-08-29 (Agenda diária e grade semanal)** — O mês passou a abrir um
   painel central com todos os compromissos e provas do dia, incluindo descrição,
   edição, conclusão e exclusão segura; dias passados recebem um corte horizontal
