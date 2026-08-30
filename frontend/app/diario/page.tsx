@@ -114,7 +114,7 @@ export default function DiarioPage() {
           <Button type="button" variant="outline" size="sm" onClick={() => void carregar()} disabled={carregando}><RefreshCw className={carregando ? 'animate-spin' : ''} />Atualizar</Button>
         </header>
 
-        {houveFalha ? <p role="alert" className="mt-5 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-warning-foreground">Parte do Diário não pôde ser atualizada. Os outros resumos continuam disponíveis.</p> : null}
+        {houveFalha ? <p role="alert" className="mt-5 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-foreground">Parte do Diário não pôde ser atualizada. Os outros resumos continuam disponíveis.</p> : null}
 
         <section className="mt-8 grid gap-4 md:grid-cols-2" aria-label="Áreas do Diário">
           {modulos.map((modulo) => {

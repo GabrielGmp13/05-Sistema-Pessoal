@@ -32,12 +32,12 @@
 .gatilho:focus-visible {
   box-shadow:
     0 0 0 2px var(--surface),
-    0 0 0 4px color-mix(in oklch, var(--season-accent, var(--accent)) 52%, transparent);
+    0 0 0 4px var(--ring);
 }
 
 .opcao:focus-visible,
 .decoracao:focus-visible {
-  box-shadow: 0 0 0 3px color-mix(in oklch, var(--accent) 30%, transparent);
+  box-shadow: 0 0 0 3px var(--ring);
 }
 
 .gatilhoIcone { width: 1rem; height: 1rem; }

@@ -111,7 +111,7 @@ export default function HistoricoPage() {
         </header>
 
         {erro ? <p role="alert" className="mt-5 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">{erro}</p> : null}
-        {resumo?.parcial ? <p role="status" className="mt-5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm">Uma ou mais fontes não responderam; o heatmap mostra os dados disponíveis.</p> : null}
+        {resumo?.parcial ? <p role="status" className="mt-5 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-sm">Uma ou mais fontes não responderam; o heatmap mostra os dados disponíveis.</p> : null}
 
         <div className="mt-7 grid gap-3 sm:grid-cols-3">
           <Metric label="Dias com atividade" value={String(diasAtivos.length)} />

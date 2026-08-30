@@ -104,7 +104,7 @@
 }
 
 .itemAtivo {
-  color: var(--success-foreground);
+  color: var(--text);
   background: color-mix(in oklch, var(--success-muted) 76%, var(--surface));
   border-color: color-mix(in oklch, var(--success) 30%, var(--border));
   box-shadow: inset 3px 0 0 color-mix(in oklch, var(--success) 78%, var(--accent-foreground));
@@ -112,7 +112,7 @@
 
 .itemAtivo:hover {
   background: color-mix(in oklch, var(--success-muted) 86%, var(--surface));
-  color: var(--success-foreground);
+  color: var(--text);
 }
 
 .icone {
@@ -150,7 +150,7 @@
 }
 
 .itemAtivo .count {
-  color: var(--success-foreground);
+  color: var(--text);
   background: color-mix(in oklch, var(--surface) 76%, transparent);
 }
 

@@ -233,7 +233,7 @@ export function GoogleConnections() {
           </div>
         })}
       </div> : null}
-      {mensagem ? <p role="status" className="mt-3 text-sm text-success-foreground">{mensagem}</p> : null}
+      {mensagem ? <p role="status" className="mt-3 text-sm text-success">{mensagem}</p> : null}
       {erro ? <p role="alert" className="mt-3 text-sm text-destructive">{erro}</p> : null}
 
       {status?.conexoes.youtube.conectado ? <div className="mt-6 border-t border-border pt-5">

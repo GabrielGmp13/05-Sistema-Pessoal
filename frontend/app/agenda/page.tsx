@@ -498,7 +498,7 @@ export default function AgendaPage() {
       </div>
 
       {erro ? <p role="alert" className="mt-5 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">{erro}</p> : null}
-      {mensagem ? <p role="status" className="mt-5 rounded-lg border border-success/30 bg-success-muted px-3 py-2 text-sm text-success-foreground">{mensagem}</p> : null}
+      {mensagem ? <p role="status" className="mt-5 rounded-lg border border-success/30 bg-success-muted px-3 py-2 text-sm text-foreground">{mensagem}</p> : null}
       {previaCalendar.length > 0 ? (
         <section className="mt-5 rounded-xl border border-border bg-card p-4 text-card-foreground shadow-sm" aria-label="Prévia de importação do Google Calendar">
           <div className="flex flex-wrap items-start justify-between gap-3">

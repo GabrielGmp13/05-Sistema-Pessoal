@@ -47,7 +47,7 @@
   position: absolute;
   inset: 0 auto 0 0;
   overflow: hidden;
-  color: #e0a91c;
+  color: var(--warning);
   pointer-events: none;
 }
 
@@ -74,7 +74,7 @@
 
 .halfLeft:focus-visible,
 .halfRight:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--ring);
   outline-offset: 1px;
 }
 

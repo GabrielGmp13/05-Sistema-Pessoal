@@ -7,7 +7,7 @@
 .wrapper h4 {
   font-family: var(--font-titulos, inherit);
   font-size: 0.85rem;
-  color: var(--accent);
+  color: var(--primary);
   margin-bottom: 0.6rem;
 }
 
@@ -70,7 +70,7 @@
 .linhaAdicionar input:focus,
 .linhaAdicionar select:focus {
   outline: none;
-  border-color: var(--accent);
+  border-color: var(--ring);
 }
 
 .linhaAdicionar button {

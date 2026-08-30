@@ -477,7 +477,7 @@ export default function GabaritoProvaPage() {
         </Card>
         <Card className="p-4">
           <MonoLabel>Acertos</MonoLabel>
-          <p className="mt-1 text-2xl font-semibold tabular-nums text-success-foreground">{resumo.acertos}</p>
+          <p className="mt-1 text-2xl font-semibold tabular-nums text-success">{resumo.acertos}</p>
         </Card>
         <Card className="p-4">
           <MonoLabel>Erros</MonoLabel>

@@ -357,8 +357,8 @@
   font-size: 0.75rem;
 }
 
-.concluida { color: var(--success-foreground); }
-.emAndamento { color: var(--warning-foreground); }
+.concluida { color: var(--success); }
+.emAndamento { color: var(--warning); }
 
 .vazio {
   margin: 1rem 0 0;

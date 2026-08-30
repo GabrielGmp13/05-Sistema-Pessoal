@@ -27,7 +27,7 @@
 }
 
 .chip:hover {
-  border-color: var(--accent);
+  border-color: var(--ring);
 }
 
 .tooltip {

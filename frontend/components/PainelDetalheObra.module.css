@@ -25,7 +25,7 @@
   top: 1rem;
   left: calc(100% - 3rem);
   z-index: 2;
-  background: rgba(13, 13, 13, 0.7);
+  background: var(--surface);
   border: 1px solid var(--border);
   color: var(--text);
   border-radius: 50%;
@@ -63,7 +63,7 @@
 .secao h2 {
   font-family: var(--font-titulos, inherit);
   font-size: 1rem;
-  color: var(--accent);
+  color: var(--primary);
   margin-bottom: 0.75rem;
 }
 
@@ -98,10 +98,10 @@
 .linkExterno {
   display: inline-flex;
   margin-bottom: 2rem;
-  border: 1px solid var(--accent);
+  border: 1px solid var(--primary);
   border-radius: 8px;
   padding: 0.55rem 0.85rem;
-  color: var(--accent);
+  color: var(--primary);
   font-size: 0.82rem;
   font-weight: 600;
   text-decoration: none;
@@ -109,6 +109,14 @@
 
 .linkExterno:hover {
   background: var(--accent-wash);
+  color: var(--accent-foreground);
+}
+
+.btnFechar:focus-visible,
+.linkExterno:focus-visible,
+.cardMusica a:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
 }
 
 .scrollHorizontal {
@@ -148,7 +156,7 @@
 .cardMusica a {
   display: inline-block;
   margin-top: 0.4rem;
-  color: var(--accent);
+  color: var(--primary);
   font-size: 0.75rem;
 }
 

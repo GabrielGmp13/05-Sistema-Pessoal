@@ -203,7 +203,7 @@ export default function ConfiguracoesPage() {
                 </div>
 
                 {erro ? <p role="alert" className="text-sm text-destructive">{erro}</p> : null}
-                {mensagem ? <p role="status" className="text-sm text-success-foreground">{mensagem}</p> : null}
+                {mensagem ? <p role="status" className="text-sm text-success">{mensagem}</p> : null}
 
                 <Button type="submit" disabled={salvando}>
                   {salvando ? <Loader2 className="animate-spin" /> : <Save />}

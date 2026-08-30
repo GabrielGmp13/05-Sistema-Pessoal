@@ -58,7 +58,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--success-foreground);
+  color: var(--success);
   font-size: 2rem;
   background:
     linear-gradient(145deg, transparent 0 48%, color-mix(in oklch, var(--success) 8%, transparent) 48.5% 50%, transparent 50.5% 100%),
@@ -218,7 +218,7 @@
   border: 1px solid color-mix(in oklch, var(--success) 14%, var(--border));
   border-radius: 999px;
   background: color-mix(in oklch, var(--success-muted) 58%, var(--surface-2));
-  color: var(--success-foreground);
+  color: var(--text);
   font-size: 0.64rem;
   line-height: 1.2;
   white-space: nowrap;
@@ -281,7 +281,7 @@
 
 .btnIcon:focus-visible {
   opacity: 1;
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--ring);
   outline-offset: 2px;
 }
 

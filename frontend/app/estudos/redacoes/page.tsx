@@ -482,7 +482,7 @@ function RedacaoCard({
             <span
               className={cn(
                 'text-sm font-semibold tabular-nums',
-                c == null ? 'text-muted-foreground' : c >= 160 ? 'text-success-foreground' : 'text-foreground',
+                c == null ? 'text-muted-foreground' : c >= 160 ? 'text-success' : 'text-foreground',
               )}
             >
               {c == null ? '—' : c}

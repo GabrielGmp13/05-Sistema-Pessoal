@@ -1,19 +1,19 @@
 .container { max-width: 480px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
-.voltar { background: none; border: none; color: #888; font-size: .82rem; cursor: pointer; padding: 0; }
+.voltar { background: none; border: none; color: var(--texto-secundario); font-size: .82rem; cursor: pointer; padding: 0; }
 .titulo { font-family: 'Syne', sans-serif; font-size: 1.2rem; margin: .5rem 0 1.25rem; }
 
 .exercicio { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin-bottom: .8rem; }
 .exercicioHeader { display: flex; align-items: center; gap: .5rem; margin-bottom: .6rem; }
 .imagemExercicio { width: 3rem; height: 3rem; flex: 0 0 auto; border-radius: 8px; object-fit: cover; }
 .nome { font-weight: 700; font-size: .9rem; }
-.badgePR { background: #63b3ed; color: #042c53; font-size: .65rem; font-weight: 700; padding: .1rem .4rem; border-radius: 4px; }
+.badgePR { background: var(--primary); color: var(--primary-foreground); font-size: .65rem; font-weight: 700; padding: .1rem .4rem; border-radius: 4px; }
 
 .linhaSerie, .linhaCardio { display: flex; gap: .5rem; align-items: center; margin-bottom: .4rem; }
-.numSerie { width: 1.2rem; color: #888; font-size: .8rem; font-family: 'JetBrains Mono', monospace; }
+.numSerie { width: 1.2rem; color: var(--texto-secundario); font-size: .8rem; font-family: 'JetBrains Mono', monospace; }
 .numSerie { flex-shrink: 0; }
 .inputSerie { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: .5rem; color: var(--text); font-family: 'JetBrains Mono', monospace; }
 .inputSerie { min-width: 0; }
-.checkOff, .checkOn { width: 2.2rem; height: 2.2rem; border-radius: 6px; border: 1px solid var(--border); background: none; color: #555; cursor: pointer; }
+.checkOff, .checkOn { width: 2.2rem; height: 2.2rem; border-radius: 6px; border: 1px solid var(--border); background: none; color: var(--texto-secundario); cursor: pointer; }
 .checkOff, .checkOn { flex-shrink: 0; box-sizing: border-box; }
 .checkOn { background: var(--acao); color: var(--acao-texto); border-color: var(--acao); font-weight: 700; }
 

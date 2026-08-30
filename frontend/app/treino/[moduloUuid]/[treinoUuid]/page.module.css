@@ -1,20 +1,20 @@
 .container { max-width: 680px; margin: 0 auto; padding: 2rem 1rem; }
-.voltar { background: none; border: none; color: #888; font-size: .82rem; cursor: pointer; padding: 0; }
+.voltar { background: none; border: none; color: var(--texto-secundario); font-size: .82rem; cursor: pointer; padding: 0; }
 .titulo { font-family: 'Syne', sans-serif; font-size: 1.4rem; margin: .5rem 0 1.25rem; }
-.subtitulo { font-size: .95rem; margin: 1.5rem 0 .5rem; color: #888; }
+.subtitulo { font-size: .95rem; margin: 1.5rem 0 .5rem; color: var(--texto-secundario); }
 
 .form { display: flex; flex-direction: column; gap: .6rem; margin-bottom: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; }
 .tipoToggle { display: flex; gap: .5rem; }
-.tipo, .tipoAtivo { flex: 1; border-radius: 6px; padding: .5rem; border: 1px solid var(--border); background: none; color: #888; cursor: pointer; }
+.tipo, .tipoAtivo { flex: 1; border-radius: 6px; padding: .5rem; border: 1px solid var(--border); background: none; color: var(--texto-secundario); cursor: pointer; }
 .tipoAtivo { background: var(--acao); color: var(--acao-texto); border-color: var(--acao); font-weight: 700; }
 
 .input { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: .6rem; color: var(--text); }
-.grid4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: .6rem; font-size: .78rem; color: #888; }
+.grid4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: .6rem; font-size: .78rem; color: var(--texto-secundario); }
 .grid4 input { display: block; width: 100%; margin-top: .25rem; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: .4rem; color: var(--text); }
 
 .btnSalvar { background: var(--acao); color: var(--acao-texto); border: none; border-radius: 8px; padding: .6rem; font-weight: 700; cursor: pointer; }
 .btnSalvar:disabled { opacity: .6; cursor: wait; }
-.btnDanger { border: 1px solid #ff6b6b; background: none; color: #ff6b6b; border-radius: 6px; padding: .4rem .7rem; font-size: .8rem; cursor: pointer; }
+.btnDanger { border: 1px solid var(--destructive); background: none; color: var(--destructive); border-radius: 6px; padding: .4rem .7rem; font-size: .8rem; cursor: pointer; }
 .arquivo { display: grid; gap: .3rem; color: var(--texto-secundario); font-size: .75rem; }
 .arquivo input { color: var(--text); font-size: .8rem; }
 .arquivoSelecionado { display: flex; align-items: center; justify-content: space-between; gap: .75rem; border: 1px solid var(--border); border-radius: 8px; padding: .45rem .6rem; color: var(--texto-secundario); font-size: .75rem; }
@@ -22,11 +22,11 @@
 .arquivoSelecionado button { flex: 0 0 auto; border: 0; background: none; color: var(--destructive); cursor: pointer; font-size: .75rem; font-weight: 700; }
 .arquivoInvalido, .erroImagem { color: var(--destructive); }
 .erroImagem { margin: 0; font-size: .75rem; }
-.erro { margin-bottom: 1rem; border: 1px solid color-mix(in srgb, #ff6b6b 45%, transparent); border-radius: 8px; padding: .6rem; color: #ff6b6b; font-size: .8rem; }
+.erro { margin-bottom: 1rem; border: 1px solid color-mix(in oklch, var(--destructive) 45%, transparent); border-radius: 8px; padding: .6rem; color: var(--destructive); font-size: .8rem; }
 
 .lista { display: flex; flex-direction: column; gap: .5rem; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: .8rem 1rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
 .imagemExercicio { width: 3.5rem; height: 3.5rem; flex: 0 0 auto; border-radius: 8px; object-fit: cover; }
 .nome { font-weight: 700; font-size: .9rem; }
-.meta { font-size: .75rem; color: #888; margin-top: .2rem; font-family: 'JetBrains Mono', monospace; }
-.vazio { color: #555; font-size: .85rem; }
+.meta { font-size: .75rem; color: var(--texto-secundario); margin-top: .2rem; font-family: 'JetBrains Mono', monospace; }
+.vazio { color: var(--texto-secundario); font-size: .85rem; }

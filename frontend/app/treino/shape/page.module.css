@@ -1,5 +1,5 @@
 .container { max-width: 680px; margin: 0 auto; padding: 2rem 1rem; }
-.voltar { color: #888; text-decoration: none; font-size: .82rem; }
+.voltar { color: var(--texto-secundario); text-decoration: none; font-size: .82rem; }
 .titulo { font-family: 'Syne', sans-serif; font-size: 1.4rem; margin: .5rem 0 1.25rem; }
 
 .form { display: flex; flex-direction: column; gap: .6rem; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; }
@@ -11,9 +11,9 @@
 .card { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: .75rem; color: var(--text); cursor: pointer; text-align: left; transition: border-color .15s, transform .15s; }
 .card:hover, .card:focus-visible { border-color: var(--ring); outline: none; transform: translateY(-1px); }
 .foto { width: 100%; aspect-ratio: 3/4; object-fit: cover; border-radius: 8px; margin-bottom: .5rem; }
-.data { font-family: 'JetBrains Mono', monospace; font-size: .75rem; color: #888; }
+.data { font-family: 'JetBrains Mono', monospace; font-size: .75rem; color: var(--texto-secundario); }
 .peso { font-weight: 700; }
-.obs { font-size: .75rem; color: #888; margin-top: .2rem; }
+.obs { font-size: .75rem; color: var(--texto-secundario); margin-top: .2rem; }
 .editarDica { display: block; margin-top: .65rem; color: var(--texto-secundario); font-size: .68rem; }
 
 .modalFundo { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; padding: 1rem; background: rgb(0 0 0 / .7); }

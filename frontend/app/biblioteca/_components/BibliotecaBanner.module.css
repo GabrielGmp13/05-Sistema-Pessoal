@@ -295,7 +295,7 @@
 .ordenacaoMenu svg {
   width: 0.85rem;
   height: 0.85rem;
-  color: var(--success-foreground);
+  color: var(--success);
 }
 
 @media (max-width: 900px) {

@@ -252,7 +252,7 @@ export default function HomePage() {
         {houveFalha && !carregando ? (
           <p
             role="alert"
-            className="mt-6 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-warning-foreground"
+            className="mt-6 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-foreground"
           >
             Parte do resumo não pôde ser atualizada. Os dados indisponíveis aparecem com um traço.
           </p>

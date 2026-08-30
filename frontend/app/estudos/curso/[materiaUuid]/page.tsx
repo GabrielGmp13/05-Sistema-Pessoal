@@ -273,7 +273,7 @@ export default function CursoDetalhePage() {
                                 ) : aula.video ? (
                                   <Video className="size-4 shrink-0 text-primary" />
                                 ) : complete ? (
-                                  <CheckCircle2 className="size-4 shrink-0 text-success-foreground" />
+                                  <CheckCircle2 className="size-4 shrink-0 text-success" />
                                 ) : (
                                   <Circle className="size-4 shrink-0 text-muted-foreground" />
                                 )}
