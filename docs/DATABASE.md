@@ -78,10 +78,10 @@ dessas duas pastas deve ser executado como migration.
 | `20260822000300` | `20260822000300_biblioteca_playlists.sql` | ✅ Reset local e 17 scripts SQL aprovados; aplicada em produção em 2026-08-22 após dry-run exclusivo; pós-check confirmou histórico, 66 tabelas, RLS, policies, GRANTs, índices e FKs compostas; dry-run final vazio |
 | `20260827000100` | `20260827000100_homologacao_fluxos_pessoais.sql` | ✅ Reset e 18 scripts SQL aprovados; aplicada em produção em 2026-08-27 após dry-run exclusivo; pós-check confirmou histórico, tabelas, campos, FKs, RLS e GRANTs; dry-run final vazio |
 | `20260829000100` | `20260829000100_agenda_service_role_grant.sql` | ✅ Reset completo e 18 scripts SQL aprovados; aplicada em produção em 2026-08-29 após dry-run exclusivo; pós-check confirmou CRUD do `service_role`, histórico único e dry-run final vazio |
-| `20260830000100` | `20260830000100_anime_related_works.sql` | ⏳ Pendente: reset local bloqueado porque Docker Desktop estava desligado; ainda não aplicada em produção |
+| `20260830000100` | `20260830000100_anime_related_works.sql` | ✅ Aplicada em produção em 2026-08-30 após precheck/dry-run exclusivo; histórico alinhado e dry-run final vazio |
 
-> **Estado confirmado (2026-08-29):** produção e cadeia local estão alinhadas
-> até `20260829000100_agenda_service_role_grant.sql`, com 68 tabelas, seis buckets
+> **Estado confirmado (2026-08-30):** produção e cadeia local estão alinhadas
+> até `20260830000100_anime_related_works.sql`, com 68 tabelas, seis buckets
 > privados, 18 policies em `storage.objects` e dry-run remoto vazio.
 
 As três baselines foram adotadas no histórico remoto em 2026-08-08 por

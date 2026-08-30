@@ -74,6 +74,10 @@ O ponto inicial oficial da cadeia CLI é:
     bilateral do Google Calendar; reset completo e 18 scripts SQL aprovados,
     aplicada em produção após dry-run exclusivo e confirmada por pós-check de
     privilégio, histórico e dry-run final vazio.
+24. `20260830000100_anime_related_works.sql` — preserva metadados completos nas
+    temporadas e complementos vinculados e acrescenta resumos derivados ao
+    Anime principal; aplicada em produção após precheck e dry-run exclusivos,
+    com histórico alinhado e dry-run final vazio.
 
 As três baselines foram validadas por dois replays locais completos e por
 comparação com produção. Em 2026-08-08, `migration repair --status applied`

@@ -330,3 +330,9 @@ resultado escolhido com capa/metadados e uma única ação de confirmação form
 um bloco visual. Falhas de persistência aparecem no próprio bloco. Período,
 duração média por episódio e nota geral são cartões somente leitura; a nota é
 atribuída em cada temporada.
+
+O painel somente leitura aberto ao clicar numa obra é uma janela flutuante no
+desktop: mantém 40 px de respiro no topo e embaixo, nunca se estica apenas para
+alcançar o rodapé e limita sua altura ao espaço disponível. Conteúdo excedente
+rola dentro do próprio painel. Em telas de até 680 px continua em tela inteira
+para não desperdiçar área útil.

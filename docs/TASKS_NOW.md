@@ -6,10 +6,9 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 
 ## Status geral
 **Fase atual:** v2.1 — lote consolidado de correções da homologação tecnicamente concluído; homologação manual continua obrigatória. A v1 está aposentada (DEC-031) e `frontend/` é o único frontend ativo.
-**Bloqueio:** a migration `20260830000100_anime_related_works.sql` ainda precisa
-ser aplicada em produção para temporadas e complementos vinculados poderem ser
-gravados; a interface já identifica essa recusa sem perder a seleção.
-**Banco:** produção e cadeia local estão alinhadas até `20260829000100_agenda_service_role_grant.sql` (68 tabelas).
+**Bloqueio:** nenhum bloqueio técnico ou migration pendente; resta homologar os
+novos vínculos de temporadas e complementos no deploy.
+**Banco:** produção e cadeia local estão alinhadas até `20260830000100_anime_related_works.sql` (68 tabelas).
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
 **Próxima ação:** executar os retestes de `docs/teste.md` no deploy com as contas
 e APIs reais, incluindo altura reduzida e seletor de atmosfera na coluna pessoal.
@@ -115,8 +114,9 @@ e APIs reais, incluindo altura reduzida e seletor de atmosfera na coluna pessoal
       design, animação-chefe e composição; músicas ganham tipo Trilha sonora.
 - [x] Ordem de consumo passa a linha do tempo editável e o modal de Anime fica
       largo, responsivo e organizado em duas colunas no desktop.
-- [ ] Aplicar `20260830000100_anime_related_works.sql` em produção antes de
-      homologar o novo editor no deploy.
+- [x] `20260830000100_anime_related_works.sql` aplicada em produção após
+      precheck e dry-run exclusivos; histórico remoto alinhado e pós-check sem
+      migrations pendentes.
 - [x] Busca de Anime combina autocomplete parcial do Kitsu com identidade e
       detalhes AniList; `shingek` já encontra a franquia sem palavra completa.
 - [x] Sugestões percorrem a cadeia limitada de prequelas/sequelas para incluir

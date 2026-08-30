@@ -20,6 +20,13 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — v2.1 pronta tecnicamente; homologação manual pendente
 
+- **2026-08-30 (painel de obra e schema relacionado)** — O painel somente
+  leitura das obras ganhou margens superior e inferior no desktop, altura pelo
+  conteúdo e rolagem interna limitada à janela; mobile permanece em tela
+  inteira. A migration `20260830000100_anime_related_works.sql` foi aplicada
+  em produção após precheck e dry-run exclusivos; histórico e dry-run final
+  confirmaram o banco sem pendências.
+
 - **2026-08-30 (criação contínua de Anime)** — O cadastro de Anime ganhou duas
   etapas explícitas dentro do mesmo modal: após salvar a obra-base, a interface
   avança e rola para temporadas, músicas, complementos e ordem de consumo, sem
