@@ -4,7 +4,7 @@ import { sb, getUserId, now, sbErr, softDelete } from './supabase';
 // Equivalente à trilha_sonora de filme/série, mas exclusivo de anime
 // (openings/endings são um conceito próprio do formato, não reaproveitado).
 
-export type TipoOpeningEnding = 'opening' | 'ending';
+export type TipoOpeningEnding = 'opening' | 'ending' | 'trilha_sonora';
 
 export interface OpeningEnding {
   uuid: string;

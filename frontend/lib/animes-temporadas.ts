@@ -14,6 +14,18 @@ export interface AnimeTemporada {
   nota_imdb: number | null;
   minha_nota: number | null;
   data_assisti: string | null;
+  nome_original: string | null;
+  nome_traduzido: string | null;
+  capa_url: string | null;
+  sinopse: string | null;
+  ano_lancamento: number | null;
+  duracao_minutos: number | null;
+  anilist_id: string | null;
+  mal_id: string | null;
+  link_anilist: string | null;
+  link_mal: string | null;
+  formato: string | null;
+  tipo_relacao: string | null;
   updated_at: string;
   deleted: boolean;
 }

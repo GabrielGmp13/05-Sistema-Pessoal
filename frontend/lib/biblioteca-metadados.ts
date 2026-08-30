@@ -42,6 +42,9 @@ export interface ResultadoMetadados {
   episodios?: number;
   formato?: string;
   tipoRelacao?: string;
+  characterDesigner?: string;
+  animadorChefe?: string;
+  compositor?: string;
 }
 
 interface RespostaMetadados {

@@ -1,4 +1,4 @@
-import { sb, getUserId, sbErr, softDelete } from './supabase';
+import { sb, getUserId, now, sbErr, softDelete } from './supabase';
 
 // animes_ordem_consumo — 009_biblioteca_v2_b3.sql
 // FK polimórfica: referencia_uuid aponta pra animes_temporadas.uuid (quando
@@ -66,4 +66,13 @@ export async function criarItemOrdemConsumo(
 
 export async function apagarItemOrdemConsumo(uuid: string): Promise<boolean> {
   return await softDelete('animes_ordem_consumo', uuid);
+}
+
+export async function atualizarOrdemConsumo(uuid: string, ordem: number): Promise<boolean> {
+  const { error } = await sb.from('animes_ordem_consumo').update({ ordem, updated_at: now() }).eq('uuid', uuid);
+  if (error) {
+    sbErr(error, `atualizarOrdemConsumo(${uuid})`);
+    return false;
+  }
+  return true;
 }

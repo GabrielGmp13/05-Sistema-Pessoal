@@ -32,6 +32,7 @@ export default function ComplementosEditor({ animeUuid, anilistId }: Props) {
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
   const [selecionado, setSelecionado] = useState<ResultadoMetadados | null>(null);
+  const [buscaObra, setBuscaObra] = useState('');
 
   async function carregar() {
     setCarregando(true);
@@ -50,6 +51,10 @@ export default function ComplementosEditor({ animeUuid, anilistId }: Props) {
     setSalvando(true);
     const criado = await criarFilme({
       titulo: novo.titulo,
+      titulo_original: selecionado?.titulo,
+      sinopse: selecionado?.descricao,
+      anilist_id: selecionado?.anilistId,
+      mal_id: selecionado?.malId,
       anime_uuid: animeUuid,
       tipo_complemento: novo.tipo_complemento,
       capa_url: selecionado?.capaUrl,
@@ -72,6 +77,18 @@ export default function ComplementosEditor({ animeUuid, anilistId }: Props) {
       <p className={styles.vazio} style={{ marginBottom: '0.5rem' }}>
         Cada complemento é um filme real, editável também na tela de Filmes.
       </p>
+      <div className={styles.linhaAdicionar}>
+        <input placeholder="Pesquisar filme, OVA, ONA ou especial" value={buscaObra} onChange={(e) => setBuscaObra(e.target.value)} />
+      </div>
+      <BuscaMetadados fonte="jikan_anime" termo={buscaObra} formatos={FORMATOS_COMPLEMENTO} onSelect={(resultado) => {
+        const tipos: Record<string, TipoComplemento> = { MOVIE: 'filme', OVA: 'ova', ONA: 'ona', SPECIAL: 'special' };
+        const tipo = tipos[resultado.formato ?? ''];
+        if (!tipo) return;
+        setSelecionado(resultado);
+        setNovo({ titulo: resultado.subtitulo || resultado.titulo, tipo_complemento: tipo });
+        setBuscaObra('');
+      }} />
+      {anilistId ? <p className={styles.vazio}>Sugestões relacionadas pela AniList</p> : null}
       {anilistId ? <BuscaMetadados fonte="anilist_relacoes" termo={anilistId} formatos={FORMATOS_COMPLEMENTO} onSelect={(resultado) => {
         const tipos: Record<string, TipoComplemento> = { MOVIE: 'filme', OVA: 'ova', ONA: 'ona', SPECIAL: 'special' };
         const tipo = tipos[resultado.formato ?? ''];

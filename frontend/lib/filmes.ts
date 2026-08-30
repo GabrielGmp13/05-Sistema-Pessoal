@@ -8,6 +8,10 @@ export interface Filme {
   uuid: string;
   user_id: string;
   titulo: string;
+  titulo_original: string | null;
+  sinopse: string | null;
+  anilist_id: string | null;
+  mal_id: string | null;
   diretor: string | null;
   tmdb_id: string | null;
   capa_url: string | null;

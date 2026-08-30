@@ -325,6 +325,24 @@
   border-color: var(--accent-foreground);
 }
 
+.modalAnime {
+  max-width: min(960px, calc(100vw - 2rem));
+}
+
+.modalAnime > form.modalBody {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+}
+
+.modalAnime > form.modalBody > div {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 760px) {
+  .modalAnime > form.modalBody { grid-template-columns: 1fr; }
+}
+
 .modalPlaylist {
   max-width: 680px;
 }

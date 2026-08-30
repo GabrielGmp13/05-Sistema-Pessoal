@@ -28,6 +28,7 @@ export default function TemporadasAnimeEditor({ animeUuid, anilistId }: Props) {
   const [salvando, setSalvando] = useState(false);
   const [expandidaUuid, setExpandidaUuid] = useState<string | null>(null);
   const [relacaoSelecionada, setRelacaoSelecionada] = useState<ResultadoMetadados | null>(null);
+  const [buscaObra, setBuscaObra] = useState('');
 
   async function carregar() {
     setCarregando(true);
@@ -49,6 +50,18 @@ export default function TemporadasAnimeEditor({ animeUuid, anilistId }: Props) {
       numero,
       numero_episodios: novo.numero_episodios ? Number(novo.numero_episodios) : undefined,
       minha_nota: novo.minha_nota ? Number(novo.minha_nota) : undefined,
+      nome_original: relacaoSelecionada?.titulo,
+      nome_traduzido: relacaoSelecionada?.subtitulo,
+      capa_url: relacaoSelecionada?.capaUrl,
+      sinopse: relacaoSelecionada?.descricao,
+      ano_lancamento: relacaoSelecionada?.ano,
+      duracao_minutos: relacaoSelecionada?.duracaoMinutos,
+      anilist_id: relacaoSelecionada?.anilistId,
+      mal_id: relacaoSelecionada?.malId,
+      link_anilist: relacaoSelecionada?.linkOficial,
+      link_mal: relacaoSelecionada?.malId ? `https://myanimelist.net/anime/${relacaoSelecionada.malId}` : undefined,
+      formato: relacaoSelecionada?.formato,
+      tipo_relacao: relacaoSelecionada?.tipoRelacao,
     });
     if (criada) {
       setNovo(VAZIO);
@@ -67,8 +80,16 @@ export default function TemporadasAnimeEditor({ animeUuid, anilistId }: Props) {
   return (
     <div className={styles.wrapper}>
       <h4>Temporadas</h4>
+      <div className={styles.linhaAdicionar}>
+        <input placeholder="Pesquisar outra obra para usar como temporada" value={buscaObra} onChange={(e) => setBuscaObra(e.target.value)} />
+      </div>
+      <BuscaMetadados fonte="jikan_anime" termo={buscaObra} formatos={FORMATOS_TEMPORADA} onSelect={(resultado) => {
+        setRelacaoSelecionada(resultado);
+        setNovo({ numero: String(Math.max(1, itens.length + 1)), numero_episodios: resultado.episodios ? String(resultado.episodios) : '', minha_nota: '' });
+        setBuscaObra('');
+      }} />
       {anilistId ? (
-        <BuscaMetadados
+        <><p className={styles.vazio}>Sugestões relacionadas pela AniList</p><BuscaMetadados
           fonte="anilist_relacoes"
           termo={anilistId}
           formatos={FORMATOS_TEMPORADA}
@@ -81,9 +102,12 @@ export default function TemporadasAnimeEditor({ animeUuid, anilistId }: Props) {
               minha_nota: '',
             });
           }}
-        />
+        /></>
       ) : <p className={styles.vazio}>Selecione um resultado da AniList no cadastro principal para pesquisar temporadas.</p>}
-      {relacaoSelecionada ? <p className={styles.vazio}>Selecionada: <strong>{relacaoSelecionada.titulo}</strong>. Confirme o número abaixo.</p> : null}
+      {relacaoSelecionada ? <div className={styles.obraSelecionada}>
+        {relacaoSelecionada.capaUrl ? <img src={relacaoSelecionada.capaUrl} alt="" /> : null}
+        <span><strong>{relacaoSelecionada.titulo}</strong>{relacaoSelecionada.subtitulo ? <small>{relacaoSelecionada.subtitulo}</small> : null}<small>{[relacaoSelecionada.formato, relacaoSelecionada.ano, relacaoSelecionada.episodios ? `${relacaoSelecionada.episodios} episódios` : null].filter(Boolean).join(' · ')}</small></span>
+      </div> : null}
       {carregando ? (
         <p className={styles.vazio}>Carregando...</p>
       ) : (
@@ -92,7 +116,8 @@ export default function TemporadasAnimeEditor({ animeUuid, anilistId }: Props) {
             <li key={item.uuid} style={{ flexDirection: 'column', alignItems: 'stretch' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span>
-                  <strong>Temporada {item.numero}</strong>
+                  <strong>{item.nome_original || `Temporada ${item.numero}`}</strong>
+                  {item.nome_traduzido ? <small className={styles.rotuloSecundario}>{item.nome_traduzido}</small> : null}
                   {item.numero_episodios != null ? ` — ${item.numero_episodios} eps` : ''}
                 </span>
                 <span>

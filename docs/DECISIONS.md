@@ -1458,3 +1458,10 @@ público Apple Music/iTunes, sem tornar qualquer provedor obrigatório.
 **Motivo:** a coleção deve representar a obra/franquia que Gabriel acompanha,
 sem poluir a grade com uma entrada por temporada, mas preservando episódios e
 avaliações por temporada no modelo já existente.
+
+**Aprofundamento:** uma temporada deixa de ser somente um número e preserva a
+identidade da entrada AniList escolhida (títulos, capa, sinopse, IDs, links,
+formato e duração). Complementos continuam obras completas em `filmes`. IMDb
+não será mesclado neste fluxo: sua API oficial depende de assinatura e AWS Data
+Exchange, contrariando o princípio de custo zero; AniList permanece fonte
+principal para relações e equipe técnica de anime.

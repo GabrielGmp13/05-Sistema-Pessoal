@@ -336,7 +336,7 @@ export default function AnimesSection({
 
       {modalAberto && (
         <div className={styles.modalOverlay} onClick={fecharModal}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+          <div className={`${styles.modal} ${styles.modalAnime}`} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <h2>{editandoUuid ? 'Editar anime' : 'Novo anime'}</h2>
               <button className={styles.btnIcon} onClick={fecharModal}>
@@ -367,6 +367,11 @@ export default function AnimesSection({
                   sinopse: resultado.descricao ?? atual.sinopse,
                   estudio: resultado.autor ?? atual.estudio,
                   produtores: resultado.produtores ?? atual.produtores,
+                  diretor: resultado.diretor ?? atual.diretor,
+                  roteirista: resultado.roteirista ?? atual.roteirista,
+                  character_designer: resultado.characterDesigner ?? atual.character_designer,
+                  animador_chefe: resultado.animadorChefe ?? atual.animador_chefe,
+                  compositor: resultado.compositor ?? atual.compositor,
                   classificacao_indicativa: resultado.classificacaoIndicativa ?? atual.classificacao_indicativa,
                   ano_termino: resultado.anoTermino ?? atual.ano_termino,
                   link_anilist: resultado.linkOficial ?? atual.link_anilist,

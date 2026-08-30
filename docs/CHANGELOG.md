@@ -912,3 +912,6 @@ A migration `20260821000100_biblioteca_capas_storage.sql` passou reset e 15 test
   AniList; músicas combinam YouTube com Apple Music/iTunes.
 - Cards exibem nomes original/traduzido e siglas calculadas, e dubladores deixam
   de aparecer somente no cadastro de Anime.
+- Temporadas e complementos passam a preservar a obra externa selecionada, a
+  equipe técnica é preenchida pela AniList, músicas aceitam trilha sonora e a
+  ordem de consumo ganha edição visual em linha do tempo.

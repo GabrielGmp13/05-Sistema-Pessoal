@@ -75,7 +75,7 @@ export default function OpeningsEndingsEditor({ animeUuid }: Props) {
           {itens.map((item) => (
             <li key={item.uuid}>
               <span>
-                <strong>{item.tipo === 'opening' ? 'OP' : 'ED'}</strong> {item.nome}
+                <strong>{item.tipo === 'opening' ? 'OP' : item.tipo === 'ending' ? 'ED' : 'OST'}</strong> {item.nome}
                 {item.artista ? ` — ${item.artista}` : ''}
               </span>
               <button type="button" onClick={() => remover(item.uuid)}>
@@ -94,6 +94,7 @@ export default function OpeningsEndingsEditor({ animeUuid }: Props) {
         >
           <option value="opening">Opening</option>
           <option value="ending">Ending</option>
+          <option value="trilha_sonora">Trilha sonora</option>
         </select>
         <input
           placeholder="Nome"

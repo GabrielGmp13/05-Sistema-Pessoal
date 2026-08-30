@@ -387,6 +387,7 @@ async function buscarJikan(q: string, manga: boolean): Promise<ResultadoMetadado
       published?: { from?: string | null; to?: string | null };
       aired?: { from?: string | null; to?: string | null };
       status?: string | null;
+      type?: string | null;
       rating?: string | null;
       images?: { jpg?: { large_image_url?: string; image_url?: string } };
       authors?: Array<{ name?: string }>;
@@ -418,6 +419,8 @@ async function buscarJikan(q: string, manga: boolean): Promise<ResultadoMetadado
     duracaoMinutos: manga ? undefined : duracaoJikanEmMinutos(item.duration),
     linkOficial: item.url,
     identificadorExterno: String(item.mal_id),
+    malId: String(item.mal_id),
+    formato: item.type?.toUpperCase().replace(/\s+/g, '_') ?? undefined,
     produtores: manga ? undefined : item.producers?.map((valor) => valor.name).filter(Boolean).join(', ') || undefined,
     estudio: manga ? undefined : item.studios?.map((valor) => valor.name).filter(Boolean).join(', ') || undefined,
     generos: [...(item.genres ?? []), ...(item.explicit_genres ?? []), ...(item.themes ?? []), ...(item.demographics ?? [])]
@@ -436,13 +439,13 @@ async function buscarAniList(q: string, manga: boolean): Promise<ResultadoMetada
     query ($search: String!, $type: MediaType!) {
       Page(page: 1, perPage: 8) {
         media(search: $search, type: $type, isAdult: false, sort: SEARCH_MATCH) {
-          id idMal status description(asHtml: false) duration episodes chapters volumes siteUrl
+          id idMal format status description(asHtml: false) duration episodes chapters volumes siteUrl
           title { romaji english native }
           startDate { year } endDate { year }
           coverImage { extraLarge large medium }
           genres
           studios(isMain: true) { nodes { name } }
-          staff(perPage: 12) { edges { role node { name { full } } } }
+          staff(perPage: 50) { edges { role node { name { full } } } }
         }
       }
     }
@@ -452,7 +455,7 @@ async function buscarAniList(q: string, manga: boolean): Promise<ResultadoMetada
     variables: { search: q, type: manga ? 'MANGA' : 'ANIME' },
   })) as {
     data?: { Page?: { media?: Array<{
-      id: number; idMal?: number | null; status?: string | null; description?: string | null;
+      id: number; idMal?: number | null; format?: string | null; status?: string | null; description?: string | null;
       duration?: number | null; episodes?: number | null; chapters?: number | null; volumes?: number | null;
       siteUrl?: string; title?: { romaji?: string | null; english?: string | null; native?: string | null };
       startDate?: { year?: number | null }; endDate?: { year?: number | null };
@@ -462,6 +465,10 @@ async function buscarAniList(q: string, manga: boolean): Promise<ResultadoMetada
     }> } };
   };
   return (data.data?.Page?.media ?? []).map((item) => {
+    const pessoasPorFuncao = (padrao: RegExp) => (item.staff?.edges ?? [])
+      .filter((pessoa) => padrao.test(pessoa.role ?? ''))
+      .map((pessoa) => pessoa.node?.name?.full)
+      .filter((nome): nome is string => Boolean(nome));
     const autores = (item.staff?.edges ?? [])
       .filter((pessoa) => manga && /(story|art|original creator)/i.test(pessoa.role ?? ''))
       .map((pessoa) => pessoa.node?.name?.full)
@@ -471,6 +478,12 @@ async function buscarAniList(q: string, manga: boolean): Promise<ResultadoMetada
       titulo: item.title?.romaji ?? item.title?.english ?? item.title?.native ?? 'Título não informado',
       subtitulo: item.title?.english ?? item.title?.native ?? undefined,
       autor: manga ? [...new Set(autores)].join(', ') || undefined : item.studios?.nodes?.map((estudio) => estudio.name).filter(Boolean).join(', ') || undefined,
+      diretor: manga ? undefined : [...new Set(pessoasPorFuncao(/(^|chief |assistant )director/i))].join(', ') || undefined,
+      roteirista: manga ? undefined : [...new Set(pessoasPorFuncao(/series composition|script|screenplay/i))].join(', ') || undefined,
+      produtores: manga ? undefined : [...new Set(pessoasPorFuncao(/producer|production/i))].join(', ') || undefined,
+      characterDesigner: manga ? undefined : [...new Set(pessoasPorFuncao(/character design/i))].join(', ') || undefined,
+      animadorChefe: manga ? undefined : [...new Set(pessoasPorFuncao(/chief animation director/i))].join(', ') || undefined,
+      compositor: manga ? undefined : [...new Set(pessoasPorFuncao(/music|soundtrack composition/i))].join(', ') || undefined,
       descricao: item.description?.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() || undefined,
       capaUrl: item.coverImage?.extraLarge ?? item.coverImage?.large ?? item.coverImage?.medium ?? undefined,
       ano: item.startDate?.year ?? undefined,
@@ -480,6 +493,7 @@ async function buscarAniList(q: string, manga: boolean): Promise<ResultadoMetada
       anilistId: String(item.id),
       malId: item.idMal ? String(item.idMal) : undefined,
       episodios: item.episodes ?? undefined,
+      formato: item.format ?? undefined,
       estudio: manga ? undefined : item.studios?.nodes?.map((estudio) => estudio.name).filter(Boolean).join(', ') || undefined,
       generos: item.genres ?? [],
       anoTermino: item.endDate?.year ?? undefined,

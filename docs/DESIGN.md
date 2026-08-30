@@ -319,3 +319,8 @@ Cards de Anime apresentam primeiro o nome original com sigla calculada e,
 quando diferente, o nome traduzido com sua sigla em uma segunda linha de menor
 ênfase. Exemplo: `Shingeki no Kyojin · SnK` e `Attack on Titan · AOT`. A sigla
 é apenas apresentação e não cria coluna no banco.
+
+O editor de Anime usa uma janela larga (até 960 px), formulário básico em duas
+colunas no desktop e uma coluna no celular. Temporadas e complementos mostram
+a obra externa com capa e metadados antes da confirmação. A ordem de consumo é
+uma linha do tempo vertical numerada, com ações explícitas para mover cada obra.

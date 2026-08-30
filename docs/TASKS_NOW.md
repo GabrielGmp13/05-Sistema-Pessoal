@@ -106,6 +106,16 @@ e APIs reais, incluindo altura reduzida e seletor de atmosfera na coluna pessoal
       a interface de dubladores foi retirada somente do fluxo de Anime.
 - [ ] Homologar no deploy a criação contínua de um Anime completo, incluindo
       relações reais da AniList e uma música encontrada pelos dois provedores.
+- [x] Temporadas deixam de ser apenas números e preservam a obra AniList
+      escolhida, com título, capa, sinopse, IDs, links e metadados próprios.
+- [x] Busca livre e relações da AniList podem inserir temporadas e complementos
+      como obras completas vinculadas ao anime principal.
+- [x] Equipe técnica da AniList preenche direção, roteiro, produção, character
+      design, animação-chefe e composição; músicas ganham tipo Trilha sonora.
+- [x] Ordem de consumo passa a linha do tempo editável e o modal de Anime fica
+      largo, responsivo e organizado em duas colunas no desktop.
+- [ ] Aplicar `20260830000100_anime_related_works.sql` em produção antes de
+      homologar o novo editor no deploy.
 
 ## Handoff curto para novo chat
 

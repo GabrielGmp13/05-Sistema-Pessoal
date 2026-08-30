@@ -89,3 +89,82 @@
   opacity: 0.6;
   cursor: default;
 }
+
+.obraSelecionada {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin: 0.65rem 0;
+  padding: 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+}
+
+.obraSelecionada img {
+  width: 48px;
+  height: 68px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.obraSelecionada span,
+.rotuloSecundario {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.obraSelecionada small,
+.rotuloSecundario {
+  color: var(--texto-secundario);
+  font-size: 0.72rem;
+}
+
+.timeline {
+  list-style: none;
+  margin: 0 0 0.9rem;
+  padding: 0;
+}
+
+.timeline li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: 58px;
+}
+
+.timeline li:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 16px;
+  top: 42px;
+  bottom: -16px;
+  width: 2px;
+  background: color-mix(in oklch, var(--accent) 36%, var(--border));
+}
+
+.timelineMarcador {
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-weight: 800;
+}
+
+.timelineConteudo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.14rem;
+}
+
+.timelineConteudo small { color: var(--texto-secundario); }
+.timelineAcoes { display: flex; gap: 0.25rem; }
+.timelineAcoes button { min-width: 30px; min-height: 30px; }
+.timelineAcoes button:disabled { opacity: 0.35; cursor: default; }

@@ -5,6 +5,7 @@ import {
   listarOrdemConsumo,
   criarItemOrdemConsumo,
   apagarItemOrdemConsumo,
+  atualizarOrdemConsumo,
   OrdemConsumoItem,
   TipoReferenciaOrdem,
 } from '@/lib/animes-ordem-consumo';
@@ -45,7 +46,7 @@ export default function OrdemConsumoEditor({ animeUuid }: Props) {
 
   const opcoesReferencia =
     tipoSelecionado === 'temporada'
-      ? temporadas.map((t) => ({ uuid: t.uuid, rotulo: `Temporada ${t.numero}` }))
+      ? temporadas.map((t) => ({ uuid: t.uuid, rotulo: t.nome_original || `Temporada ${t.numero}` }))
       : complementos.map((c) => ({ uuid: c.uuid, rotulo: `Complemento: ${c.titulo}` }));
 
   async function adicionar() {
@@ -70,27 +71,40 @@ export default function OrdemConsumoEditor({ animeUuid }: Props) {
     await carregar();
   }
 
+  async function mover(indice: number, direcao: -1 | 1) {
+    const destino = indice + direcao;
+    if (destino < 0 || destino >= itens.length) return;
+    const atual = itens[indice];
+    const vizinho = itens[destino];
+    await Promise.all([
+      atualizarOrdemConsumo(atual.uuid, vizinho.ordem),
+      atualizarOrdemConsumo(vizinho.uuid, atual.ordem),
+    ]);
+    await carregar();
+  }
+
   return (
     <div className={styles.wrapper}>
       <h4>Ordem de consumo</h4>
       {carregando ? (
         <p className={styles.vazio}>Carregando...</p>
       ) : (
-        <ul className={styles.lista}>
+        <ol className={styles.timeline}>
           {itens.map((item, i) => (
             <li key={item.uuid}>
-              <span>
-                <strong>{i + 1}.</strong> {item.rotulo}
+              <span className={styles.timelineMarcador}>{i + 1}</span>
+              <span className={styles.timelineConteudo}><strong>{item.rotulo}</strong><small>{item.tipo_referencia === 'temporada' ? 'Temporada' : 'Complemento'}</small></span>
+              <span className={styles.timelineAcoes}>
+                <button type="button" onClick={() => mover(i, -1)} disabled={i === 0} aria-label="Mover para cima">↑</button>
+                <button type="button" onClick={() => mover(i, 1)} disabled={i === itens.length - 1} aria-label="Mover para baixo">↓</button>
+                <button type="button" onClick={() => remover(item.uuid)} aria-label="Remover da ordem">✕</button>
               </span>
-              <button type="button" onClick={() => remover(item.uuid)}>
-                ✕
-              </button>
             </li>
           ))}
           {itens.length === 0 && (
             <li className={styles.vazio}>Nenhum item na ordem ainda.</li>
           )}
-        </ul>
+        </ol>
       )}
 
       <div className={styles.linhaAdicionar}>
