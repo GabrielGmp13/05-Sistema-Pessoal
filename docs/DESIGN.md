@@ -350,10 +350,32 @@ um bloco visual. Falhas de persistência aparecem no próprio bloco. Período,
 duração média por episódio e nota geral são cartões somente leitura; a nota é
 atribuída em cada temporada.
 
-O painel somente leitura aberto ao clicar numa obra é uma janela flutuante no
-desktop: mantém 40 px de respiro no topo e embaixo, nunca se estica apenas para
-alcançar o rodapé e limita sua altura ao espaço disponível. Conteúdo excedente
-rola dentro do próprio painel. Em telas de até 680 px continua em tela inteira
-para não desperdiçar área útil. O painel é renderizado diretamente no `body`
-por portal, pois o contêiner animado do `AppChrome` usa `transform` e não pode
-ser o referencial de posicionamento de uma sobreposição fixa à tela.
+### Painéis de detalhes — referência v0 adaptada (2026-08-30)
+
+O painel de leitura usa `PainelObraLayout`, compartilhado pelas nove mídias,
+com CSS Modules e somente tokens existentes para cores. A coleção, a sidebar
+e os formulários de criação/edição não são redesenhados neste lote.
+
+- Janela de até 1024 × 860 px, com pelo menos 24 px acima/abaixo no desktop.
+  Até 640 px de viewport, mantém 8 px nas laterais e 12 px acima/abaixo.
+- Banner decorativo em degradê para `--card`, capa pequena, tipo, título,
+  subtítulo, status, nota e gêneros formam uma identidade única no cabeçalho.
+  Sem imagem, não reservar um banner vazio. Anime preserva original/sigla
+  e tradução/sigla, sem duplicar nomes iguais.
+- Cabeçalho e rodapé não acompanham a rolagem central. O cabeçalho tem limite
+  próprio e pode rolar somente quando títulos/metadados extensos excederem
+  44% da janela, evitando sobreposição em telas baixas ou com zoom elevado.
+- Sinopse e comentário ocupam largura de leitura, nunca uma célula estreita
+  de metadados. Seções relacionadas usam divisores discretos e 24 px internos.
+- Temporadas/complementos em duas colunas, músicas de Anime em grupos OP/ED/OST,
+  volumes agrupados por arco, citações diferenciadas de anotações e playlist
+  como lista numerada. Container queries reduzem grades para uma coluna quando
+  o próprio painel fica estreito.
+- Campo nulo/vazio não gera seção. Não inventar listas de episódios de podcast,
+  capítulos de mangá, resumos de artigos ou totais que o banco não armazena.
+- Ações: links reais, `Editar obra` abre o formulário existente e vídeos
+  preservam `Usar em Curso`. Nenhuma edição inline ou ação fictícia do demo.
+- `<dialog>.showModal()` usa a camada superior nativa do navegador, independente
+  do `transform` do AppChrome, com foco modal, Escape, botão fechar, clique fora
+  e restauração de foco/rolagem ao fechar. Substitui o portal específico anterior.
+- Entrada discreta de 180 ms; `prefers-reduced-motion` remove o movimento.

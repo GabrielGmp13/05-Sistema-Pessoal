@@ -57,6 +57,15 @@ Os 7 módulos (Cardio, Força, Resistência, Hipertrofia, Flexibilidade, Mobilid
 ### DEC-027 — Padrão de UI da Biblioteca v2: painel de detalhe + menu "⋯"
 **Status:** ✅ Aprovada e implementada.
 Dois componentes de painel **somente leitura** (edição sempre via modal, nunca inline no painel): `PainelDetalheObra` (Filme/Série/Anime — sabe buscar elenco, trilha/openings-endings, temporadas) e `PainelSimples` (Mangá/Livro/Podcast — sem lógica de elenco/trilha embutida, recebe seção extra via `children`). Cards de listagem: clique no corpo abre o painel; botão "⋯" abre menu Editar/Apagar.
+
+**Refinamento visual autorizado em 2026-08-30:** referência do v0 adaptada sem
+mudar a separação entre leitura e edição. Os wrappers compartilham
+`PainelObraLayout` em CSS Modules; `PainelSimples` também atende Vídeo/Artigo e
+carrega volumes/anotações pelos helpers existentes. `PainelPlaylist` lê vídeos
+vinculados pela função já existente. O layout usa `<dialog>.showModal()` para
+escapar dos transforms do shell sem uma segunda implementação de foco modal.
+As consultas Supabase continuam exclusivamente em `lib/`; sem endpoint, tabela
+ou dependência nova. `Editar obra` apenas fecha a leitura e abre o editor atual.
 **Pendências conhecidas** (ver BACKLOG.md): listas aninhadas só criam/apagam, não editam; sem reordenação manual. O menu "⋯" passou a fechar por clique externo, Escape e escolha de ação em 2026-08.
 
 ### DEC-028/029/030 — Biblioteca v2 B4 (Mangás), B5 (Livros), B6 (Podcasts)

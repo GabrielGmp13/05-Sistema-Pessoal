@@ -10,9 +10,33 @@ Tarefas ativas e próximas ações. Ideias não priorizadas vivem em `BACKLOG.md
 novos vínculos de temporadas e complementos no deploy.
 **Banco:** produção e cadeia local estão alinhadas até `20260830000100_anime_related_works.sql` (68 tabelas).
 **Reprodutibilidade:** consolidada em 2026-08-08 — toolchain fixado, `npm ci`, typecheck e build aprovados, CI mínima criada; lint mantém dívida conhecida.
-**Próxima ação:** homologar a revisão dos cinco temas no deploy; depois retomar
-com Gabriel as referências do v0 para os painéis flutuantes da Biblioteca.
+**Próxima ação:** homologar os novos painéis flutuantes da Biblioteca e a revisão
+dos cinco temas no deploy, com o acervo real de Gabriel.
 Os retestes de `docs/teste.md` com contas/APIs reais continuam pendentes.
+
+## Painéis flutuantes da Biblioteca — referência v0, 2026-08-30
+
+- [x] Estrutura visual adaptada para CSS Modules, sem cores fixas ou novas APIs.
+- [x] Cabeçalho e ações fora da rolagem, janela limitada ao viewport, foco modal
+      nativo e dados vazios omitidos; coleção e formulários preservados.
+- [x] Temporadas, elenco/equipe, músicas, complementos, ordem de consumo,
+      volumes/arcos e anotações usam os helpers Supabase já existentes.
+- [x] Vídeo, playlist, podcast e artigo têm composição apropriada aos dados
+      reais; sem listas, métricas ou ações fictícias herdadas do demo.
+- [x] 61 testes Node aprovados, incluindo regressões de campos vazios, links,
+      progresso, histórico e contrato de tema/rolagem. Prévia isolada exercitou
+      Anime, Livro e Mangá (12 temporadas, 41 volumes, notas longas), largura
+      compacta de 375 px, ausência de dados e acionamento do editor. Fixture
+      removida, sem gravar dados no Supabase.
+- [x] Lint dos novos painéis sem apontamentos. A execução completa encontrou
+      25 erros/28 avisos preexistentes; comparação com HEAD dos arquivos
+      modificados não mostrou aumento. O total 6/5 registrado no lote anterior
+      não representava a execução integral atual do repositório.
+- [x] Typecheck e build de produção aprovados após regenerar os tipos locais
+      que ainda referenciavam a prévia removida. Nenhuma rota de QA no build.
+- [ ] Homologar no deploy as nove mídias nos cinco temas, com temporadas,
+      volumes e playlists reais, teclado, zoom 100% e celular. A prévia isolada
+      local não substitui esse teste autenticado.
 
 ## Revisão de temas guiada pelo v0 — 2026-08-30
 
@@ -32,8 +56,8 @@ Os retestes de `docs/teste.md` com contas/APIs reais continuam pendentes.
       sem overflow no viewport testado; sessão local desautenticada.
 - [ ] Validar visualmente as páginas autenticadas em produção, principalmente
       estados, formulários, sidebar e capas nos cinco temas, desktop/mobile.
-- [ ] Retomar o redesign dos painéis flutuantes da Biblioteca com as
-      referências refinadas pelo usuário; não foi redesenhado neste lote.
+- [x] Redesign dos painéis flutuantes retomado em lote separado, conforme
+      referência refinada do usuário; ver seção acima.
 
 ## Ajustes encontrados na homologação — 2026-08-28
 

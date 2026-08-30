@@ -20,6 +20,14 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — v2.1 pronta tecnicamente; homologação manual pendente
 
+- **2026-08-30 (novo design dos painéis da Biblioteca)** — Referência v0
+  adaptada para CSS Modules e temas existentes: banner/capa/identidade, topo e
+  ações fixos, conteúdo central rolável e corpos específicos por mídia. Anime
+  mostra temporadas, equipe, OP/ED/OST, complementos e ordem de consumo;
+  Mangá exibe volumes por arco e Livro, progresso/anotações/citações. Playlist
+  ganhou lista numerada ligada aos vídeos reais. Campos vazios são omitidos;
+  edição e vínculo com Curso preservados. Nenhuma alteração de banco ou API.
+
 - **2026-08-30 (revisão das cinco iluminações)** — Paleta do v0 adaptada aos
   tokens existentes, com correção das razões de contraste da proposta e dos
   usos de sucesso/aviso/destrutivo. Treino, Histórico e estrelas deixam de
