@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   listarTemporadasAnime,
   criarTemporadaAnime,
@@ -24,7 +24,11 @@ const VAZIO = { numero: '', numero_episodios: '', minha_nota: '' };
 const FORMATOS_TEMPORADA = ['TV', 'TV_SHORT'];
 const RELACOES_TEMPORADA = ['SEQUEL', 'PREQUEL'];
 
-export default function TemporadasAnimeEditor({ animeUuid, anilistId, onChanged }: Props) {
+export default function TemporadasAnimeEditor(props: Props) {
+  return <EditorTemporadas key={`${props.animeUuid}:${props.anilistId ?? ''}`} {...props} />;
+}
+
+function EditorTemporadas({ animeUuid, anilistId, onChanged }: Props) {
   const [itens, setItens] = useState<AnimeTemporada[]>([]);
   const [novo, setNovo] = useState(VAZIO);
   const [carregando, setCarregando] = useState(true);
@@ -33,6 +37,9 @@ export default function TemporadasAnimeEditor({ animeUuid, anilistId, onChanged 
   const [relacaoSelecionada, setRelacaoSelecionada] = useState<ResultadoMetadados | null>(null);
   const [buscaObra, setBuscaObra] = useState('');
   const [erro, setErro] = useState('');
+  const [completando, setCompletando] = useState(false);
+  const versaoSelecao = useRef(0);
+  useEffect(() => () => { versaoSelecao.current += 1; }, []);
 
   async function carregar() {
     setCarregando(true);
@@ -49,7 +56,7 @@ export default function TemporadasAnimeEditor({ animeUuid, anilistId, onChanged 
 
   async function adicionar() {
     const numero = Number(novo.numero);
-    if (!relacaoSelecionada || !numero || numero < 1) return;
+    if (!relacaoSelecionada || !numero || numero < 1 || completando || salvando || carregando) return;
     setErro('');
     setSalvando(true);
     const criada = await criarTemporadaAnime(animeUuid, {
@@ -89,10 +96,26 @@ export default function TemporadasAnimeEditor({ animeUuid, anilistId, onChanged 
   }
 
   async function selecionarObra(resultado: ResultadoMetadados) {
-    const completo = await completarResultadoAniList(resultado);
-    setRelacaoSelecionada(completo);
-    setNovo({ numero: String(Math.max(0, ...itens.map((item) => item.numero)) + 1), numero_episodios: completo.episodios ? String(completo.episodios) : '', minha_nota: '' });
+    const versao = ++versaoSelecao.current;
+    setErro('');
+    setRelacaoSelecionada(resultado);
+    setNovo(VAZIO);
     setBuscaObra('');
+    setCompletando(true);
+    const completo = await completarResultadoAniList(resultado);
+    if (versao !== versaoSelecao.current) return;
+    setRelacaoSelecionada(completo);
+    setNovo(atual => ({ numero: String(Math.max(0, ...itens.map((item) => item.numero)) + 1), numero_episodios: completo.episodios ? String(completo.episodios) : '', minha_nota: atual.minha_nota }));
+    setCompletando(false);
+  }
+
+  function trocarObra() {
+    versaoSelecao.current += 1;
+    setRelacaoSelecionada(null);
+    setNovo(VAZIO);
+    setCompletando(false);
+    setBuscaObra('');
+    setErro('');
   }
 
   async function remover(uuid: string) {
@@ -113,23 +136,33 @@ export default function TemporadasAnimeEditor({ animeUuid, anilistId, onChanged 
       <h4>Temporadas</h4>
       <p className={styles.instrucao}>Pesquise e selecione uma obra. O número, episódios e metadados serão definidos automaticamente.</p>
       {erro ? <p className={styles.erro}>{erro}</p> : null}
+      {!relacaoSelecionada ? <>
       <div className={styles.linhaAdicionar}>
-        <input placeholder="Pesquisar outra obra para usar como temporada" value={buscaObra} onChange={(e) => setBuscaObra(e.target.value)} />
+        <input aria-label="Pesquisar temporada" placeholder="Pesquisar outra obra para usar como temporada" value={buscaObra} onChange={(e) => setBuscaObra(e.target.value)} />
       </div>
-      <BuscaMetadados fonte="jikan_anime" termo={buscaObra} formatos={FORMATOS_TEMPORADA} onSelect={(resultado) => void selecionarObra(resultado)} />
-      {anilistId ? (
+      {buscaObra.trim().length >= 2 ? <BuscaMetadados key={`busca:${buscaObra.trim()}`} fonte="jikan_anime" termo={buscaObra} formatos={FORMATOS_TEMPORADA} onSelect={(resultado) => void selecionarObra(resultado)} /> : anilistId ? (
         <><p className={styles.vazio}>Sugestões relacionadas pela AniList</p><BuscaMetadados
+          key={`relacoes:${anilistId}`}
           fonte="anilist_relacoes"
           termo={anilistId}
           formatos={FORMATOS_TEMPORADA}
           relacoes={RELACOES_TEMPORADA}
           onSelect={(resultado) => void selecionarObra(resultado)}
         /></>
-      ) : <p className={styles.vazio}>Selecione um resultado da AniList no cadastro principal para pesquisar temporadas.</p>}
-      {relacaoSelecionada ? <div className={styles.obraSelecionada}>
+      ) : <p className={styles.vazio}>Digite ao menos 2 caracteres para pesquisar uma temporada.</p>}
+      </> : <section className={styles.adicaoTemporada} aria-label="Adicionar temporada selecionada">
+      <div className={styles.obraSelecionada}>
         {relacaoSelecionada.capaUrl ? <img src={relacaoSelecionada.capaUrl} alt="" /> : null}
         <span><strong>{relacaoSelecionada.titulo}</strong>{relacaoSelecionada.subtitulo ? <small>{relacaoSelecionada.subtitulo}</small> : null}<small>{[relacaoSelecionada.formato, relacaoSelecionada.ano, relacaoSelecionada.episodios ? `${relacaoSelecionada.episodios} episódios` : null].filter(Boolean).join(' · ')}</small></span>
-      </div> : null}
+      </div>
+      {completando && <p className={styles.vazio} role="status">Completando informações da temporada...</p>}
+      <div className={styles.confirmarObra}>
+        <StarRating label="Minha nota nesta temporada" value={novo.minha_nota ? Number(novo.minha_nota) : null} onChange={(nota) => setNovo(atual => ({ ...atual, minha_nota: nota == null ? '' : String(nota) }))} />
+        <button type="button" onClick={adicionar} disabled={salvando || completando || carregando}>{salvando ? 'Adicionando...' : 'Adicionar temporada selecionada'}</button>
+      </div>
+      <button type="button" className={styles.trocarTemporada} onClick={trocarObra} disabled={salvando}>Escolher outra temporada</button>
+      </section>}
+      <h5 className={styles.tituloTemporadasSalvas}>Temporadas adicionadas</h5>
       {carregando ? (
         <p className={styles.vazio}>Carregando...</p>
       ) : (
@@ -164,10 +197,6 @@ export default function TemporadasAnimeEditor({ animeUuid, anilistId, onChanged 
         </ul>
       )}
 
-      {relacaoSelecionada ? <div className={styles.confirmarObra}>
-        <StarRating label="Minha nota nesta temporada" value={novo.minha_nota ? Number(novo.minha_nota) : null} onChange={(nota) => setNovo({ ...novo, minha_nota: nota == null ? '' : String(nota) })} />
-        <button type="button" onClick={adicionar} disabled={salvando}>{salvando ? 'Adicionando...' : 'Adicionar temporada selecionada'}</button>
-      </div> : null}
     </div>
   );
 }

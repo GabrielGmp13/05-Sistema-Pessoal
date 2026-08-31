@@ -14,6 +14,15 @@ novos vínculos de temporadas e complementos no deploy.
 dos cinco temas no deploy, com o acervo real de Gabriel.
 Os retestes de `docs/teste.md` com contas/APIs reais continuam pendentes.
 
+## Seleção de temporadas — 2026-08-31
+
+- [x] Busca digitada e sugestões relacionadas são alternativas, sem listas simultâneas.
+- [x] Temporada selecionada, nota e confirmação agrupadas antes da lista de temporadas salvas; ação para trocar a seleção.
+- [x] Respostas de enriquecimento descartadas após trocar a seleção ou o anime; confirmação aguarda a conclusão dos metadados.
+- [x] 64 testes Node aprovados, incluindo três contratos de regressão do editor.
+- [ ] Confirmar build e lint no CI/deploy: execuções locais interrompidas após longa espera sem conclusão neste lote; não registrar como aprovadas.
+- [ ] Homologar online a pesquisa, troca de seleção, nota e inclusão com o acervo real.
+
 ## Painéis flutuantes da Biblioteca — referência v0, 2026-08-30
 
 - [x] Estrutura visual adaptada para CSS Modules, sem cores fixas ou novas APIs.

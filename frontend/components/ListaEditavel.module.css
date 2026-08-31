@@ -173,3 +173,10 @@
 .timelineAcoes { display: flex; gap: 0.25rem; }
 .timelineAcoes button { min-width: 30px; min-height: 30px; }
 .timelineAcoes button:disabled { opacity: 0.35; cursor: default; }
+
+.adicaoTemporada { margin-top: 16px; padding: 16px; border-radius: 8px; background: var(--surface); }
+.adicaoTemporada .obraSelecionada { margin: 0; padding: 0; border: 0; background: none; }
+.adicaoTemporada .confirmarObra { padding: 0; margin-top: 16px; background: none; }
+.adicaoTemporada button:disabled { opacity: 0.6; cursor: default; }
+.trocarTemporada { margin-top: 12px; padding: 4px 0; background: none; border: 0; color: var(--primary); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.tituloTemporadasSalvas { margin: 24px 0 12px; color: var(--text); font-size: 0.85rem; font-weight: 600; }

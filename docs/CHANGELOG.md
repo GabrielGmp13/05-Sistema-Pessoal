@@ -20,6 +20,8 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## v2 expandida (Next.js) — v2.1 pronta tecnicamente; homologação manual pendente
 
+- **2026-08-31 (seleção de temporadas)** — Corrigida a exibição simultânea de busca e sugestões relacionadas; seleção, nota e confirmação ficam no mesmo bloco, antes das temporadas cadastradas. Troca de seleção invalida respostas pendentes, sem alterações no banco.
+
 - **2026-08-30 (novo design dos painéis da Biblioteca)** — Referência v0
   adaptada para CSS Modules e temas existentes: banner/capa/identidade, topo e
   ações fixos, conteúdo central rolável e corpos específicos por mídia. Anime
