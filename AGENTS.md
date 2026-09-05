@@ -71,8 +71,9 @@ O toolchain do repositório é Node.js `24.15.0` e npm `12.0.1`. No frontend,
 usar `npm ci`, `npm run typecheck`, `npm run build` e `npm run lint`, sempre a
 partir de `frontend/`. Typecheck e build são bloqueantes na CI; lint é
 temporariamente informativo por causa da dívida factual registrada em
-`docs/BACKLOG.md`. Não há suíte automatizada de frontend; os testes existentes
-são os testes SQL locais em `backend/supabase/tests/`.
+`docs/BACKLOG.md`. Há testes Node em `frontend/tests/` (`npm test`, também
+bloqueante na CI), além dos testes SQL locais em `backend/supabase/tests/`.
+Essa suíte não substitui E2E autenticado ou os retestes de `docs/teste.md`.
 
 ## Regras inegociáveis
 

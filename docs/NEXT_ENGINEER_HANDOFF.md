@@ -1,127 +1,87 @@
-# Handoff curto para o próximo chat de engenharia
+# Handoff de engenharia — preparação v0.2.0
 
-Use este arquivo para retomar o projeto com baixo gasto de contexto. Ele não
-substitui `AGENTS.md`, `AI_CONTEXT.md`, `DATABASE.md` ou `DECISIONS.md`; serve
-como mapa rápido do estado atual e das próximas ações.
+Atualizado em 2026-09-05. Leia `AGENTS.md`, `AI_CONTEXT.md`, `TASKS_NOW.md` e o
+pedido vigente antes de editar. Decisões e schema devem ser conferidos quando
+a tarefa tocar esses contratos. Toda comunicação em português.
 
-## Estado atual
+## Estado e autoridade
 
-- Projeto: Sistema Pessoal, Next.js 16/React 19/TypeScript em `frontend/`.
-- Banco: Supabase com cadeia ativa em `backend/supabase/migrations/`.
-- Produção: Vercel, branch `main`.
-- Último estado documentado: v2.1 tecnicamente implementada; faltam testes
-  manuais reais e correções encontradas neles.
-- Produção e migrations estavam alinhadas até
-  `20260827000100_homologacao_fluxos_pessoais.sql`.
-- A UI global recente usa `AppChrome` com coluna pessoal à esquerda em telas
-  largas e barra superior dedicada somente à navegação. Biblioteca e telas de
-  foco são exceções sem a coluna pessoal; na Biblioteca, perfil, atmosfera e
-  saída ficam compactos no topo e a sidebar local permanece fixa. A navegação
-  usa transições curtas e transforma o perfil entre a coluna e esse topo.
+- Repositório: `C:\Gabriel Oliveira\05-Sistema-Pessoal`, aplicação em `frontend/`.
+- Produção existente na Vercel; lote v0.2.0 **local, sem commit/push**.
+- Sem migration ou operação remota neste lote. Última migration documentada:
+  `20260830000100_anime_related_works.sql`; o remoto não foi recertificado aqui.
+- Usuário pediu escolhas simples/seguras sem perguntas, mas não autorizou Git,
+  alteração remota, contratação de e-mail, custo ou abertura pública.
+- Beta de até dez pessoas já autorizado conceitualmente pela DEC-069; piloto
+  proposto de até três. Convites bloqueados até os gates em `BETA_PRIVADO.md`.
 
-## Leitura mínima antes de editar
+## Bloco implementado
 
-1. `AGENTS.md`
-2. Este arquivo
-3. `docs/TASKS_NOW.md`
-4. `docs/teste.md`
-5. Só abrir `docs/DATABASE.md` ou `docs/DECISIONS.md` quando a mudança tocar
-   banco, Auth, Storage, API Route, regra de produto ou decisão já tomada.
+- `frontend/app/configuracoes/BugReportForm.tsx` e `lib/bug-report.ts`: relato
+  guiado, prévia editável e copiar; sem fetch, banco, captura ou envio. Integração
+  em `configuracoes/page.tsx`; versão vem do `package.json`, agora 0.2.0.
+- `proxy.ts` / `lib/route-access.ts`: login público exato, JSON 401 em APIs,
+  redirect sem query e preservação de cookies de Auth.
+- `lib/safe-diagnostics.ts`, helper Supabase e rotas Google/Places: log por
+  operação/código/status, sem message/details/hint ou paths. Callers legados
+  fora desse helper ainda precisam de revisão, explicitados na auditoria.
+- `lib/google-service.ts`, `lib/server/google.ts`, connect/callback: contexto
+  OAuth vinculado ao usuário inicial; não herda refresh token de outra conta.
+- CI passou a executar `npm test` como bloqueante. Sem dependências novas.
 
-## Correção mais recente
+## Documentação e testes
 
-A coluna pessoal da esquerda passou a rolar como uma área única quando o
-conteúdo excede a altura disponível. A linha temporal não cria mais um scroll
-concorrente, o seletor de atmosfera abre sem ficar preso à coluna e falhas
-parciais não deixam o carregamento travado.
+- Produto/release/resultados finais: `docs/RELEASE_V0.2.0.md`.
+- Gates, auditoria local, privacidade e exclusão: `docs/BETA_PRIVADO.md`.
+- Rotina, triagem privada e publicação: `docs/MANUTENCAO.md`.
+- APIs/variáveis: `docs/INTEGRACOES_EXTERNAS.md`.
+- Tarefas antigas preservadas integralmente em
+  `docs/archive/TASKS_HISTORY_2026-08.md`. Não tratar fotografias antigas de
+  “nenhum bloqueio” como estado atual. Pendências vigentes em `TASKS_NOW.md`.
+- Smoke visual local concluído no computador e em viewport de celular:
+  Configurações e o formulário de relato abriram, a prévia editável foi gerada
+  com a versão 0.2.0 e nenhum dado foi enviado. Uma falha sanitizada e
+  transitória de Agenda apareceu na primeira carga e a linha do tempo carregou
+  depois. Google local permanece sem variáveis server-side. Retestes reais de
+  módulos, duas contas, integrações e produção seguem manuais.
 
-Arquivos mais prováveis:
+## Próximo bloco (se autorizado)
 
-- `frontend/components/RightRail.module.css`
-- `frontend/components/RightRail.tsx`
-- `frontend/components/ThemeToggle.module.css`
-- `frontend/components/AppChrome.module.css`
+Convite/primeira senha/recuperação via Supabase Auth, sem cadastro público.
+Hoje `/login` só faz `signInWithPassword`; callback Google não resolve Auth.
+SMTP padrão não serve para convidar amigos fora da equipe Supabase; Gabriel
+precisa escolher/configurar um provedor e autorizar custos, se houver. Nunca
+adicionar participantes à equipe administradora nem compartilhar senha.
 
-Reteste manual ainda necessário:
+Antes de abrir: testar duas contas descartáveis e dados cruzados, Storage,
+Google por usuário/serviço, expiração/troca de conta, exportação/exclusão e
+checklist `teste.md`. Não apagar a conta real do Gabriel como teste.
 
-- A coluna inteira deve rolar verticalmente quando o conteúdo exceder a tela.
-- Evitar scroll interno concorrente na linha temporal, se isso atrapalhar.
-- O seletor de tema não pode ser cortado quando a coluna tiver overflow.
-- Calendário, perfil, relógio, agenda, tema e sair devem continuar acessíveis.
-- Conferir desktop largo e altura menor; em telas estreitas a coluna recolhe.
+## Comando de retomada das validações
 
-## Regras operacionais rápidas
+Executar sequencialmente, no PowerShell, preservando alterações locais:
 
-- Não criar migration se o problema for apenas CSS/layout.
-- Se criar migration: reset local, testes SQL, dry-run remoto exclusivo,
-  autorização explícita antes de produção, pós-check e dry-run final.
-- Não commitar nem fazer push sem autorização explícita do Gabriel.
-- Antes de commit autorizado: typecheck, build, `git diff --check`, busca por
-  `confirm(` e `window.prompt`, e verificação de segredos.
-- Preservar relatos do Gabriel em `docs/teste.md`; reescrever apenas a parte de
-  próximos testes para evitar retrabalho.
+```powershell
+Set-Location 'C:\Gabriel Oliveira\05-Sistema-Pessoal\frontend'
+npm run typecheck
+npm test
+npm run build
+npm run lint
+Set-Location 'C:\Gabriel Oliveira\05-Sistema-Pessoal'
+git diff --check
+git status --short
+```
 
-## Áreas que existem hoje
+Typecheck/test/build bloqueiam; lint tem dívida preexistente. Nunca registrar
+uma execução interrompida como aprovada. Conferir diff/stage e segredos antes
+de pedir publicação. Não repetir migrations sem necessidade/dry-run/permissão.
 
-- Hub `/`
-- Treino e Shape
-- Biblioteca com oito categorias, capas, metadados, playlists e Vídeo -> Curso
-- Estudos, ENEM, Redações, Revisão e sessão focada
-- Agenda com prioridade, visão semanal/mensal e Google Calendar
-- Diário: Saúde, Finanças, Lugares e Receitas
-- Projetos e Programação
-- Idiomas
-- Histórico
-- Configurações, perfil, temas/atmosferas e integrações
+## Prompt exato para continuar
 
-## Itens que dependem mais do Gabriel do que do código
-
-- Testes manuais no deploy com dados reais.
-- Chaves e credenciais externas: Google, YouTube, Calendar, Places, TMDB,
-  BRAPI e Vercel.
-- Decisões de privacidade/LGPD e termos antes de abrir para mais pessoas.
-- Ajustes de gosto visual fino, principalmente atmosfera, gradientes e coluna.
-
-## Prompt recomendado para abrir o próximo chat
-
-Você está trabalhando no repositório `C:\Gabriel Oliveira\05-Sistema-Pessoal`.
-Responda em português e aja como engenheiro principal do projeto.
-
-Antes de editar, leia `AGENTS.md`, `docs/NEXT_ENGINEER_HANDOFF.md`,
-`docs/TASKS_NOW.md` e `docs/teste.md`. Só leia documentos longos como
-`DATABASE.md`, `DECISIONS.md`, `ARCHITECTURE.md` e `DESIGN.md` quando a mudança
-tocar banco, Auth, Storage, API Route, decisão de produto ou visual global.
-
-Tarefa inicial: acompanhar Gabriel na homologação manual detalhada do deploy,
-seguindo `docs/teste.md`. Registrar os relatos sem apagar evidências úteis,
-corrigir os problemas confirmados em lotes coerentes e manter a lista somente
-com os testes que ainda dependem de validação humana. Começar pelo reteste da
-coluna pessoal em tela larga e altura reduzida, incluindo mouse/trackpad,
-teclado e seletor de atmosfera.
-
-Escopo permitido:
-
-- CSS/layout da coluna, barra superior e shell global se necessário.
-- Pequenas correções no `RightRail.tsx` para falhas parciais ou estado preso.
-- Atualizar `docs/teste.md` para registrar somente o que Gabriel ainda precisa
-  testar manualmente.
-- Atualizar `TASKS_NOW.md`/`CHANGELOG.md` se a correção for concluída.
-
-Não faça:
-
-- Não criar migration para esse bug.
-- Não alterar regras de negócio.
-- Não mexer em APIs externas, Supabase remoto, Vercel ou credenciais.
-- Não reescrever documentos longos sem necessidade.
-- Não fazer commit/push sem autorização explícita no prompt.
-
-Validações esperadas:
-
-- `npm run typecheck` em `frontend/`
-- `npm run build` em `frontend/`
-- `git diff --check`
-- busca por `confirm(` e `window.prompt`
-- verificação simples de segredos no diff/stage
-
-Ao final, relate: causa, arquivos alterados, validações, o que Gabriel deve
-conferir no deploy e se há necessidade de autorização para commit/push.
+“Continue a preparação v0.2.0 no repositório Sistema Pessoal. Leia AGENTS.md,
+docs/NEXT_ENGINEER_HANDOFF.md, docs/TASKS_NOW.md e docs/RELEASE_V0.2.0.md.
+Confira git status e os resultados registrados antes de repetir trabalho.
+Finalize somente validações/revisões pendentes do lote local. Depois prepare
+o bloco separado de convite e recuperação de senha com Supabase Auth,
+preservando cadastro público fechado. Não altere Supabase remoto, contrate
+serviço, envie convites nem faça commit/push sem autorização explícita.”

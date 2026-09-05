@@ -32,6 +32,7 @@ de trabalho com IAs" para o histórico completo de ferramentas já usadas.
 ├── .nvmrc                 ← Node.js 24.15.0
 ├── .github/workflows/     ← CI mínima do frontend
 ├── docs/                  ← toda a documentação do projeto (este arquivo incluído)
+├── browser-extension/     ← extensão local Chrome/Edge; abre itens para revisão
 ├── backend/
 │   ├── package.json       ← ferramentas locais do banco; não é aplicação
 │   └── supabase/
@@ -53,13 +54,13 @@ operacional.
 
 ## Estado atual (2026-08)
 
-**Fase:** v2.1 — lote consolidado de homologação publicado tecnicamente; homologação manual continua pendente. A v2 é o único frontend ativo (v1 removida em 2026-07-19, DEC-031).
+**Fase:** preparação local da release v0.2.0 / beta privado. As fases históricas v2/v2.1 continuam preservadas; a numeração do manifesto não é downgrade (DEC-074). Convites bloqueados até senha/SMTP, isolamento e homologação. A aplicação Next.js é o único frontend ativo (v1 removida em 2026-07-19, DEC-031).
 **Decisão-chave:** DEC-018 (reabre DEC-006) — frontend migrou de HTML puro para Next.js/React
 **Deploy:** ✅ em produção no Vercel desde 2026-07-13 (não "pendente" — ver `ARCHITECTURE.md`)
-**Schema:** baseline confirmada via dump real em 2026-08 com 44 tabelas; produção tem 68 após as migrations aplicadas até `20260827000100_homologacao_fluxos_pessoais.sql` (ver `DATABASE.md`).
-**Histórico CLI:** as três baselines e todas as incrementais até `20260827000100_homologacao_fluxos_pessoais.sql` estão `applied`; o pós-check confirmou os objetos, FKs, RLS e GRANTs do lote, e o dry-run final ficou vazio.
-**Reprodutibilidade:** Node.js `24.15.0`, npm `12.0.1`, `npm ci`, typecheck e build validados; CI mínima ativa. Lint mantém 51 achados conhecidos e informativos (27 erros e 24 warnings) na medição de 2026-08-15.
-**Próxima tarefa imediata:** executar `HOMOLOGATION_V2.md`, `BETA_PRIVADO.md` e os retestes objetivos de `teste.md` no deploy.
+**Schema:** `DATABASE.md` registra 68 tabelas e migrations aplicadas até `20260830000100_anime_related_works.sql`; a cadeia local contém 24 arquivos. Nenhuma operação remota/migration feita na preparação da v0.2.0.
+**Histórico CLI:** evidências dos pós-checks anteriores estão em `DATABASE.md`/`CHANGELOG.md`; a revisão local atual não recertifica o remoto.
+**Reprodutibilidade:** Node.js `24.15.0`, npm `12.0.1`, lockfile e CI ativos. Na preparação v0.2.0: typecheck/build e 76 testes Node aprovados; lint informativo com 25 erros/28 avisos (dívida anterior), zero erros no recorte alterado. Evidências em `RELEASE_V0.2.0.md`.
+**Próxima tarefa imediata:** concluir gates do beta em `TASKS_NOW.md`; publicar só com autorização explícita. Visão do produto e resultados atuais em `RELEASE_V0.2.0.md`, operação em `MANUTENCAO.md` e testes humanos em `teste.md`.
 
 ---
 
@@ -76,7 +77,7 @@ operacional.
 | Offline | Service Worker — fora de escopo por ora (Fase M2, ver `ROADMAP.md`) |
 | Hosting | Vercel — **em produção desde 2026-07-13** |
 | Toolchain | Node.js 24.15.0 + npm 12.0.1; versões fixadas no repositório |
-| CI/testes | GitHub Actions: `npm ci`, typecheck e build bloqueantes; lint informativo. Lote atual: 18 scripts SQL e 28 testes Node aprovados |
+| CI/testes | GitHub Actions: `npm ci`, typecheck, testes Node e build bloqueantes; lint informativo. 19 scripts SQL locais; resultado atual do frontend em `RELEASE_V0.2.0.md` |
 
 ---
 
@@ -105,6 +106,11 @@ operacional.
 | `ROADMAP.md` | Fases do projeto e o que falta em cada uma |
 | `VISION.md` | Visão macro de módulos futuros |
 | `TASKS_NOW.md` | Tarefas ativas e próximas ações |
+| `RELEASE_V0.2.0.md` | Mapa atual do produto, limites, release e evidências de validação |
+| `BETA_PRIVADO.md` | Convites, privacidade, gates e auditoria local de segurança |
+| `MANUTENCAO.md` | Rotinas, relatos de bugs e publicação de notas de atualização |
+| `INTEGRACOES_EXTERNAS.md` | Inventário de APIs, variáveis e limitações |
+| `archive/TASKS_HISTORY_2026-08.md` | Fotografia integral das tarefas anteriores; não é estado vigente |
 | `BACKLOG.md` | Ideias futuras, não priorizadas |
 | `CHANGELOG.md` | Histórico de mudanças por marco |
 | `HOMOLOGATION_V2.md` | Checklist manual completo da release candidate |

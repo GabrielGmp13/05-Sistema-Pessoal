@@ -10,6 +10,24 @@ Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — 
 
 ---
 
+## Prioridades para beta privado v0.2.0 (2026-08-31)
+
+Esta seção prevalece sobre fotografias históricas abaixo. Trabalho ativo em
+[TASKS_NOW.md](TASKS_NOW.md); critérios e auditoria em [BETA_PRIVADO.md](BETA_PRIVADO.md).
+
+- [ ] Gate: aceitar convite, definir primeira senha e recuperar senha sem abrir cadastro.
+- [ ] Gate: SMTP e URLs reais de Auth, signup/anon fechados, canal privado e aviso aprovados.
+- [ ] Gate: prova de isolamento com dois participantes, Storage/relações/API e troca de conta.
+- [ ] Gate: ensaiar exportação/exclusão/suspensão, conferir custo/quota e fechar teste manual.
+- [ ] Antes de ampliar: rate limiting por usuário, orçamento de chamadas externas e E2E autenticados.
+- [ ] Hardening incremental de logs legados de Treino/Shape/gêneros/shell;
+      revisar antes de receber dados sensíveis, sem copiar console/HAR bruto.
+- [ ] Futuro: exportação integral e gestão de conta self-service com confirmação segura.
+- [x] Relatar bugs via formulário com prévia/cópia, sem envio externo ou tabela nova (local).
+- [x] Operação semanal/mensal e notas de release documentadas, sem painel admin complexo.
+
+---
+
 ## Pós-v2 — estado vigente após o fechamento técnico de 2026-08-21
 
 A infraestrutura segura possível no repositório foi concluída. Permanecem
@@ -30,8 +48,8 @@ de conflito/publicação ou comportamento não definido.
       upload conhecido da v2.1 sem destino.
 - [ ] Publicação da extensão em loja ou captura avançada/autenticada; a versão local Manifest V3 para Artigo/Vídeo já foi entregue.
 - [ ] Scraping e importações avançadas/em lote.
-- [ ] Testes de integração/E2E autenticados. A base Node cobre 28 casos
-      de parser/cálculo/ordenação; a suíte local inclui 18 scripts SQL.
+- [ ] Testes de integração/E2E autenticados. A base Node foi ampliada;
+      resultado vigente em `RELEASE_V0.2.0.md`; há 19 scripts SQL locais.
 - [ ] Hardening incremental restante do banco e do Storage, sem editar baselines aplicadas.
 - [ ] Polimentos visuais identificados na homologação, sem redesign amplo.
 
@@ -113,7 +131,9 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
       comparar duração, valor financeiro ou nota como se fossem a mesma métrica.
 - [x] Uploads de capas/banners, provas/simulados, Perfil, Receitas e Lugares
       concluídos com buckets privados, paths por usuário e signed URLs.
-- [ ] Modo múltiplos usuários (RLS já suporta — bastaria criar contas; não é objetivo do projeto por princípio, ver PROJECT_PRINCIPLES.md)
+- [ ] Produto multiusuário público continua fora de escopo. Beta privado até dez
+      participantes foi autorizado pela DEC-069; **não basta criar contas**:
+      convite/senha, isolamento, privacidade e operação são gates obrigatórios.
 - [x] Navegação global entre módulos e botão de logout visível — implementado em 2026-08-09 com hub `/`, navegação para Treino/Biblioteca/Estudos e logout via Supabase Auth.
 - [ ] Corrigir o corte residual da letra “g” em “Agenda” na navegação em uma combinação específica de largura/zoom; o usuário decidiu não bloquear o teste atual por isso (2026-08-12).
 - [x] Área global de perfil evoluída para dropdown de resumo com avatar, nome, descrição, background, e-mail e link para `/configuracoes`, sem criar rota ou domínio social.

@@ -1,4 +1,4 @@
-Sistema Pessoal — estrutura atual (2026-08-08)
+Sistema Pessoal — estrutura atual (2026-09-05)
 
 05-Sistema-Pessoal/
 ├── AGENTS.md                     instruções canônicas para agentes
@@ -7,16 +7,18 @@ Sistema Pessoal — estrutura atual (2026-08-08)
 ├── .nvmrc                       Node.js 24.15.0
 ├── .github/workflows/validate.yml CI mínima do frontend
 ├── docs/                         documentação do projeto
+├── browser-extension/            extensão local Chrome/Edge para abrir
+│   ├── manifest.json             configuração e permissões da extensão
+│   ├── popup.* / options.*       interface rápida e configuração da origem
+│   ├── service-worker.js         menu de contexto e abertura da Biblioteca
+│   └── README.md                 instalação e homologação
 ├── backend/                      ferramentas e infraestrutura SQL; não é servidor
 │   ├── package.json              Supabase CLI 2.112.0 fixada
 │   ├── package-lock.json
 │   └── supabase/
 │       ├── README.md             operação e workflow do banco
 │       ├── config.toml           configuração exclusivamente local
-│       ├── migrations/           cadeia operacional ativa
-│       │   ├── 20260807000100_baseline_public.sql
-│       │   ├── 20260807000200_baseline_rls_guard.sql
-│       │   └── 20260807000300_baseline_storage.sql
+│       ├── migrations/           cadeia operacional ativa (24 arquivos)
 │       ├── history/
 │       │   ├── README.md
 │       │   ├── provenance.yaml

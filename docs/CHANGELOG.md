@@ -6,6 +6,31 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ---
 
+## v0.2.0 — preparação local de beta privado (2026-08-31)
+
+- Em 2026-09-05, typecheck, 76 testes, build e `git diff --check` foram
+  repetidos com sucesso. O lint manteve a dívida conhecida de 25 erros e 28
+  avisos, sem erro nos arquivos TypeScript alterados. Configurações e o relato
+  de bug passaram em smoke local no computador e em viewport de celular; os
+  retestes reais de produção, integrações e duas contas continuam pendentes.
+
+- Reportar bug em Configurações: formulário guiado, revisão editável e cópia;
+  sem envio de e-mail, persistência, upload de print, dependência ou migration.
+- Proxy passa a retornar JSON 401 para APIs sem sessão, delimita login público
+  e remove queries privadas do redirect, preservando cookies de Auth.
+- Logs comuns Supabase/Google/Places sem payloads/paths; mensagens externas
+  controladas. OAuth vinculado ao usuário inicial e sem reutilizar refresh
+  token de outra conta Google.
+- Testes Node incluídos como etapa bloqueante da CI. Manifesto/lock em 0.2.0;
+  fases históricas v2/v2.1 não foram renumeradas nem removidas.
+- Documentação de produto, beta e manutenção consolidada; tarefas antigas
+  preservadas em `archive/TASKS_HISTORY_2026-08.md`.
+- Convites ainda bloqueados por fluxo de senha/SMTP, homologação entre contas
+  e operação/privacidade. **Sem commit/push ou alteração remota neste lote.**
+  Resultados finais e limites: [RELEASE_V0.2.0.md](RELEASE_V0.2.0.md).
+
+---
+
 ## v1 (HTML puro) — histórico resumido
 
 - **2026-07-09** — Migração LAN → Supabase decidida e executada (DEC-001 a DEC-011). Schema inicial (`001_schema_inicial.sql`, 8 tabelas) executado. Auth + Core JS (`login.html`, `supabase.js`, `auth.js`, `sm2.js`) implementados. Módulo de Treino completo (`treino.html`, `treino-shape.html`, `treino-plano.html`, `treino-academia.html`). `revisao.html` implementado com bug de schema conhecido (corrigido depois, ver abaixo).

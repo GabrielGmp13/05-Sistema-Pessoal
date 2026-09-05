@@ -4,6 +4,25 @@
 
 Sistema de gestão pessoal online, multi-dispositivo, para uso pessoal de longo prazo. Fases independentes e entregáveis por si sós.
 
+## Prioridade vigente — release v0.2.0 / beta privado (2026-08-31)
+
+As fases v1/v2/v2.1 abaixo são histórico de construção; a release 0.2.0
+consolida o produto existente, sem reabrir stack ou prometer produto público.
+
+1. Preparação local: relatos de bugs, auditoria/correções pequenas de segurança,
+   documentação e CI. Marco: [RELEASE_V0.2.0.md](RELEASE_V0.2.0.md).
+2. **Gate antes dos convites:** aceitar convite/definir/recuperar senha, SMTP,
+   signup fechado, isolamento com duas contas, dados/quotas e testes do deploy.
+3. Piloto até três amigos; revisão após uma semana; ampliação aprovada até dez,
+   somente se [BETA_PRIVADO.md](BETA_PRIVADO.md) não tiver bloqueios.
+4. Manutenção contínua por [MANUTENCAO.md](MANUTENCAO.md); regressões e E2E,
+   limites por usuário e operação de conta antes de ampliar produto.
+5. Novos módulos, editor PDF/desenho, sincronização em segundo plano e produto
+   público são etapas futuras independentes, sem prazo/compromisso neste marco.
+
+Pendências ativas: [TASKS_NOW.md](TASKS_NOW.md). O histórico detalhado foi
+preservado em [archive/TASKS_HISTORY_2026-08.md](archive/TASKS_HISTORY_2026-08.md).
+
 ---
 
 ## Fase M — Migração para Supabase ✅ CONCLUÍDA
@@ -82,16 +101,16 @@ A página havia sido gerada assumindo colunas (`frente`, `verso`, `intervalo`, `
 
 ## Fase 6 — Integrações externas: entregas leves e pós-v2
 
-As integrações leves marcadas como concluídas fazem parte da release candidate.
-Google Calendar/OAuth, notificações e demais integrações pesadas permanecem
-oficialmente pós-v2 e não reabrem a Fase 7 antes da homologação.
+Situação atualizada para v0.2.0. O contrato e as variáveis estão em
+[INTEGRACOES_EXTERNAS.md](INTEGRACOES_EXTERNAS.md); itens concluídos ainda
+precisam de homologação por participante.
 
 | Integração | Finalidade | Via |
 |---|---|---|
-| Google Calendar OAuth | Importar agenda de treinos | Supabase Edge Function (ver DEC-009 — decisão de não fazer isso no MVP) |
+| Google Calendar OAuth | Agenda bilateral enquanto site aberto | ✅ API Routes Next.js; calendário primário, DEC-072 |
 | YouTube Data API | Metadados de vídeos | ✅ API Route unificada; requer `YOUTUBE_API_KEY` server-only |
 | TMDB API | Metadados filmes/séries | ✅ API Route unificada; requer `TMDB_API_KEY` server-only |
-| Google Books, Jikan, iTunes Search | Metadados livros/animes/mangás/podcasts | ✅ API Route unificada, sem key |
+| Google Books + Open Library, AniList/Kitsu/Jikan, iTunes | Metadados livros/animes/mangás/podcasts e músicas | ✅ API Route unificada; só Google Books exige chave nesse grupo |
 | BRAPI | Cotação opcional de investimentos | ✅ API Route server-side sob demanda; `BRAPI_TOKEN` opcional, sem persistência de cotação |
 | Google Photos | Fotos e memórias de Lugares | Pós-v2; exige decisão de integração, permissão e Storage |
 | Notificações push | Lembretes de treino e revisão | Service Worker Push API |

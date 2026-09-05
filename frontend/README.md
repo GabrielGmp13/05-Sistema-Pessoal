@@ -51,10 +51,12 @@ públicos.
 
 ```powershell
 npm run typecheck
+npm test
 npm run build
 npm run lint
 ```
 
 O lint registra dívida técnica conhecida; consulte `docs/BACKLOG.md`. Não há
-testes automatizados de frontend neste momento. Para contexto completo, volte
-ao `README.md` da raiz e a `docs/AI_CONTEXT.md`.
+E2E autenticado automatizado neste momento. A suíte `npm test` cobre regras de
+domínio, rotas, segurança e regressões com o test runner do Node. Para contexto
+completo, volte ao `README.md` da raiz e a `docs/AI_CONTEXT.md`.

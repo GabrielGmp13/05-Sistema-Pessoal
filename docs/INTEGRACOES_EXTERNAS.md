@@ -1,6 +1,36 @@
-# Integrações externas — configuração da v2.1
+# Integrações externas — configuração vigente da v0.2.0
 
-Data da revisão: 2026-08-29.
+Data da revisão: 2026-08-31. Configuração remota não verificada neste lote.
+
+## Inventário de variáveis e dependências
+
+Em desenvolvimento, preencher `frontend/.env.local` (ignorado pelo Git); na
+Vercel, **Settings → Environment Variables**, escolher o ambiente correto e
+redeployar. Nunca copiar valores para documentação, relatório de bug ou Git.
+Chaves públicas do Supabase identificam o projeto; não substituem RLS.
+
+| Variável / configuração | Uso e exposição | Obrigatória para |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | URL pública do projeto | Aplicação |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Chave pública anon/publishable, nunca service role | Aplicação |
+| `SUPABASE_SERVICE_ROLE_KEY` | Segredo somente servidor | Persistência das integrações Google |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | OAuth, somente servidor | Calendar/YouTube conectados |
+| `GOOGLE_REDIRECT_URI` | Callback exato por ambiente | OAuth Google |
+| `GOOGLE_TOKEN_ENCRYPTION_KEY` | 32 bytes aleatórios em base64, servidor | Cofre de tokens Google |
+| `TMDB_API_KEY` | Chave servidor | Busca de filmes/séries e complemento técnico de anime |
+| `YOUTUBE_API_KEY` | Chave servidor | Busca de vídeos/músicas (distinta de OAuth) |
+| `GOOGLE_BOOKS_API_KEY` | Chave servidor | Fonte Google Books, não Open Library |
+| `GOOGLE_MAPS_API_KEY` | Chave servidor; conferir billing/quota antes de habilitar | Places opcional |
+| `BRAPI_TOKEN` | Token servidor opcional | Cotações sob demanda |
+| SMTP no Supabase Dashboard | Segredo no provedor/Auth, não no frontend | Convites/recuperação para amigos; pendente |
+
+`NODE_ENV` e `VERCEL_GIT_COMMIT_SHA` são metadados do runtime/deploy, não chaves
+a cadastrar manualmente. **Reportar bug não exige API, e-mail ou variável nova.**
+
+AniList, Kitsu, Jikan, Open Library, iTunes Search e Open Graph não precisam
+de chave neste código. Disponibilidade, quota, licença e atribuição de dados
+ainda dependem de cada provedor. Imagens remotas podem revelar IP ao host;
+uploads privados usam Storage. Não habilitar cobrança sem autorização.
 
 ## Google OAuth
 
@@ -17,7 +47,7 @@ ao frontend.
 2. Habilitar **YouTube Data API v3**, **Google Calendar API**, **Books API** e,
    se a busca de lugares for usada, **Places API (New)**.
 3. Configurar a tela de consentimento OAuth. Enquanto o app estiver em teste,
-   adicionar a conta do Gabriel como usuário de teste.
+   adicionar cada conta Google autorizada no beta como usuário de teste.
 4. Criar credencial **OAuth client ID > Web application**.
 5. Cadastrar como redirect URI exatamente
    `https://SEU-DOMINIO/api/integracoes/google/callback`. Para desenvolvimento,
@@ -71,9 +101,12 @@ provedor não responder, a remoção local continua sendo obrigatória.
 - **Vídeos:** YouTube Data API v3, com `YOUTUBE_API_KEY` para busca manual;
   playlists da conta usam a conexão OAuth separada descrita acima.
 - **Livros:** Google Books, com `GOOGLE_BOOKS_API_KEY` server-side. A chave pode
-  ser do mesmo projeto Google, mas deve ser restrita à Books API.
-- **Animes e mangás:** Jikan, sem chave. É um serviço público externo e pode
-  limitar chamadas; o cadastro manual continua disponível.
+  ser do mesmo projeto Google, mas deve ser restrita à Books API. Open Library
+  complementa resultados sem chave, inclusive quando a fonte Google falha.
+- **Animes e mangás:** AniList + Kitsu para busca parcial; Jikan participa dos
+  fallbacks/metadados. Relações e detalhe AniList preservam identidade de obra;
+  TMDB pode complementar equipe técnica. Não há integração IMDb direta.
+  Todos podem limitar chamadas; o cadastro manual continua disponível.
 - **Podcasts:** iTunes Search da Apple, sem chave. O cadastro manual continua
   disponível em caso de limite ou indisponibilidade.
 - **Artigos:** leitura server-side de Open Graph, sem chave, com bloqueio de
@@ -82,6 +115,13 @@ provedor não responder, a remoção local continua sendo obrigatória.
 As consultas JSON externas têm timeout de 10 segundos para não deixar uma
 função do deploy presa quando o provedor estiver lento. Ausência de chave em
 YouTube, TMDB ou Google Books desativa somente a importação daquela fonte.
+
+No beta: testar troca de conta durante OAuth (deve rejeitar a continuação),
+troca de conta Google/renovação e desconexão por serviço. A remoção local é
+separada por serviço, mas a revogação no provedor pode exigir reconectar outra
+autorização da mesma conta/app; não prometer isolamento da política do Google.
+Apps External em Testing podem ter refresh token com validade de sete dias
+para estes escopos. Ver [OAuth oficial](https://developers.google.com/identity/protocols/oauth2).
 
 ## YPT / Yeolpumta
 

@@ -1482,3 +1482,26 @@ incompletos que a busca da AniList não resolve (por exemplo `shingek`), enquant
 o detalhe escolhido é reidratado pela AniList. Relações de temporada percorrem
 a cadeia limitada de prequelas/sequelas, em vez de mostrar apenas vizinhos do
 primeiro nível.
+
+## DEC-074 — Release v0.2.0 e operação mínima do beta (2026-08-31)
+
+**Decisão:** consolidar o produto existente como release `0.2.0` no manifesto,
+preservando fases históricas v2/v2.1. O escopo de até dez participantes da
+DEC-069 não muda. Começar com até três amigos somente após convite/senha,
+SMTP, isolamento, privacidade e retestes aprovados.
+
+Reportar bugs em Configurações gera texto local revisável para copiar e enviar
+manualmente pelo canal privado acordado. Não há tabela de suporte, e-mail
+automático, captura de sessão/print nem serviço pago. Manutenção e notas de
+atualização ficam documentadas, sem painel admin/CMS. Histórico longo de
+TASKS_NOW vai para `docs/archive/`, preservado integralmente.
+
+**Motivo:** obter feedback útil sem criar superfície administrativa, segredo
+cliente, custo externo ou promessa de produto público. A alternativa de
+gravar relatos com RLS/enviar e-mail continua possível, mas exige decisão
+posterior de retenção, destinatário, serviço e acesso. Configuração SMTP para
+convites é um requisito separado e ainda não foi feita neste lote.
+
+**Impacto:** nenhuma migration; testes Node adicionados à CI; mudanças locais
+dependem de autorização explícita para commit/push. Documentos operacionais:
+`RELEASE_V0.2.0.md`, `BETA_PRIVADO.md`, `MANUTENCAO.md` e `TASKS_NOW.md`.

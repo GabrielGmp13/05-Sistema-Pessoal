@@ -1,4 +1,4 @@
-# Retestes Manuais — lote de homologação v2.1
+# Retestes manuais — produto existente e preparação v0.2.0
 
 Este arquivo contém somente verificações que dependem do deploy, de uma conta
 real, de upload, de APIs externas, de mouse/toque ou de julgamento visual. Não
@@ -8,14 +8,39 @@ Codex.
 ## Antes de começar
 
 - [ ] Confirmar que o deploy contém o commit deste lote e que a migration
-      `20260827000100_homologacao_fluxos_pessoais.sql` foi aplicada.
+      `20260830000100_anime_related_works.sql` consta aplicada. Não executar
+      migration novamente apenas porque este checklist foi atualizado.
 - [ ] Usar uma conta de teste com dados descartáveis; não apagar o usuário real
       no Supabase Auth, pois isso remove seus dados por cascade.
 - [ ] Testar ao menos uma vez em desktop e uma vez em celular real ou em largura
       próxima de 360 px.
 - [ ] Repetir a inspeção visual em um tema claro e um escuro.
 
+## v0.2.0 — relatos de bugs e gates de convite
+
+- [ ] Configurações → Reportar bug: gerar com todos os campos, revisar/retirar
+      dados e copiar; confirmar que aparece “copiado”, não “enviado”.
+- [ ] Tentar gerar sem preencher campos; revisar foco/teclado, textos longos,
+      celular e cinco temas, sem sobreposição ou rolagem horizontal.
+- [ ] Alterar um campo após gerar; relatório antigo deve desaparecer até gerar
+      novamente. Tema atual aparece no relato; tema manual pode ser escolhido.
+- [ ] Se a permissão de clipboard for negada pelo navegador, copiar a seleção
+      manualmente. Nenhum print é capturado/anexado automaticamente.
+- [ ] Recarregar/sair de Configurações: rascunho não persiste; nenhum relatório
+      deve aparecer no banco nem chegar por e-mail automaticamente.
+- [ ] **Depois do lote separado de convite/senha:** aceitar convite, definir
+      senha, login/logout, recuperar senha, link expirado/reutilizado e entrega SMTP.
+- [ ] Duas contas descartáveis: testar CRUD/relacionamentos/Storage e API; A não
+      pode listar, alterar, vincular ou apagar dados de B (inclusive conhecendo UUID/path).
+- [ ] Após logout/troca de conta, nenhuma informação da anterior aparece.
+- [ ] Google: trocar usuário do site durante consentimento rejeita retorno;
+      conectar outra conta Google e renovar não volta à anterior.
+- [ ] Conferir [BETA_PRIVADO.md](BETA_PRIVADO.md) antes de qualquer convite.
+
 ## Hub
+
+Os itens históricos de homologação abaixo continuam pendentes até confirmação
+real; a preparação da release não os marca automaticamente como concluídos.
 
 - [ ] Confirmar que “Insight pessoal” mostra somente próxima revisão, próxima
       prova e obras realmente em andamento.
@@ -32,7 +57,8 @@ Codex.
       usando os gêneros encontrados.
 - [ ] Com `TMDB_API_KEY`, pesquisar um filme e uma série; salvar e conferir
       gêneros e elenco/créditos importados nos detalhes.
-- [ ] Pesquisar Anime e Mangá pelo Jikan e Livro pelo Google Books; conferir
+- [ ] Pesquisar Anime/Mangá por prefixos nas fontes AniList/Kitsu/Jikan e Livro
+      por Google Books + Open Library; conferir
       mensagem de busca, seleção, gêneros e salvamento.
 - [ ] Simular uma busca sem resultado ou API indisponível e confirmar que o
       cadastro manual continua utilizável sem perder o que já foi digitado.
