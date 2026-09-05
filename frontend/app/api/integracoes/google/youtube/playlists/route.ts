@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { logDiagnostic } from '@/lib/safe-diagnostics'
 
 import { googleApi, googleConfigured } from '@/lib/server/google'
 import { getApiUser } from '@/lib/server/supabase'
@@ -34,6 +35,7 @@ export async function GET(request: NextRequest) {
       proximaPagina: data.nextPageToken ?? null,
     })
   } catch (error) {
-    return NextResponse.json({ erro: error instanceof Error ? error.message : 'Não foi possível listar playlists.' }, { status: 502 })
+    logDiagnostic('youtube/playlists', error)
+    return NextResponse.json({ erro: 'Não foi possível listar playlists. Confira a conexão Google em Configurações e tente novamente.' }, { status: 502 })
   }
 }

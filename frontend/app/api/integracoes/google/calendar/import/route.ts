@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { logDiagnostic } from '@/lib/safe-diagnostics'
 
 import { classificarImportacaoCalendar, dataHoraRecife, EventoGoogleImportacao } from '@/lib/calendar-import'
 import { GoogleApiError, googleApi, googleConfigured } from '@/lib/server/google'
@@ -141,7 +142,7 @@ export async function POST(request: NextRequest) {
     }
     return NextResponse.json({ eventos: previa, aplicados })
   } catch (error) {
-    console.error('[google-calendar-import]', { message: error instanceof Error ? error.message : 'Erro desconhecido' })
+    logDiagnostic('google-calendar-import', error)
     return NextResponse.json({ erro: mensagemSeguraCalendar(error) }, { status: 502 })
   }
 }

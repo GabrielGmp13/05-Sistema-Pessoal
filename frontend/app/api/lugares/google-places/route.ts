@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { logDiagnostic } from '@/lib/safe-diagnostics'
 
 import { getApiUser } from '@/lib/server/supabase'
 
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest) {
       pais: componente(place, 'country'),
     })).filter((place) => place.id && place.nome) })
   } catch (error) {
-    console.error('[google-places-search]', { message: error instanceof Error ? error.message : 'Erro desconhecido' })
+    logDiagnostic('google-places-search', error)
     return NextResponse.json({ erro: 'Não foi possível pesquisar no Google Places.' }, { status: 502 })
   }
 }

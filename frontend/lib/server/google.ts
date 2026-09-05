@@ -2,7 +2,7 @@ import 'server-only'
 
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from 'node:crypto'
 
-import { googleScopes, type GoogleService } from '@/lib/google-service'
+import { googleRefreshToken, googleScopes, type GoogleService } from '@/lib/google-service'
 
 import { getServiceSupabase } from './supabase'
 
@@ -101,24 +101,26 @@ export async function exchangeGoogleCode(code: string, verifier: string) {
 export async function storeGoogleConnection(userId: string, service: GoogleService, tokens: TokenResponse) {
   if (!tokens.access_token) throw new Error('Access token ausente.')
   const admin = getServiceSupabase()
-  const { data: current } = await admin
+  const { data: current, error: readError } = await admin
     .from('integracoes_google')
-    .select('credenciais_cifradas')
+    .select('credenciais_cifradas, email_google')
     .eq('user_id', userId)
     .eq('servico', service)
     .maybeSingle()
-  const previous = current?.credenciais_cifradas
+  if (readError) throw readError
+  const previous = !tokens.refresh_token && current?.credenciais_cifradas
     ? decryptGoogleCredentials(current.credenciais_cifradas)
     : null
-  const credentials = encryptGoogleCredentials({
-    accessToken: tokens.access_token,
-    refreshToken: tokens.refresh_token ?? previous?.refreshToken ?? null,
-  })
   const profileResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
     headers: { Authorization: `Bearer ${tokens.access_token}` },
     signal: AbortSignal.timeout(8_000),
   })
   const profile = profileResponse.ok ? await profileResponse.json() as { email?: string } : {}
+  if (!profile.email) throw new Error('Não foi possível confirmar a conta Google. Tente conectar novamente.')
+  const credentials = encryptGoogleCredentials({
+    accessToken: tokens.access_token,
+    refreshToken: googleRefreshToken(tokens.refresh_token, previous?.refreshToken, current?.email_google, profile.email),
+  })
   const expiresAt = new Date(Date.now() + Math.max(60, tokens.expires_in ?? 3600) * 1000).toISOString()
   const scopes = tokens.scope?.split(' ').filter(Boolean) ?? googleScopes(service)
   const { error } = await admin.from('integracoes_google').upsert({

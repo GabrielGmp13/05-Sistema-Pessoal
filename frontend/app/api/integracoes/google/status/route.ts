@@ -3,7 +3,8 @@ import { NextResponse } from 'next/server'
 import type { GoogleService } from '@/lib/google-service'
 import { getGoogleConnection, missingGoogleServerEnvironment } from '@/lib/server/google'
 import { getApiUser, SupabaseServerConfigurationError } from '@/lib/server/supabase'
-import { classifySupabaseFailure, safeSupabaseError, type SupabaseFailureKind } from '@/lib/supabase-diagnostics'
+import { classifySupabaseFailure, type SupabaseFailureKind } from '@/lib/supabase-diagnostics'
+import { diagnosticCode, logDiagnostic } from '@/lib/safe-diagnostics'
 
 const ROUTE_NAME = '/api/integracoes/google/status'
 
@@ -45,14 +46,7 @@ const FAILURE_RESPONSES: Record<SupabaseFailureKind, { erro: string; status: num
 }
 
 function logSafeError(error: unknown, kind: string) {
-  const safe = safeSupabaseError(error)
-  console.error(`[${ROUTE_NAME}] Falha ao consultar conexão Google.`, {
-    kind,
-    message: safe.message,
-    code: safe.code,
-    details: safe.details,
-    hint: safe.hint,
-  })
+  logDiagnostic(`${ROUTE_NAME}:${kind}`, error)
 }
 
 export async function GET() {
@@ -97,13 +91,12 @@ export async function GET() {
 
     const kind = classifySupabaseFailure(error)
     const response = FAILURE_RESPONSES[kind]
-    const safe = safeSupabaseError(error)
     logSafeError(error, kind)
     return NextResponse.json({
       configurado: true,
       conexoes: disconnectedServices(),
       erro: response.erro,
-      diagnostico: { tipo: kind, codigo: safe.code ?? null },
+      diagnostico: { tipo: kind, codigo: diagnosticCode(error) },
     }, { status: response.status })
   }
 }

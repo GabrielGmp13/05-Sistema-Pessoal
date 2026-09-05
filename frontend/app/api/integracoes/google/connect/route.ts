@@ -39,5 +39,6 @@ export async function GET(request: NextRequest) {
   response.cookies.set('google_oauth_state', state, cookieOptions)
   response.cookies.set('google_oauth_verifier', verifier, cookieOptions)
   response.cookies.set('google_oauth_service', service, cookieOptions)
+  response.cookies.set('google_oauth_user', user.id, cookieOptions)
   return response
 }

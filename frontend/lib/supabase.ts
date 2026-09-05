@@ -1,4 +1,5 @@
 import { createBrowserClient } from '@supabase/ssr';
+import { logDiagnostic } from './safe-diagnostics';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -77,6 +78,6 @@ export async function softDelete(
 // Log padronizado de erro do Supabase — retorna null para compatibilidade
 // com o padrão "if (error) return sbErr(error, 'fn')" nos callers
 export function sbErr<T = null>(error: unknown, context: string): T {
-  console.error(`[Supabase Error] ${context}:`, error);
+  logDiagnostic(context, error);
   return null as T;
 }

@@ -24,6 +24,8 @@ function optionalText(value: unknown) {
   return typeof value === 'string' && value.trim() ? value : undefined
 }
 
+// Extrai tipos para classificação interna; NÃO anonimiza message/details/hint.
+// Para console/respostas públicas, usar safe-diagnostics.ts.
 export function safeSupabaseError(error: unknown): SafeSupabaseError {
   if (!error || typeof error !== 'object') {
     return { message: error instanceof Error ? error.message : 'Erro desconhecido.' }

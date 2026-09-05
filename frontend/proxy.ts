@@ -1,9 +1,9 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { loginDestination, unauthenticatedAction } from './lib/route-access';
 
 // Rotas que NÃO exigem sessão. Tudo que não estiver aqui é protegido por padrão
 // (fail-safe — ver PROJECT_PRINCIPLES.md #4, segurança acima de conveniência).
-const ROTAS_PUBLICAS = ['/login'];
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -31,14 +31,17 @@ export async function proxy(request: NextRequest) {
   // getUser() confirma o token no Supabase Auth antes de liberar rotas protegidas.
   const { data: { user } } = await supabase.auth.getUser();
 
-  const rotaEhPublica = ROTAS_PUBLICAS.some((rota) =>
-    request.nextUrl.pathname.startsWith(rota)
-  );
-
-  if (!user && !rotaEhPublica) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/login';
-    return NextResponse.redirect(url);
+  if (!user) {
+    const action = unauthenticatedAction(request.nextUrl.pathname);
+    if (action !== 'allow') {
+      const denied = action === 'json-401'
+        ? NextResponse.json({ erro: 'Não autenticado.' }, { status: 401 })
+        : NextResponse.redirect(loginDestination(request.url));
+      // Preservar limpeza/renovação de cookies produzida pelo Supabase Auth.
+      response.cookies.getAll().forEach((cookie) => denied.cookies.set(cookie));
+      denied.headers.set('Cache-Control', 'private, no-store');
+      return denied;
+    }
   }
 
   return response;

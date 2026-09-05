@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { logDiagnostic } from '@/lib/safe-diagnostics'
 
 import { GoogleApiError, googleApi, googleConfigured } from '@/lib/server/google'
 import { getApiUser, getServiceSupabase } from '@/lib/server/supabase'
@@ -64,7 +65,8 @@ export async function POST(request: NextRequest) {
     if (updateError) throw updateError
     return NextResponse.json({ exportado: true, atualizado: Boolean(existingId), link: exported.htmlLink ?? null })
   } catch (error) {
-    return NextResponse.json({ erro: error instanceof Error ? error.message : 'Não foi possível exportar o compromisso.' }, { status: 502 })
+    logDiagnostic('calendar/export', error)
+    return NextResponse.json({ erro: 'Não foi possível exportar o compromisso. Confira a conexão Google em Configurações e tente novamente.' }, { status: 502 })
   }
 }
 
@@ -107,6 +109,7 @@ export async function DELETE(request: NextRequest) {
     if (updateError) throw updateError
     return NextResponse.json({ removido: true })
   } catch (error) {
-    return NextResponse.json({ erro: error instanceof Error ? error.message : 'Não foi possível remover o compromisso do Google.' }, { status: 502 })
+    logDiagnostic('calendar/export/delete', error)
+    return NextResponse.json({ erro: 'Não foi possível remover o compromisso do Google. Confira a conexão em Configurações e tente novamente.' }, { status: 502 })
   }
 }

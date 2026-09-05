@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { logDiagnostic } from '@/lib/safe-diagnostics'
 
 import { googleApi, googleConfigured } from '@/lib/server/google'
 import { getApiUser, getServiceSupabase } from '@/lib/server/supabase'
@@ -163,9 +164,7 @@ export async function POST(request: NextRequest) {
       vinculados,
     })
   } catch (error) {
-    console.error('[youtube/import] Falha ao importar vídeos.', {
-      message: error instanceof Error ? error.message : 'Erro desconhecido',
-    })
+    logDiagnostic('youtube/import', error)
     return NextResponse.json({ erro: 'Não foi possível importar os vídeos agora. Tente novamente sem alterar a seleção.' }, { status: 502 })
   }
 }

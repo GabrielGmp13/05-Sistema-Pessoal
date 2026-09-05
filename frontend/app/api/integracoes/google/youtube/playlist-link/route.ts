@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { logDiagnostic } from '@/lib/safe-diagnostics'
 
 import { googleApi, googleConfigured } from '@/lib/server/google'
 import { getApiUser } from '@/lib/server/supabase'
@@ -68,9 +69,7 @@ export async function GET(request: NextRequest) {
       proximaPagina: itemsData.nextPageToken ?? null,
     })
   } catch (error) {
-    console.error('[youtube/playlist-link] Falha ao consultar playlist.', {
-      message: error instanceof Error ? error.message : 'Erro desconhecido',
-    })
+    logDiagnostic('youtube/playlist-link', error)
     return NextResponse.json({ erro: mensagemPlaylistInacessivel(playlistId), limitacaoOficial: true }, { status: 502 })
   }
 }

@@ -27,7 +27,7 @@ test('classifica erros estáveis do PostgREST e PostgreSQL', () => {
   assert.equal(classifySupabaseFailure(new Error('Falha de rede')), 'unexpected')
 })
 
-test('extrai somente campos textuais seguros para log', () => {
+test('extrai campos textuais para classificação interna (não sanitiza dados para logs)', () => {
   assert.deepEqual(safeSupabaseError({
     message: 'Falha',
     code: '42501',
