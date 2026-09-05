@@ -12,6 +12,7 @@ import { PrivateMediaField } from '@/components/PrivateMediaField'
 import { apagarMidiaPessoal, uploadMidiaPessoal, urlMidiaPessoal, validarImagemPessoal } from '@/lib/midias-pessoais'
 import { getSession, sb } from '@/lib/supabase'
 import { GoogleConnections } from './GoogleConnections'
+import { BugReportForm } from './BugReportForm'
 
 interface PerfilForm {
   nome: string
@@ -169,7 +170,7 @@ export default function ConfiguracoesPage() {
       <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 sm:py-10">
         <header>
           <h1 className="text-3xl font-semibold">Perfil e configurações</h1>
-          <p className="mt-2 text-sm text-muted-foreground">As informações abaixo aparecem no topo do sistema.</p>
+          <p className="mt-2 text-sm text-muted-foreground">Personalize seu perfil, conecte suas contas e reporte problemas.</p>
         </header>
 
         {carregando ? (
@@ -237,6 +238,7 @@ export default function ConfiguracoesPage() {
           </div>
         )}
         <GoogleConnections />
+        <BugReportForm />
       </div>
     </main>
   )
