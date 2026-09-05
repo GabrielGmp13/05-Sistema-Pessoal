@@ -4,8 +4,8 @@ Aplicação web de gestão pessoal de longo prazo, para uso individual. O
 frontend está em produção na Vercel; o repositório usa Next.js 16, React 19,
 TypeScript e Supabase (PostgreSQL, Auth, Storage e RLS).
 
-**Marco atual: v0.2.0 — preparação de beta privado por convite.** Este lote
-ainda depende de publicação autorizada e dos gates de convite/senha,
+**Marco atual: v0.2.0 — preparação de beta privado por convite.** O lote foi
+publicado em 2026-09-05, mas ainda depende dos gates de convite/senha,
 isolamento e homologação. Não é produto público nem cadastro aberto.
 
 ## Entender o produto e operar o beta

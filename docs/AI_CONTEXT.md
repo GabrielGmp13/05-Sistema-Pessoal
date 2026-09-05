@@ -54,13 +54,13 @@ operacional.
 
 ## Estado atual (2026-08)
 
-**Fase:** preparação local da release v0.2.0 / beta privado. As fases históricas v2/v2.1 continuam preservadas; a numeração do manifesto não é downgrade (DEC-074). Convites bloqueados até senha/SMTP, isolamento e homologação. A aplicação Next.js é o único frontend ativo (v1 removida em 2026-07-19, DEC-031).
+**Fase:** release v0.2.0 publicada em 2026-09-05 / preparação do beta privado. As fases históricas v2/v2.1 continuam preservadas; a numeração do manifesto não é downgrade (DEC-074). Convites bloqueados até senha/SMTP, isolamento e homologação. A aplicação Next.js é o único frontend ativo (v1 removida em 2026-07-19, DEC-031).
 **Decisão-chave:** DEC-018 (reabre DEC-006) — frontend migrou de HTML puro para Next.js/React
 **Deploy:** ✅ em produção no Vercel desde 2026-07-13 (não "pendente" — ver `ARCHITECTURE.md`)
 **Schema:** `DATABASE.md` registra 68 tabelas e migrations aplicadas até `20260830000100_anime_related_works.sql`; a cadeia local contém 24 arquivos. Nenhuma operação remota/migration feita na preparação da v0.2.0.
 **Histórico CLI:** evidências dos pós-checks anteriores estão em `DATABASE.md`/`CHANGELOG.md`; a revisão local atual não recertifica o remoto.
 **Reprodutibilidade:** Node.js `24.15.0`, npm `12.0.1`, lockfile e CI ativos. Na preparação v0.2.0: typecheck/build e 76 testes Node aprovados; lint informativo com 25 erros/28 avisos (dívida anterior), zero erros no recorte alterado. Evidências em `RELEASE_V0.2.0.md`.
-**Próxima tarefa imediata:** concluir gates do beta em `TASKS_NOW.md`; publicar só com autorização explícita. Visão do produto e resultados atuais em `RELEASE_V0.2.0.md`, operação em `MANUTENCAO.md` e testes humanos em `teste.md`.
+**Próxima tarefa imediata:** concluir gates do beta em `TASKS_NOW.md`; qualquer novo lote continua dependendo de autorização explícita para publicação. Visão do produto e resultados atuais em `RELEASE_V0.2.0.md`, operação em `MANUTENCAO.md` e testes humanos em `teste.md`.
 
 ---
 

@@ -7,11 +7,13 @@ a tarefa tocar esses contratos. Toda comunicação em português.
 ## Estado e autoridade
 
 - Repositório: `C:\Gabriel Oliveira\05-Sistema-Pessoal`, aplicação em `frontend/`.
-- Produção existente na Vercel; lote v0.2.0 **local, sem commit/push**.
+- Lote v0.2.0 publicado em `main` em 2026-09-05; CI #71 e deploy de produção
+  aprovados. O domínio está protegido por login da Vercel e o smoke depois
+  dessa barreira ainda depende de Gabriel.
 - Sem migration ou operação remota neste lote. Última migration documentada:
   `20260830000100_anime_related_works.sql`; o remoto não foi recertificado aqui.
-- Usuário pediu escolhas simples/seguras sem perguntas, mas não autorizou Git,
-  alteração remota, contratação de e-mail, custo ou abertura pública.
+- O usuário autorizou e o lote foi commitado/pushado. Isso não autoriza novas
+  alterações remotas, contratação de e-mail, custo ou abertura pública.
 - Beta de até dez pessoas já autorizado conceitualmente pela DEC-069; piloto
   proposto de até três. Convites bloqueados até os gates em `BETA_PRIVADO.md`.
 

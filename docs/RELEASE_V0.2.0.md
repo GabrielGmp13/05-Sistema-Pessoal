@@ -1,8 +1,8 @@
 # v0.2.0 — preparação do beta privado
 
-Data: 2026-08-31; validações repetidas em 2026-09-05. **Release preparada
-localmente; não publicada neste lote.**
-Não é liberação automática de convites nem garantia de homologação completa.
+Data: 2026-08-31; validada e publicada em 2026-09-05. **Release disponível no
+deploy de produção protegido da Vercel.** Não é liberação automática de
+convites nem garantia de homologação completa.
 
 ## Objetivo e público
 
@@ -77,6 +77,11 @@ Critérios exatos e responsabilidades: [BETA_PRIVADO.md](BETA_PRIVADO.md).
 Operação semanal/mensal e triagem: [MANUTENCAO.md](MANUTENCAO.md).
 
 ## Validações deste lote
+
+- GitHub Actions `Validate repository` #71 aprovado em 1m15s para o commit
+  `19b0673`; Vercel registrou deploy de produção `success`. O endereço publicado
+  exige login da Vercel, então o smoke do conteúdo após essa barreira fica para
+  Gabriel; a proteção não foi contornada nem automatizada.
 
 - `npm test`: **76 testes aprovados**, incluindo relatos, acesso, diagnóstico
   sem dados pessoais e proteção OAuth. O proxy real também é exercitado com

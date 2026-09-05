@@ -26,8 +26,10 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 - Documentação de produto, beta e manutenção consolidada; tarefas antigas
   preservadas em `archive/TASKS_HISTORY_2026-08.md`.
 - Convites ainda bloqueados por fluxo de senha/SMTP, homologação entre contas
-  e operação/privacidade. **Sem commit/push ou alteração remota neste lote.**
-  Resultados finais e limites: [RELEASE_V0.2.0.md](RELEASE_V0.2.0.md).
+  e operação/privacidade. Em 2026-09-05, quatro commits foram enviados a
+  `main`; CI #71 e o deploy de produção passaram. O domínio protegido pela
+  Vercel ainda exige o smoke autenticado de Gabriel. Resultados finais e
+  limites: [RELEASE_V0.2.0.md](RELEASE_V0.2.0.md).
 
 ---
 

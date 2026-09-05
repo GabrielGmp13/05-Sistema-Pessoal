@@ -1,7 +1,7 @@
 # Tarefas atuais — v0.2.0 / beta privado
 
-Atualizado em 2026-09-05. A aplicação pessoal já está em produção; **este lote
-v0.2.0 está local, sem commit/push, e os convites ainda não estão liberados**.
+Atualizado em 2026-09-05. A aplicação pessoal e o lote v0.2.0 estão em
+produção; **os convites ainda não estão liberados**.
 “v2/v2.1” nos documentos antigos descreve a fase do projeto, não a numeração
 de releases iniciada aqui. Nada da aplicação anterior foi removido.
 
@@ -21,6 +21,8 @@ de releases iniciada aqui. Nada da aplicação anterior foi removido.
       Evidências e limites em [RELEASE_V0.2.0.md](RELEASE_V0.2.0.md).
 - [x] Smoke local de Configurações/relato aprovado no computador e em viewport
       de celular; nenhum relato ou dado foi enviado.
+- [x] Quatro commits revisados enviados a `main`; CI #71 e deploy de produção
+      aprovados. O smoke atrás do login da Vercel permanece com Gabriel.
 
 ## Bloqueios antes de convidar amigos (na ordem)
 
@@ -34,7 +36,7 @@ de releases iniciada aqui. Nada da aplicação anterior foi removido.
    biblioteca/temporadas, temas, uploads e Google por usuário/serviço.
 5. Aprovar aviso de privacidade, uso de dados não sensíveis, exclusão/exportação
    operacional, limites de custo/quota e checklist de [BETA_PRIVADO.md](BETA_PRIVADO.md).
-6. Autorizar commit/push do lote revisado, verificar deploy/CI e smoke final.
+6. Gabriel entrar pela proteção da Vercel e executar o smoke final publicado.
 
 ## Próxima ação de código
 
