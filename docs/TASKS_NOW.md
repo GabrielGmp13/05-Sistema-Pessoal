@@ -36,7 +36,11 @@ aplicada em produção em 2026-09-06. O cadastro continua fechado e o site
        sem criar usuário duplicado. A conta de Gabriel está na lista de teste
        do projeto Google. O cadastro público permanece fechado.
 6. [ ] Se desejar aviso: criar remetente Resend verificado e variáveis server-only.
-7. [ ] Testar duas contas descartáveis: dados, APIs, Storage e chamados cruzados.
+7. [~] Segunda conta real confirmou perfil/Home sem dados da principal e
+       “Meus pedidos” vazio apesar dos três chamados existentes em Gabriel.
+       Storage cruzado já passou no teste SQL local; o Edge bloqueou a tentativa
+       manual da rota técnica antes de chegar ao site. APIs/módulos restantes
+       ainda exigem a rodada completa de `teste.md`.
 8. [ ] Aprovar as escolhas destacadas em `AVISO_DE_PRIVACIDADE_RASCUNHO.md`:
        contato público, idade, bases legais, retenção e exclusão/exportação.
 9. [x] Cloudflare Turnstile criado em modo Managed para o domínio de produção;

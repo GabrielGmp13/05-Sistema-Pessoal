@@ -32,6 +32,12 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
   desafio respondeu com sucesso no login. Só então a secret key foi cadastrada
   no Supabase e a proteção CAPTCHA foi ativada. Nenhum valor de chave entrou no
   repositório ou na documentação.
+- A conta secundária `gamazon1313` foi autenticada numa sessão InPrivate real:
+  Home, perfil, integrações e suporte não exibiram dados da conta principal, e
+  “Meus pedidos” permaneceu vazio apesar dos três protocolos de Gabriel. A
+  tentativa de navegar diretamente à rota técnica do print foi bloqueada pelo
+  próprio Edge antes da requisição; o isolamento cruzado do Storage continua
+  sustentado pelo teste SQL já aprovado, não por essa tentativa do navegador.
 - Troca de senha passou a exigir sessão recente e senha atual no Supabase Auth;
   o fluxo de recuperação por e-mail será retestado após a publicação.
 
