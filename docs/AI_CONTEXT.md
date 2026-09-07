@@ -64,15 +64,15 @@ duplicata; a central criou protocolo e histórico autenticado. Upload de print,
 isolamento com segunda conta e recuperação por e-mail continuam pendentes.
 **Decisão-chave:** DEC-018 (reabre DEC-006) — frontend migrou de HTML puro para Next.js/React
 **Deploy:** ✅ em produção no Vercel desde 2026-07-13 (não "pendente" — ver `ARCHITECTURE.md`)
-**Schema:** produção possui 71 tabelas e migrations aplicadas até `20260905000100_suporte_publico.sql`; a cadeia local/remota contém 25 versões. Suporte passou em reset/teste local, dry-run exclusivo, aplicação autorizada e dry-run final vazio em 2026-09-06.
+**Schema:** produção possui 71 tabelas e 26 migrations aplicadas até `20260907000100_exportacao_dados_usuario.sql`; a exportação passou reset completo, 21 testes SQL, dry-run exclusivo, aplicação autorizada e dry-run final vazio.
 **Histórico CLI:** evidências dos pós-checks anteriores estão em `DATABASE.md`/`CHANGELOG.md`; a revisão local atual não recertifica o remoto.
 **Reprodutibilidade:** Node.js `24.15.0`, npm `12.0.1`, lockfile e CI ativos. Na preparação v0.2.0: typecheck/build e 76 testes Node aprovados; lint informativo com 25 erros/28 avisos (dívida anterior), zero erros no recorte alterado. Evidências em `RELEASE_V0.2.0.md`.
 **Próxima tarefa imediata:** cadastro continua fechado e domínio/Resend/SMTP
 foram adiados para manter a operação gratuita. A conta principal foi reiniciada
 em 2026-09-07, preservando login, perfil e duas conexões Google; o pós-check
 confirmou módulos/pedidos vazios e nenhum arquivo restante fora da mídia do
-perfil. Implementar exportação realmente entregável e ensaiar exportação/
-exclusão com conta descartável, além de concluir recuperação de senha e matriz
+perfil. Publicar a exportação JSON, depois ensaiar exportação/exclusão com conta
+descartável e concluir recuperação de senha e matriz
 de isolamento. Há um único e-mail operacional privado; marca e telefone público
 foram adiados. Estrutura em `MAPA_DO_PROJETO.md`, abertura/testes em
 `ABERTURA_PUBLICA.md` e operação em `MANUTENCAO.md`.
@@ -83,12 +83,12 @@ foram adiados. Estrutura em `MAPA_DO_PROJETO.md`, abertura/testes em
 
 | Camada | Tecnologia |
 |---|---|
-| Banco de dados | PostgreSQL via Supabase (68 tabelas em produção) |
+| Banco de dados | PostgreSQL via Supabase (71 tabelas em produção) |
 | Auth | Supabase Auth (email+senha) |
-| Storage | Supabase Storage — 6 buckets privados e 18 policies; o sexto foi confirmado por pós-check remoto |
+| Storage | Supabase Storage — 7 buckets privados e 18 policies; suporte não aceita acesso direto do cliente |
 | Frontend | Next.js 16.3.2 (React 19) + TypeScript — pasta `frontend/`, único frontend do projeto |
 | Estilização | CSS Modules (Treino/Biblioteca/Dashboard) + Tailwind v4/shadcn (Estudos) — stack mista intencional, DEC-038 |
-| Backend leve | 14 API Routes (Next.js/Vercel): metadados, BRAPI, Anki, Google OAuth/YouTube/Calendar e Places, com credenciais server-only |
+| Backend leve | 19 API Routes (Next.js/Vercel): metadados, BRAPI, Anki, Google OAuth/YouTube/Calendar, Places, suporte e exportação de dados, com credenciais server-only |
 | Offline | Service Worker — fora de escopo por ora (Fase M2, ver `ROADMAP.md`) |
 | Hosting | Vercel — **em produção desde 2026-07-13** |
 | Toolchain | Node.js 24.15.0 + npm 12.0.1; versões fixadas no repositório |

@@ -1554,3 +1554,27 @@ das permissões de Calendar e YouTube. Isso diminui o impacto de uma manutençã
 e permite que cada pessoa escolha contas Google diferentes para cada finalidade.
 O cadastro público continua bloqueado, portanto o primeiro teste é com uma
 conta manual já existente e uma conta Google autorizada no modo Testing.
+
+## DEC-078 — Exportação imediata em JSON e exclusão operacional em duas etapas (2026-09-07)
+
+**Status:** implementada localmente; migration, publicação e ensaio destrutivo
+com conta descartável ainda pendentes.
+
+Depois de criar um protocolo, o próprio usuário autenticado pode baixar um JSON
+dos registros associados à sua conta. A API não recebe UUID do cliente e a
+função de banco só pode ser executada por `service_role`. Credenciais Google,
+senhas, cookies e tokens são excluídos; integrações aparecem apenas como serviço,
+e-mail e datas. Arquivos privados entram como inventário, e a entrega dos
+binários pode ser atendida pelo protocolo para evitar resposta serverless grande
+e links duradouros.
+
+A exclusão não vira botão automático nesta fase. Gabriel confirma identidade e
+escopo no protocolo e usa uma ferramenta local que primeiro simula, depois exige
+e-mail, `--execute` e a frase exata. Ela remove objetos do Storage antes do
+usuário do Auth; o cascade remove registros e integrações. Qualquer falha de
+Storage preserva a conta para retomada. O primeiro ensaio deve usar uma conta
+descartável, nunca a conta principal.
+
+**Motivo:** oferecer acesso prático sem abrir uma rota destrutiva pública nem
+carregar arquivos potencialmente grandes na função da Vercel. O fluxo permanece
+operável por uma pessoa, auditável pelo protocolo e sem serviço pago novo.

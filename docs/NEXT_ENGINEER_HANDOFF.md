@@ -9,14 +9,16 @@ a tarefa tocar esses contratos. Toda comunicação em português.
 > Atualização de 2026-09-07: DEC-075/076/077 superam a direção privada descrita
 > abaixo. Cadastro/recuperação, suporte com protocolos/prints e login Google
 > foram publicados pelo commit `118e487`. A migration de suporte está em
-> produção. Cadastro público, SMTP/Resend e CAPTCHA continuam bloqueados.
+> produção. Cadastro público e SMTP/Resend continuam bloqueados; CAPTCHA já
+> foi configurado e ativado após smoke.
 
 - Repositório: `C:\Gabriel Oliveira\05-Sistema-Pessoal`, aplicação em `frontend/`.
 - Lote de acesso/suporte publicado em `main` em 2026-09-07. Login, FAQ,
   recuperação, cabeçalhos e 401 da API sem sessão passaram no smoke. Login
   Google concluiu o retorno autenticado e vinculou a identidade à conta já
   existente, sem duplicata. Suporte criou protocolo e histórico em produção;
-  print e isolamento entre duas contas continuam pendentes.
+  print e isolamento básico entre duas contas passaram; a matriz completa de
+  módulos continua pendente.
 - A migration `20260905000100_suporte_publico.sql` foi aplicada e validada em
   produção em 2026-09-06.
 - O usuário autorizou e o lote foi commitado/pushado. Isso não autoriza novas
@@ -56,10 +58,13 @@ a tarefa tocar esses contratos. Toda comunicação em português.
 
 ## Próximo bloco (se autorizado)
 
-Preservar cadastro público fechado e concluir homologação de print, duas contas,
-recuperação de senha e integrações. SMTP próprio foi adiado enquanto Gabriel
-mantiver o projeto sem domínio pago; nunca adicionar participantes à equipe
-administradora nem compartilhar senha.
+Publicar o frontend da exportação; `20260907000100` já passou reset completo,
+21 testes SQL, aplicação autorizada e dry-run final vazio. A ferramenta local
+de exclusão está implementada, mas ainda não foi ensaiada. Preservar cadastro
+público fechado e concluir recuperação de senha e a matriz completa de duas
+contas. SMTP próprio foi adiado enquanto Gabriel mantiver o projeto sem domínio
+pago; nunca adicionar participantes à equipe administradora nem compartilhar
+senha.
 
 Antes de abrir: testar duas contas descartáveis e dados cruzados, Storage,
 Google por usuário/serviço, expiração/troca de conta, exportação/exclusão e

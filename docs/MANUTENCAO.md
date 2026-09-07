@@ -87,6 +87,26 @@ reteste → resolvido. Intermitente fica “precisa de evidência”, não “re
 ## Conta, exclusão e incidentes
 
 Procedimento e gates em [BETA_PRIVADO.md](BETA_PRIVADO.md#privacidade-exclusão-e-incidentes).
-Não há exclusão/exportação completa em um clique; pedidos exigem identificação,
-escopo e autorização registrados privadamente. Não prometer revogação instantânea
-de JWTs, apagamento de backups de provedores ou conformidade legal integral.
+A cópia em JSON é gerada pela API autenticada depois que o protocolo é criado;
+ela contém os registros atuais, perfil, integrações sem tokens e inventário dos
+arquivos. Os binários privados continuam sendo atendidos pelo protocolo quando
+necessários. Nunca enviar dump geral, chave, cookie ou token ao solicitante.
+
+Para exclusão, confirmar identidade e e-mail no protocolo, avisar que o acesso,
+os registros, arquivos e conexões serão removidos e executar primeiro a
+simulação local, com variáveis server-only carregadas apenas naquela sessão:
+
+```powershell
+npm run privacy:delete-user -- --email pessoa@example.com
+```
+
+Revisar a contagem, obter a confirmação final registrada e somente então repetir
+com `--execute --confirm "EXCLUIR CONTA E DADOS"`. A ferramenta apaga primeiro
+os objetos de todos os buckets e só depois o usuário do Auth; o `ON DELETE
+CASCADE` remove registros públicos e integrações. Se um bucket falhar, a conta é
+preservada para permitir retomada. Depois, confirmar usuário ausente, zero paths
+com o UUID antigo e registrar somente evidência sanitizada. Não usar a conta
+principal como ensaio.
+
+Não prometer revogação instantânea de sessões já emitidas, apagamento imediato
+de backups dos provedores ou conformidade legal integral.

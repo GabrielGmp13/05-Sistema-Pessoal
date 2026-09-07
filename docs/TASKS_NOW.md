@@ -78,11 +78,15 @@ usuários externos; sem ele, não configurar SMTP/Resend nem abrir cadastro.
 Nenhuma autorização de uma etapa vale automaticamente para Git/deploy ou
 abertura.
 
-Próximo bloco técnico: transformar o pedido de cópia em exportação realmente
-entregável e documentar/ensaiar o procedimento de exclusão integral usando uma
-conta descartável. Em paralelo, concluir a recuperação de senha e a matriz de
-isolamento de `teste.md`; nunca usar novamente a conta principal para ensaiar
-apagamento.
+O download JSON e a ferramenta operacional de exclusão foram implementados
+localmente. Typecheck, 84 testes Node, build, lint do recorte, sintaxe da
+ferramenta, reset completo e 21 testes SQL passaram. O teste-base também foi
+atualizado para as 71 tabelas e sete buckets já existentes após o suporte. A
+migration `20260907000100` foi a única listada no dry-run remoto, foi aplicada
+com autorização e teve dry-run final vazio. Próxima ação: publicar o frontend,
+fazer smoke do download e ensaiar exportação/exclusão somente com conta
+descartável. Em paralelo, concluir recuperação de senha e a matriz de isolamento
+de `teste.md`.
 
 Plano e testes: [ABERTURA_PUBLICA.md](ABERTURA_PUBLICA.md). Estrutura e arquivos:
 [MAPA_DO_PROJETO.md](MAPA_DO_PROJETO.md). Histórico anterior:

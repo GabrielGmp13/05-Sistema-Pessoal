@@ -28,7 +28,7 @@ Vercel — frontend/                  Supabase                Supabase
 - Schema PostgreSQL ✅ executado — 44 tabelas em `public` confirmadas via dump real do banco (ver `DATABASE.md`).
 - Auth ✅ funcionando (email + senha).
 - Storage ✅ cinco buckets/14 policies históricos reproduzidos pela baseline;
-  produção atual possui seis buckets privados e 18 policies após a migration
+  produção atual possui sete buckets privados e 18 policies após a migration
   incremental de mídias. Ver `DATABASE.md` e os snapshots.
 - Deploy no Vercel ✅ feito (`frontend/` como Root Directory) desde 2026-07-13.
 - Realtime 🔄 não implementado.

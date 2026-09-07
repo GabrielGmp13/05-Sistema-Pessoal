@@ -34,7 +34,7 @@ Chaves estrangeiras seguem `<tabela_singular>_uuid` (ex: `treino_uuid`, `materia
 
 **GRANT é obrigatório em toda migration, não opcional.** Projetos Supabase criados a partir de 2026-05-30 não recebem GRANT automático em nenhuma tabela nova, mesmo com RLS e policy corretos — sem o GRANT explícito para `authenticated`, a tabela fica inacessível via Data API (badge "API DISABLED" no dashboard) e o `supabase-js` recebe erro 42501 mesmo com policies válidas. Tabelas server-only também precisam conceder explicitamente ao `service_role` as operações usadas. RLS/BYPASSRLS e GRANT são camadas independentes: GRANT decide se o papel alcança a tabela; RLS decide quais linhas ele vê dentro dela.
 
-**Confirmado no banco real (2026-08):** a baseline tinha 44 tabelas em `public`, todas com RLS, policy `user_own_data` e GRANT para `authenticated`. As migrations incrementais aplicadas adicionaram 24 tabelas; produção possui 68 tabelas. `anon` continua sem `SELECT`/`INSERT` sobre dados da aplicação.
+**Confirmado no banco real (2026-08):** a baseline tinha 44 tabelas em `public`, todas com RLS, policy `user_own_data` e GRANT para `authenticated`. As migrations incrementais até agosto adicionaram 24 tabelas; a migration de suporte acrescentou três em setembro e produção possui 71 tabelas. `anon` continua sem `SELECT`/`INSERT` sobre dados da aplicação.
 
 Índices parciais `WHERE NOT deleted` existem nas tabelas principais para acelerar as queries que sempre filtram registros ativos — confirmados no dump para praticamente todas as tabelas de alto volume (ver lista completa na seção Índices, ao final).
 
@@ -79,6 +79,8 @@ dessas duas pastas deve ser executado como migration.
 | `20260827000100` | `20260827000100_homologacao_fluxos_pessoais.sql` | ✅ Reset e 18 scripts SQL aprovados; aplicada em produção em 2026-08-27 após dry-run exclusivo; pós-check confirmou histórico, tabelas, campos, FKs, RLS e GRANTs; dry-run final vazio |
 | `20260829000100` | `20260829000100_agenda_service_role_grant.sql` | ✅ Reset completo e 18 scripts SQL aprovados; aplicada em produção em 2026-08-29 após dry-run exclusivo; pós-check confirmou CRUD do `service_role`, histórico único e dry-run final vazio |
 | `20260830000100` | `20260830000100_anime_related_works.sql` | ✅ Aplicada em produção em 2026-08-30 após precheck/dry-run exclusivo; histórico alinhado e dry-run final vazio |
+| `20260905000100` | `20260905000100_suporte_publico.sql` | ✅ Reset/teste local aprovados; aplicada em produção em 2026-09-06; histórico de 25 versões e dry-run final vazio |
+| `20260907000100` | `20260907000100_exportacao_dados_usuario.sql` | ✅ Reset completo e 21 testes SQL aprovados; dry-run listou somente esta migration; aplicada em produção em 2026-09-07; dry-run final vazio |
 
 > **Estado confirmado (2026-08-30):** produção e cadeia local estão alinhadas
 > até `20260830000100_anime_related_works.sql`, com 68 tabelas, seis buckets
@@ -1304,13 +1306,16 @@ buckets privados e usar signed URLs/path `{user_id}/arquivo.ext` (DEC-010).
 imagens a 8 MB e documentos a 15 MB. As quatro policies isolam a primeira
 pasta por `auth.uid()` com `USING`/`WITH CHECK` conforme a operação.
 
+Desde `20260905000100`, o sétimo bucket privado é `suporte-anexos`. Ele não
+possui policy de cliente: upload e leitura passam apenas pelas APIs autenticadas.
+
 ### Suporte público — migration aplicada `20260905000100_suporte_publico.sql`
 
 Reset completo e teste SQL local passaram em 2026-09-05. Em 2026-09-06, o
 precheck e dry-run remoto listaram somente esta migration; ela foi aplicada
 com autorização de Gabriel. O histórico final alinhou as 25 versões e o dry-run
 posterior ficou vazio. As tabelas/bucket agora existem em produção, mas o
-frontend dependente ainda não foi publicado.
+frontend dependente foi publicado em 2026-09-07.
 
 - `chamados_suporte`: protocolo, tipo (`bug|sugestao`), texto, contexto,
   status (`recebido|em_analise|resolvido|fechado`) e resposta.
@@ -1324,6 +1329,21 @@ frontend dependente ainda não foi publicado.
 As três tabelas têm RLS e somente policy `SELECT` para `auth.uid() = user_id`.
 Os GRANTs obrigatórios existem, mas RLS continua negando INSERT/UPDATE/DELETE
 diretos do cliente. Nomes de FK: `chamado_suporte_uuid`.
+
+### Exportação de dados — migration aplicada `20260907000100_exportacao_dados_usuario.sql`
+
+`exportar_dados_usuario(uuid)` agrega em JSON todas as linhas das tabelas
+`public` que possuem `user_id`, sempre filtradas pelo usuário alvo. A tabela
+server-only `integracoes_google` fica fora da coleta genérica: somente serviço,
+e-mail e datas são expostos, nunca `credenciais_cifradas`, scopes ou tokens. O
+resultado também inclui inventário dos objetos de Storage, sem tornar buckets
+públicos. A função usa `SECURITY DEFINER`, `search_path` vazio e execução
+exclusiva de `service_role`; usuários autenticados não podem chamá-la direto.
+
+A API autenticada sempre fornece o UUID da sessão atual, retorna JSON com
+`no-store` e não aceita UUID informado pelo navegador. Reset completo e os 21
+testes SQL passaram em 2026-09-07. O dry-run remoto listou exclusivamente esta
+migration; após autorização, ela foi aplicada e o dry-run final retornou vazio.
 
 ---
 

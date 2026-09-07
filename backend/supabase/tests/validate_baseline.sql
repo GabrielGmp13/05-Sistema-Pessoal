@@ -15,39 +15,39 @@ $$;
 
 -- Estrutura do schema public.
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 68
+  (SELECT count(*) = 71
    FROM pg_class c
    JOIN pg_namespace n ON n.oid = c.relnamespace
    WHERE n.nspname = 'public' AND c.relkind = 'r'),
-  'public deve conter exatamente 68 tabelas'
+  'public deve conter exatamente 71 tabelas'
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 68
+  (SELECT count(*) = 71
    FROM pg_constraint c
    JOIN pg_namespace n ON n.oid = c.connamespace
    WHERE n.nspname = 'public' AND c.contype = 'p'),
-  'public deve conter exatamente 68 PKs'
+  'public deve conter exatamente 71 PKs'
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 131
+  (SELECT count(*) = 136
    FROM pg_constraint c
    JOIN pg_namespace n ON n.oid = c.connamespace
    WHERE n.nspname = 'public' AND c.contype = 'f'),
-  'public deve conter exatamente 131 FKs'
+  'public deve conter exatamente 136 FKs'
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 86
+  (SELECT count(*) = 102
    FROM pg_constraint c
    JOIN pg_namespace n ON n.oid = c.connamespace
    WHERE n.nspname = 'public' AND c.contype = 'c'),
-  'public deve conter exatamente 86 checks'
+  'public deve conter exatamente 102 checks'
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 73
+  (SELECT count(*) = 78
    FROM pg_index i
    JOIN pg_class t ON t.oid = i.indrelid
    JOIN pg_namespace n ON n.oid = t.relnamespace
@@ -55,17 +55,17 @@ SELECT pg_temp.assert_true(
    WHERE n.nspname = 'public'
      AND t.relkind = 'r'
      AND con.oid IS NULL),
-  'public deve conter exatamente 73 indices explicitos'
+  'public deve conter exatamente 78 indices explicitos'
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 68
+  (SELECT count(*) = 71
    FROM pg_class c
    JOIN pg_namespace n ON n.oid = c.relnamespace
    WHERE n.nspname = 'public'
      AND c.relkind = 'r'
      AND c.relrowsecurity),
-  'as 68 tabelas public devem ter RLS habilitada'
+  'as 71 tabelas public devem ter RLS habilitada'
 );
 
 SELECT pg_temp.assert_true(
@@ -184,21 +184,21 @@ SELECT pg_temp.assert_true(
 );
 
 SELECT pg_temp.assert_true(
-  NOT EXISTS (
-    SELECT 1
+  (SELECT count(*) = 1
     FROM pg_trigger tr
     JOIN pg_class c ON c.oid = tr.tgrelid
     JOIN pg_namespace n ON n.oid = c.relnamespace
-    WHERE n.nspname = 'public' AND NOT tr.tgisinternal
-  ),
-  'public nao deve conter ordinary triggers'
+    WHERE n.nspname = 'public'
+      AND NOT tr.tgisinternal
+      AND tr.tgname = 'chamados_suporte_registrar_historico'),
+  'public deve conter somente o trigger de historico do suporte'
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 1
+  (SELECT count(*) = 3
    FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
    WHERE n.nspname = 'public'),
-  'rls_auto_enable deve ser a unica funcao public'
+  'public deve conter as funcoes de RLS, historico e exportacao'
 );
 
 -- Comportamento do event trigger: criação descartável em public habilita RLS.
@@ -258,11 +258,13 @@ SELECT pg_temp.assert_true(
        ARRAY['image/jpeg','image/png','image/webp','application/pdf']::text[], false),
       ('redacoes', 'redacoes', 'STANDARD', false, 10485760::bigint, NULL::text[], false),
       ('shape', 'shape', 'STANDARD', false, 10485760::bigint,
+       ARRAY['image/jpeg','image/png','image/webp']::text[], false),
+      ('suporte-anexos', 'suporte-anexos', 'STANDARD', false, 2097152::bigint,
        ARRAY['image/jpeg','image/png','image/webp']::text[], false)
     )
   )
-  AND (SELECT count(*) = 6 FROM storage.buckets),
-  'os seis buckets devem preservar a configuracao remota, exceto timestamps'
+  AND (SELECT count(*) = 7 FROM storage.buckets),
+  'os sete buckets devem preservar a configuracao remota, exceto timestamps'
 );
 
 -- Definições literais das 18 policies de storage.objects.

@@ -25,7 +25,25 @@ export function PrivacyRequestForm() {
       const result = await response.json()
       if (!response.ok) throw new Error(result.erro || 'Não foi possível registrar a solicitação.')
       setConfirmation('')
-      setMessage(`Solicitação registrada. Guarde o protocolo ${result.protocolo}. Ela também aparecerá em “Meus pedidos”.`)
+      if (tipo === 'copia') {
+        const exportResponse = await fetch('/api/privacidade/exportacao', { cache: 'no-store' })
+        if (!exportResponse.ok) {
+          setMessage(`Protocolo ${result.protocolo} registrado. O download não ficou pronto agora; acompanhe o atendimento em “Meus pedidos”.`)
+        } else {
+          const blob = await exportResponse.blob()
+          const disposition = exportResponse.headers.get('Content-Disposition') ?? ''
+          const filename = disposition.match(/filename="([^"]+)"/)?.[1] ?? 'projeto-pessoal-dados.json'
+          const url = URL.createObjectURL(blob)
+          const link = document.createElement('a')
+          link.href = url
+          link.download = filename
+          link.click()
+          window.setTimeout(() => URL.revokeObjectURL(url), 1_000)
+          setMessage(`Cópia baixada e protocolo ${result.protocolo} registrado em “Meus pedidos”.`)
+        }
+      } else {
+        setMessage(`Solicitação registrada. Guarde o protocolo ${result.protocolo}. Ela também aparecerá em “Meus pedidos”.`)
+      }
       window.dispatchEvent(new Event('support-refresh'))
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Não foi possível registrar a solicitação.')
@@ -41,9 +59,9 @@ export function PrivacyRequestForm() {
 
       <div className="space-y-3 rounded-lg border border-border p-4">
         <h3 className="flex items-center gap-2 font-semibold"><Download className="size-4" />Pedir cópia dos meus dados</h3>
-        <p className="text-sm text-muted-foreground">Solicita uma cópia possível das informações vinculadas à conta.</p>
+        <p className="text-sm text-muted-foreground">Baixa um arquivo JSON com seus registros e gera um protocolo para solicitar os arquivos privados, se necessário.</p>
         <Button type="button" variant="outline" disabled={sending !== null} onClick={() => void send('copia')}>
-          {sending === 'copia' ? <Loader2 className="animate-spin" /> : null}Gerar protocolo de cópia
+          {sending === 'copia' ? <Loader2 className="animate-spin" /> : null}Baixar cópia e gerar protocolo
         </Button>
       </div>
 

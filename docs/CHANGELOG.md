@@ -8,6 +8,15 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## Próxima versão — acesso e suporte público (local, 2026-09-05)
 
+- Exportação autenticada foi implementada localmente: após gerar protocolo, a
+  pessoa baixa um JSON dos próprios registros, perfil, integrações sem tokens e
+  inventário de arquivos. Uma ferramenta administrativa de exclusão opera em
+  simulação por padrão e exige três confirmações para apagar Storage e Auth na
+  ordem segura. Typecheck, 84 testes, build, lint do recorte, reset completo e
+  21 testes SQL passaram. O teste-base foi reconciliado com as 71 tabelas, sete
+  buckets, trigger de suporte e funções atuais. O dry-run remoto listou somente
+  `20260907000100`; após autorização, a migration foi aplicada e o dry-run final
+  retornou vazio.
 - Em 2026-09-07, a conta principal de produção foi reiniciada a pedido do
   proprietário: registros pessoais e chamados de teste foram removidos e os
   nove arquivos associados foram apagados pelos controles do Storage. O
