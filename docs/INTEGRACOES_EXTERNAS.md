@@ -27,6 +27,11 @@ Chaves públicas do Supabase identificam o projeto; não substituem RLS.
 | SMTP no Supabase Dashboard | Segredo no provedor/Auth, não no frontend | Convites/recuperação para amigos; pendente |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Site key pública | Widget CAPTCHA no login, cadastro e recuperação |
 
+O Turnstile está ativo em produção desde 2026-09-07. A chave pública fica
+somente na Vercel e a chave secreta somente na configuração de Auth do
+Supabase. O widget usa o modo Managed e o hostname de produção; não copiar as
+chaves para `.env` versionado, documentação ou chamados.
+
 `NODE_ENV` e `VERCEL_GIT_COMMIT_SHA` são metadados do runtime/deploy, não chaves
 a cadastrar manualmente. **Reportar bug não exige API, e-mail ou variável nova.**
 

@@ -26,6 +26,12 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 - O frontend do Cloudflare Turnstile foi preparado sem dependência nova no
   login, cadastro e recuperação. Ele só aparece com a site key pública e deve
   ser publicado antes de o CAPTCHA ser ativado no Supabase.
+- O widget gratuito `Projeto Pessoal - Produção` foi criado no Cloudflare em
+  modo Managed para o endereço `*.vercel.app`. A site key foi cadastrada como
+  configuração pública de produção na Vercel, o redeploy ficou Ready e o
+  desafio respondeu com sucesso no login. Só então a secret key foi cadastrada
+  no Supabase e a proteção CAPTCHA foi ativada. Nenhum valor de chave entrou no
+  repositório ou na documentação.
 - Troca de senha passou a exigir sessão recente e senha atual no Supabase Auth;
   o fluxo de recuperação por e-mail será retestado após a publicação.
 

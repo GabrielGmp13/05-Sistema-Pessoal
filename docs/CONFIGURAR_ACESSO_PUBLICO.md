@@ -1,6 +1,6 @@
 # Configurar acesso público — guia para Gabriel
 
-Atualizado em 2026-09-06. Estas configurações são externas ao código. Não
+Atualizado em 2026-09-07. Estas configurações são externas ao código. Não
 copiar chaves, senhas ou prints dos painéis para Git, documentação ou chamados.
 
 ## 1. O que o Supabase faz no suporte
@@ -148,7 +148,8 @@ as contas precisam estar no projeto remoto e usar apenas dados descartáveis.
 - [ ] Domínio/remetente escolhidos.
 - [ ] Resend ou outro SMTP aprovado e configurado.
 - [ ] URLs/templates testados.
-- [ ] Turnstile implementado no frontend e depois ativado no Supabase.
+- [x] Turnstile implementado/publicado e depois ativado no Supabase; widget
+      Managed restrito ao domínio de produção e chaves fora do Git.
 - [ ] Duas contas passaram no isolamento.
 - [ ] Aviso de privacidade aprovado.
 - [ ] Commit/push e deploy autorizados.
