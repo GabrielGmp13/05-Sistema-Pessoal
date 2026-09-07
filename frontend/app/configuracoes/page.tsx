@@ -62,10 +62,10 @@ export default function ConfiguracoesPage() {
       const meta = session?.user.user_metadata
       setEmail(session?.user.email ?? '')
       setForm({
-        nome: meta?.full_name || meta?.name || session?.user.email?.split('@')[0] || '',
-        subtitulo: meta?.subtitle || '',
-        avatarUrl: meta?.avatar_url || '',
-        backgroundUrl: meta?.background_url || '',
+        nome: meta?.app_display_name || meta?.full_name || meta?.name || session?.user.email?.split('@')[0] || '',
+        subtitulo: meta?.app_subtitle || meta?.subtitle || '',
+        avatarUrl: meta?.app_avatar_url || meta?.avatar_url || '',
+        backgroundUrl: meta?.app_background_url || meta?.background_url || '',
       })
       const nextAvatarPath = meta?.avatar_path || null
       const nextBackgroundPath = meta?.background_path || null
@@ -130,11 +130,10 @@ export default function ConfiguracoesPage() {
     const { error } = await sb.auth.updateUser({
       data: {
         ...metadataAtual,
-        full_name: form.nome.trim(),
-        name: form.nome.trim(),
-        subtitle: form.subtitulo.trim() || null,
-        avatar_url: form.avatarUrl.trim() || null,
-        background_url: form.backgroundUrl.trim() || null,
+        app_display_name: form.nome.trim(),
+        app_subtitle: form.subtitulo.trim() || null,
+        app_avatar_url: form.avatarUrl.trim() || null,
+        app_background_url: form.backgroundUrl.trim() || null,
         avatar_path: novoAvatarPath,
         background_path: novoBackgroundPath,
       },

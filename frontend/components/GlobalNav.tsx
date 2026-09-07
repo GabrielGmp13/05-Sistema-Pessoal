@@ -101,11 +101,11 @@ export function GlobalNav() {
         const avatarSigned = avatarResultado.status === 'fulfilled' ? avatarResultado.value : null
         const backgroundSigned = backgroundResultado.status === 'fulfilled' ? backgroundResultado.value : null
         setPerfil({
-          nome: meta?.full_name || meta?.name || session?.user.email?.split('@')[0] || 'Usuário',
-          descricao: meta?.subtitle || null,
+          nome: meta?.app_display_name || meta?.full_name || meta?.name || session?.user.email?.split('@')[0] || 'Usuário',
+          descricao: meta?.app_subtitle || meta?.subtitle || null,
           email: session?.user.email || null,
-          avatarUrl: avatarSigned || meta?.avatar_url || null,
-          backgroundUrl: backgroundSigned || meta?.background_url || null,
+          avatarUrl: avatarSigned || meta?.app_avatar_url || meta?.avatar_url || null,
+          backgroundUrl: backgroundSigned || meta?.app_background_url || meta?.background_url || null,
         })
       } catch (error) {
         console.error('Erro ao carregar perfil compacto da Biblioteca:', error)

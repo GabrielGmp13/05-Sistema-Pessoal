@@ -11,8 +11,14 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 - Em 2026-09-07, login Google foi configurado no Supabase com projeto/cliente
   OAuth separado das integrações Calendar/YouTube. A URL de retorno de produção
   foi autorizada e o botão foi publicado pelo commit `118e487`; o cadastro
-  público continua desligado. O fluxo chegou à confirmação de identidade do
-  Google, cuja conclusão permanece manual.
+  público continua desligado. O fluxo completo retornou autenticado e vinculou
+  o Google ao usuário já existente, sem duplicar a conta. Metadados próprios do
+  perfil passaram a usar chaves `app_*`, para novos logins não substituírem o
+  nome, subtítulo, avatar e fundo escolhidos no site.
+- A central de suporte passou no primeiro smoke autenticado de produção: uma
+  sugestão criou protocolo, status Recebido e evento inicial, todos exibidos em
+  “Meus pedidos”. Upload de print e isolamento com uma segunda conta continuam
+  pendentes.
 - Troca de senha passou a exigir sessão recente e senha atual no Supabase Auth;
   o fluxo de recuperação por e-mail será retestado após a publicação.
 

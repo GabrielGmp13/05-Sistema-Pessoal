@@ -13,8 +13,10 @@ a tarefa tocar esses contratos. Toda comunicação em português.
 
 - Repositório: `C:\Gabriel Oliveira\05-Sistema-Pessoal`, aplicação em `frontend/`.
 - Lote de acesso/suporte publicado em `main` em 2026-09-07. Login, FAQ,
-  recuperação, cabeçalhos e 401 da API sem sessão passaram no smoke. O teste
-  Google aguarda Gabriel concluir a verificação de identidade na aba aberta.
+  recuperação, cabeçalhos e 401 da API sem sessão passaram no smoke. Login
+  Google concluiu o retorno autenticado e vinculou a identidade à conta já
+  existente, sem duplicata. Suporte criou protocolo e histórico em produção;
+  print e isolamento entre duas contas continuam pendentes.
 - A migration `20260905000100_suporte_publico.sql` foi aplicada e validada em
   produção em 2026-09-06.
 - O usuário autorizou e o lote foi commitado/pushado. Isso não autoriza novas
@@ -54,11 +56,10 @@ a tarefa tocar esses contratos. Toda comunicação em português.
 
 ## Próximo bloco (se autorizado)
 
-Convite/primeira senha/recuperação via Supabase Auth, sem cadastro público.
-Hoje `/login` só faz `signInWithPassword`; callback Google não resolve Auth.
-SMTP padrão não serve para convidar amigos fora da equipe Supabase; Gabriel
-precisa escolher/configurar um provedor e autorizar custos, se houver. Nunca
-adicionar participantes à equipe administradora nem compartilhar senha.
+Preservar cadastro público fechado e concluir homologação de print, duas contas,
+recuperação de senha e integrações. SMTP próprio foi adiado enquanto Gabriel
+mantiver o projeto sem domínio pago; nunca adicionar participantes à equipe
+administradora nem compartilhar senha.
 
 Antes de abrir: testar duas contas descartáveis e dados cruzados, Storage,
 Google por usuário/serviço, expiração/troca de conta, exportação/exclusão e

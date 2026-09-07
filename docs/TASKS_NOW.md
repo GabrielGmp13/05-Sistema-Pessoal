@@ -32,9 +32,9 @@ aplicada em produção em 2026-09-06. O cadastro continua fechado e o site
 4. [~] URLs de Auth configuradas para produção em 2026-09-07; SMTP ainda
        depende de domínio próprio e escolha de remetente.
 5. [x] Login Google configurado no Supabase com cliente OAuth separado;
-       botão publicado, aguardando concluir o teste com uma
-       conta manual já existente. A conta de Gabriel já foi adicionada como
-       usuária de teste do projeto Google. O cadastro público permanece fechado.
+       fluxo completo aprovado em produção com a conta manual já existente,
+       sem criar usuário duplicado. A conta de Gabriel está na lista de teste
+       do projeto Google. O cadastro público permanece fechado.
 6. [ ] Se desejar aviso: criar remetente Resend verificado e variáveis server-only.
 7. [ ] Testar duas contas descartáveis: dados, APIs, Storage e chamados cruzados.
 8. [ ] Aprovar as escolhas destacadas em `AVISO_DE_PRIVACIDADE_RASCUNHO.md`:
@@ -42,9 +42,10 @@ aplicada em produção em 2026-09-06. O cadastro continua fechado e o site
 9. [ ] Configurar CAPTCHA/rate limits e manter signup remoto/UI fechados.
        Troca segura de senha e exigência da senha atual foram ativadas no Auth
        em 2026-09-07; a recuperação por e-mail precisa ser testada no deploy.
-10. [~] Commit/push e deploy concluídos (`118e487`); tela de login, FAQ,
+10. [x] Commit/push e deploy concluídos (`118e487`); tela de login, FAQ,
         recuperação, cabeçalhos e API sem sessão passaram no smoke. Login Google
-        chegou à verificação de identidade e aguarda conclusão humana.
+        concluiu o retorno autenticado e o suporte criou o protocolo
+        `SP-20260907-1CE35332`, com histórico inicial visível somente ao autor.
 11. [ ] Só depois autorizar abertura: habilitar signup remoto e a variável pública juntos.
 
 ## Próxima ação

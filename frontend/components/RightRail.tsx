@@ -156,11 +156,11 @@ export function RightRail({ recolhendo = false }: { recolhendo?: boolean }) {
         const backgroundSigned = backgroundResultado.status === 'fulfilled' ? backgroundResultado.value : null
 
         setPerfil({
-          nome: meta?.full_name || meta?.name || session.user.email?.split('@')[0] || 'Usuário',
+          nome: meta?.app_display_name || meta?.full_name || meta?.name || session.user.email?.split('@')[0] || 'Usuário',
           email: session.user.email ?? null,
-          descricao: meta?.subtitle || null,
-          avatarUrl: avatarSigned || meta?.avatar_url || null,
-          backgroundUrl: backgroundSigned || meta?.background_url || null,
+          descricao: meta?.app_subtitle || meta?.subtitle || null,
+          avatarUrl: avatarSigned || meta?.app_avatar_url || meta?.avatar_url || null,
+          backgroundUrl: backgroundSigned || meta?.app_background_url || meta?.background_url || null,
         })
       } else {
         setPerfil(null)
