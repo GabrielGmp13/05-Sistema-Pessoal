@@ -71,7 +71,8 @@ isolamento com segunda conta e recuperação por e-mail continuam pendentes.
 foram adiados para manter a operação gratuita. A conta principal foi reiniciada
 em 2026-09-07, preservando login, perfil e duas conexões Google; o pós-check
 confirmou módulos/pedidos vazios e nenhum arquivo restante fora da mídia do
-perfil. Publicar a exportação JSON, depois ensaiar exportação/exclusão com conta
+perfil. A exportação JSON foi publicada pelo commit `af8486b`, com deploy
+`Ready` e recusa 401 sem sessão confirmada. Ensaiar exportação/exclusão com conta
 descartável e concluir recuperação de senha e matriz
 de isolamento. Há um único e-mail operacional privado; marca e telefone público
 foram adiados. Estrutura em `MAPA_DO_PROJETO.md`, abertura/testes em

@@ -78,15 +78,16 @@ usuários externos; sem ele, não configurar SMTP/Resend nem abrir cadastro.
 Nenhuma autorização de uma etapa vale automaticamente para Git/deploy ou
 abertura.
 
-O download JSON e a ferramenta operacional de exclusão foram implementados
-localmente. Typecheck, 84 testes Node, build, lint do recorte, sintaxe da
+O download JSON e a ferramenta operacional de exclusão foram publicados no
+commit `af8486b`. Typecheck, 84 testes Node, build, lint do recorte, sintaxe da
 ferramenta, reset completo e 21 testes SQL passaram. O teste-base também foi
 atualizado para as 71 tabelas e sete buckets já existentes após o suporte. A
 migration `20260907000100` foi a única listada no dry-run remoto, foi aplicada
-com autorização e teve dry-run final vazio. Próxima ação: publicar o frontend,
-fazer smoke do download e ensaiar exportação/exclusão somente com conta
-descartável. Em paralelo, concluir recuperação de senha e a matriz de isolamento
-de `teste.md`.
+com autorização e teve dry-run final vazio. O deploy de produção ficou `Ready`
+no mesmo commit, o site respondeu 200 e a rota de exportação recusou acesso sem
+sessão com 401. Próxima ação: fazer o smoke autenticado do download e ensaiar
+exportação/exclusão somente com conta descartável. Em paralelo, concluir
+recuperação de senha e a matriz de isolamento de `teste.md`.
 
 Plano e testes: [ABERTURA_PUBLICA.md](ABERTURA_PUBLICA.md). Estrutura e arquivos:
 [MAPA_DO_PROJETO.md](MAPA_DO_PROJETO.md). Histórico anterior:

@@ -16,7 +16,9 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
   21 testes SQL passaram. O teste-base foi reconciliado com as 71 tabelas, sete
   buckets, trigger de suporte e funções atuais. O dry-run remoto listou somente
   `20260907000100`; após autorização, a migration foi aplicada e o dry-run final
-  retornou vazio.
+  retornou vazio. O frontend foi publicado pelo commit `af8486b`; o deploy de
+  produção ficou `Ready`, o site respondeu 200 e a API recusou corretamente uma
+  tentativa sem sessão com 401.
 - Em 2026-09-07, a conta principal de produção foi reiniciada a pedido do
   proprietário: registros pessoais e chamados de teste foram removidos e os
   nove arquivos associados foram apagados pelos controles do Storage. O
