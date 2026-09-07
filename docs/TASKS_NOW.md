@@ -19,6 +19,7 @@ aplicada em produção em 2026-09-06. O cadastro continua fechado e o site
 - [x] Decisões, princípios, mapa do projeto e plano de abertura atualizados.
 - [x] Solicitações autenticadas de cópia e exclusão com protocolo, histórico e
       frase exata de confirmação; nenhuma exclusão acontece automaticamente.
+      Pedido real de cópia homologado em produção com protocolo e histórico.
 
 ## Gates antes de aplicar/publicar este lote
 

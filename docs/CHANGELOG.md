@@ -12,6 +12,8 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
   da conta, reaproveitando protocolo e histórico privados da central de suporte.
   Exclusão exige a frase exata `EXCLUIR MINHA CONTA`, e o pedido apenas inicia
   a análise e confirmação de identidade: nenhum dado é apagado automaticamente.
+  O pedido real de cópia passou no smoke de produção, aparecendo imediatamente
+  em “Meus pedidos” com status Recebido e evento inicial no histórico.
 - O aviso de privacidade versão 1.0 foi aprovado e disponibilizado publicamente
   no login, FAQ e Configurações. Ele registra o responsável e canal público,
   dados, finalidades, fornecedores, retenção e direitos. Saúde, Diário, Finanças
