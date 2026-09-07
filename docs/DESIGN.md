@@ -332,6 +332,14 @@ medidas e aparência dos componentes reais para não haver piscada, duplicação
 - Toda ação destrutiva passa por modal de confirmação — nunca `confirm()` nativo do browser.
 - Toda lista que pode ficar vazia tem um elemento `.vazio` dedicado.
 - `esc()`/sanitização é obrigatório em qualquer interpolação de dado do usuário em `innerHTML` (raramente usado no projeto React — a maioria já é seguro por padrão via JSX).
+
+### Central de suporte (2026-09-05)
+
+Configurações agrupa o envio e “Meus pedidos” em cards distintos, sem criar
+área administrativa no site. Bug e sugestão são duas ações do mesmo formulário;
+campos técnicos aparecem somente para bug. Protocolo, status, resposta e linha
+do tempo ficam agrupados por chamado. Texto do usuário usa JSX com preservação
+de quebras, nunca HTML interpretado. Anexos aparecem como links privados.
 ## Títulos de Anime na coleção (2026-08-30)
 
 Cards de Anime apresentam primeiro o nome original com sigla calculada e,

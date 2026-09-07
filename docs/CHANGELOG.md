@@ -6,6 +6,41 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ---
 
+## Próxima versão — acesso e suporte público (local, 2026-09-05)
+
+- Em 2026-09-07, login Google foi configurado no Supabase com projeto/cliente
+  OAuth separado das integrações Calendar/YouTube. A URL de retorno de produção
+  foi autorizada e o botão foi implementado localmente; nada foi publicado e o
+  cadastro público continua desligado.
+- Troca de senha passou a exigir sessão recente e senha atual no Supabase Auth;
+  o fluxo de recuperação por e-mail será retestado após a publicação.
+
+- Em 2026-09-06, Gabriel aprovou a migration de suporte. Precheck e dry-run
+  listaram exclusivamente `20260905000100_suporte_publico.sql`; aplicação
+  concluída, 25 versões alinhadas e dry-run final vazio. O frontend permanece
+  local e cadastro público desligado. O wrapper npm imprimiu a connection URL
+  no log privado da tarefa; nenhuma credencial entrou no Git, mas a senha do
+  banco deve ser rotacionada antes da publicação.
+
+- Cadastro por e-mail implementado atrás de chave desligada por padrão;
+  recuperação, confirmação de e-mail/convite e definição de senha adicionadas.
+- Central autenticada de bugs e sugestões com protocolo, histórico, resposta e
+  prints privados; e-mail opcional serve apenas como aviso, sem painel admin.
+- FAQ público separado da sugestão: FAQ responde dúvidas comuns; sugestão gera
+  pedido autenticado e acompanhável.
+- Cabeçalhos globais bloqueiam MIME sniffing, framing/clickjacking e permissões
+  de câmera, microfone e geolocalização não usadas pelo site.
+- Migration incremental e testes locais adicionados, ainda não aplicados em
+  produção. Abertura pública, SMTP/Resend, CAPTCHA, Auth remoto e publicação
+  permanecem gates separados com aprovação de Gabriel.
+- Princípios e decisões atualizados para “pessoal primeiro, público preparado”,
+  custo aprovado e organização legível para manutenção solo/equipe futura.
+- Reset completo do Supabase e teste SQL do suporte aprovados: bucket privado,
+  três RLS de leitura própria, isolamento entre contas, escrita cliente negada
+  e histórico administrativo automático. Produção permaneceu intocada.
+
+---
+
 ## v0.2.0 — preparação local de beta privado (2026-08-31)
 
 - Em 2026-09-05, typecheck, 76 testes, build e `git diff --check` foram

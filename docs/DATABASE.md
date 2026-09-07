@@ -1304,6 +1304,27 @@ buckets privados e usar signed URLs/path `{user_id}/arquivo.ext` (DEC-010).
 imagens a 8 MB e documentos a 15 MB. As quatro policies isolam a primeira
 pasta por `auth.uid()` com `USING`/`WITH CHECK` conforme a operação.
 
+### Suporte público — migration aplicada `20260905000100_suporte_publico.sql`
+
+Reset completo e teste SQL local passaram em 2026-09-05. Em 2026-09-06, o
+precheck e dry-run remoto listaram somente esta migration; ela foi aplicada
+com autorização de Gabriel. O histórico final alinhou as 25 versões e o dry-run
+posterior ficou vazio. As tabelas/bucket agora existem em produção, mas o
+frontend dependente ainda não foi publicado.
+
+- `chamados_suporte`: protocolo, tipo (`bug|sugestao`), texto, contexto,
+  status (`recebido|em_analise|resolvido|fechado`) e resposta.
+- `chamados_suporte_historico`: eventos imutáveis ao usuário; o primeiro nasce
+  na criação e mudanças administrativas de status/resposta usam trigger.
+- `chamados_suporte_anexos`: metadados de até três prints por chamado; arquivo
+  individual limitado a 2 MB e PNG/JPG/WebP.
+- `suporte-anexos`: bucket privado, sem policy de cliente. API autenticada com
+  `service_role` valida dono, tipo/tamanho e entrega link assinado de 60 s.
+
+As três tabelas têm RLS e somente policy `SELECT` para `auth.uid() = user_id`.
+Os GRANTs obrigatórios existem, mas RLS continua negando INSERT/UPDATE/DELETE
+diretos do cliente. Nomes de FK: `chamado_suporte_uuid`.
+
 ---
 
 ## Índices parciais confirmados no dump ou por migration aplicada (`WHERE NOT deleted`)

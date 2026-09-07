@@ -1,6 +1,12 @@
+const PUBLIC_PAGES = ['/login', '/recuperar-senha', '/nova-senha', '/auth/confirm', '/auth/erro', '/ajuda']
+
+export function isUnauthenticatedPage(pathname: string): boolean {
+  return PUBLIC_PAGES.includes(pathname)
+}
+
 // Toda rota nova nasce protegida. Prefixos parecidos com /login não são públicos.
 export function unauthenticatedAction(pathname: string): 'allow' | 'json-401' | 'login' {
-  if (pathname === '/login') return 'allow'
+  if (isUnauthenticatedPage(pathname)) return 'allow'
   if (pathname === '/api' || pathname.startsWith('/api/')) return 'json-401'
   return 'login'
 }

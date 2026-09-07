@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
+import { isUnauthenticatedPage } from '@/lib/route-access'
 
 function periodoAtual() {
   const hoje = new Date()
@@ -19,10 +20,12 @@ function periodoAtual() {
 
 export function CalendarAutoSync() {
   const pathname = usePathname()
+  const paginaPublica = isUnauthenticatedPage(pathname)
   const [conectado, setConectado] = useState(false)
   const sincronizandoRef = useRef(false)
 
   useEffect(() => {
+    if (paginaPublica) return
     let ativo = true
     void fetch('/api/integracoes/google/status', { cache: 'no-store' })
       .then((response) => response.ok ? response.json() : null)
@@ -31,10 +34,10 @@ export function CalendarAutoSync() {
       })
       .catch(() => { if (ativo) setConectado(false) })
     return () => { ativo = false }
-  }, [])
+  }, [paginaPublica])
 
   useEffect(() => {
-    if (!conectado || pathname === '/login') return
+    if (!conectado || paginaPublica) return
 
     async function sincronizar() {
       if (sincronizandoRef.current) return
@@ -76,7 +79,7 @@ export function CalendarAutoSync() {
       window.clearInterval(intervalo)
       document.removeEventListener('visibilitychange', aoRetomar)
     }
-  }, [conectado, pathname])
+  }, [conectado, paginaPublica, pathname])
 
   return null
 }

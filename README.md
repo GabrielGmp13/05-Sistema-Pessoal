@@ -4,19 +4,26 @@ Aplicação web de gestão pessoal de longo prazo, para uso individual. O
 frontend está em produção na Vercel; o repositório usa Next.js 16, React 19,
 TypeScript e Supabase (PostgreSQL, Auth, Storage e RLS).
 
-**Marco atual: v0.2.0 — preparação de beta privado por convite.** O lote foi
-publicado em 2026-09-05, mas ainda depende dos gates de convite/senha,
-isolamento e homologação. Não é produto público nem cadastro aberto.
+**Marco publicado: v0.2.0. Próximo lote: acesso e suporte público, ainda local.**
+Cadastro aberto continua desligado até banco, e-mail/Auth, isolamento,
+privacidade e homologação receberem aprovação separada.
 
 ## Entender o produto e operar o beta
+
+- [Mapa do projeto](docs/MAPA_DO_PROJETO.md): cada pasta, o que revisar e o que
+  nunca deve entrar no GitHub público.
+- [Plano de abertura](docs/ABERTURA_PUBLICA.md): ordem, gates e testes depois de publicar.
+- [Configurar acesso público](docs/CONFIGURAR_ACESSO_PUBLICO.md): SMTP/Resend,
+  URLs, CAPTCHA, Auth e criação de contas teste.
+- [Aviso de privacidade — rascunho](docs/AVISO_DE_PRIVACIDADE_RASCUNHO.md):
+  decisões de dados e retenção que ainda precisam de aprovação.
 
 - [Release v0.2.0](docs/RELEASE_V0.2.0.md): módulos implementados, limitações,
   integrações e o que falta testar.
 - [Beta privado](docs/BETA_PRIVADO.md): abertura gradual (três amigos no piloto,
   teto dez), auditoria local de segurança e cuidados com contas/dados.
-- [Manutenção](docs/MANUTENCAO.md): rotina semanal/mensal, triagem de bugs e
-  notas de atualização. Reportar bug fica em Configurações e gera texto para
-  copiar/enviar manualmente; não há e-mail automático nem anexos no site.
+- [Manutenção](docs/MANUTENCAO.md): rotina semanal/mensal e triagem. O próximo
+  lote registra bugs/sugestões com protocolo e prints privados; ainda não está em produção.
 - [Integrações/variáveis](docs/INTEGRACOES_EXTERNAS.md),
   [retestes manuais](docs/teste.md), [roadmap](docs/ROADMAP.md) e
   [ideias futuras](docs/BACKLOG.md).

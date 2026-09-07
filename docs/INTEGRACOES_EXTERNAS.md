@@ -1,6 +1,8 @@
 # Integrações externas — configuração vigente da v0.2.0
 
-Data da revisão: 2026-08-31. Configuração remota não verificada neste lote.
+Data da revisão: 2026-09-07. O painel Google Cloud foi conferido visualmente por
+Gabriel: projeto OAuth externo em **Testing**, com dois usuários de teste e
+Branding básico concluído por Gabriel. Nenhum segredo foi inspecionado ou alterado.
 
 ## Inventário de variáveis e dependências
 
@@ -34,6 +36,29 @@ uploads privados usam Storage. Não habilitar cobrança sem autorização.
 
 ## Google OAuth
 
+### Login no Projeto Pessoal
+
+Em 2026-09-07, o login com Google foi preparado em um projeto Google Cloud
+separado, `Projeto Pessoal Login`, com cliente Web exclusivo para o Supabase.
+O cliente aceita a origem de produção e retorna somente para
+`https://lxzhdvhtujqydqndhiec.supabase.co/auth/v1/callback`. O Supabase retorna
+ao site por `https://expansiondominionpersonaledition.vercel.app/auth/confirm`,
+que também está na lista de URLs autorizadas de Auth.
+
+O botão do site usa apenas a configuração nativa do Supabase; o ID do cliente
+é público, mas a chave secreta permanece exclusivamente no painel do Supabase.
+Não copiar o JSON baixado, a chave secreta ou qualquer variável para Git.
+Enquanto o app Google estiver em **Testing**, somente contas adicionadas como
+usuários de teste podem entrar. Essa lista não substitui a regra de contas do
+site: antes de convidar amigos, testar uma conta manual já existente e manter
+cadastro público desligado. A conta Google de Gabriel foi incluída nessa lista
+em 2026-09-07; cada amigo que participar do piloto precisará ser incluído antes
+do teste.
+
+O projeto Google Cloud abaixo continua sendo exclusivo para, depois do login,
+cada usuário conectar separadamente uma conta Google para YouTube e/ou
+Calendar. Essas integrações e o login não compartilham chaves nem callback.
+
 As conexões Google estão implementadas com API Routes server-side, `state` de
 uso único em cookie HttpOnly, PKCE, tokens cifrados por AES-256-GCM e tabela sem
 policy de cliente. YouTube e Calendar têm registros e autorizações separados,
@@ -47,7 +72,9 @@ ao frontend.
 2. Habilitar **YouTube Data API v3**, **Google Calendar API**, **Books API** e,
    se a busca de lugares for usada, **Places API (New)**.
 3. Configurar a tela de consentimento OAuth. Enquanto o app estiver em teste,
-   adicionar cada conta Google autorizada no beta como usuário de teste.
+   adicionar cada conta Google autorizada no beta como usuário de teste. Manter
+   Calendar/YouTube nesse projeto de teste: não publicar nem mudar para interno
+   sem preparar a verificação dos escopos e a política de privacidade.
 4. Criar credencial **OAuth client ID > Web application**.
 5. Cadastrar como redirect URI exatamente
    `https://SEU-DOMINIO/api/integracoes/google/callback`. Para desenvolvimento,
@@ -206,3 +233,12 @@ complexo não são copiados; nesses casos, revisar a prévia ou usar CSV/TSV.
 - `BRAPI_TOKEN` é opcional e server-side. A cotação é sob demanda, usa cache de
   60 s, valida ticker e mantém fallback claro para token/quota/ativo ausente.
   Histórico persistido, alertas e automações financeiras são pós-v2.
+# Avisos de suporte por e-mail (opcional)
+
+O próximo lote aceita Resend por chamada HTTPS server-side, sem SDK adicional.
+Variáveis: `RESEND_API_KEY`, `SUPPORT_EMAIL_FROM` e
+`SUPPORT_NOTIFICATION_EMAIL`. Sem as três, o chamado continua salvo e nenhum
+e-mail é tentado. A mensagem contém protocolo/resumo e e-mail da conta, mas
+nunca anexo, URL assinada ou credencial. O domínio remetente precisa estar
+verificado no provedor. Isto não substitui o SMTP do Supabase Auth, responsável
+por convite, confirmação e recuperação de senha.

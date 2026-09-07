@@ -1,10 +1,15 @@
-# Handoff de engenharia — preparação v0.2.0
+# Handoff de engenharia — acesso e suporte público
 
 Atualizado em 2026-09-05. Leia `AGENTS.md`, `AI_CONTEXT.md`, `TASKS_NOW.md` e o
 pedido vigente antes de editar. Decisões e schema devem ser conferidos quando
 a tarefa tocar esses contratos. Toda comunicação em português.
 
 ## Estado e autoridade
+
+> Atualização de 2026-09-05: DEC-075/076 superam a direção privada descrita
+> abaixo. Cadastro/recuperação e suporte com protocolos/prints foram implementados
+> localmente. Leia `TASKS_NOW.md` e `ABERTURA_PUBLICA.md`. Nada foi migrado,
+> publicado, contratado, commitado ou enviado neste lote.
 
 - Repositório: `C:\Gabriel Oliveira\05-Sistema-Pessoal`, aplicação em `frontend/`.
 - Lote v0.2.0 publicado em `main` em 2026-09-05; CI #71 e deploy de produção

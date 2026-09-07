@@ -1,5 +1,8 @@
 .claude/
 
+# Painel operacional privado do dono (contas, contatos e decisões não públicas)
+private/
+
 # Supabase CLI local state and credentials
 backend/supabase/.temp/
 backend/supabase/.branches/

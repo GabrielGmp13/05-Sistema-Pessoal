@@ -1505,3 +1505,52 @@ convites é um requisito separado e ainda não foi feita neste lote.
 **Impacto:** nenhuma migration; testes Node adicionados à CI; mudanças locais
 dependem de autorização explícita para commit/push. Documentos operacionais:
 `RELEASE_V0.2.0.md`, `BETA_PRIVADO.md`, `MANUTENCAO.md` e `TASKS_NOW.md`.
+
+## DEC-075 — Projeto pessoal passa a ser preparado para público (2026-09-05)
+
+**Status:** aprovada por Gabriel; implementação local, abertura pendente.
+
+Nova informação concreta reabre os princípios 1, 2 e 10 e supera o limite de
+convites da DEC-069: Gabriel quer permitir uso público, manter a possibilidade
+de equipe/venda futura e continuar capaz de operar sozinho. Cada conta permanece
+um espaço pessoal isolado; cadastro, custo e crescimento são liberados por gates,
+nunca por uma publicação única. Cadastro público é implementado atrás de
+`NEXT_PUBLIC_PUBLIC_SIGNUP_ENABLED=false` e continua bloqueado também no Auth
+remoto até migration, SMTP, CAPTCHA, isolamento, privacidade e testes humanos.
+
+Não há monetização, anúncios ou organização multiusuário neste lote. Serviços
+pagos e abertura real exigem aprovação específica. A documentação e a estrutura
+do repositório devem permitir que Gabriel, um comprador ou uma equipe entendam
+fontes de verdade, rotina, riscos e ordem de publicação.
+
+## DEC-076 — Suporte no banco, e-mail só como aviso e sem painel admin (2026-09-05)
+
+**Status:** aprovada por Gabriel; implementação local, migration pendente.
+
+Supera a parte de suporte manual da DEC-074. Bugs e sugestões autenticados são
+guardados no Supabase com protocolo não sequencial, status, resposta, histórico
+e até três imagens privadas de 2 MB. O usuário lê apenas seus registros. Escrita,
+protocolo e anexos passam por API server-side; não há policy de escrita direta
+nem acesso cliente ao bucket. Gabriel opera inicialmente pelo Supabase Dashboard;
+mudanças de status/resposta geram histórico automaticamente.
+
+E-mail é aviso opcional via Resend e nunca a fonte da verdade: contém resumo em
+texto simples e não inclui print/link assinado. Conteúdo do usuário não vira HTML,
+comando, prompt de IA ou log. Não existe painel administrativo público. Limite
+inicial: 10 pedidos por conta/24 h; retenção e exclusão permanecem operação de
+privacidade antes da abertura.
+
+## DEC-077 — Login Google isolado das integrações Google (2026-09-07)
+
+**Status:** configurado externamente; interface local aguarda publicação e teste.
+
+O login de contas do Sistema Pessoal usa um projeto e cliente OAuth Web próprios
+no Google Cloud, cadastrados apenas no Supabase Auth. As integrações já existentes
+de YouTube e Google Calendar continuam usando suas variáveis server-side, escopos
+e callback próprios; nenhuma delas é sobrescrita pelo cliente de login.
+
+**Motivo:** separar a sessão de entrada — que pede somente identidade básica —
+das permissões de Calendar e YouTube. Isso diminui o impacto de uma manutenção
+e permite que cada pessoa escolha contas Google diferentes para cada finalidade.
+O cadastro público continua bloqueado, portanto o primeiro teste é com uma
+conta manual já existente e uma conta Google autorizada no modo Testing.

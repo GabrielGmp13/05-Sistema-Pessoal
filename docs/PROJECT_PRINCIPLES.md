@@ -4,9 +4,9 @@ Princípios permanentes do Sistema Pessoal. Servem para impedir que futuras IAs 
 
 ---
 
-1. **Sistema pessoal, não produto.** Uso individual de longo prazo. Nenhuma decisão deve ser tomada pensando em múltiplos usuários pagantes, crescimento de base ou monetização.
+1. **Pessoal primeiro, preparado para uso público.** Cada conta continua sendo um espaço pessoal isolado. Desde 2026-09-05, o projeto também é preparado para receber público com cadastro controlado, suporte e operação sustentável, sem presumir escala ou equipe antes da necessidade (DEC-075).
 
-2. **Sem monetização, sem anúncios.** Não há e não haverá modelo de receita. Isso remove classes inteiras de complexidade (billing, planos, analytics de conversão) do escopo do projeto permanentemente.
+2. **Sem monetização agora.** Não existem anúncios, cobrança ou planos no escopo atual. Uma venda, equipe ou modelo de receita futuro não é proibido, mas exigirá decisão própria, revisão legal/técnica e aprovação de Gabriel (DEC-075).
 
 3. **Simplicidade acima de complexidade.** Entre uma solução simples e uma "inteligente", vence a simples. Ver DEC-002 (eliminação do Flask) e DEC-006 (sem framework front-end) como exemplos concretos dessa escolha em ação.
 > Nota (2026-07-14, DEC-018): simplicidade nunca deve ser usada para justificar
@@ -25,7 +25,7 @@ Princípios permanentes do Sistema Pessoal. Servem para impedir que futuras IAs 
 
 9. **Não alterar stack sem justificativa forte e nova informação.** A stack atual (Next.js/TypeScript + Supabase + Vercel, ver DEC-018) foi escolhida depois de comparar alternativas reais (ver DEC-001, DEC-006, DEC-018). Reabrir essa escolha exige um motivo concreto, não preferência estética.
 
-10. **Custo zero.** O projeto deve continuar operando dentro do free tier do Supabase e do Vercel indefinidamente. Qualquer decisão que arrisque sair do free tier (ex: armazenar arquivos de mídia pesados) precisa ser questionada — ver DEC-011 como exemplo desse limite sendo respeitado deliberadamente.
+10. **Custo controlado e aprovado.** Preferir os free tiers do Supabase e Vercel. Nenhum serviço pago, aumento de quota ou compromisso recorrente é ativado sem estimativa e aprovação de Gabriel. Limites de arquivo e retenção devem proteger esse orçamento.
 
 11. **Escopo proporcional.** Cada módulo deve fazer bem uma coisa e não crescer para além do que resolve. A Biblioteca é catálogo, não repositório de mídia (DEC-011); a Agenda é manual, não uma integração OAuth completa (DEC-009). Resistir à tentação de generalizar antes de precisar.
 

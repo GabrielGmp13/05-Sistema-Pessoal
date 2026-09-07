@@ -1,4 +1,8 @@
-# Beta privado — operação segura
+# Beta privado — operação segura (plano histórico da v0.2.0)
+
+> A direção foi ampliada em 2026-09-05 pela DEC-075. Este checklist continua
+> útil como primeiro estágio fechado; a abertura vigente está em
+> [ABERTURA_PUBLICA.md](ABERTURA_PUBLICA.md).
 
 Este documento descreve uma homologação privada com no máximo dez pessoas.
 Ela não transforma o Sistema Pessoal em produto público, não cria cadastro

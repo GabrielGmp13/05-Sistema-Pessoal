@@ -78,6 +78,9 @@ O ponto inicial oficial da cadeia CLI é:
     temporadas e complementos vinculados e acrescenta resumos derivados ao
     Anime principal; aplicada em produção após precheck e dry-run exclusivos,
     com histórico alinhado e dry-run final vazio.
+25. `20260905000100_suporte_publico.sql` — cria chamados, histórico, anexos e
+    bucket privado de suporte; reset/teste local aprovados e aplicada em produção
+    em 2026-09-06 após dry-run exclusivo, com histórico/dry-run final alinhados.
 
 As três baselines foram validadas por dois replays locais completos e por
 comparação com produção. Em 2026-08-08, `migration repair --status applied`

@@ -1,0 +1,2 @@
+import Link from 'next/link'
+export default function AuthErrorPage() { return <div className="login-container"><div className="login-form"><h1>Link inválido ou expirado</h1><p className="login-intro">Solicite uma nova recuperação ou peça um novo convite.</p><Link href="/recuperar-senha" className="login-link">Recuperar senha</Link><Link href="/login" className="login-link">Voltar para entrar</Link></div></div> }

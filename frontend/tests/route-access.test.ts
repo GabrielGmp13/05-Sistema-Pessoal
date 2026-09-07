@@ -2,8 +2,10 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { loginDestination, unauthenticatedAction } from '../lib/route-access.ts'
 
-test('somente /login é público; APIs retornam 401 em vez de HTML de login', () => {
-  assert.equal(unauthenticatedAction('/login'), 'allow')
+test('somente rotas de autenticação são públicas; APIs retornam 401 em vez de HTML', () => {
+  for (const path of ['/login', '/recuperar-senha', '/nova-senha', '/auth/confirm', '/auth/erro', '/ajuda']) {
+    assert.equal(unauthenticatedAction(path), 'allow', path)
+  }
   for (const path of ['/', '/biblioteca', '/configuracoes', '/login-admin', '/login/segredo', '/api-falso']) {
     assert.equal(unauthenticatedAction(path), 'login', path)
   }

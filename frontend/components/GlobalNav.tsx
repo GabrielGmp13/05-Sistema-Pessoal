@@ -8,6 +8,7 @@ import type { CSSProperties, MouseEvent as ReactMouseEvent } from 'react'
 import { createPortal } from 'react-dom'
 
 import { getSession, getSignedUrl, sb } from '@/lib/supabase'
+import { isUnauthenticatedPage } from '@/lib/route-access'
 import { cn } from '@/lib/utils'
 import { ThemeToggle } from './ThemeToggle'
 import { SeasonalDecor } from './SeasonalDecor'
@@ -62,7 +63,7 @@ export function GlobalNav() {
   const { corAmbiente, definirCorAmbiente } = useTema()
   const pathname = usePathname()
   const router = useRouter()
-  const ocultarNavegacao = pathname === '/login'
+  const ocultarNavegacao = isUnauthenticatedPage(pathname)
   const biblioteca = pathname === '/biblioteca' || pathname.startsWith('/biblioteca/')
   const [saindo, setSaindo] = useState(false)
   const [painelAberto, setPainelAberto] = useState<'perfil' | 'tema' | null>(null)

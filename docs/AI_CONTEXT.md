@@ -54,13 +54,13 @@ operacional.
 
 ## Estado atual (2026-08)
 
-**Fase:** release v0.2.0 publicada em 2026-09-05 / preparação do beta privado. As fases históricas v2/v2.1 continuam preservadas; a numeração do manifesto não é downgrade (DEC-074). Convites bloqueados até senha/SMTP, isolamento e homologação. A aplicação Next.js é o único frontend ativo (v1 removida em 2026-07-19, DEC-031).
+**Fase:** release v0.2.0 publicada em 2026-09-05; lote seguinte de acesso e suporte público implementado apenas localmente (DEC-075/076). Cadastro continua desligado até migration, SMTP/Auth, CAPTCHA, isolamento, privacidade e homologação. As fases históricas v2/v2.1 continuam preservadas; a aplicação Next.js é o único frontend ativo.
 **Decisão-chave:** DEC-018 (reabre DEC-006) — frontend migrou de HTML puro para Next.js/React
 **Deploy:** ✅ em produção no Vercel desde 2026-07-13 (não "pendente" — ver `ARCHITECTURE.md`)
-**Schema:** `DATABASE.md` registra 68 tabelas e migrations aplicadas até `20260830000100_anime_related_works.sql`; a cadeia local contém 24 arquivos. Nenhuma operação remota/migration feita na preparação da v0.2.0.
+**Schema:** produção possui 71 tabelas e migrations aplicadas até `20260905000100_suporte_publico.sql`; a cadeia local/remota contém 25 versões. Suporte passou em reset/teste local, dry-run exclusivo, aplicação autorizada e dry-run final vazio em 2026-09-06.
 **Histórico CLI:** evidências dos pós-checks anteriores estão em `DATABASE.md`/`CHANGELOG.md`; a revisão local atual não recertifica o remoto.
 **Reprodutibilidade:** Node.js `24.15.0`, npm `12.0.1`, lockfile e CI ativos. Na preparação v0.2.0: typecheck/build e 76 testes Node aprovados; lint informativo com 25 erros/28 avisos (dívida anterior), zero erros no recorte alterado. Evidências em `RELEASE_V0.2.0.md`.
-**Próxima tarefa imediata:** concluir gates do beta em `TASKS_NOW.md`; qualquer novo lote continua dependendo de autorização explícita para publicação. Visão do produto e resultados atuais em `RELEASE_V0.2.0.md`, operação em `MANUTENCAO.md` e testes humanos em `teste.md`.
+**Próxima tarefa imediata:** senha do banco rotacionada por Gabriel em 2026-09-07; seguir a Fase 3 com domínio, Resend/SMTP e URLs de Auth. Há um único e-mail operacional privado; marca e telefone público foram adiados. Nenhum serviço, commit/push ou abertura foi autorizado por consequência. Estrutura em `MAPA_DO_PROJETO.md`, abertura/testes em `ABERTURA_PUBLICA.md` e operação em `MANUTENCAO.md`.
 
 ---
 
@@ -77,7 +77,7 @@ operacional.
 | Offline | Service Worker — fora de escopo por ora (Fase M2, ver `ROADMAP.md`) |
 | Hosting | Vercel — **em produção desde 2026-07-13** |
 | Toolchain | Node.js 24.15.0 + npm 12.0.1; versões fixadas no repositório |
-| CI/testes | GitHub Actions: `npm ci`, typecheck, testes Node e build bloqueantes; lint informativo. 19 scripts SQL locais; resultado atual do frontend em `RELEASE_V0.2.0.md` |
+| CI/testes | GitHub Actions: `npm ci`, typecheck, testes Node e build bloqueantes; lint informativo. 20 scripts SQL locais; resultado publicado em `RELEASE_V0.2.0.md` e lote local em `TASKS_NOW.md` |
 
 ---
 

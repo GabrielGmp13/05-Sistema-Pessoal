@@ -1,63 +1,59 @@
-# Tarefas atuais — v0.2.0 / beta privado
+# Tarefas atuais — acesso e suporte público
 
-Atualizado em 2026-09-05. A aplicação pessoal e o lote v0.2.0 estão em
-produção; **os convites ainda não estão liberados**.
-“v2/v2.1” nos documentos antigos descreve a fase do projeto, não a numeração
-de releases iniciada aqui. Nada da aplicação anterior foi removido.
+Atualizado em 2026-09-07. A v0.2.0 continua publicada. O próximo lote está
+implementado localmente e a migration de suporte foi aplicada em produção em
+2026-09-06, mas o frontend **não foi publicado nem aberto ao público**.
 
-## Entregue neste lote
+## Implementado localmente
 
-- [x] Configurações → Reportar bug: campos guiados, prévia editável e cópia;
-      sem envio, captura automática, persistência, upload ou dependência nova.
-- [x] APIs sem sessão retornam JSON 401; login público usa caminho exato;
-      redirecionamento não transporta queries e preserva cookies do Auth.
-- [x] Logs comuns Supabase/Google/Places não registram mensagens, linhas do
-      banco, paths privados ou tokens; respostas Google usam mensagens controladas.
-- [x] OAuth vinculado ao usuário que iniciou o fluxo; troca de conta Google
-      não reaproveita refresh token de outro e-mail.
-- [x] Versão 0.2.0 no manifesto/lock; testes Node adicionados à CI bloqueante.
-- [x] Documentação de release, beta, manutenção e integrações consolidada.
-- [x] Typecheck, build e 76 testes aprovados; lint com dívida registrada.
-      Evidências e limites em [RELEASE_V0.2.0.md](RELEASE_V0.2.0.md).
-- [x] Smoke local de Configurações/relato aprovado no computador e em viewport
-      de celular; nenhum relato ou dado foi enviado.
-- [x] Quatro commits revisados enviados a `main`; CI #71 e deploy de produção
-      aprovados. O smoke atrás do login da Vercel permanece com Gabriel.
+- [x] Cadastro por e-mail atrás de `NEXT_PUBLIC_PUBLIC_SIGNUP_ENABLED=false`.
+- [x] Confirmação de e-mail/convite, recuperação e definição de nova senha.
+- [x] Bugs e sugestões com protocolo, status, resposta e histórico por usuário.
+- [x] Até três prints PNG/JPG/WebP privados de 2 MB por pedido.
+- [x] Aviso opcional por e-mail sem anexo; banco é a fonte da verdade.
+- [x] FAQ público com dúvidas gerais; sugestões continuam sendo pedidos autenticados.
+- [x] Cabeçalhos básicos contra clickjacking, MIME sniffing e permissões não usadas.
+- [x] Sem painel admin: operação inicial pelo Supabase Dashboard e trigger de histórico.
+- [x] Validação server-side, limite de 10 pedidos/24 h e testes de entrada.
+- [x] Decisões, princípios, mapa do projeto e plano de abertura atualizados.
 
-## Bloqueios antes de convidar amigos (na ordem)
+## Gates antes de aplicar/publicar este lote
 
-1. Implementar e testar aceitar convite, definir senha e recuperar senha:
-   hoje `/login` só oferece e-mail + senha; não existe callback de Supabase Auth.
-2. Gabriel escolher/configurar SMTP adequado e canal privado de suporte;
-   conferir signup/anon desativados no Supabase, URLs e permissões de operador.
-3. Demonstrar isolamento entre duas contas descartáveis (CRUD, relações,
-   Storage e API Routes), sem usar dados/conta real como alvo destrutivo.
-4. Finalizar os retestes dos módulos liberados em [teste.md](teste.md), incluindo
-   biblioteca/temporadas, temas, uploads e Google por usuário/serviço.
-5. Aprovar aviso de privacidade, uso de dados não sensíveis, exclusão/exportação
-   operacional, limites de custo/quota e checklist de [BETA_PRIVADO.md](BETA_PRIVADO.md).
-6. Gabriel entrar pela proteção da Vercel e executar o smoke final publicado.
+1. [x] Reset completo e teste SQL local da migration `20260905000100`;
+       schema, bucket, RLS, isolamento, bloqueio de escrita e trigger aprovados.
+2. [x] Diff/segredos, typecheck, 80 testes, build (46 rotas), lint do recorte e
+       dependências de produção revisados; zero vulnerabilidades no `npm audit --omit=dev`.
+3. [x] Migration remota aprovada e aplicada; precheck/dry-run listaram somente
+       `20260905000100`, histórico final alinhado e dry-run posterior vazio.
+   - [x] Segurança operacional: senha do banco exposta no log privado foi
+         trocada por Gabriel em 2026-09-07. A conexão local antiga deve ser
+         atualizada somente quando o próximo acesso remoto for necessário.
+4. [~] URLs de Auth configuradas para produção em 2026-09-07; SMTP ainda
+       depende de domínio próprio e escolha de remetente.
+5. [x] Login Google configurado no Supabase com cliente OAuth separado;
+       botão implementado localmente, aguardando publicação e teste com uma
+       conta manual já existente. A conta de Gabriel já foi adicionada como
+       usuária de teste do projeto Google. O cadastro público permanece fechado.
+6. [ ] Se desejar aviso: criar remetente Resend verificado e variáveis server-only.
+7. [ ] Testar duas contas descartáveis: dados, APIs, Storage e chamados cruzados.
+8. [ ] Aprovar as escolhas destacadas em `AVISO_DE_PRIVACIDADE_RASCUNHO.md`:
+       contato público, idade, bases legais, retenção e exclusão/exportação.
+9. [ ] Configurar CAPTCHA/rate limits e manter signup remoto/UI fechados.
+       Troca segura de senha e exigência da senha atual foram ativadas no Auth
+       em 2026-09-07; a recuperação por e-mail precisa ser testada no deploy.
+10. [ ] Autorizar commit/push; conferir CI, deploy e smoke publicado com cadastro fechado.
+11. [ ] Só depois autorizar abertura: habilitar signup remoto e a variável pública juntos.
 
-## Próxima ação de código
+## Próxima ação
 
-Preparar um lote **separado** para convite/recuperação de senha usando o
-Supabase Auth existente, sem cadastro público nem senhas compartilhadas. Não
-ativar provedor de e-mail pago, alterar Auth remoto ou enviar convites sem
-autorização. A documentação identifica o bloqueio, não finge que já funciona.
+Operar inicialmente sem custo: manter o endereço `*.vercel.app`, cadastro
+público fechado e testes restritos. Gabriel definiu **Projeto Pessoal** como
+nome provisório e adiou compra de domínio, marca e telefone público. Um domínio
+próprio será necessário mais adiante para e-mail de autenticação confiável a
+usuários externos; sem ele, não configurar SMTP/Resend nem abrir cadastro.
+Nenhuma autorização de uma etapa vale automaticamente para Git/deploy ou
+abertura.
 
-## Retestes preservados e continuidade
-
-- Biblioteca: uma interface de busca por vez; seleção/nota/adicionar agrupados;
-  resposta antiga não substitui seleção nova; inclusão/persistência reais.
-- Painéis de obras nos cinco temas, campos vazios, teclado, zoom 100% e celular.
-- Sidebar: perfil e rodapé fixos, miolo rolável; não regredir animações.
-- Calendar: criar/editar/cancelar nos dois lados; conflitos e eventos recorrentes.
-- Suíte manual completa: [teste.md](teste.md) e [HOMOLOGATION_V2.md](HOMOLOGATION_V2.md).
-
-Banco: última migration registrada como aplicada em [DATABASE.md](DATABASE.md)
-é `20260830000100_anime_related_works.sql`. **Nenhuma migration/consulta remota
-executada neste lote.** O banco remoto não foi recertificado pela leitura local.
-
-Histórico detalhado (inclusive pendências antigas):
-[TASKS_HISTORY_2026-08.md](archive/TASKS_HISTORY_2026-08.md).
-Ideias sem compromisso: [BACKLOG.md](BACKLOG.md). Direção: [ROADMAP.md](ROADMAP.md).
+Plano e testes: [ABERTURA_PUBLICA.md](ABERTURA_PUBLICA.md). Estrutura e arquivos:
+[MAPA_DO_PROJETO.md](MAPA_DO_PROJETO.md). Histórico anterior:
+[archive/TASKS_HISTORY_2026-08.md](archive/TASKS_HISTORY_2026-08.md).

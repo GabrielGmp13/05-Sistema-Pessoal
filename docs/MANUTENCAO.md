@@ -1,7 +1,7 @@
-# Manutenção e suporte do beta privado
+# Manutenção e suporte
 
-Responsável inicial: Gabriel. Operação por checklist e registro privado, sem
-painel admin, CMS, serviço de e-mail de bugs ou infraestrutura nova.
+Responsável inicial: Gabriel. Operação sem painel admin próprio; chamados ficam
+no Supabase e o e-mail opcional é apenas um aviso.
 
 ## Onde guardar cada informação
 
@@ -12,30 +12,27 @@ painel admin, CMS, serviço de e-mail de bugs ou infraestrutura nova.
 | Escopo e limitações da versão | [RELEASE_V0.2.0.md](RELEASE_V0.2.0.md) |
 | Ideias sem compromisso | [BACKLOG.md](BACKLOG.md) / [VISION.md](VISION.md) |
 | Teste que depende de uma pessoa | [teste.md](teste.md) |
-| Participantes, e-mails, prints e relatos originais | Registro privado sob controle de Gabriel, **nunca neste repositório público** |
+| Usuários, e-mails, prints e relatos originais | Supabase privado, **nunca neste repositório público** |
 
 ## Receber e resolver um bug
 
-1. Participante abre **Editar perfil → Configurações → Reportar bug**, informa
-   módulo, passos, esperado/ocorrido, navegador/dispositivo, tema e se pode
-   enviar print. Gera o texto, retira dados pessoais e copia. Envio pelo canal
-   privado combinado é manual. Clipboard bloqueado oferece seleção manual.
-2. Gabriel confirma recebimento e cria um identificador simples `BUG-001`,
-   incrementando no registro privado. Não pedir senha, cookies, tokens, HAR
-   completo, chaves ou dump de conta.
-3. Registrar privadamente: ID, data, versão, resumo, gravidade, estado,
-   reprodução, responsável, próxima ação e confirmação da correção. Separar
-   contato do texto técnico. Não prometer prazo de resposta no beta.
+1. A pessoa abre **Configurações → Bugs e sugestões**, envia texto/prints e
+   recebe protocolo `SP-AAAAMMDD-XXXXXXXX`. Não pedir senha, cookie, token,
+   HAR completo, chave ou dump de conta.
+2. Gabriel recebe aviso opcional por e-mail e abre o registro completo apenas
+   no Supabase Dashboard. E-mail não contém print nem link assinado.
+3. Classificar P0–P3, reproduzir com dados descartáveis e alterar status/resposta.
+   O trigger registra o histórico que a própria pessoa vê no site.
 4. Reproduzir com dados descartáveis. No Git/backlog entra somente resumo
    anonimizado e instrução de teste, sem print de dados reais ou e-mail.
 5. Corrigir um bloco, adicionar regressão quando possível, validar, pedir
    autorização de publicação e confirmar com quem reportou.
-6. Proposta de retenção a aprovar antes dos convites: apagar print/relato bruto
+6. Proposta de retenção a aprovar antes da abertura: apagar print/relato bruto
    até 30 dias após resolver ou encerrar o piloto, salvo incidente em análise;
    preservar só resumo técnico anonimizado. Explicar exceções ao participante.
 
-Prioridades: **P0** exposição/acesso cruzado → interromper convites e conter
-acesso; **P1** perda de dados/login/salvamento impedido → não ampliar piloto;
+Prioridades: **P0** exposição/acesso cruzado → interromper cadastros e conter
+acesso; **P1** perda de dados/login/salvamento impedido → não ampliar público;
 **P2** defeito com alternativa segura → corrigir no próximo lote; **P3** melhoria
 visual/ideia → backlog. Estado: recebido → reproduzido → em correção → aguardando
 reteste → resolvido. Intermitente fica “precisa de evidência”, não “resolvido”.

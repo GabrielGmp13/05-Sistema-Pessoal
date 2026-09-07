@@ -5,6 +5,7 @@ import type { ReactNode } from 'react'
 
 import { RightRail } from './RightRail'
 import { cn } from '@/lib/utils'
+import { isUnauthenticatedPage } from '@/lib/route-access'
 import styles from './AppChrome.module.css'
 
 const ROTAS_DE_FOCO = [
@@ -14,7 +15,7 @@ const ROTAS_DE_FOCO = [
 ]
 
 function deveUsarTelaInteira(pathname: string) {
-  return ROTAS_DE_FOCO.some((rota) => pathname === rota || pathname.startsWith(`${rota}/`))
+  return isUnauthenticatedPage(pathname) || ROTAS_DE_FOCO.some((rota) => pathname === rota || pathname.startsWith(`${rota}/`))
 }
 
 export function AppChrome({ children }: { children: ReactNode }) {
