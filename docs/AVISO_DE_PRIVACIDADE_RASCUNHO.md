@@ -1,77 +1,54 @@
-# Aviso de privacidade — rascunho para aprovação
+# Aviso de privacidade — decisões aprovadas
 
-**Não publicar ainda.** Este é um rascunho operacional, não parecer jurídico.
-Gabriel precisa aprovar os itens marcados e buscar revisão profissional antes
-de uma abertura ampla, especialmente porque o sistema pode guardar saúde,
-finanças, diário e outros dados de alto impacto.
+Versão operacional aprovada por Gabriel em 2026-09-07 e publicada na rota
+`/privacidade`. O texto informa como o projeto funciona hoje, mas não substitui
+revisão jurídica antes de uma abertura ampla.
 
-## Decisões que Gabriel precisa aprovar
+## Decisões vigentes
 
-1. **Responsável/controlador:** nome público usado no aviso.
-2. **Canal de privacidade:** e-mail exclusivo para acesso, correção, exportação,
-   exclusão e incidentes. Não usar somente formulário que exige login.
-3. **Público:** recomendação inicial de uso apenas por maiores de 18 anos.
-4. **Dados sensíveis:** confirmar se Saúde/Diário aceitarão público agora ou
-   ficarão fora do primeiro piloto até revisão jurídica específica.
-5. **Bases legais:** validar com profissional quais bases se aplicam a conta,
-   segurança, dados voluntários e integrações; não chamar tudo de “consentimento”.
-6. **Retenção proposta:** chamados/prints até 30 dias após fechamento; conta e
-   conteúdo enquanto ativa; após pedido de exclusão, apagar dados ativos em até
-   30 dias, ressalvadas obrigações e ciclos técnicos documentados dos provedores.
-7. **Inatividade:** decidir se contas inativas serão preservadas ou apagadas
-   depois de aviso prévio. Recomendação inicial: não apagar automaticamente.
-8. **Exportação:** definir formato e prazo operacional. Recomendação inicial:
-   pedido pelo canal de privacidade, confirmação de identidade e resposta em
-   até 15 dias, sem prometer portabilidade perfeita ainda inexistente.
-9. **Provedores/transferência:** aprovar a lista Supabase, Vercel, Resend,
-   Cloudflare e integrações opcionais Google/APIs, com links aos avisos deles.
-10. **Incidentes:** aprovar quem recebe alerta, como bloquear cadastro e como
-    avaliar comunicação ao titular/ANPD.
+- **Responsável:** Gabriel Oliveira, responsável pelo Projeto Pessoal.
+- **Canal público:** `sistemapessoa007@gmail.com`.
+- **Público inicial:** convidados maiores de 18 anos; o site não é direcionado
+  a crianças ou adolescentes.
+- **Escolha do usuário:** todos os módulos continuam disponíveis, inclusive
+  Saúde, Diário e Finanças. Cada pessoa escolhe quais recursos usar e quais
+  informações inserir. Durante o piloto, recomenda-se começar com dados
+  fictícios ou de baixo risco, sem bloquear funcionalidades.
+- **Retenção:** conta e conteúdo enquanto ativos; chamados e prints até 30 dias
+  após o encerramento; exclusão de dados ativos em até 30 dias após pedido e
+  confirmação de identidade, ressalvadas obrigações e cópias técnicas.
+- **Inatividade:** nenhuma exclusão automática somente por falta de uso.
+- **Acesso/exportação:** solicitação pelo canal público, confirmação de
+  identidade e resposta completa em até 15 dias quando esse prazo for aplicável.
+- **Provedores atuais:** Supabase, Vercel, Cloudflare e integrações opcionais
+  Google. Resend só será incluído se for adotado posteriormente.
+- **Incidentes:** avaliar o risco e comunicar titulares e ANPD quando exigido,
+  dentro do prazo aplicável.
+- **Publicidade:** inexistente hoje. O aviso deve ser revisto antes de adotar
+  anúncios ou outro tratamento novo.
 
-## Texto-base futuro
+## Inventário resumido
 
-O Sistema Pessoal trata o e-mail e dados de autenticação para criar e proteger
-a conta. Os conteúdos inseridos voluntariamente — inclusive dados de estudos,
-agenda, treino, saúde, finanças, diário e coleções — são usados para oferecer as
-funções escolhidas pelo usuário. Integrações opcionais tratam somente os dados
-necessários à função ativada.
-
-Também tratamos informações técnicas mínimas para segurança, prevenção de abuso,
-diagnóstico e funcionamento. Chamados de suporte podem conter texto, contexto
-do dispositivo e prints enviados voluntariamente. Senhas não são acessíveis a
-Gabriel e nunca devem ser enviadas em chamados.
-
-Os dados são hospedados ou processados por provedores contratados para banco,
-autenticação, armazenamento, hospedagem, proteção contra abuso e e-mail. Alguns
-podem processar dados fora do Brasil. A lista atual e suas finalidades deve ficar
-disponível e ser atualizada quando um provedor mudar.
-
-Cada pessoa pode solicitar confirmação de tratamento, acesso, correção,
-informações, exportação possível e exclusão pelo canal público de privacidade.
-Antes de atender um pedido, o Sistema Pessoal poderá confirmar a identidade para
-evitar entregar ou apagar dados da pessoa errada.
-
-Aplicamos isolamento por conta, armazenamento privado, links temporários,
-validação de sessão, limites e revisão de acesso. Nenhum sistema é totalmente
-livre de risco. Incidentes relevantes serão avaliados e comunicados conforme a
-legislação e orientação aplicáveis.
-
-## Retenção operacional proposta
-
-| Dado | Prazo proposto | Ação |
+| Categoria | Exemplos | Finalidade |
 |---|---|---|
-| Conta e conteúdo pessoal | enquanto a conta estiver ativa | excluir após pedido confirmado, respeitando ciclos técnicos declarados |
-| Chamado aberto | enquanto necessário para tratar | restringir acesso e evitar cópia para Git |
-| Chamado fechado e print | até 30 dias após fechamento | apagar conteúdo bruto/arquivo; manter resumo técnico anônimo se necessário |
-| Aviso de e-mail | conforme política do provedor | não usar como arquivo do chamado |
-| Logs técnicos | menor prazo oferecido/configurável compatível com segurança | não registrar conteúdo pessoal deliberadamente |
-| Backup | conforme plano/política de cada provedor | documentar que exclusão pode não ser instantânea em cópias técnicas |
+| Conta | e-mail, nome, foto e autenticação | identificar e proteger o acesso |
+| Conteúdo voluntário | estudos, agenda, treino, saúde, finanças, diário e coleções | oferecer os recursos escolhidos |
+| Integrações opcionais | Agenda e YouTube do Google | executar apenas a conexão ativada |
+| Dados técnicos | sessão, diagnóstico e sinais de abuso | funcionamento e segurança |
+| Suporte | relato, contexto técnico e prints | atender bugs e sugestões |
 
-## Antes de publicar o aviso
+## Controles existentes
 
-- substituir todos os conceitos genéricos por nome, contato, data e versão;
-- confirmar o inventário real de dados e provedores contra código/painéis;
-- implementar o procedimento que o texto promete;
-- testar solicitação de acesso/exportação/exclusão com conta descartável;
-- disponibilizar link público no cadastro, login e configurações;
-- registrar aceite/versionamento somente se juridicamente necessário e definido.
+- isolamento dos dados comuns por conta;
+- armazenamento privado e links temporários para arquivos;
+- autenticação, validação de sessão, limites de envio e CAPTCHA;
+- chamados não são publicados no GitHub;
+- integrações Google são opcionais e podem ser desconectadas separadamente;
+- senhas não ficam visíveis para Gabriel e nunca devem ser pedidas no suporte.
+
+## Próximas revisões obrigatórias
+
+- conferir periodicamente o inventário contra código e painéis dos provedores;
+- testar acesso, exportação e exclusão com conta descartável antes da abertura;
+- revisar o aviso antes de cadastrar novo provedor, anúncios ou novo uso de dados;
+- buscar orientação profissional antes de ampliar o acesso além do piloto.

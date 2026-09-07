@@ -8,6 +8,11 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## Próxima versão — acesso e suporte público (local, 2026-09-05)
 
+- O aviso de privacidade versão 1.0 foi aprovado e disponibilizado publicamente
+  no login, FAQ e Configurações. Ele registra o responsável e canal público,
+  dados, finalidades, fornecedores, retenção e direitos. Saúde, Diário, Finanças
+  e os demais módulos permanecem disponíveis: cada pessoa escolhe os recursos e
+  dados que deseja usar, com recomendação de baixo risco durante o piloto.
 - Em 2026-09-07, login Google foi configurado no Supabase com projeto/cliente
   OAuth separado das integrações Calendar/YouTube. A URL de retorno de produção
   foi autorizada e o botão foi publicado pelo commit `118e487`; o cadastro

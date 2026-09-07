@@ -64,6 +64,7 @@ export default function LoginPage() {
     {mode === 'login' ? <><div className="login-divider" aria-hidden="true"><span>ou</span></div><button type="button" className="login-google" onClick={() => void entrarComGoogle()} disabled={carregando}><span aria-hidden="true">G</span>Entrar com Google</button></> : null}
     {mode === 'login' ? <Link href="/recuperar-senha" className="login-link">Esqueci minha senha</Link> : null}
     <Link href="/ajuda" className="login-link">Dúvidas frequentes</Link>
+    <Link href="/privacidade" className="login-link">Privacidade</Link>
     {signupEnabled ? <button type="button" className="login-secondary" onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setErro(null); setMensagem(null); setCaptchaReset((value) => value + 1) }}>{mode === 'login' ? 'Ainda não tenho conta' : 'Já tenho uma conta'}</button> : <p className="login-note">Novas contas ainda são liberadas por convite.</p>}
   </form></div>
 }

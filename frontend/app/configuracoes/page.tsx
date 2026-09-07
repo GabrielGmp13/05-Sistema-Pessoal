@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Image, Loader2, Save, UserRound } from 'lucide-react'
+import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -238,6 +239,9 @@ export default function ConfiguracoesPage() {
         )}
         <GoogleConnections />
         <BugReportForm />
+        <p className="mt-6 text-center text-sm text-muted-foreground">
+          Consulte o <Link href="/privacidade" className="text-primary underline underline-offset-4">Aviso de privacidade</Link>.
+        </p>
       </div>
     </main>
   )

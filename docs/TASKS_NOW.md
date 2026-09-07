@@ -41,8 +41,10 @@ aplicada em produção em 2026-09-06. O cadastro continua fechado e o site
        Storage cruzado já passou no teste SQL local; o Edge bloqueou a tentativa
        manual da rota técnica antes de chegar ao site. APIs/módulos restantes
        ainda exigem a rodada completa de `teste.md`.
-8. [ ] Aprovar as escolhas destacadas em `AVISO_DE_PRIVACIDADE_RASCUNHO.md`:
-       contato público, idade, bases legais, retenção e exclusão/exportação.
+8. [x] Aviso de privacidade aprovado e publicado: Gabriel Oliveira como
+       responsável, canal `sistemapessoa007@gmail.com`, piloto para maiores de
+       18 anos, retenção e procedimento de acesso/exclusão definidos. Todos os
+       módulos permanecem disponíveis e cada pessoa escolhe o que usar e inserir.
 9. [x] Cloudflare Turnstile criado em modo Managed para o domínio de produção;
        site key na Vercel, deploy aprovado e secret key no Supabase. CAPTCHA
        ativado somente após o widget responder com sucesso no login. Manter

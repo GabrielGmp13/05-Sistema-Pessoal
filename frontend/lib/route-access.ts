@@ -1,4 +1,4 @@
-const PUBLIC_PAGES = ['/login', '/recuperar-senha', '/nova-senha', '/auth/confirm', '/auth/erro', '/ajuda']
+const PUBLIC_PAGES = ['/login', '/recuperar-senha', '/nova-senha', '/auth/confirm', '/auth/erro', '/ajuda', '/privacidade']
 
 export function isUnauthenticatedPage(pathname: string): boolean {
   return PUBLIC_PAGES.includes(pathname)
