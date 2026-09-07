@@ -17,6 +17,8 @@ aplicada em produção em 2026-09-06. O cadastro continua fechado e o site
 - [x] Sem painel admin: operação inicial pelo Supabase Dashboard e trigger de histórico.
 - [x] Validação server-side, limite de 10 pedidos/24 h e testes de entrada.
 - [x] Decisões, princípios, mapa do projeto e plano de abertura atualizados.
+- [x] Solicitações autenticadas de cópia e exclusão com protocolo, histórico e
+      frase exata de confirmação; nenhuma exclusão acontece automaticamente.
 
 ## Gates antes de aplicar/publicar este lote
 

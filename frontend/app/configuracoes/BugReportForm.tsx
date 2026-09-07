@@ -49,6 +49,11 @@ export function BugReportForm() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void load()
   }, [load])
+  useEffect(() => {
+    const refresh = () => void load()
+    window.addEventListener('support-refresh', refresh)
+    return () => window.removeEventListener('support-refresh', refresh)
+  }, [load])
   function update(field: keyof typeof EMPTY, value: string) {
     setForm((current) => ({ ...current, [field]: value })); setMessage(''); setError('')
   }

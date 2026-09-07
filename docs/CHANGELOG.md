@@ -8,6 +8,10 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## Próxima versão — acesso e suporte público (local, 2026-09-05)
 
+- Configurações ganhou solicitações autenticadas de cópia dos dados e exclusão
+  da conta, reaproveitando protocolo e histórico privados da central de suporte.
+  Exclusão exige a frase exata `EXCLUIR MINHA CONTA`, e o pedido apenas inicia
+  a análise e confirmação de identidade: nenhum dado é apagado automaticamente.
 - O aviso de privacidade versão 1.0 foi aprovado e disponibilizado publicamente
   no login, FAQ e Configurações. Ele registra o responsável e canal público,
   dados, finalidades, fornecedores, retenção e direitos. Saúde, Diário, Finanças

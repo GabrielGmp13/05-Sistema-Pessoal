@@ -14,6 +14,7 @@ import { apagarMidiaPessoal, uploadMidiaPessoal, urlMidiaPessoal, validarImagemP
 import { getSession, sb } from '@/lib/supabase'
 import { GoogleConnections } from './GoogleConnections'
 import { BugReportForm } from './BugReportForm'
+import { PrivacyRequestForm } from './PrivacyRequestForm'
 
 interface PerfilForm {
   nome: string
@@ -238,6 +239,7 @@ export default function ConfiguracoesPage() {
           </div>
         )}
         <GoogleConnections />
+        <PrivacyRequestForm />
         <BugReportForm />
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Consulte o <Link href="/privacidade" className="text-primary underline underline-offset-4">Aviso de privacidade</Link>.

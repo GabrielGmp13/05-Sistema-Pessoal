@@ -43,6 +43,8 @@ revisão jurídica antes de uma abertura ampla.
 - armazenamento privado e links temporários para arquivos;
 - autenticação, validação de sessão, limites de envio e CAPTCHA;
 - chamados não são publicados no GitHub;
+- pedidos de cópia e exclusão recebem protocolo; exclusão exige frase exata e
+  confirmação posterior de identidade, sem apagamento automático;
 - integrações Google são opcionais e podem ser desconectadas separadamente;
 - senhas não ficam visíveis para Gabriel e nunca devem ser pedidas no suporte.
 
