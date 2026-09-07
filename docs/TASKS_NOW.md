@@ -39,13 +39,17 @@ aplicada em produção em 2026-09-06. O cadastro continua fechado e o site
 7. [ ] Testar duas contas descartáveis: dados, APIs, Storage e chamados cruzados.
 8. [ ] Aprovar as escolhas destacadas em `AVISO_DE_PRIVACIDADE_RASCUNHO.md`:
        contato público, idade, bases legais, retenção e exclusão/exportação.
-9. [ ] Configurar CAPTCHA/rate limits e manter signup remoto/UI fechados.
+9. [~] Frontend do Cloudflare Turnstile implementado atrás da variável
+       `NEXT_PUBLIC_TURNSTILE_SITE_KEY`; criar widget/chaves, publicar e somente
+       depois ativar o CAPTCHA no Supabase. Manter signup remoto/UI fechados.
        Troca segura de senha e exigência da senha atual foram ativadas no Auth
        em 2026-09-07; a recuperação por e-mail precisa ser testada no deploy.
 10. [x] Commit/push e deploy concluídos (`118e487`); tela de login, FAQ,
         recuperação, cabeçalhos e API sem sessão passaram no smoke. Login Google
         concluiu o retorno autenticado e o suporte criou o protocolo
         `SP-20260907-1CE35332`, com histórico inicial visível somente ao autor.
+        O protocolo `SP-20260907-C929B5FD` confirmou também upload privado e
+        abertura do print por URL assinada.
 11. [ ] Só depois autorizar abertura: habilitar signup remoto e a variável pública juntos.
 
 ## Próxima ação

@@ -78,8 +78,10 @@ ser menos incômodo que desafios visuais. Há duas chaves:
 Ordem correta:
 
 1. Criar o site no painel do Cloudflare Turnstile com domínio de produção e localhost.
-2. Implementar/testar o widget no cadastro, login e recuperação, enviando o
-   `captchaToken` às chamadas do Supabase. Esta etapa de código ainda está pendente.
+2. Cadastrar a site key pública na Vercel como
+   `NEXT_PUBLIC_TURNSTILE_SITE_KEY` e fazer deploy. O frontend já possui o
+   widget no login, cadastro e recuperação e envia o `captchaToken` ao Supabase;
+   sem essa variável, ele permanece invisível e não altera o fluxo atual.
 3. Só então Supabase > Authentication > Bot and Abuse Protection: ativar
    CAPTCHA, escolher Turnstile e informar a secret key.
 4. Testar sucesso, token ausente, token expirado e domínio errado.

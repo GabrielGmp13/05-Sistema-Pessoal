@@ -17,8 +17,15 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
   nome, subtítulo, avatar e fundo escolhidos no site.
 - A central de suporte passou no primeiro smoke autenticado de produção: uma
   sugestão criou protocolo, status Recebido e evento inicial, todos exibidos em
-  “Meus pedidos”. Upload de print e isolamento com uma segunda conta continuam
-  pendentes.
+  “Meus pedidos”. Um segundo teste criou protocolo com print privado e o link
+  assinado abriu a imagem corretamente. Isolamento com uma segunda conta
+  continua pendente.
+- A recuperação de senha aceitou a solicitação real para a conta de Gabriel;
+  entrega na caixa postal, abertura do link e definição da senha ainda dependem
+  da conferência humana.
+- O frontend do Cloudflare Turnstile foi preparado sem dependência nova no
+  login, cadastro e recuperação. Ele só aparece com a site key pública e deve
+  ser publicado antes de o CAPTCHA ser ativado no Supabase.
 - Troca de senha passou a exigir sessão recente e senha atual no Supabase Auth;
   o fluxo de recuperação por e-mail será retestado após a publicação.
 
