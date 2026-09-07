@@ -60,6 +60,12 @@ aplicada em produção em 2026-09-06. O cadastro continua fechado e o site
         `SP-20260907-1CE35332`, com histórico inicial visível somente ao autor.
         O protocolo `SP-20260907-C929B5FD` confirmou também upload privado e
         abertura do print por URL assinada.
+    - [x] A conta principal foi reiniciada em produção em 2026-09-07: todos os
+          registros dos módulos e pedidos de teste foram removidos, os nove
+          arquivos correspondentes foram apagados do Storage e o pós-check
+          retornou zero arquivo fora de `midias-pessoais`. Login, perfil e as
+          duas conexões Google foram preservados; a Agenda pode voltar a receber
+          eventos pela sincronização autorizada do Calendar.
 11. [ ] Só depois autorizar abertura: habilitar signup remoto e a variável pública juntos.
 
 ## Próxima ação
@@ -71,6 +77,12 @@ próprio será necessário mais adiante para e-mail de autenticação confiável
 usuários externos; sem ele, não configurar SMTP/Resend nem abrir cadastro.
 Nenhuma autorização de uma etapa vale automaticamente para Git/deploy ou
 abertura.
+
+Próximo bloco técnico: transformar o pedido de cópia em exportação realmente
+entregável e documentar/ensaiar o procedimento de exclusão integral usando uma
+conta descartável. Em paralelo, concluir a recuperação de senha e a matriz de
+isolamento de `teste.md`; nunca usar novamente a conta principal para ensaiar
+apagamento.
 
 Plano e testes: [ABERTURA_PUBLICA.md](ABERTURA_PUBLICA.md). Estrutura e arquivos:
 [MAPA_DO_PROJETO.md](MAPA_DO_PROJETO.md). Histórico anterior:

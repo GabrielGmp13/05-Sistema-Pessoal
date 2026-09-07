@@ -67,7 +67,15 @@ isolamento com segunda conta e recuperação por e-mail continuam pendentes.
 **Schema:** produção possui 71 tabelas e migrations aplicadas até `20260905000100_suporte_publico.sql`; a cadeia local/remota contém 25 versões. Suporte passou em reset/teste local, dry-run exclusivo, aplicação autorizada e dry-run final vazio em 2026-09-06.
 **Histórico CLI:** evidências dos pós-checks anteriores estão em `DATABASE.md`/`CHANGELOG.md`; a revisão local atual não recertifica o remoto.
 **Reprodutibilidade:** Node.js `24.15.0`, npm `12.0.1`, lockfile e CI ativos. Na preparação v0.2.0: typecheck/build e 76 testes Node aprovados; lint informativo com 25 erros/28 avisos (dívida anterior), zero erros no recorte alterado. Evidências em `RELEASE_V0.2.0.md`.
-**Próxima tarefa imediata:** senha do banco rotacionada por Gabriel em 2026-09-07; seguir a Fase 3 com domínio, Resend/SMTP e URLs de Auth. Há um único e-mail operacional privado; marca e telefone público foram adiados. Nenhum serviço, commit/push ou abertura foi autorizado por consequência. Estrutura em `MAPA_DO_PROJETO.md`, abertura/testes em `ABERTURA_PUBLICA.md` e operação em `MANUTENCAO.md`.
+**Próxima tarefa imediata:** cadastro continua fechado e domínio/Resend/SMTP
+foram adiados para manter a operação gratuita. A conta principal foi reiniciada
+em 2026-09-07, preservando login, perfil e duas conexões Google; o pós-check
+confirmou módulos/pedidos vazios e nenhum arquivo restante fora da mídia do
+perfil. Implementar exportação realmente entregável e ensaiar exportação/
+exclusão com conta descartável, além de concluir recuperação de senha e matriz
+de isolamento. Há um único e-mail operacional privado; marca e telefone público
+foram adiados. Estrutura em `MAPA_DO_PROJETO.md`, abertura/testes em
+`ABERTURA_PUBLICA.md` e operação em `MANUTENCAO.md`.
 
 ---
 

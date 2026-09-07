@@ -8,6 +8,13 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## Próxima versão — acesso e suporte público (local, 2026-09-05)
 
+- Em 2026-09-07, a conta principal de produção foi reiniciada a pedido do
+  proprietário: registros pessoais e chamados de teste foram removidos e os
+  nove arquivos associados foram apagados pelos controles do Storage. O
+  pós-check encontrou zero arquivo da conta fora do bucket de mídia pessoal.
+  Login, perfil, avatar/fundo e duas conexões Google permaneceram funcionais;
+  Home e “Meus pedidos” foram validados vazios após a operação. Eventos do
+  Calendar podem ser importados novamente pela sincronização já autorizada.
 - Configurações ganhou solicitações autenticadas de cópia dos dados e exclusão
   da conta, reaproveitando protocolo e histórico privados da central de suporte.
   Exclusão exige a frase exata `EXCLUIR MINHA CONTA`, e o pedido apenas inicia
