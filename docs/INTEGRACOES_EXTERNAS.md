@@ -59,6 +59,10 @@ O projeto Google Cloud abaixo continua sendo exclusivo para, depois do login,
 cada usuário conectar separadamente uma conta Google para YouTube e/ou
 Calendar. Essas integrações e o login não compartilham chaves nem callback.
 
+O botão “Entrar com Google” foi publicado em 2026-09-07. O início do OAuth e o
+seletor de conta foram confirmados; o teste completo depende da verificação de
+identidade solicitada pelo Google na conta de Gabriel.
+
 As conexões Google estão implementadas com API Routes server-side, `state` de
 uso único em cookie HttpOnly, PKCE, tokens cifrados por AES-256-GCM e tabela sem
 policy de cliente. YouTube e Calendar têm registros e autorizações separados,

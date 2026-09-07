@@ -54,7 +54,11 @@ operacional.
 
 ## Estado atual (2026-08)
 
-**Fase:** release v0.2.0 publicada em 2026-09-05; lote seguinte de acesso e suporte público implementado apenas localmente (DEC-075/076). Cadastro continua desligado até migration, SMTP/Auth, CAPTCHA, isolamento, privacidade e homologação. As fases históricas v2/v2.1 continuam preservadas; a aplicação Next.js é o único frontend ativo.
+**Fase:** release v0.2.0 publicada em 2026-09-05; lote de acesso, suporte público
+e login Google publicado em 2026-09-07 pelo commit `118e487`. Cadastro continua
+desligado até SMTP, CAPTCHA, isolamento, privacidade e homologação. A migration
+de suporte já está em produção. As fases históricas v2/v2.1 continuam
+preservadas; a aplicação Next.js é o único frontend ativo.
 **Decisão-chave:** DEC-018 (reabre DEC-006) — frontend migrou de HTML puro para Next.js/React
 **Deploy:** ✅ em produção no Vercel desde 2026-07-13 (não "pendente" — ver `ARCHITECTURE.md`)
 **Schema:** produção possui 71 tabelas e migrations aplicadas até `20260905000100_suporte_publico.sql`; a cadeia local/remota contém 25 versões. Suporte passou em reset/teste local, dry-run exclusivo, aplicação autorizada e dry-run final vazio em 2026-09-06.

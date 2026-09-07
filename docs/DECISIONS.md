@@ -1508,7 +1508,7 @@ dependem de autorização explícita para commit/push. Documentos operacionais:
 
 ## DEC-075 — Projeto pessoal passa a ser preparado para público (2026-09-05)
 
-**Status:** aprovada por Gabriel; implementação local, abertura pendente.
+**Status:** aprovada, implementada e publicada; abertura pública pendente.
 
 Nova informação concreta reabre os princípios 1, 2 e 10 e supera o limite de
 convites da DEC-069: Gabriel quer permitir uso público, manter a possibilidade
@@ -1525,7 +1525,7 @@ fontes de verdade, rotina, riscos e ordem de publicação.
 
 ## DEC-076 — Suporte no banco, e-mail só como aviso e sem painel admin (2026-09-05)
 
-**Status:** aprovada por Gabriel; implementação local, migration pendente.
+**Status:** aprovada, migration aplicada e frontend publicado; abertura pendente.
 
 Supera a parte de suporte manual da DEC-074. Bugs e sugestões autenticados são
 guardados no Supabase com protocolo não sequencial, status, resposta, histórico
@@ -1542,7 +1542,7 @@ privacidade antes da abertura.
 
 ## DEC-077 — Login Google isolado das integrações Google (2026-09-07)
 
-**Status:** configurado externamente; interface local aguarda publicação e teste.
+**Status:** configurado e publicado; conclusão do teste interativo pendente.
 
 O login de contas do Sistema Pessoal usa um projeto e cliente OAuth Web próprios
 no Google Cloud, cadastrados apenas no Supabase Auth. As integrações já existentes

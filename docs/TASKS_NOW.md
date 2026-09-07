@@ -1,10 +1,11 @@
 # Tarefas atuais — acesso e suporte público
 
-Atualizado em 2026-09-07. A v0.2.0 continua publicada. O próximo lote está
-implementado localmente e a migration de suporte foi aplicada em produção em
-2026-09-06, mas o frontend **não foi publicado nem aberto ao público**.
+Atualizado em 2026-09-07. A v0.2.0 continua publicada. O lote de acesso e
+suporte foi publicado pelo commit `118e487` e a migration de suporte foi
+aplicada em produção em 2026-09-06. O cadastro continua fechado e o site
+**não foi aberto ao público**.
 
-## Implementado localmente
+## Implementado e publicado com cadastro fechado
 
 - [x] Cadastro por e-mail atrás de `NEXT_PUBLIC_PUBLIC_SIGNUP_ENABLED=false`.
 - [x] Confirmação de e-mail/convite, recuperação e definição de nova senha.
@@ -31,7 +32,7 @@ implementado localmente e a migration de suporte foi aplicada em produção em
 4. [~] URLs de Auth configuradas para produção em 2026-09-07; SMTP ainda
        depende de domínio próprio e escolha de remetente.
 5. [x] Login Google configurado no Supabase com cliente OAuth separado;
-       botão implementado localmente, aguardando publicação e teste com uma
+       botão publicado, aguardando concluir o teste com uma
        conta manual já existente. A conta de Gabriel já foi adicionada como
        usuária de teste do projeto Google. O cadastro público permanece fechado.
 6. [ ] Se desejar aviso: criar remetente Resend verificado e variáveis server-only.
@@ -41,7 +42,9 @@ implementado localmente e a migration de suporte foi aplicada em produção em
 9. [ ] Configurar CAPTCHA/rate limits e manter signup remoto/UI fechados.
        Troca segura de senha e exigência da senha atual foram ativadas no Auth
        em 2026-09-07; a recuperação por e-mail precisa ser testada no deploy.
-10. [ ] Autorizar commit/push; conferir CI, deploy e smoke publicado com cadastro fechado.
+10. [~] Commit/push e deploy concluídos (`118e487`); tela de login, FAQ,
+        recuperação, cabeçalhos e API sem sessão passaram no smoke. Login Google
+        chegou à verificação de identidade e aguarda conclusão humana.
 11. [ ] Só depois autorizar abertura: habilitar signup remoto e a variável pública juntos.
 
 ## Próxima ação

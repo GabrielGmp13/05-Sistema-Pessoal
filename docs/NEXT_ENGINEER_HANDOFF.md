@@ -1,22 +1,22 @@
 # Handoff de engenharia — acesso e suporte público
 
-Atualizado em 2026-09-05. Leia `AGENTS.md`, `AI_CONTEXT.md`, `TASKS_NOW.md` e o
+Atualizado em 2026-09-07. Leia `AGENTS.md`, `AI_CONTEXT.md`, `TASKS_NOW.md` e o
 pedido vigente antes de editar. Decisões e schema devem ser conferidos quando
 a tarefa tocar esses contratos. Toda comunicação em português.
 
 ## Estado e autoridade
 
-> Atualização de 2026-09-05: DEC-075/076 superam a direção privada descrita
-> abaixo. Cadastro/recuperação e suporte com protocolos/prints foram implementados
-> localmente. Leia `TASKS_NOW.md` e `ABERTURA_PUBLICA.md`. Nada foi migrado,
-> publicado, contratado, commitado ou enviado neste lote.
+> Atualização de 2026-09-07: DEC-075/076/077 superam a direção privada descrita
+> abaixo. Cadastro/recuperação, suporte com protocolos/prints e login Google
+> foram publicados pelo commit `118e487`. A migration de suporte está em
+> produção. Cadastro público, SMTP/Resend e CAPTCHA continuam bloqueados.
 
 - Repositório: `C:\Gabriel Oliveira\05-Sistema-Pessoal`, aplicação em `frontend/`.
-- Lote v0.2.0 publicado em `main` em 2026-09-05; CI #71 e deploy de produção
-  aprovados. O domínio está protegido por login da Vercel e o smoke depois
-  dessa barreira ainda depende de Gabriel.
-- Sem migration ou operação remota neste lote. Última migration documentada:
-  `20260830000100_anime_related_works.sql`; o remoto não foi recertificado aqui.
+- Lote de acesso/suporte publicado em `main` em 2026-09-07. Login, FAQ,
+  recuperação, cabeçalhos e 401 da API sem sessão passaram no smoke. O teste
+  Google aguarda Gabriel concluir a verificação de identidade na aba aberta.
+- A migration `20260905000100_suporte_publico.sql` foi aplicada e validada em
+  produção em 2026-09-06.
 - O usuário autorizou e o lote foi commitado/pushado. Isso não autoriza novas
   alterações remotas, contratação de e-mail, custo ou abertura pública.
 - Beta de até dez pessoas já autorizado conceitualmente pela DEC-069; piloto
