@@ -69,6 +69,24 @@ export interface DadosDashboardTreino {
 
 // ---------- Treinos ----------
 
+export async function usuarioPossuiModuloTreino(sb: SB, userId: string, moduloUuid: string): Promise<boolean> {
+  const { data, error } = await sb.from('modulos_treino').select('uuid')
+    .eq('uuid', moduloUuid).eq('user_id', userId).eq('deleted', false).maybeSingle()
+  if (error) console.error('[usuarioPossuiModuloTreino]', error)
+  return Boolean(data) && !error
+}
+
+export async function usuarioPossuiTreino(
+  sb: SB, userId: string, treinoUuid: string, moduloUuid?: string,
+): Promise<boolean> {
+  let consulta = sb.from('treinos').select('uuid')
+    .eq('uuid', treinoUuid).eq('user_id', userId).eq('deleted', false)
+  if (moduloUuid) consulta = consulta.eq('modulo_uuid', moduloUuid)
+  const { data, error } = await consulta.maybeSingle()
+  if (error) console.error('[usuarioPossuiTreino]', error)
+  return Boolean(data) && !error
+}
+
 export async function getTreinosPorModulo(sb: SB, userId: string, moduloUuid: string): Promise<Treino[]> {
   const { data, error } = await sb
     .from('treinos')
@@ -100,21 +118,25 @@ export async function criarTreino(
 }
 
 export async function atualizarTreino(
-  sb: SB, treinoUuid: string, nome: string, descricao: string
+  sb: SB, userId: string, treinoUuid: string, nome: string, descricao: string
 ): Promise<{ error: string | null }> {
   const { error } = await sb
     .from('treinos')
     .update({ nome, descricao: descricao || null, updated_at: new Date().toISOString() })
     .eq('uuid', treinoUuid)
+    .eq('user_id', userId)
+    .eq('deleted', false)
   if (error) console.error('[atualizarTreino]', error)
   return { error: error?.message ?? null }
 }
 
-export async function softDeleteTreino(sb: SB, treinoUuid: string): Promise<{ error: string | null }> {
+export async function softDeleteTreino(sb: SB, userId: string, treinoUuid: string): Promise<{ error: string | null }> {
   const { error } = await sb
     .from('treinos')
     .update({ deleted: true, updated_at: new Date().toISOString() })
     .eq('uuid', treinoUuid)
+    .eq('user_id', userId)
+    .eq('deleted', false)
   if (error) console.error('[softDeleteTreino]', error)
   return { error: error?.message ?? null }
 }
@@ -151,11 +173,13 @@ export async function criarExercicioForca(
   return { error: error?.message ?? null }
 }
 
-export async function softDeleteExercicioForca(sb: SB, uuid: string): Promise<{ error: string | null }> {
+export async function softDeleteExercicioForca(sb: SB, userId: string, uuid: string): Promise<{ error: string | null }> {
   const { error } = await sb
     .from('exercicios_forca')
     .update({ deleted: true, updated_at: new Date().toISOString() })
     .eq('uuid', uuid)
+    .eq('user_id', userId)
+    .eq('deleted', false)
   if (error) console.error('[softDeleteExercicioForca]', error)
   return { error: error?.message ?? null }
 }
@@ -192,11 +216,13 @@ export async function criarExercicioCardio(
   return { error: error?.message ?? null }
 }
 
-export async function softDeleteExercicioCardio(sb: SB, uuid: string): Promise<{ error: string | null }> {
+export async function softDeleteExercicioCardio(sb: SB, userId: string, uuid: string): Promise<{ error: string | null }> {
   const { error } = await sb
     .from('exercicios_cardio')
     .update({ deleted: true, updated_at: new Date().toISOString() })
     .eq('uuid', uuid)
+    .eq('user_id', userId)
+    .eq('deleted', false)
   if (error) console.error('[softDeleteExercicioCardio]', error)
   return { error: error?.message ?? null }
 }

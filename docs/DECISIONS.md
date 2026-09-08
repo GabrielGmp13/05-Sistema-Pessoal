@@ -1622,3 +1622,23 @@ programação antes que a requisição dependa exclusivamente do banco.
 **Motivo:** uma falha futura em filtro de interface não deve ampliar o impacto
 de outra falha. As camadas permanecem independentes: sessão/escopo no código,
 RLS/policies no Supabase e homologação cruzada em produção.
+
+## DEC-081 — Relacionamentos privados incluem o proprietário (2026-09-08)
+
+**Status:** implementada e validada localmente; migration remota pendente.
+
+Uma chave estrangeira entre tabelas privadas não pode verificar apenas o UUID
+do registro pai. Ela deve usar `(user_id, <pai>_uuid)` e referenciar
+`(user_id, uuid)` no pai, garantindo no próprio PostgreSQL que os dois lados
+pertencem à mesma conta. A regra foi aplicada às relações entre módulos,
+treinos, exercícios, sessões, execuções, planejamento semanal e Agenda.
+
+As páginas dinâmicas também consultam a propriedade do módulo/treino antes de
+mostrar qualquer formulário. Alterações e exclusões repetem o filtro do usuário.
+Essa camada melhora a resposta visual e reduz erros de código, enquanto a FK
+composta continua sendo a barreira de integridade mesmo diante de uma URL ou
+cliente manipulado.
+
+**Motivo:** RLS isola linhas consultadas, mas uma FK simples aceita um UUID pai
+existente sem comparar proprietários. Dados privados relacionados precisam
+preservar simultaneamente existência e pertencimento, sem depender da interface.

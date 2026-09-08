@@ -81,6 +81,7 @@ dessas duas pastas deve ser executado como migration.
 | `20260830000100` | `20260830000100_anime_related_works.sql` | ✅ Aplicada em produção em 2026-08-30 após precheck/dry-run exclusivo; histórico alinhado e dry-run final vazio |
 | `20260905000100` | `20260905000100_suporte_publico.sql` | ✅ Reset/teste local aprovados; aplicada em produção em 2026-09-06; histórico de 25 versões e dry-run final vazio |
 | `20260907000100` | `20260907000100_exportacao_dados_usuario.sql` | ✅ Reset completo e 21 testes SQL aprovados; dry-run listou somente esta migration; aplicada em produção em 2026-09-07; dry-run final vazio |
+| `20260908000100` | `20260908000100_treino_integridade_por_usuario.sql` | 🟡 Reset completo e 22 testes SQL aprovados; dry-run remoto deve ser repetido com a credencial atual antes da aplicação |
 
 > **Estado confirmado (2026-08-30):** produção e cadeia local estão alinhadas
 > até `20260830000100_anime_related_works.sql`, com 68 tabelas, seis buckets
@@ -155,14 +156,14 @@ nome        TEXT NOT NULL,
 descricao   TEXT,
 updated_at  TIMESTAMPTZ DEFAULT NOW(),
 deleted     BOOLEAN DEFAULT FALSE,
-modulo_uuid TEXT REFERENCES modulos_treino(uuid)   -- adicionada em 005_treino_v2.sql
+modulo_uuid TEXT, FOREIGN KEY (user_id, modulo_uuid) REFERENCES modulos_treino(user_id, uuid)
 ```
 
 ### `sessoes_treino`
 ```sql
 uuid        TEXT PRIMARY KEY,
 user_id     UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-treino_uuid TEXT NOT NULL REFERENCES treinos(uuid),
+treino_uuid TEXT NOT NULL, FOREIGN KEY (user_id, treino_uuid) REFERENCES treinos(user_id, uuid),
 data_inicio TIMESTAMPTZ NOT NULL,
 data_fim    TIMESTAMPTZ,
 observacoes TEXT,
@@ -763,7 +764,7 @@ deleted     BOOLEAN DEFAULT FALSE
 ```sql
 uuid               TEXT PRIMARY KEY,
 user_id            UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-treino_uuid        TEXT NOT NULL REFERENCES treinos(uuid),
+treino_uuid        TEXT NOT NULL, FOREIGN KEY (user_id, treino_uuid) REFERENCES treinos(user_id, uuid),
 nome               TEXT NOT NULL,
 series_alvo        INTEGER,
 reps_alvo          INTEGER,
@@ -779,7 +780,7 @@ deleted            BOOLEAN DEFAULT FALSE
 ```sql
 uuid                  TEXT PRIMARY KEY,
 user_id               UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-treino_uuid           TEXT NOT NULL REFERENCES treinos(uuid),
+treino_uuid           TEXT NOT NULL, FOREIGN KEY (user_id, treino_uuid) REFERENCES treinos(user_id, uuid),
 nome                  TEXT NOT NULL,
 distancia_alvo_km     NUMERIC(6,3),
 duracao_alvo_minutos  INTEGER,
@@ -793,8 +794,10 @@ deleted               BOOLEAN DEFAULT FALSE
 ```sql
 uuid            TEXT PRIMARY KEY,
 user_id         UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-sessao_uuid     TEXT NOT NULL REFERENCES sessoes_treino(uuid),
-exercicio_uuid  TEXT NOT NULL REFERENCES exercicios_forca(uuid),
+sessao_uuid     TEXT NOT NULL,
+exercicio_uuid  TEXT NOT NULL,
+FOREIGN KEY (user_id, sessao_uuid) REFERENCES sessoes_treino(user_id, uuid),
+FOREIGN KEY (user_id, exercicio_uuid) REFERENCES exercicios_forca(user_id, uuid),
 serie_numero    INTEGER,
 carga_real      NUMERIC(6,2),
 reps_real       INTEGER,
@@ -808,8 +811,10 @@ deleted         BOOLEAN DEFAULT FALSE
 ```sql
 uuid                  TEXT PRIMARY KEY,
 user_id               UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-sessao_uuid           TEXT NOT NULL REFERENCES sessoes_treino(uuid),
-exercicio_uuid        TEXT NOT NULL REFERENCES exercicios_cardio(uuid),
+sessao_uuid           TEXT NOT NULL,
+exercicio_uuid        TEXT NOT NULL,
+FOREIGN KEY (user_id, sessao_uuid) REFERENCES sessoes_treino(user_id, uuid),
+FOREIGN KEY (user_id, exercicio_uuid) REFERENCES exercicios_cardio(user_id, uuid),
 concluido             BOOLEAN DEFAULT FALSE,
 distancia_real_km     NUMERIC(6,3),
 duracao_real_minutos  INTEGER,

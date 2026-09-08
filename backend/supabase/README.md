@@ -81,6 +81,11 @@ O ponto inicial oficial da cadeia CLI é:
 25. `20260905000100_suporte_publico.sql` — cria chamados, histórico, anexos e
     bucket privado de suporte; reset/teste local aprovados e aplicada em produção
     em 2026-09-06 após dry-run exclusivo, com histórico/dry-run final alinhados.
+26. `20260907000100_exportacao_dados_usuario.sql` — exportação operacional de
+    dados próprios; aplicada em produção após reset e 21 testes SQL.
+27. `20260908000100_treino_integridade_por_usuario.sql` — impede vínculos entre
+    contas nas relações do Treino; reset e 22 testes SQL aprovados, aplicação
+    remota pendente de novo dry-run com a credencial atual.
 
 As três baselines foram validadas por dois replays locais completos e por
 comparação com produção. Em 2026-08-08, `migration repair --status applied`

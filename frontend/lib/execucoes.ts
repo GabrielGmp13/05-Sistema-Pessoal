@@ -33,11 +33,13 @@ export async function criarSessao(sb: SB, userId: string, treinoUuid: string): P
   return uuid
 }
 
-export async function finalizarSessao(sb: SB, sessaoUuid: string, observacoes: string): Promise<{ error: string | null }> {
+export async function finalizarSessao(sb: SB, userId: string, sessaoUuid: string, observacoes: string): Promise<{ error: string | null }> {
   const { error } = await sb
     .from('sessoes_treino')
     .update({ data_fim: new Date().toISOString(), observacoes: observacoes || null, updated_at: new Date().toISOString() })
     .eq('uuid', sessaoUuid)
+    .eq('user_id', userId)
+    .eq('deleted', false)
   if (error) console.error('[finalizarSessao]', error)
   return { error: error?.message ?? null }
 }

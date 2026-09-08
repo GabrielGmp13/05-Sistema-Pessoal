@@ -8,6 +8,7 @@ import {
   getExerciciosForca, criarExercicioForca, softDeleteExercicioForca,
   getExerciciosCardio, criarExercicioCardio, softDeleteExercicioCardio,
   deleteImagemExercicio, getImagemExercicioUrl, uploadImagemExercicio,
+  usuarioPossuiTreino,
   type ExercicioForca, type ExercicioCardio,
 } from '@/lib/treino'
 import styles from './page.module.css'
@@ -31,6 +32,8 @@ export default function PlanoTreinoPage() {
   const [imagensUrl, setImagensUrl] = useState<Record<string, string>>({})
   const [erro, setErro] = useState('')
   const [salvando, setSalvando] = useState(false)
+  const [carregando, setCarregando] = useState(true)
+  const [treinoPermitido, setTreinoPermitido] = useState(false)
   const [exercicioParaApagar, setExercicioParaApagar] = useState<{
     uuid: string
     tipo: 'forca' | 'cardio'
@@ -55,6 +58,10 @@ export default function PlanoTreinoPage() {
       const { data: { session } } = await sb.auth.getSession()
       if (!session) return
       setUserId(session.user.id)
+      const permitido = await usuarioPossuiTreino(sb, session.user.id, treinoUuid, moduloUuid)
+      setTreinoPermitido(permitido)
+      setCarregando(false)
+      if (!permitido) return
       await recarregar(session.user.id)
     }
     init()
@@ -113,8 +120,8 @@ export default function PlanoTreinoPage() {
     if (!userId || !exercicioParaApagar) return
     const exercicio = exercicioParaApagar.tipo === 'forca' ? forca.find((item) => item.uuid === exercicioParaApagar.uuid) : cardio.find((item) => item.uuid === exercicioParaApagar.uuid)
     const resultado = exercicioParaApagar.tipo === 'forca'
-      ? await softDeleteExercicioForca(sb, exercicioParaApagar.uuid)
-      : await softDeleteExercicioCardio(sb, exercicioParaApagar.uuid)
+      ? await softDeleteExercicioForca(sb, userId, exercicioParaApagar.uuid)
+      : await softDeleteExercicioCardio(sb, userId, exercicioParaApagar.uuid)
     if (!resultado.error && exercicio?.imagem_path) {
       await deleteImagemExercicio(sb, exercicio.imagem_path)
     }
@@ -140,6 +147,15 @@ export default function PlanoTreinoPage() {
     setErroImagem('')
     if (inputImagemRef.current) inputImagemRef.current.value = ''
   }
+
+  if (carregando) return <p className={styles.carregando}>Carregando…</p>
+
+  if (!treinoPermitido) return (
+    <div className={styles.container}>
+      <button className={styles.voltar} onClick={() => router.push('/treino')}>← Treino</button>
+      <p className={styles.vazio}>Este conteúdo não existe ou não pertence à sua conta.</p>
+    </div>
+  )
 
   return (
     <div className={styles.container}>

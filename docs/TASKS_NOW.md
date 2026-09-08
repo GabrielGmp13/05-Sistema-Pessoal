@@ -82,6 +82,21 @@ aplicada em produção em 2026-09-06. O cadastro continua fechado e o site
 
 ## Próxima ação
 
+A matriz entre as duas contas passou para leitura em Agenda, Idiomas, Saúde,
+Finanças, Lugares e Treino. Ao testar URLs conhecidas da conta secundária na
+principal, foi descoberta uma lacuna de integridade: o RLS escondia os dados,
+mas as FKs simples ainda permitiam tentar criar um registro próprio apontando
+para um pai de outra conta. A correção de defesa em profundidade está pronta
+localmente (DEC-081): páginas dinâmicas bloqueiam pais alheios, mutações repetem
+`user_id` e a migration `20260908000100` transforma dez relações do Treino em
+FKs compostas por usuário. Reset completo, 22 testes SQL, 93 testes Node,
+typecheck, build de 47 páginas e lint do recorte passaram. O dry-run remoto não
+alterou produção e foi interrompido porque a credencial da sessão era anterior
+à última troca de senha. Próximo passo: atualizar a credencial somente em
+memória, repetir dry-run, aplicar a migration com confirmação e refazer as três
+URLs cruzadas. A massa temporária da conta secundária permanece até a limpeza
+final autorizada.
+
 Defesa em profundidade de isolamento foi publicada no commit `b5bdf2f`
 (DEC-080):
 APIs privilegiadas ganharam contrato de autenticação/escopo coberto pela CI;

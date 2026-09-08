@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { createBrowserClient } from '@supabase/ssr'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
-import { getTreinosPorModulo, criarTreino, softDeleteTreino, type Treino } from '@/lib/treino'
+import { getTreinosPorModulo, criarTreino, softDeleteTreino, usuarioPossuiModuloTreino, type Treino } from '@/lib/treino'
 import styles from './page.module.css'
 
 export default function PlanoModuloPage() {
@@ -13,6 +13,7 @@ export default function PlanoModuloPage() {
   const [userId, setUserId] = useState<string | null>(null)
   const [treinos, setTreinos] = useState<Treino[]>([])
   const [carregando, setCarregando] = useState(true)
+  const [moduloPermitido, setModuloPermitido] = useState(false)
   const [nomeNovo, setNomeNovo] = useState('')
   const [descNova, setDescNova] = useState('')
   const [treinoParaApagar, setTreinoParaApagar] = useState<string | null>(null)
@@ -32,6 +33,12 @@ export default function PlanoModuloPage() {
       const { data: { session } } = await sb.auth.getSession()
       if (!session) return
       setUserId(session.user.id)
+      const permitido = await usuarioPossuiModuloTreino(sb, session.user.id, moduloUuid)
+      setModuloPermitido(permitido)
+      if (!permitido) {
+        setCarregando(false)
+        return
+      }
       await recarregar(session.user.id)
       setCarregando(false)
     }
@@ -51,11 +58,18 @@ export default function PlanoModuloPage() {
 
   async function handleApagarConfirmado() {
     if (!userId || !treinoParaApagar) return
-    await softDeleteTreino(sb, treinoParaApagar)
+    await softDeleteTreino(sb, userId, treinoParaApagar)
     await recarregar(userId)
   }
 
   if (carregando) return <p className={styles.carregando}>Carregando…</p>
+
+  if (!moduloPermitido) return (
+    <div className={styles.container}>
+      <Link href="/treino" className={styles.voltar}>← Treino</Link>
+      <p className={styles.vazio}>Este conteúdo não existe ou não pertence à sua conta.</p>
+    </div>
+  )
 
   return (
     <div className={styles.container}>

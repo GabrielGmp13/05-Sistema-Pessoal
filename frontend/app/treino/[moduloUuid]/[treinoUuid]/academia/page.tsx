@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
-import { getExerciciosForca, getExerciciosCardio, getImagemExercicioUrl, type ExercicioForca, type ExercicioCardio } from '@/lib/treino'
+import { getExerciciosForca, getExerciciosCardio, getImagemExercicioUrl, usuarioPossuiTreino, type ExercicioForca, type ExercicioCardio } from '@/lib/treino'
 import { criarSessao, finalizarSessao, salvarExecucoesForca, salvarExecucaoCardio, getRecordeCarga, type SerieForca } from '@/lib/execucoes'
 import styles from './page.module.css'
 
@@ -22,6 +22,8 @@ export default function AcademiaPage() {
   const [imagensUrl, setImagensUrl] = useState<Record<string, string>>({})
   const [salvando, setSalvando] = useState(false)
   const [finalizado, setFinalizado] = useState(false)
+  const [carregando, setCarregando] = useState(true)
+  const [treinoPermitido, setTreinoPermitido] = useState(false)
 
   const sb = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -34,6 +36,10 @@ export default function AcademiaPage() {
       if (!session) return
       const uid = session.user.id
       setUserId(uid)
+      const permitido = await usuarioPossuiTreino(sb, uid, treinoUuid, moduloUuid)
+      setTreinoPermitido(permitido)
+      setCarregando(false)
+      if (!permitido) return
 
       const [listaForca, listaCardio] = await Promise.all([
         getExerciciosForca(sb, uid, treinoUuid),
@@ -108,10 +114,19 @@ export default function AcademiaPage() {
       }
     }
 
-    await finalizarSessao(sb, sessaoUuid, '')
+    await finalizarSessao(sb, userId, sessaoUuid, '')
     setSalvando(false)
     setFinalizado(true)
   }
+
+  if (carregando) return <p className={styles.carregando}>Carregando…</p>
+
+  if (!treinoPermitido) return (
+    <div className={styles.container}>
+      <button className={styles.voltar} onClick={() => router.push('/treino')}>← Treino</button>
+      <p className={styles.fim}>Este conteúdo não existe ou não pertence à sua conta.</p>
+    </div>
+  )
 
   if (finalizado) {
     return (

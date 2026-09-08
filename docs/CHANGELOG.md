@@ -8,6 +8,17 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## Próxima versão — acesso e suporte público (local, 2026-09-05)
 
+- Em 2026-09-08, o teste cruzado de Agenda, Idiomas, Saúde, Finanças, Lugares e
+  Treino aprovou o isolamento de leitura. Uma URL direta de treino alheio
+  revelou que formulários vazios ainda eram exibidos e que FKs simples não
+  garantiam o mesmo proprietário nos dois lados da relação. Foi preparada a
+  migration `20260908000100`, com dez FKs compostas por `user_id`, precheck que
+  aborta diante de inconsistência e GRANTs explícitos. O frontend passou a
+  validar módulo/treino antes de mostrar formulários e a repetir o usuário nas
+  mutações. Reset completo, 22 testes SQL, 93 testes Node, typecheck, build de
+  47 páginas e lint do recorte sem erros passaram. O primeiro dry-run remoto
+  foi somente leitura e falhou por usar a credencial anterior à troca de senha;
+  aplicação em produção permanece pendente.
 - Defesa em profundidade de isolamento foi publicada no commit `b5bdf2f`. Rotas que
   usam `service_role` agora têm contrato de CI para autenticar antes do cliente
   privilegiado e derivar o escopo da sessão. Histórico, anexos e limite de

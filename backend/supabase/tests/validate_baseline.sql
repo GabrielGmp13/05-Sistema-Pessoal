@@ -39,6 +39,28 @@ SELECT pg_temp.assert_true(
 );
 
 SELECT pg_temp.assert_true(
+  (SELECT count(*) = 10
+   FROM pg_constraint c
+   JOIN pg_namespace n ON n.oid = c.connamespace
+   WHERE n.nspname = 'public'
+     AND c.contype = 'f'
+     AND c.conname IN (
+       'treinos_user_modulo_fkey',
+       'exercicios_forca_user_treino_fkey',
+       'exercicios_cardio_user_treino_fkey',
+       'sessoes_treino_user_treino_fkey',
+       'treinos_planejamento_user_treino_fkey',
+       'agenda_user_treino_fkey',
+       'execucoes_forca_user_sessao_fkey',
+       'execucoes_forca_user_exercicio_fkey',
+       'execucoes_cardio_user_sessao_fkey',
+       'execucoes_cardio_user_exercicio_fkey'
+     )
+     AND cardinality(c.conkey) = 2),
+  'vinculos de treino devem carregar user_id na chave estrangeira'
+);
+
+SELECT pg_temp.assert_true(
   (SELECT count(*) = 102
    FROM pg_constraint c
    JOIN pg_namespace n ON n.oid = c.connamespace
