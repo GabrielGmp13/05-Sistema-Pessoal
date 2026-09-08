@@ -48,10 +48,13 @@ aplicada em produção em 2026-09-06. O cadastro continua fechado e o site
        arquivos antes de ser removida; uma nova conta de teste será necessária
        para concluir a matriz.
        A conta foi recriada em 2026-09-08. Perfil, conexões Google, pedidos e
-       onze módulos abriram sem dados da principal. Um projeto-marcador criado
-       na secundária não apareceu na principal, confirmando isolamento real de
-       leitura em `projetos`. O login secundário foi retestado com sucesso e o
-       marcador foi removido; ambas as contas voltaram ao estado esperado.
+       onze módulos abriram sem dados da principal. A matriz real foi ampliada
+       com criação, leitura, edição e exclusão de projeto; criação e mudança de
+       etapa de tarefa relacionada; e upload privado no Shape. A imagem JPG foi
+       otimizada para WebP, apareceu apenas na conta secundária, não abriu pela
+       URL direta sem assinatura (`400`) e o bucket `shape` ficou vazio após a
+       exclusão autorizada. Projeto, tarefa, registro e imagem temporários foram
+       removidos; a conta secundária foi preservada para os testes restantes.
 8. [x] Aviso de privacidade aprovado e publicado: Gabriel Oliveira como
        responsável, canal `sistemapessoa007@gmail.com`, piloto para maiores de
        18 anos, retenção e procedimento de acesso/exclusão definidos. Todos os
@@ -110,10 +113,13 @@ Otimização de novos uploads foi publicada no commit `a8aa37f` (DEC-079): WebP 
 redimensionamento por finalidade, preservação do original quando ele for menor,
 e nenhuma alteração automática dos arquivos antigos. Typecheck, 86 testes,
 build e lint do recorte passaram; os três avisos do lint em Shape já existiam.
-CI e deploy de produção aprovados. A comparação visual com imagens reais ainda
-está pendente. A conta de teste foi recriada e o primeiro marcador cruzado
-confirmou isolamento de Projetos; o marcador foi removido e o login secundário
-retestado. Continuar a matriz de CRUD/relacionamentos/Storage de `teste.md`.
+CI e deploy de produção aprovados. A comparação visual em produção aprovou o
+WebP gerado a partir de uma imagem real, sem perda perceptível na inspeção
+realizada. A conta de teste foi preservada após uma matriz representativa de
+CRUD, relacionamento e Storage: Projetos e Shape ficaram invisíveis entre
+contas, a URL sem assinatura foi recusada e toda a massa temporária foi
+removida. Continuar os casos por módulo e os testes manuais externos ainda
+abertos em `teste.md`.
 
 Plano e testes: [ABERTURA_PUBLICA.md](ABERTURA_PUBLICA.md). Estrutura e arquivos:
 [MAPA_DO_PROJETO.md](MAPA_DO_PROJETO.md). Histórico anterior:

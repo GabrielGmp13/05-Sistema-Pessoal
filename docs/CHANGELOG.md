@@ -8,6 +8,14 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## Próxima versão — acesso e suporte público (local, 2026-09-05)
 
+- Em 2026-09-08, a matriz real de duas contas foi ampliada em produção. Na
+  secundária, um projeto passou por criação, leitura e edição; uma tarefa filha
+  foi criada e movida de etapa; e o Shape recebeu imagem JPG, otimizada pelo
+  navegador para WebP sem perda visual perceptível. Na principal, projeto,
+  tarefa, registro e imagem não apareceram. A URL direta sem assinatura foi
+  recusada com `400`. Após confirmação, projeto/tarefa e Shape/imagem foram
+  removidos; o Dashboard confirmou o bucket `shape` vazio e a conta secundária
+  foi preservada para continuar a homologação.
 - Em 2026-09-08, a conta descartável passou pelo fluxo completo de exportação:
   JSON coerente com a conta vazia, sem campos secretos e inventário com zero
   arquivos. Depois da confirmação destrutiva, ela foi excluída no Supabase; o
