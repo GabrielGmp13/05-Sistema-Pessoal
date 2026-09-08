@@ -1,6 +1,6 @@
 # Tarefas atuais — acesso e suporte público
 
-Atualizado em 2026-09-07. A v0.2.0 continua publicada. O lote de acesso e
+Atualizado em 2026-09-08. A v0.2.0 continua publicada. O lote de acesso e
 suporte foi publicado pelo commit `118e487` e a migration de suporte foi
 aplicada em produção em 2026-09-06. O cadastro continua fechado e o site
 **não foi aberto ao público**.
@@ -43,7 +43,10 @@ aplicada em produção em 2026-09-06. O cadastro continua fechado e o site
        “Meus pedidos” vazio apesar dos três chamados existentes em Gabriel.
        Storage cruzado já passou no teste SQL local; o Edge bloqueou a tentativa
        manual da rota técnica antes de chegar ao site. APIs/módulos restantes
-       ainda exigem a rodada completa de `teste.md`.
+       ainda exigem a rodada completa de `teste.md`. A conta descartável usada
+       no ensaio de exportação/exclusão também apresentou zero dados e zero
+       arquivos antes de ser removida; uma nova conta de teste será necessária
+       para concluir a matriz.
 8. [x] Aviso de privacidade aprovado e publicado: Gabriel Oliveira como
        responsável, canal `sistemapessoa007@gmail.com`, piloto para maiores de
        18 anos, retenção e procedimento de acesso/exclusão definidos. Todos os
@@ -53,7 +56,8 @@ aplicada em produção em 2026-09-06. O cadastro continua fechado e o site
        ativado somente após o widget responder com sucesso no login. Manter
        signup remoto/UI fechados.
        Troca segura de senha e exigência da senha atual foram ativadas no Auth
-       em 2026-09-07; a recuperação por e-mail precisa ser testada no deploy.
+       em 2026-09-07. A recuperação em produção aceitou o pedido e entregou o
+       e-mail na caixa correta em 2026-09-08; a senha não foi alterada.
 10. [x] Commit/push e deploy concluídos (`118e487`); tela de login, FAQ,
         recuperação, cabeçalhos e API sem sessão passaram no smoke. Login Google
         concluiu o retorno autenticado e o suporte criou o protocolo
@@ -88,6 +92,22 @@ no mesmo commit, o site respondeu 200 e a rota de exportação recusou acesso se
 sessão com 401. Próxima ação: fazer o smoke autenticado do download e ensaiar
 exportação/exclusão somente com conta descartável. Em paralelo, concluir
 recuperação de senha e a matriz de isolamento de `teste.md`.
+
+O smoke autenticado da exportação passou na conta principal e, em 2026-09-08,
+também na conta descartável: protocolo e histórico foram criados, o JSON foi
+baixado e validado sem campos de token, segredo, senha ou cookie. A conta
+descartável não possuía registros nem arquivos; foi excluída pelo Supabase Auth,
+sumiu da listagem e passou a receber “E-mail ou senha incorretos” no login. A
+recuperação da conta principal também entregou o e-mail esperado; nenhum link
+foi aberto e nenhuma senha foi trocada.
+
+Otimização de novos uploads foi implementada localmente (DEC-079): WebP com
+redimensionamento por finalidade, preservação do original quando ele for menor,
+e nenhuma alteração automática dos arquivos antigos. Typecheck, 86 testes,
+build e lint do recorte passaram; os três avisos do lint em Shape já existiam.
+Publicação e comparação visual com imagens reais permanecem pendentes. Após a
+publicação, a próxima etapa é recriar uma conta de teste e concluir a matriz de
+isolamento de `teste.md`.
 
 Plano e testes: [ABERTURA_PUBLICA.md](ABERTURA_PUBLICA.md). Estrutura e arquivos:
 [MAPA_DO_PROJETO.md](MAPA_DO_PROJETO.md). Histórico anterior:

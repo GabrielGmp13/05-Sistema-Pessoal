@@ -8,6 +8,20 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## Próxima versão — acesso e suporte público (local, 2026-09-05)
 
+- Em 2026-09-08, a conta descartável passou pelo fluxo completo de exportação:
+  JSON coerente com a conta vazia, sem campos secretos e inventário com zero
+  arquivos. Depois da confirmação destrutiva, ela foi excluída no Supabase; o
+  pós-check deixou somente a conta principal e o login antigo passou a falhar.
+  A recuperação de senha da conta principal também entregou o e-mail esperado
+  na caixa correta; o link não foi aberto e a senha não foi alterada.
+- Novos uploads de JPG/PNG/WebP passaram a ser redimensionados por finalidade e
+  convertidos para WebP em qualidade alta apenas quando o resultado é menor.
+  A regra cobre mídias pessoais, Biblioteca, Shape, redações, exercícios e
+  prints de suporte, preserva GIF/PDF e não altera o acervo antigo. Typecheck,
+  86 testes, build e lint do recorte passaram sem erros.
+- O smoke autenticado da exportação passou na conta principal com autorização:
+  protocolo/histórico criados, download JSON válido e nenhum campo de token,
+  segredo, senha ou cookie presente. Nenhum dado da conta foi modificado.
 - Exportação autenticada foi implementada localmente: após gerar protocolo, a
   pessoa baixa um JSON dos próprios registros, perfil, integrações sem tokens e
   inventário de arquivos. Uma ferramenta administrativa de exclusão opera em
@@ -50,8 +64,9 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
   assinado abriu a imagem corretamente. Isolamento com uma segunda conta
   continua pendente.
 - A recuperação de senha aceitou a solicitação real para a conta de Gabriel;
-  entrega na caixa postal, abertura do link e definição da senha ainda dependem
-  da conferência humana.
+  a entrega na caixa postal foi confirmada em 2026-09-08. Abertura do link e
+  definição de uma nova senha não foram executadas porque não eram necessárias
+  para validar o transporte e exigem ação humana na etapa final.
 - O frontend do Cloudflare Turnstile foi preparado sem dependência nova no
   login, cadastro e recuperação. Ele só aparece com a site key pública e deve
   ser publicado antes de o CAPTCHA ser ativado no Supabase.

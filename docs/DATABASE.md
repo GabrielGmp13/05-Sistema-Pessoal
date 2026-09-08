@@ -1309,6 +1309,12 @@ pasta por `auth.uid()` com `USING`/`WITH CHECK` conforme a operação.
 Desde `20260905000100`, o sétimo bucket privado é `suporte-anexos`. Ele não
 possui policy de cliente: upload e leitura passam apenas pelas APIs autenticadas.
 
+Desde o lote local de 2026-09-07 (DEC-079), novos JPG/PNG/WebP são otimizados no
+navegador antes do upload: redimensionamento por finalidade e WebP em qualidade
+alta, usado somente quando fica menor que o original. GIF/PDF e arquivos antigos
+não são alterados. Esta regra economiza Storage, mas não muda buckets, RLS,
+limites máximos nem o schema do banco.
+
 ### Suporte público — migration aplicada `20260905000100_suporte_publico.sql`
 
 Reset completo e teste SQL local passaram em 2026-09-05. Em 2026-09-06, o

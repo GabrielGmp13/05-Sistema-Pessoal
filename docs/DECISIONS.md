@@ -1557,8 +1557,8 @@ conta manual já existente e uma conta Google autorizada no modo Testing.
 
 ## DEC-078 — Exportação imediata em JSON e exclusão operacional em duas etapas (2026-09-07)
 
-**Status:** implementada localmente; migration, publicação e ensaio destrutivo
-com conta descartável ainda pendentes.
+**Status:** migration e frontend publicados; exportação e exclusão ensaiadas
+com sucesso em conta descartável em 2026-09-08.
 
 Depois de criar um protocolo, o próprio usuário autenticado pode baixar um JSON
 dos registros associados à sua conta. A API não recebe UUID do cliente e a
@@ -1578,3 +1578,24 @@ descartável, nunca a conta principal.
 **Motivo:** oferecer acesso prático sem abrir uma rota destrutiva pública nem
 carregar arquivos potencialmente grandes na função da Vercel. O fluxo permanece
 operável por uma pessoa, auditável pelo protocolo e sem serviço pago novo.
+
+## DEC-079 — Otimização de imagens antes do upload (2026-09-07)
+
+**Status:** implementada localmente; publicação e homologação visual pendentes.
+
+Novos JPG, PNG e WebP enviados pelo navegador são redimensionados conforme o
+uso e convertidos para WebP em qualidade alta antes do upload. O arquivo
+otimizado só substitui o original quando realmente fica menor. Fotos comuns
+usam até 2048 px; capas/exercícios até 1600–1920 px; redações até 2400 × 3200
+e prints de suporte até 2560 px com qualidade maior para preservar texto.
+
+GIF animado e PDF permanecem intactos. Falha de decodificação ou navegador sem
+suporte também preserva o arquivo original. A conversão por canvas remove
+metadados embutidos das imagens convertidas, reduzindo exposição acidental. Os
+arquivos históricos não são reprocessados automaticamente: uma eventual
+migração exigirá inventário, backup, comparação visual e aprovação específica.
+
+**Motivo:** reduzir armazenamento e tráfego no plano gratuito sem serviço ou
+dependência adicional e sem aumentar o risco operacional. A otimização na
+exibição do Next.js não substitui esta etapa, porque não reduz o objeto original
+guardado no Supabase.

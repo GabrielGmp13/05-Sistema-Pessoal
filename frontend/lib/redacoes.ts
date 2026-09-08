@@ -1,4 +1,5 @@
 import { sb, getUserId, sbErr, softDelete, uploadFile, getSignedUrl, deleteFile } from './supabase';
+import { otimizarImagem } from './image-optimization';
 
 export interface Redacao {
   uuid: string;
@@ -91,10 +92,11 @@ export async function uploadImagemRedacao(
   const userId = await getUserId();
   if (!userId) return null;
 
-  const extensao = file.name.split('.').pop()?.replace(/[^a-zA-Z0-9]/g, '') || 'jpg';
+  const arquivo = (await otimizarImagem(file, { maxWidth: 2400, maxHeight: 3200, quality: 0.9 })).file;
+  const extensao = arquivo.name.split('.').pop()?.replace(/[^a-zA-Z0-9]/g, '') || 'jpg';
   const path = `${userId}/${uuid}-${crypto.randomUUID()}.${extensao}`;
 
-  const caminhoSalvo = await uploadFile(BUCKET_REDACOES, path, file);
+  const caminhoSalvo = await uploadFile(BUCKET_REDACOES, path, arquivo);
   if (!caminhoSalvo) return null;
 
   const atualizado = await atualizarRedacao(uuid, { imagem_path: caminhoSalvo });

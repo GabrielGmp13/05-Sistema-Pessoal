@@ -52,7 +52,7 @@ operacional.
 
 ---
 
-## Estado atual (2026-08)
+## Estado atual (2026-09)
 
 **Fase:** release v0.2.0 publicada em 2026-09-05; lote de acesso, suporte público
 e login Google publicado em 2026-09-07 pelo commit `118e487`. Cadastro continua
@@ -60,8 +60,10 @@ desligado até SMTP, CAPTCHA, isolamento, privacidade e homologação. A migrati
 de suporte já está em produção. As fases históricas v2/v2.1 continuam
 preservadas; a aplicação Next.js é o único frontend ativo.
 **Smoke público:** login Google concluiu e vinculou a conta existente sem
-duplicata; a central criou protocolo e histórico autenticado. Upload de print,
-isolamento com segunda conta e recuperação por e-mail continuam pendentes.
+duplicata; a central criou protocolo/histórico e abriu print privado. Exportação
+passou nas contas principal e descartável; a descartável foi removida e não
+consegue mais entrar. A recuperação entregou o e-mail esperado sem troca de
+senha. A matriz completa de isolamento ainda está pendente.
 **Decisão-chave:** DEC-018 (reabre DEC-006) — frontend migrou de HTML puro para Next.js/React
 **Deploy:** ✅ em produção no Vercel desde 2026-07-13 (não "pendente" — ver `ARCHITECTURE.md`)
 **Schema:** produção possui 71 tabelas e 26 migrations aplicadas até `20260907000100_exportacao_dados_usuario.sql`; a exportação passou reset completo, 21 testes SQL, dry-run exclusivo, aplicação autorizada e dry-run final vazio.
@@ -72,9 +74,12 @@ foram adiados para manter a operação gratuita. A conta principal foi reiniciad
 em 2026-09-07, preservando login, perfil e duas conexões Google; o pós-check
 confirmou módulos/pedidos vazios e nenhum arquivo restante fora da mídia do
 perfil. A exportação JSON foi publicada pelo commit `af8486b`, com deploy
-`Ready` e recusa 401 sem sessão confirmada. Ensaiar exportação/exclusão com conta
-descartável e concluir recuperação de senha e matriz
-de isolamento. Há um único e-mail operacional privado; marca e telefone público
+`Ready`, recusa 401 sem sessão e download autenticado válido confirmados. A
+exportação não incluiu campos secretos. O ensaio de exportação/exclusão com
+conta descartável e a entrega do e-mail de recuperação passaram em 2026-09-08;
+nenhuma senha foi alterada. Publicar a otimização local de imagens e depois
+recriar uma conta de teste para concluir a matriz de isolamento. Há um único
+e-mail operacional privado; marca e telefone público
 foram adiados. Estrutura em `MAPA_DO_PROJETO.md`, abertura/testes em
 `ABERTURA_PUBLICA.md` e operação em `MANUTENCAO.md`.
 

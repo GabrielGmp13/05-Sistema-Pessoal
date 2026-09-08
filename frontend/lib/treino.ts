@@ -1,4 +1,5 @@
 import { createBrowserClient } from '@supabase/ssr'
+import { otimizarImagem } from './image-optimization'
 
 type SB = ReturnType<typeof createBrowserClient>
 const BUCKET_EXERCICIOS = 'exercicios'
@@ -203,9 +204,12 @@ export async function softDeleteExercicioCardio(sb: SB, uuid: string): Promise<{
 export async function uploadImagemExercicio(sb: SB, userId: string, file: File): Promise<{ path: string | null; error: string | null }> {
   if (!TIPOS_IMAGEM_EXERCICIO.has(file.type)) return { path: null, error: 'Use JPG, PNG, WebP ou GIF.' }
   if (file.size > LIMITE_IMAGEM_EXERCICIO) return { path: null, error: 'A imagem deve ter no máximo 5 MB.' }
-  const extensao = file.name.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g, '') || 'bin'
+  const arquivo = file.type === 'image/gif'
+    ? file
+    : (await otimizarImagem(file, { maxWidth: 1600, maxHeight: 1600, quality: 0.84 })).file
+  const extensao = arquivo.name.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g, '') || 'bin'
   const path = `${userId}/${crypto.randomUUID()}.${extensao}`
-  const { error } = await sb.storage.from(BUCKET_EXERCICIOS).upload(path, file, { upsert: false })
+  const { error } = await sb.storage.from(BUCKET_EXERCICIOS).upload(path, arquivo, { contentType: arquivo.type, upsert: false })
   if (error) {
     console.error('[uploadImagemExercicio]', error)
     return { path: null, error: 'Não foi possível enviar a imagem.' }

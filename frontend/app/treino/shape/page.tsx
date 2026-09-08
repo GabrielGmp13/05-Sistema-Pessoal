@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { createBrowserClient } from '@supabase/ssr'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { dataLocalIso } from '@/lib/date'
+import { otimizarImagem } from '@/lib/image-optimization'
 import styles from './page.module.css'
 
 interface RegistroShape {
@@ -105,8 +106,9 @@ export default function ShapePage() {
     let fotoPath: string | null = null
 
     if (arquivo) {
-      fotoPath = `${userId}/${hoje}-${uuid}.${extensaoArquivo(arquivo)}`
-      const { error: erroUpload } = await sb.storage.from('shape').upload(fotoPath, arquivo)
+      const arquivoOtimizado = (await otimizarImagem(arquivo, { maxWidth: 2048, maxHeight: 2048, quality: 0.84 })).file
+      fotoPath = `${userId}/${hoje}-${uuid}.${extensaoArquivo(arquivoOtimizado)}`
+      const { error: erroUpload } = await sb.storage.from('shape').upload(fotoPath, arquivoOtimizado, { contentType: arquivoOtimizado.type })
       if (erroUpload) {
         console.error('[upload shape]', erroUpload)
         setErro('Não foi possível enviar a foto. Confira o formato e o tamanho do arquivo.')
@@ -190,8 +192,9 @@ export default function ShapePage() {
 
     let novoFotoPath = registroEditando.foto_path
     if (arquivoEdicao) {
-      novoFotoPath = `${userId}/${edicao.data}-${registroEditando.uuid}-${crypto.randomUUID()}.${extensaoArquivo(arquivoEdicao)}`
-      const { error: erroUpload } = await sb.storage.from('shape').upload(novoFotoPath, arquivoEdicao)
+      const arquivoOtimizado = (await otimizarImagem(arquivoEdicao, { maxWidth: 2048, maxHeight: 2048, quality: 0.84 })).file
+      novoFotoPath = `${userId}/${edicao.data}-${registroEditando.uuid}-${crypto.randomUUID()}.${extensaoArquivo(arquivoOtimizado)}`
+      const { error: erroUpload } = await sb.storage.from('shape').upload(novoFotoPath, arquivoOtimizado, { contentType: arquivoOtimizado.type })
       if (erroUpload) {
         console.error('[shape editar upload]', erroUpload)
         setErro('Não foi possível enviar a nova foto.')

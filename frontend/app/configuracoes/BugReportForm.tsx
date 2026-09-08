@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { BUG_MODULES, BUG_THEMES } from '@/lib/bug-report'
+import { otimizarImagem } from '@/lib/image-optimization'
 import { SUPPORT_MAX_FILES, SUPPORT_STATUS_LABELS, validateSupportImage, type SupportStatus, type SupportType } from '@/lib/support'
 import packageInfo from '../../package.json'
 
@@ -71,7 +72,8 @@ export function BugReportForm() {
       const result = await response.json()
       if (!response.ok) throw new Error(result.erro || 'Não foi possível registrar o pedido.')
       for (const file of files) {
-        const body = new FormData(); body.set('arquivo', file)
+        const arquivo = (await otimizarImagem(file, { maxWidth: 2560, maxHeight: 2560, quality: 0.9 })).file
+        const body = new FormData(); body.set('arquivo', arquivo)
         const upload = await fetch(`/api/suporte/${result.uuid}/anexos`, { method: 'POST', body })
         if (!upload.ok) throw new Error(`O pedido ${result.protocolo} foi salvo, mas um print não foi enviado.`)
       }

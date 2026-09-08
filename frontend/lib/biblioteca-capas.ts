@@ -1,4 +1,5 @@
 import { deleteFile, getUserId, uploadFile } from './supabase'
+import { otimizarImagem } from './image-optimization'
 
 export const CAPA_MAX_BYTES = 3 * 1024 * 1024
 export const CAPA_MIMES = ['image/jpeg', 'image/png', 'image/webp'] as const
@@ -20,9 +21,10 @@ export async function persistirComCapa<T>(opcoes: {
   if (erro) return { resultado: null, erro }
   const userId = await getUserId()
   if (!userId) return { resultado: null, erro: 'Sessão indisponível para enviar a capa.' }
-  const extensao = opcoes.arquivo.type === 'image/png' ? 'png' : opcoes.arquivo.type === 'image/webp' ? 'webp' : 'jpg'
+  const arquivo = (await otimizarImagem(opcoes.arquivo, { maxWidth: 1600, maxHeight: 1600, quality: 0.84 })).file
+  const extensao = arquivo.type === 'image/png' ? 'png' : arquivo.type === 'image/webp' ? 'webp' : 'jpg'
   const novoPath = `${userId}/biblioteca/${opcoes.categoria}/${crypto.randomUUID()}.${extensao}`
-  if (!await uploadFile('capas', novoPath, opcoes.arquivo)) return { resultado: null, erro: 'Não foi possível enviar a capa.' }
+  if (!await uploadFile('capas', novoPath, arquivo)) return { resultado: null, erro: 'Não foi possível enviar a capa.' }
   const resultado = await opcoes.persistir(novoPath)
   if (!resultado) {
     await deleteFile('capas', novoPath)
@@ -35,9 +37,10 @@ export async function persistirComCapa<T>(opcoes: {
 async function uploadImagemBiblioteca(categoria: string, papel: 'capa' | 'banner', arquivo: File) {
   const userId = await getUserId()
   if (!userId) return null
-  const extensao = arquivo.type === 'image/png' ? 'png' : arquivo.type === 'image/webp' ? 'webp' : 'jpg'
+  const arquivoOtimizado = (await otimizarImagem(arquivo, { maxWidth: 1920, maxHeight: 1920, quality: 0.84 })).file
+  const extensao = arquivoOtimizado.type === 'image/png' ? 'png' : arquivoOtimizado.type === 'image/webp' ? 'webp' : 'jpg'
   const path = `${userId}/biblioteca/${categoria}/${papel}/${crypto.randomUUID()}.${extensao}`
-  return await uploadFile('capas', path, arquivo) ? path : null
+  return await uploadFile('capas', path, arquivoOtimizado) ? path : null
 }
 
 export async function persistirComCapaEBanner<T>(opcoes: {

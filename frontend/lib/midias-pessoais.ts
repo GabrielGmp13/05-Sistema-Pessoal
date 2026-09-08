@@ -1,4 +1,5 @@
 import { deleteFile, getSignedUrl, getUserId, uploadFile } from './supabase'
+import { otimizarImagem } from './image-optimization'
 
 export const MIDIA_PESSOAL_BUCKET = 'midias-pessoais'
 export const IMAGEM_MIMES = ['image/jpeg', 'image/png', 'image/webp'] as const
@@ -27,9 +28,10 @@ function extensionFor(file: File) {
 export async function uploadMidiaPessoal(scope: string, file: File) {
   const userId = await getUserId()
   if (!userId) return null
+  const arquivo = file.type === 'application/pdf' ? file : (await otimizarImagem(file)).file
   const safeScope = scope.replace(/[^a-z0-9/_-]/gi, '-').replace(/^\/+|\/+$/g, '')
-  const path = `${userId}/${safeScope}/${crypto.randomUUID()}.${extensionFor(file)}`
-  return uploadFile(MIDIA_PESSOAL_BUCKET, path, file)
+  const path = `${userId}/${safeScope}/${crypto.randomUUID()}.${extensionFor(arquivo)}`
+  return uploadFile(MIDIA_PESSOAL_BUCKET, path, arquivo)
 }
 
 export function urlMidiaPessoal(path: string) {
