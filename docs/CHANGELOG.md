@@ -17,8 +17,12 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
   validar módulo/treino antes de mostrar formulários e a repetir o usuário nas
   mutações. Reset completo, 22 testes SQL, 93 testes Node, typecheck, build de
   47 páginas e lint do recorte sem erros passaram. O primeiro dry-run remoto
-  foi somente leitura e falhou por usar a credencial anterior à troca de senha;
-  aplicação em produção permanece pendente.
+  foi somente leitura e falhou por usar a credencial anterior à troca de senha.
+  Com a credencial atual, o dry-run listou somente a migration esperada. O
+  precheck detectou uma sessão vazia criada pelo teste cruzado antigo e abortou
+  sem alterações; após exclusão confirmada desse único registro, a migration
+  foi aplicada e o dry-run final voltou vazio. Módulo, exercícios e academia
+  alheios agora exibem bloqueio em produção, sem formulários.
 - Defesa em profundidade de isolamento foi publicada no commit `b5bdf2f`. Rotas que
   usam `service_role` agora têm contrato de CI para autenticar antes do cliente
   privilegiado e derivar o escopo da sessão. Histórico, anexos e limite de

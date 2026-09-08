@@ -84,8 +84,9 @@ O ponto inicial oficial da cadeia CLI é:
 26. `20260907000100_exportacao_dados_usuario.sql` — exportação operacional de
     dados próprios; aplicada em produção após reset e 21 testes SQL.
 27. `20260908000100_treino_integridade_por_usuario.sql` — impede vínculos entre
-    contas nas relações do Treino; reset e 22 testes SQL aprovados, aplicação
-    remota pendente de novo dry-run com a credencial atual.
+    contas nas relações do Treino; reset e 22 testes SQL aprovados, aplicada em
+    produção após precheck seguro e limpeza confirmada de uma sessão vazia de
+    teste; dry-run final vazio.
 
 As três baselines foram validadas por dois replays locais completos e por
 comparação com produção. Em 2026-08-08, `migration repair --status applied`

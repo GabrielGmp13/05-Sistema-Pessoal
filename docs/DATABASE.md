@@ -81,7 +81,7 @@ dessas duas pastas deve ser executado como migration.
 | `20260830000100` | `20260830000100_anime_related_works.sql` | ✅ Aplicada em produção em 2026-08-30 após precheck/dry-run exclusivo; histórico alinhado e dry-run final vazio |
 | `20260905000100` | `20260905000100_suporte_publico.sql` | ✅ Reset/teste local aprovados; aplicada em produção em 2026-09-06; histórico de 25 versões e dry-run final vazio |
 | `20260907000100` | `20260907000100_exportacao_dados_usuario.sql` | ✅ Reset completo e 21 testes SQL aprovados; dry-run listou somente esta migration; aplicada em produção em 2026-09-07; dry-run final vazio |
-| `20260908000100` | `20260908000100_treino_integridade_por_usuario.sql` | 🟡 Reset completo e 22 testes SQL aprovados; dry-run remoto deve ser repetido com a credencial atual antes da aplicação |
+| `20260908000100` | `20260908000100_treino_integridade_por_usuario.sql` | ✅ Reset completo e 22 testes SQL aprovados; aplicada em produção após precheck seguro e limpeza confirmada de uma sessão vazia de teste; dry-run final vazio |
 
 > **Estado confirmado (2026-08-30):** produção e cadeia local estão alinhadas
 > até `20260830000100_anime_related_works.sql`, com 68 tabelas, seis buckets

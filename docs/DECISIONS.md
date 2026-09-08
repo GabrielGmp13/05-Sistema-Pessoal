@@ -1625,7 +1625,7 @@ RLS/policies no Supabase e homologação cruzada em produção.
 
 ## DEC-081 — Relacionamentos privados incluem o proprietário (2026-09-08)
 
-**Status:** implementada e validada localmente; migration remota pendente.
+**Status:** publicada; migration aplicada em produção e reteste cruzado aprovado.
 
 Uma chave estrangeira entre tabelas privadas não pode verificar apenas o UUID
 do registro pai. Ela deve usar `(user_id, <pai>_uuid)` e referenciar

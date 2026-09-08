@@ -98,14 +98,15 @@ local passou com 91 testes, typecheck, build e lint do recorte; CI, deploy e
 recusa `401` de oito APIs sem sessão também passaram. O smoke autenticado desta
 camada deve continuar quando a sessão controlada do Edge estiver disponível.
 
-**Hardening de relacionamentos em validação:** a matriz real confirmou que as
+**Hardening de relacionamentos publicado:** a matriz real confirmou que as
 leituras de Agenda, Idiomas, Saúde, Finanças, Lugares e Treino não vazam entre
 duas contas. URLs diretas do Treino, porém, exibiam formulários vazios porque as
 FKs históricas não carregavam `user_id`. A DEC-081 e a migration
-`20260908000100_treino_integridade_por_usuario.sql` corrigem a interface e dez
+`20260908000100_treino_integridade_por_usuario.sql` corrigiram a interface e dez
 relações do banco. Reset, 22 testes SQL, 93 testes Node, typecheck e build
-passaram localmente. Produção ainda possui 26 migrations: o dry-run da nova
-migration precisa ser repetido com a senha atual do banco antes da aplicação.
+passaram; a migration foi aplicada em produção e o dry-run final voltou vazio.
+Produção possui 27 migrations. As três URLs cruzadas agora bloqueiam módulo,
+exercícios e academia antes de exibir formulários.
 
 ---
 
