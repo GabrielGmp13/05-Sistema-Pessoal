@@ -77,8 +77,9 @@ perfil. A exportação JSON foi publicada pelo commit `af8486b`, com deploy
 `Ready`, recusa 401 sem sessão e download autenticado válido confirmados. A
 exportação não incluiu campos secretos. O ensaio de exportação/exclusão com
 conta descartável e a entrega do e-mail de recuperação passaram em 2026-09-08;
-nenhuma senha foi alterada. Publicar a otimização local de imagens e depois
-recriar uma conta de teste para concluir a matriz de isolamento. Há um único
+nenhuma senha foi alterada. A otimização de imagens foi publicada no commit
+`a8aa37f`, com CI e deploy de produção aprovados. Recriar uma conta de teste
+para concluir a matriz de isolamento. Há um único
 e-mail operacional privado; marca e telefone público
 foram adiados. Estrutura em `MAPA_DO_PROJETO.md`, abertura/testes em
 `ABERTURA_PUBLICA.md` e operação em `MANUTENCAO.md`.

@@ -101,13 +101,13 @@ sumiu da listagem e passou a receber “E-mail ou senha incorretos” no login. 
 recuperação da conta principal também entregou o e-mail esperado; nenhum link
 foi aberto e nenhuma senha foi trocada.
 
-Otimização de novos uploads foi implementada localmente (DEC-079): WebP com
+Otimização de novos uploads foi publicada no commit `a8aa37f` (DEC-079): WebP com
 redimensionamento por finalidade, preservação do original quando ele for menor,
 e nenhuma alteração automática dos arquivos antigos. Typecheck, 86 testes,
 build e lint do recorte passaram; os três avisos do lint em Shape já existiam.
-Publicação e comparação visual com imagens reais permanecem pendentes. Após a
-publicação, a próxima etapa é recriar uma conta de teste e concluir a matriz de
-isolamento de `teste.md`.
+CI e deploy de produção aprovados. A comparação visual com imagens reais ainda
+está pendente. A próxima etapa é recriar uma conta de teste e concluir a matriz
+de isolamento de `teste.md`.
 
 Plano e testes: [ABERTURA_PUBLICA.md](ABERTURA_PUBLICA.md). Estrutura e arquivos:
 [MAPA_DO_PROJETO.md](MAPA_DO_PROJETO.md). Histórico anterior:

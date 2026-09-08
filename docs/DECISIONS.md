@@ -1581,7 +1581,8 @@ operável por uma pessoa, auditável pelo protocolo e sem serviço pago novo.
 
 ## DEC-079 — Otimização de imagens antes do upload (2026-09-07)
 
-**Status:** implementada localmente; publicação e homologação visual pendentes.
+**Status:** publicada em produção pelo commit `a8aa37f`; homologação visual com
+imagens reais pendente.
 
 Novos JPG, PNG e WebP enviados pelo navegador são redimensionados conforme o
 uso e convertidos para WebP em qualidade alta antes do upload. O arquivo

@@ -18,7 +18,8 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
   convertidos para WebP em qualidade alta apenas quando o resultado é menor.
   A regra cobre mídias pessoais, Biblioteca, Shape, redações, exercícios e
   prints de suporte, preserva GIF/PDF e não altera o acervo antigo. Typecheck,
-  86 testes, build e lint do recorte passaram sem erros.
+  86 testes, build e lint do recorte passaram sem erros. O commit `a8aa37f`
+  foi enviado à `main`; CI e deploy de produção concluíram com sucesso.
 - O smoke autenticado da exportação passou na conta principal com autorização:
   protocolo/histórico criados, download JSON válido e nenhum campo de token,
   segredo, senha ou cookie presente. Nenhum dado da conta foi modificado.
