@@ -47,6 +47,11 @@ aplicada em produção em 2026-09-06. O cadastro continua fechado e o site
        no ensaio de exportação/exclusão também apresentou zero dados e zero
        arquivos antes de ser removida; uma nova conta de teste será necessária
        para concluir a matriz.
+       A conta foi recriada em 2026-09-08. Perfil, conexões Google, pedidos e
+       onze módulos abriram sem dados da principal. Um projeto-marcador criado
+       na secundária não apareceu na principal, confirmando isolamento real de
+       leitura em `projetos`. O login secundário foi retestado com sucesso e o
+       marcador foi removido; ambas as contas voltaram ao estado esperado.
 8. [x] Aviso de privacidade aprovado e publicado: Gabriel Oliveira como
        responsável, canal `sistemapessoa007@gmail.com`, piloto para maiores de
        18 anos, retenção e procedimento de acesso/exclusão definidos. Todos os
@@ -106,8 +111,9 @@ redimensionamento por finalidade, preservação do original quando ele for menor
 e nenhuma alteração automática dos arquivos antigos. Typecheck, 86 testes,
 build e lint do recorte passaram; os três avisos do lint em Shape já existiam.
 CI e deploy de produção aprovados. A comparação visual com imagens reais ainda
-está pendente. A próxima etapa é recriar uma conta de teste e concluir a matriz
-de isolamento de `teste.md`.
+está pendente. A conta de teste foi recriada e o primeiro marcador cruzado
+confirmou isolamento de Projetos; o marcador foi removido e o login secundário
+retestado. Continuar a matriz de CRUD/relacionamentos/Storage de `teste.md`.
 
 Plano e testes: [ABERTURA_PUBLICA.md](ABERTURA_PUBLICA.md). Estrutura e arquivos:
 [MAPA_DO_PROJETO.md](MAPA_DO_PROJETO.md). Histórico anterior:

@@ -14,6 +14,12 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
   pós-check deixou somente a conta principal e o login antigo passou a falhar.
   A recuperação de senha da conta principal também entregou o e-mail esperado
   na caixa correta; o link não foi aberto e a senha não foi alterada.
+- A conta secundária foi recriada para homologação contínua. Onze módulos,
+  perfil, integrações e suporte abriram sem dados da principal. Um projeto de
+  teste criado na secundária não apareceu ao trocar para a principal, provando
+  isolamento real de leitura em `projetos`. Uma resposta transitória de
+  credenciais inválidas não se repetiu no reteste; a conta voltou a entrar e o
+  marcador foi removido, preservando o usuário secundário para a matriz futura.
 - Novos uploads de JPG/PNG/WebP passaram a ser redimensionados por finalidade e
   convertidos para WebP em qualidade alta apenas quando o resultado é menor.
   A regra cobre mídias pessoais, Biblioteca, Shape, redações, exercícios e

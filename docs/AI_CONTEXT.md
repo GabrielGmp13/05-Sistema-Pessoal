@@ -78,8 +78,11 @@ perfil. A exportação JSON foi publicada pelo commit `af8486b`, com deploy
 exportação não incluiu campos secretos. O ensaio de exportação/exclusão com
 conta descartável e a entrega do e-mail de recuperação passaram em 2026-09-08;
 nenhuma senha foi alterada. A otimização de imagens foi publicada no commit
-`a8aa37f`, com CI e deploy de produção aprovados. Recriar uma conta de teste
-para concluir a matriz de isolamento. Há um único
+`a8aa37f`, com CI e deploy de produção aprovados. A conta de teste foi recriada:
+perfil, integrações, suporte e onze módulos não vazaram dados da principal, e um
+projeto-marcador da secundária ficou invisível na principal. O marcador foi
+removido e o login secundário voltou a funcionar no reteste. Continuar a matriz
+de CRUD/relacionamentos/Storage. Há um único
 e-mail operacional privado; marca e telefone público
 foram adiados. Estrutura em `MAPA_DO_PROJETO.md`, abertura/testes em
 `ABERTURA_PUBLICA.md` e operação em `MANUTENCAO.md`.
