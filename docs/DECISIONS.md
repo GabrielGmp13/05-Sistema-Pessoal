@@ -1603,7 +1603,8 @@ guardado no Supabase.
 
 ## DEC-080 — Defesa em profundidade para isolamento por usuário (2026-09-08)
 
-**Status:** implementada localmente; publicação e smoke pendentes.
+**Status:** publicada em produção pelo commit `b5bdf2f`; smoke autenticado
+pendente por indisponibilidade temporária da sessão controlada do Edge.
 
 O RLS do Supabase continua sendo a barreira obrigatória e fonte de autoridade,
 mas não será a única verificação. APIs que usam `service_role` devem autenticar
