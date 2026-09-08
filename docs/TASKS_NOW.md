@@ -82,6 +82,15 @@ aplicada em produção em 2026-09-06. O cadastro continua fechado e o site
 
 ## Próxima ação
 
+Defesa em profundidade de isolamento está implementada localmente (DEC-080):
+APIs privilegiadas ganharam contrato de autenticação/escopo coberto pela CI;
+relações e limite de anexos de suporte repetem o usuário; exclusões lógicas e
+helpers genéricos de Storage recusam alvos fora da sessão. A rodada local passou
+com 91 testes, typecheck, build de 47 páginas e lint do recorte. O smoke em
+produção depende de publicar este lote. O reteste manual seguinte começou pela
+Agenda, mas o controle do Edge desconectou antes da criação da massa temporária;
+retomar sem tocar na Agenda preservada da conta principal.
+
 Operar inicialmente sem custo: manter o endereço `*.vercel.app`, cadastro
 público fechado e testes restritos. Gabriel definiu **Projeto Pessoal** como
 nome provisório e adiou compra de domínio, marca e telefone público. Um domínio

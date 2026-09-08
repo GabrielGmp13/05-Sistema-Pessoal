@@ -15,6 +15,8 @@ export async function GET() {
     .from('chamados_suporte')
     .select('uuid, protocolo, tipo, titulo, modulo, descricao, status, resposta, created_at, updated_at, chamados_suporte_historico(uuid,status,mensagem,origem,created_at), chamados_suporte_anexos(uuid,nome_original,mime_type,tamanho_bytes,created_at)')
     .eq('user_id', user.id)
+    .eq('chamados_suporte_historico.user_id', user.id)
+    .eq('chamados_suporte_anexos.user_id', user.id)
     .eq('deleted', false)
     .order('created_at', { ascending: false })
   if (error) return NextResponse.json({ erro: 'Não foi possível carregar seus pedidos.' }, { status: 500 })

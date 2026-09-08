@@ -1600,3 +1600,24 @@ migração exigirá inventário, backup, comparação visual e aprovação espec
 dependência adicional e sem aumentar o risco operacional. A otimização na
 exibição do Next.js não substitui esta etapa, porque não reduz o objeto original
 guardado no Supabase.
+
+## DEC-080 — Defesa em profundidade para isolamento por usuário (2026-09-08)
+
+**Status:** implementada localmente; publicação e smoke pendentes.
+
+O RLS do Supabase continua sendo a barreira obrigatória e fonte de autoridade,
+mas não será a única verificação. APIs que usam `service_role` devem autenticar
+antes de criar o cliente privilegiado e derivar todo escopo exclusivamente de
+`user.id`; filtros recebidos do navegador nunca escolhem o proprietário. As
+relações de suporte repetem o filtro de usuário, inclusive no contador de
+anexos. A CI verifica esse contrato nas rotas privilegiadas conhecidas.
+
+No cliente, os helpers compartilhados de exclusão lógica repetem `user_id` e
+`deleted = false`. Operações genéricas de Storage recusam caminhos cuja primeira
+pasta não seja o UUID da sessão. Isso não substitui policies, testes SQL nem a
+matriz real entre contas: cria uma segunda barreira contra regressões e erros de
+programação antes que a requisição dependa exclusivamente do banco.
+
+**Motivo:** uma falha futura em filtro de interface não deve ampliar o impacto
+de outra falha. As camadas permanecem independentes: sessão/escopo no código,
+RLS/policies no Supabase e homologação cruzada em produção.

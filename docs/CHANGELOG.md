@@ -8,6 +8,13 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## Próxima versão — acesso e suporte público (local, 2026-09-05)
 
+- Defesa em profundidade de isolamento foi adicionada localmente. Rotas que
+  usam `service_role` agora têm contrato de CI para autenticar antes do cliente
+  privilegiado e derivar o escopo da sessão. Histórico, anexos e limite de
+  anexos do suporte repetem `user.id`; exclusão lógica compartilhada também
+  filtra usuário/estado; e helpers genéricos de Storage recusam paths fora da
+  pasta da sessão. A rodada passou com 91 testes, typecheck, build de 47 páginas
+  e lint do recorte sem erros; publicação e smoke ainda estão pendentes.
 - Em 2026-09-08, a matriz real de duas contas foi ampliada em produção. Na
   secundária, um projeto passou por criação, leitura e edição; uma tarefa filha
   foi criada e movida de etapa; e o Shape recebeu imagem JPG, otimizada pelo

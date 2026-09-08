@@ -1,4 +1,5 @@
 import { createBrowserClient } from '@supabase/ssr';
+import { isUserOwnedStoragePath } from './data-isolation';
 import { logDiagnostic } from './safe-diagnostics';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -23,12 +24,18 @@ export function now(): string {
   return new Date().toISOString();
 }
 
+async function currentUserOwnsStoragePath(path: string): Promise<boolean> {
+  const userId = await getUserId();
+  return Boolean(userId && isUserOwnedStoragePath(path, userId));
+}
+
 // Storage — buckets sempre privados, sempre via signed URL (DEC-010)
 export async function getSignedUrl(
   bucket: string,
   path: string,
   expiresIn = 3600
 ): Promise<string | null> {
+  if (!await currentUserOwnsStoragePath(path)) return null;
   const { data, error } = await sb.storage.from(bucket).createSignedUrl(path, expiresIn);
   if (error) {
     sbErr(error, `getSignedUrl(${bucket}, ${path})`);
@@ -42,6 +49,7 @@ export async function uploadFile(
   path: string,
   file: File
 ): Promise<string | null> {
+  if (!await currentUserOwnsStoragePath(path)) return null;
   const { error } = await sb.storage.from(bucket).upload(path, file, { upsert: true });
   if (error) {
     sbErr(error, `uploadFile(${bucket}, ${path})`);
@@ -51,6 +59,7 @@ export async function uploadFile(
 }
 
 export async function deleteFile(bucket: string, path: string): Promise<boolean> {
+  if (!await currentUserOwnsStoragePath(path)) return false;
   const { error } = await sb.storage.from(bucket).remove([path]);
   if (error) {
     sbErr(error, `deleteFile(${bucket}, ${path})`);
@@ -64,10 +73,14 @@ export async function softDelete(
   table: string,
   uuid: string
 ): Promise<boolean> {
+  const userId = await getUserId();
+  if (!userId) return false;
   const { error } = await sb
     .from(table)
     .update({ deleted: true, updated_at: now() })
-    .eq('uuid', uuid);
+    .eq('uuid', uuid)
+    .eq('user_id', userId)
+    .eq('deleted', false);
   if (error) {
     sbErr(error, `softDelete(${table}, ${uuid})`);
     return false;

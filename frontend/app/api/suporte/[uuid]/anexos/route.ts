@@ -14,7 +14,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ uui
   const { data: chamado } = await admin.from('chamados_suporte').select('uuid').eq('uuid', chamadoUuid).eq('user_id', user.id).eq('deleted', false).maybeSingle()
   if (!chamado) return NextResponse.json({ erro: 'Pedido não encontrado.' }, { status: 404 })
 
-  const { count } = await admin.from('chamados_suporte_anexos').select('uuid', { count: 'exact', head: true }).eq('chamado_suporte_uuid', chamadoUuid).eq('deleted', false)
+  const { count } = await admin.from('chamados_suporte_anexos').select('uuid', { count: 'exact', head: true }).eq('chamado_suporte_uuid', chamadoUuid).eq('user_id', user.id).eq('deleted', false)
   if ((count ?? 0) >= SUPPORT_MAX_FILES) return NextResponse.json({ erro: 'Este pedido já possui 3 prints.' }, { status: 409 })
 
   const body = await request.formData()

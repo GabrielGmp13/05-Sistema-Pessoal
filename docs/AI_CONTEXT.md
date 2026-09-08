@@ -90,6 +90,12 @@ e-mail operacional privado; marca e telefone público
 foram adiados. Estrutura em `MAPA_DO_PROJETO.md`, abertura/testes em
 `ABERTURA_PUBLICA.md` e operação em `MANUTENCAO.md`.
 
+**Hardening local pendente de publicação:** DEC-080 adiciona uma segunda camada
+de isolamento no código, sem substituir RLS. APIs com `service_role`, relações
+de suporte, exclusão lógica compartilhada e paths genéricos de Storage repetem
+o escopo do usuário; testes de regressão foram adicionados à CI. A validação
+local passou com 91 testes, typecheck, build e lint do recorte.
+
 ---
 
 ## Stack (resumo — detalhes em ARCHITECTURE.md)
