@@ -91,7 +91,11 @@ aplicada em produção em 2026-09-06. O cadastro continua fechado e o site
 Revisão responsiva de 2026-09-09: o limite anterior de 1480 px recolhia a coluna
 também em notebooks. Corrigido para menos de 1024 px em CSS e JavaScript; a
 partir de 1024 px a coluna permanece fixa nas rotas comuns. Navegação mantém
-rolagem própria quando necessário. Conferência visual e publicação em andamento.
+rolagem própria quando necessário. Publicado em `f7fffc1`: 95 testes, typecheck,
+build e lint do recorte aprovados. Home conferida em 360, 1024, 1366, 1440 e
+1920 px; Biblioteca e abertura/fechamento do painel conferidos em tela compacta,
+com retorno ao layout de notebook ao ampliar. Próxima ação: demais casos de
+homologação funcional em `teste.md`.
 
 A matriz entre as duas contas passou para leitura em Agenda, Idiomas, Saúde,
 Finanças, Lugares e Treino. Ao testar URLs conhecidas da conta secundária na

@@ -142,6 +142,12 @@ real; a preparação da release não os marca automaticamente como concluídos.
 
 ## Responsividade, acessibilidade e beta privado
 
+- [x] Revisão de 2026-09-09 (`f7fffc1`): coluna fixa desde 1024 px nas rotas
+      comuns, menu apenas abaixo desse limite. Home verificada em 360, 1024,
+      1366, 1440 e 1920 px; Biblioteca verificada com painel em tela compacta
+      e ao voltar para notebook. A medida é da janela em pixels CSS, considerando
+      o zoom do navegador, não da resolução física do monitor.
+
 - [x] Em tela larga, confirmar que as páginas comuns exibem coluna pessoal à
       esquerda do topo ao rodapé e conteúdo principal à direita sem comprimir
       textos, cards ou menus.
@@ -161,8 +167,8 @@ real; a preparação da release não os marca automaticamente como concluídos.
 - [ ] Reduzir a altura da janela ou aumentar temporariamente o zoom e confirmar
       que a coluna pessoal esquerda rola com o mouse/trackpad sem cortar relógio,
       calendário, linha temporal, perfil, tema ou sair.
-- [x] Em telas acima de 1480 px, confirmar que a barra superior autenticada
-      mostra somente navegação; até 1480 px, confirmar que o botão de três
+- [x] Em telas a partir de 1024 px, confirmar que a barra superior autenticada
+      mostra somente navegação; até 1023 px, confirmar que o botão de três
       linhas fica ao lado dela e abre a coluna pessoal completa.
 - [x] Confirmar que editar perfil, trocar atmosfera e sair funcionam pela coluna
       pessoal.
