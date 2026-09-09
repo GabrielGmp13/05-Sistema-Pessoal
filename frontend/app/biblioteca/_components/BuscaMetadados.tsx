@@ -42,7 +42,8 @@ export default function BuscaMetadados({ fonte, termo, onSelect, formatos, relac
       setBuscando(true);
       setMensagem('');
       try {
-        const resposta = await buscarMetadados(fonte, consulta, controller.signal);
+        const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(12_000)]);
+        const resposta = await buscarMetadados(fonte, consulta, signal);
         const resultadosFiltrados = resposta.resultados.filter((resultado) =>
           (!formatos || formatos.includes(resultado.formato ?? '')) &&
           (!relacoes || relacoes.includes(resultado.tipoRelacao ?? ''))
@@ -50,7 +51,7 @@ export default function BuscaMetadados({ fonte, termo, onSelect, formatos, relac
         setResultados(resultadosFiltrados);
         setMensagem(resposta.mensagem ?? (resultadosFiltrados.length === 0 ? 'Nenhum resultado compatível encontrado. Continue preenchendo manualmente.' : ''));
       } catch (error) {
-        if (error instanceof DOMException && error.name === 'AbortError') return;
+        if (controller.signal.aborted) return;
         setResultados([]);
         setMensagem('Busca automática indisponível. Continue preenchendo manualmente.');
       } finally {

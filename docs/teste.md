@@ -1,224 +1,126 @@
-# Retestes manuais — produto existente e preparação v0.2.0
+# Homologação funcional — rodada encerrada em 2026-09-09
 
-Este arquivo contém somente verificações que dependem do deploy, de uma conta
-real, de upload, de APIs externas, de mouse/toque ou de julgamento visual. Não
-repita typecheck, build, testes Node/SQL ou buscas de segurança registrados pelo
-Codex.
+Este arquivo registra o resultado real da rodada final. Ele não mistura teste
+aprovado com tarefa futura.
 
-## Antes de começar
+Legenda: **APROVADO** foi executado ou tem cobertura automatizada direta;
+**ACHADO** exige correção/configuração; **ADIADO** depende de infraestrutura,
+dispositivo ou massa de teste que não faz parte do beta gratuito atual.
 
-- [x] Confirmar que o deploy contém o commit deste lote e que a migration
-      `20260830000100_anime_related_works.sql` consta aplicada. Não executar
-      migration novamente apenas porque este checklist foi atualizado.
-- [x] Usar uma conta de teste com dados descartáveis; não apagar o usuário real
-      no Supabase Auth, pois isso remove seus dados por cascade.
-- [x] Testar ao menos uma vez em desktop e uma vez em celular real ou em largura
-      próxima de 360 px.
-- [x] Repetir a inspeção visual em um tema claro e um escuro.
+## Resultado geral
 
-## v0.2.0 — relatos de bugs e gates de convite
+- **APROVADO** — `npm test`: 95/95 testes Node.
+- **APROVADO** — `npm run typecheck` e `npm run build`.
+- **APROVADO** — reset local completo do Supabase e 22/22 testes SQL.
+- **INFORMATIVO** — lint completo mantém dívida preexistente: 25 erros e 28
+  avisos. O arquivo alterado nesta rodada passou isoladamente.
+- **APROVADO** — nenhuma credencial nova foi gravada no repositório.
 
-- [ ] Configurações → Reportar bug: gerar com todos os campos, revisar/retirar
-      dados e copiar; confirmar que aparece “copiado”, não “enviado”.
-- [ ] Tentar gerar sem preencher campos; revisar foco/teclado, textos longos,
-      celular e cinco temas, sem sobreposição ou rolagem horizontal.
-- [ ] Alterar um campo após gerar; relatório antigo deve desaparecer até gerar
-      novamente. Tema atual aparece no relato; tema manual pode ser escolhido.
-- [ ] Se a permissão de clipboard for negada pelo navegador, copiar a seleção
-      manualmente. Nenhum print é capturado/anexado automaticamente.
-- [ ] Recarregar/sair de Configurações: rascunho não persiste; nenhum relatório
-      deve aparecer no banco nem chegar por e-mail automaticamente.
-- [ ] **Depois do lote separado de convite/senha:** aceitar convite, definir
-      senha, login/logout, recuperar senha, link expirado/reutilizado e entrega SMTP.
-- [ ] Duas contas descartáveis: testar CRUD/relacionamentos/Storage e API; A não
-      pode listar, alterar, vincular ou apagar dados de B (inclusive conhecendo UUID/path).
-- [x] Após logout/troca de conta, nenhuma informação da anterior aparece.
-- [ ] Google: trocar usuário do site durante consentimento rejeita retorno;
-      conectar outra conta Google e renovar não volta à anterior.
-- [ ] Conferir [BETA_PRIVADO.md](BETA_PRIVADO.md) antes de qualquer convite.
+## Conta, privacidade e isolamento
 
-## Hub
+- **APROVADO** — login por e-mail, logout, recuperação entregue por e-mail e
+  login Google retornando à conta já existente.
+- **APROVADO** — troca de conta não mostrou dados da anterior.
+- **APROVADO** — matriz real de duas contas cobriu leitura, CRUD,
+  relacionamentos e Storage. A segunda camada é coberta por RLS SQL, FKs
+  compostas e testes das rotas privilegiadas.
+- **APROVADO** — APIs privadas sem sessão responderam `401`; testes do logger
+  confirmam remoção de tokens, cookies, URLs de banco, paths e UUIDs.
+- **ADIADO** — convite, primeira senha, link reutilizado/expirado e SMTP
+  próprio. Cadastro público e SMTP continuam fechados enquanto domínio e
+  remetente verificado forem deliberadamente adiados para manter custo zero.
 
-Os itens históricos de homologação abaixo continuam pendentes até confirmação
-real; a preparação da release não os marca automaticamente como concluídos.
+## Suporte, bugs e sugestões
 
-- [ ] Confirmar que “Insight pessoal” mostra somente próxima revisão, próxima
-      prova e obras realmente em andamento.
-- [ ] Confirmar que não aparecem vídeo genérico não assistido, total de acervo,
-      curso em andamento nem tempo estudado nesse bloco.
-- [ ] Criar duas obras em andamento da mesma família e observar a troca interna
-      aproximadamente a cada cinco segundos, sem perder os demais cards visíveis.
+- **APROVADO** — validações de campos obrigatórios e limites de texto.
+- **APROVADO** — bug com print privado, protocolo
+  `SP-20260909-D8DAE9F7` e histórico inicial visível.
+- **APROVADO** — sugestão com protocolo `SP-20260909-BE0EF31B` e histórico.
+- **APROVADO** — print acessível apenas por URL assinada e removido do bucket.
+- **OBSERVAÇÃO** — ocorreu “Não autenticado” logo após o primeiro upload;
+  navegar novamente restaurou a sessão e o reteste passou. Investigar apenas
+  se voltar a ocorrer.
 
-## Biblioteca e metadados
+## Hub e Biblioteca
 
-- [ ] Confirmar que distribuidora, orçamento e bilheteria não aparecem em
-      formulário, card ou detalhes de Filmes/Séries/Animes.
-- [ ] Em Gêneros, pesquisar nomes no catálogo ampliado e criar/editar uma obra
-      usando os gêneros encontrados.
-- [ ] Com `TMDB_API_KEY`, pesquisar um filme e uma série; salvar e conferir
-      gêneros e elenco/créditos importados nos detalhes.
-- [ ] Pesquisar Anime/Mangá por prefixos nas fontes AniList/Kitsu/Jikan e Livro
-      por Google Books + Open Library; conferir
-      mensagem de busca, seleção, gêneros e salvamento.
-- [ ] Simular uma busca sem resultado ou API indisponível e confirmar que o
-      cadastro manual continua utilizável sem perder o que já foi digitado.
+- **APROVADO** — Insight mostrou apenas contexto pessoal pertinente.
+- **APROVADO** — duas séries em andamento alternaram no mesmo card em cerca de
+  cinco segundos, sem perder os demais cards.
+- **APROVADO** — distribuidora, orçamento e bilheteria não aparecem.
+- **APROVADO** — TMDB encontrou Filme e Série; Filme persistiu ano, duração,
+  gêneros e créditos. O cadastro manual permaneceu utilizável nas falhas.
+- **ACHADO** — Anime/Mangá retornaram fallback para buscas conhecidas; revisar
+  disponibilidade de AniList/Jikan/Kitsu.
+- **ACHADO CORRIGIDO LOCALMENTE** — Livros podia ficar indefinidamente em
+  “Buscando sugestões”. Agora a chamada encerra em 12 segundos e oferece o
+  cadastro manual.
 
-## ENEM e Redações
+## Estudos, ENEM, Redações e Revisão
 
-- [ ] Finalizar uma prova curta de teste e confirmar que o botão vira **Refazer
-      prova**.
-- [ ] Refazer marcando respostas diferentes; confirmar que as alternativas ficam
-      editáveis e que gabarito correto, matérias e conteúdos anteriores continuam.
-- [ ] Confirmar no novo resultado que respondidas, em branco, acertos, erros e
-      total estão coerentes; repetir com todas em branco.
-- [ ] No Dia 1, anexar uma imagem real de redação durante a prova, finalizar e
-      localizar a redação em `/estudos/redacoes` para completar a correção.
-- [ ] Em Redações, testar C1–C5 somente em 0/40/80/120/160/200 e duração em
-      horas/minutos; salvar, recarregar e conferir total e tempo.
-- [ ] Em Estudos, conferir visualmente Redações ao lado de ENEM e Escola na
-      posição antes ocupada por Redações.
+- **APROVADO** — Redação aceitou os passos válidos C1–C5, calculou 600 e
+  persistiu data e duração de 1h30.
+- **APROVADO** — CSV real importou dois cards, inclusive texto com vírgula,
+  mantendo matéria/conteúdo.
+- **APROVADO** — `.apkg` real abriu deck, prévia e importou um card.
+- **APROVADO** — sessão focada bloqueou avaliação antes da resposta, registrou
+  “Bom”, avançou e recalculou a próxima data.
+- **APROVADO** — arquivar, restaurar e excluir flashcard.
+- **ADIADO** — gesto de arrastar com mouse e toque em dispositivo real.
+- **ADIADO** — finalizar/refazer prova ENEM completa e anexar redação pelo Dia
+  1. As regras críticas, inclusive prova em branco, passaram nos testes Node;
+  falta uma fixture manual curta no produto.
 
-## Revisão e flashcards
+## Agenda e Google
 
-- [ ] Importar um CSV/TSV real escolhendo matéria e conteúdo; recarregar e
-      confirmar que todos os cards do lote aparecem nesses filtros.
-- [ ] Repetir com um `.apkg` real: escolher deck, revisar prévia e confirmar o
-      mesmo vínculo acadêmico. Mídias e templates JavaScript complexos não são
-      suportados e não devem bloquear este teste.
-- [ ] Em uma matéria de Estudos, abrir **Flashcards** em um conteúdo e confirmar
-      que a importação já sugere esse destino.
-- [ ] Iniciar a sessão focada: toque/clique revela a resposta; arrastar à esquerda
-      registra erro; arrastar à direita revela as opções Difícil/Bom/Fácil.
-- [ ] Repetir o gesto com mouse e touch e conferir inclinação, avanço do card e
-      próxima data após recarregar.
-- [ ] Confirmar que arquivar, restaurar e excluir continuam funcionando na tela
-      normal de Revisão.
+- **APROVADO** — Calendar e YouTube conectados independentemente.
+- **APROVADO** — outra Conta Google pôde ser escolhida; a conta
+  `sistemapessoa007@gmail.com` foi recusada por não estar na lista de testes do
+  OAuth. Adicionar somente se ela também precisar usar a integração.
+- **APROVADO** — compromisso criado no site apareceu no Google; a alteração do
+  título atualizou o mesmo evento sem duplicar.
+- **APROVADO** — mês e semana juntos, seleção de dia e fuso `America/Recife`.
+  Eventos reais e recorrentes existentes foram preservados.
+- **ADIADO** — conflito simultâneo, cancelamento vindo do Google, evento de dia
+  inteiro criado só para teste e atualização automática por dois minutos. A
+  classificação de novos/alterados/cancelados/conflitos e fuso passou nos
+  testes Node.
 
-## Agenda e Google Calendar
+## Lugares e imagens
 
-- [ ] Conectar a conta **Calendar** em Configurações e manter a conexão YouTube
-      independente.
-- [ ] Criar no Google Calendar um evento com hora, um de dia inteiro e uma
-      ocorrência recorrente dentro do período visível da Agenda.
-- [ ] Usar **Sincronizar agora** e confirmar horários em `America/Recife` e
-      ausência de duplicação. Depois, criar outro evento no Google e confirmar
-      que ele entra automaticamente com o site aberto (até dois minutos).
-- [ ] Alterar o evento no Google e confirmar que a atualização automática chega
-      à Agenda; repetir pelo botão apenas para testar a ação imediata.
-- [ ] Alterar um evento importado localmente e também no Google; confirmar que a
-      prévia marca conflito e não sobrescreve automaticamente a edição local.
-- [ ] Cancelar um evento no Google, importar e confirmar que ele sai da Agenda
-      por exclusão lógica sem afetar provas de Estudos.
-- [ ] Editar um evento importado e usar o ícone de exportação; confirmar que o
-      mesmo evento remoto é atualizado, não duplicado.
-- [ ] Confirmar que provas continuam visíveis, mas não selecionáveis para
-      importação/exportação como compromisso comum.
-- [ ] Confirmar que mês e semana aparecem juntos; escolher um dia no mês deve
-      atualizar a semana abaixo sem esconder o calendário mensal.
-- [ ] Com o site aberto em outra página, editar e apagar eventos no Google e
-      confirmar atualização automática em até dois minutos ou ao retomar a aba.
-- [ ] Criar, editar e apagar um compromisso no Sistema Pessoal e confirmar que
-      a mesma mudança aparece imediatamente no Google Calendar.
+- **ACHADO** — Google Places informou não estar configurado; falta
+  `GOOGLE_MAPS_API_KEY` na Vercel para ativar a busca visual.
+- **APROVADO** — fallback manual salvou, recarregou e editou lugar com custo,
+  nota, favorito, endereço e capa privada.
+- **APROVADO** — novos JPG/PNG/WebP são redimensionados e convertidos para WebP
+  somente quando o resultado é menor; GIF/PDF e original menor são preservados.
+  A inspeção não encontrou perda visual perceptível.
 
-## Treino
+## Responsividade, acessibilidade e temas
 
-- [x] No dashboard, adicionar um treino a um dia da semana atual; recarregar e
-      confirmar persistência.
-- [~] Editar dia/treino e remover o planejamento passaram no desktop; falta
-      repetir a conferência visual em largura mobile.
-- [x] Confirmar que o planejamento não cria automaticamente item duplicado na
-      Agenda.
+- **APROVADO** — 13 rotas autenticadas em largura compacta (mínimo efetivo do
+  navegador controlado: 400 px) sem rolagem horizontal.
+- **APROVADO** — coluna fixa desde 1024 px; abaixo disso, três linhas ao lado da
+  navegação abrem a coluna completa.
+- **APROVADO** — painel fecha por fundo/`Esc`, some da árvore de acessibilidade
+  e devolve o foco. Biblioteca não faz a transição longa em tela compacta.
+- **APROVADO** — login, prova ENEM e sessão focada não exibem a coluna.
+- **APROVADO** — 25 pares iluminação/estação passaram no contraste automático;
+  Lua e Sol também foram inspecionados no deploy.
+- **ADIADO** — celular físico, trackpad, “reduzir movimento” no sistema e
+  inspeção visual manual das outras combinações.
 
-## Lugares e Google Places
+## Limpeza da homologação
 
-- [ ] Com `GOOGLE_MAPS_API_KEY` configurada na Vercel, pesquisar um restaurante,
-      parque ou cidade e selecionar um resultado visual.
-- [ ] Confirmar preenchimento de nome, endereço, cidade/país quando disponíveis,
-      sem campos visíveis de latitude/longitude.
-- [ ] Salvar, recarregar e abrir no Google Maps; conferir que o destino é o lugar
-      selecionado, não apenas uma busca aproximada.
-- [ ] Testar o cadastro manual quando a busca não encontra resultado.
-- [ ] Conferir capa privada, favorito, edição e exclusão lógica de um lugar.
+Após confirmação de Gabriel, foram removidos três obras, quatro flashcards,
+uma redação, um lugar e sua capa, um compromisso do site/Google Calendar, dois
+chamados com históricos/metadados e um print privado, além do CSV e `.apkg`
+locais. Contas, conexões Google, agenda real, matérias e demais dados pessoais
+foram preservados. O prefixo da rodada foi `TESTE FINAL`.
 
-## Responsividade, acessibilidade e beta privado
+## Próximo reteste após publicação
 
-- [x] Revisão de 2026-09-09 (`f7fffc1`): coluna fixa desde 1024 px nas rotas
-      comuns, menu apenas abaixo desse limite. Home verificada em 360, 1024,
-      1366, 1440 e 1920 px; Biblioteca verificada com painel em tela compacta
-      e ao voltar para notebook. A medida é da janela em pixels CSS, considerando
-      o zoom do navegador, não da resolução física do monitor.
-
-- [x] Em tela larga, confirmar que as páginas comuns exibem coluna pessoal à
-      esquerda do topo ao rodapé e conteúdo principal à direita sem comprimir
-      textos, cards ou menus.
-- [x] Na Biblioteca e em Gêneros, confirmar que aparece somente a sidebar da
-      Biblioteca, sem perfil/relógio/calendário como segunda coluna esquerda.
-- [ ] Ao entrar na Biblioteca em tela larga, confirmar que o perfil aparece
-      compacto no início do topo, transformando-se a partir do card da coluna
-      esquerda; ao sair da Biblioteca, confirmar o caminho inverso. O indicador
-      ativo da barra deve deslizar e o conteúdo trocar suavemente, sem piscar.
-      Atmosfera e sair continuam acessíveis sem criar espaços vazios ou apertar
-      a navegação.
-- [ ] Ativar “reduzir movimento” no sistema e confirmar que as páginas ainda
-      navegam normalmente, sem a transformação animada.
-- [ ] No catálogo da Biblioteca, rolar uma coleção longa e confirmar que a
-      sidebar de categorias permanece imóvel enquanto somente a área de capas
-      rola; em Gêneros e no mobile, confirmar rolagem normal da página.
-- [ ] Reduzir a altura da janela ou aumentar temporariamente o zoom e confirmar
-      que a coluna pessoal esquerda rola com o mouse/trackpad sem cortar relógio,
-      calendário, linha temporal, perfil, tema ou sair.
-- [x] Em telas a partir de 1024 px, confirmar que a barra superior autenticada
-      mostra somente navegação; até 1023 px, confirmar que o botão de três
-      linhas fica ao lado dela e abre a coluna pessoal completa.
-- [x] Confirmar que editar perfil, trocar atmosfera e sair funcionam pela coluna
-      pessoal.
-- [ ] Conferir relógio digital, calendário mensal, marcação de dias com eventos
-      e linha temporal de Agenda/provas nos temas Sol, Nublado, Estrelado e Lua.
-- [x] Confirmar que login, prova ENEM e sessão focada de Revisão não exibem a
-      coluna lateral.
-- [x] Nas páginas comuns, confirmar que o título principal começa diretamente
-      no topo do conteúdo, sem rótulo pequeno como “Sistema Pessoal v2”,
-      “Módulo”, “Conta” ou equivalente acima dele.
-- [ ] Criar ou importar um flashcard vencido e confirmar que ele continua na
-      ferramenta de Revisão Espaçada, mas não aparece como pendência de conteúdo
-      no Início nem no hub de Estudos.
-- [x] Em notebook estreito/mobile, confirmar que a coluna lateral recolhe e que
-      nenhuma página ganha rolagem horizontal por causa dela.
-- [ ] No bloco inferior da coluna, testar acesso a Configurações e troca de
-      atmosfera sem conflito com o seletor do topo.
-- [ ] Nas páginas alteradas, navegar apenas por teclado e confirmar foco visível,
-      fechamento de modais e ausência de armadilhas de foco.
-- [~] Em 360 px, 13 páginas autenticadas não vazaram horizontalmente nos temas
-      Lua e Sol; repetir quando houver cards/prévias reais para encerrar o item.
-
-### Achado da rodada responsiva de 2026-09-08
-
-- [x] Entre 360 px e 1480 px, a coluna pessoal recolhia sem alternativa para
-      Configurações, atmosfera ou Sair. Gabriel escolheu o perfil compacto no
-      canto superior direito; a correção foi publicada no commit `85bbdf1` e
-      passou na conferência autenticada em 360, 1440 e 1840 px. O perfil abriu
-      Editar, atmosfera e Sair; o seletor abriu dentro do painel e `Esc` fechou
-      os controles sem armadilha. Em tela larga não houve duplicação.
-- [x] Revisão solicitada depois desse teste: substituir o perfil compacto pelo
-      botão de três linhas ao lado da navegação e abrir a coluna completa como
-      painel sobreposto, inclusive na Biblioteca. Confirmar fundo clicável,
-      fechamento por `Esc`, retorno de foco, bloqueio da rolagem de fundo e
-      ausência da transformação longa da Biblioteca até 1480 px. Produção
-      aprovada a 1100 px na Home e na Biblioteca; painel fechado também ficou
-      fora da árvore de acessibilidade.
-- [x] Em janela anônima sem sessão, acessar diretamente as novas API Routes de
-      Calendar e Places e confirmar resposta não autenticada, sem dados.
-- [ ] Nos logs Vercel, confirmar que falhas de Calendar/Places não exibem tokens,
-      cookies, headers, URLs de banco ou valores de variáveis.
-- [x] Com uma segunda conta de beta, confirmar que não aparecem eventos,
-      tentativas, flashcards, planejamentos ou lugares da primeira conta.
-
-## Modelo curto de bug
-
-- Módulo/página:
-- Navegador, dispositivo e tema:
-- Dados mínimos usados:
-- Passos:
-- Esperado:
-- Obtido:
-- Print ou vídeo (sem dados sensíveis):
+1. Em Livros, pesquisar `Dom Casmurro`.
+2. Confirmar resultados ou fallback manual em no máximo 12 segundos — nunca
+   carregamento infinito.
+3. Fazer smoke de login, Biblioteca, Revisão, Agenda e Suporte.
+4. Conferir CI e deploy no commit publicado.

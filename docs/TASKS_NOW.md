@@ -88,6 +88,16 @@ aplicada em produção em 2026-09-06. O cadastro continua fechado e o site
 
 ## Próxima ação
 
+Rodada funcional consolidada em 2026-09-09: 95 testes Node, typecheck, build,
+reset local e 22 testes SQL aprovados. A produção passou nos fluxos de Hub,
+TMDB, Redações, CSV/APKG, sessão de Revisão, suporte com print/protocolo,
+Calendar bidirecional básico, Lugares manual, responsividade e isolamento. Toda
+a massa `TESTE FINAL` foi removida, preservando contas, conexões e agenda real.
+O único ajuste de código impede Livros de ficar carregando indefinidamente;
+falta publicar e executar o reteste curto de `teste.md`. Pendências externas:
+`GOOGLE_MAPS_API_KEY`, fontes de Anime/Mangá, SMTP/domínio e abertura deliberada
+do cadastro.
+
 Revisão responsiva de 2026-09-09: o limite anterior de 1480 px recolhia a coluna
 também em notebooks. Corrigido para menos de 1024 px em CSS e JavaScript; a
 partir de 1024 px a coluna permanece fixa nas rotas comuns. Navegação mantém

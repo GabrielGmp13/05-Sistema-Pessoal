@@ -25,6 +25,14 @@ Esta seção prevalece sobre fotografias históricas abaixo. Trabalho ativo em
 - [ ] Futuro: exportação integral e gestão de conta self-service com confirmação segura.
 - [x] Relatar bugs via formulário com prévia/cópia, sem envio externo ou tabela nova (local).
 - [x] Operação semanal/mensal e notas de release documentadas, sem painel admin complexo.
+- [ ] Produção: configurar `GOOGLE_MAPS_API_KEY` na Vercel quando Gabriel quiser
+      ativar a busca visual do Google Places; o cadastro manual já funciona.
+- [ ] Biblioteca: diagnosticar indisponibilidade real de Anime/Mangá nas fontes
+      AniList/Jikan/Kitsu. Manter o fallback manual e não ampliar scraping.
+- [ ] OAuth de teste: adicionar `sistemapessoa007@gmail.com` à lista do Google
+      somente se essa conta também precisar conectar Calendar/YouTube.
+- [ ] ENEM: criar fixture/prova curta para homologar finalizar/refazer e upload
+      de redação sem preencher uma prova inteira.
 
 ---
 

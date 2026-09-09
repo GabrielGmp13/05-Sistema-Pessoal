@@ -8,6 +8,15 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## Próxima versão — acesso e suporte público (local, 2026-09-05)
 
+- Em 2026-09-09, a homologação funcional consolidou 95 testes Node, typecheck,
+  build, reset local e 22 testes SQL. No deploy passaram Hub, TMDB, Redações,
+  CSV/APKG, sessão de Revisão, suporte com print/protocolo, Calendar básico
+  bidirecional, Lugares manual, responsividade e isolamento. Livros ganhou
+  timeout de 12 segundos para nunca carregar indefinidamente. Google Places sem
+  chave e fontes de Anime/Mangá ficaram como pendências externas. Após
+  confirmação, toda a massa `TESTE FINAL`, inclusive print privado e evento no
+  Google, foi removida sem tocar nas contas, conexões ou agenda real.
+
 - Revisão do limite responsivo: a coluna fixa volta em janelas de 1024 px ou
   mais; o menu sobreposto fica restrito a larguras menores. CSS, estado do
   painel e transição da Biblioteca usam o mesmo limite. A navegação permite
