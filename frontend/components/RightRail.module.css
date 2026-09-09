@@ -600,7 +600,41 @@
 
 @media (max-width: 1480px) {
   .rail {
-    display: none;
+    z-index: 80;
+    display: flex;
+    width: min(var(--app-rail-width, 20.25rem), calc(100vw - 3rem));
+    visibility: hidden;
+    box-shadow: 20px 0 56px color-mix(in oklch, var(--foreground) 24%, transparent);
+    pointer-events: none;
+    transform: translate3d(-105%, 0, 0);
+    transition:
+      visibility 0s linear 0.24s,
+      transform 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .railMovelAberto {
+    visibility: visible;
+    pointer-events: auto;
+    transform: translate3d(0, 0, 0);
+    transition-delay: 0s;
+  }
+
+  .railRecolhendo,
+  .railRecolhendo::before,
+  .railRecolhendo > .mioloScroll,
+  .railRecolhendo > .controlesCard {
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+
+  .railRecolhendo {
+    border-right-color: color-mix(in oklch, var(--glass-border) 70%, transparent);
+  }
+
+  .railMovelAberto.railRecolhendo {
+    overflow: hidden;
+    pointer-events: auto;
   }
 }
 

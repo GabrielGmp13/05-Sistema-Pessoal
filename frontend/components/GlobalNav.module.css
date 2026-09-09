@@ -78,13 +78,6 @@
   padding-block: 0.5rem;
 }
 
-.barraComPerfilResponsivo {
-  grid-template-areas: 'navegacao perfil';
-  grid-template-columns: minmax(0, 1fr) minmax(3rem, 10.5rem);
-  column-gap: 0.75rem;
-  max-width: 120rem;
-}
-
 .perfilArea {
   grid-area: perfil;
   position: relative;
@@ -94,20 +87,8 @@
   min-width: 0;
 }
 
-.perfilAreaResponsiva {
-  justify-self: end;
-  height: 2.75rem;
-}
-
-.perfilAcoesResponsivas {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  margin-top: 0.75rem;
-  border-top: 1px solid var(--border);
-  padding-top: 0.75rem;
+.menuPainel {
+  display: none;
 }
 
 .headerBiblioteca .perfilArea {
@@ -879,34 +860,6 @@
     justify-content: flex-start;
   }
 
-  .barraComPerfilResponsivo {
-    grid-template-areas:
-      'perfil'
-      'navegacao';
-    grid-template-columns: minmax(0, 1fr);
-    row-gap: 0.25rem;
-    min-height: 6rem;
-    padding-block: 0.5rem;
-  }
-
-  .perfilAreaResponsiva {
-    width: 3rem;
-  }
-
-  .perfilAreaResponsiva .perfil {
-    padding: 0 0.125rem;
-  }
-
-  .perfilAreaResponsiva .perfilNome,
-  .perfilAreaResponsiva .perfilSeta {
-    display: none;
-  }
-
-  .perfilAreaResponsiva .perfilPainel {
-    right: 0;
-    left: auto;
-  }
-
   .fragmentos i:nth-child(n + 34) {
     display: none;
   }
@@ -920,16 +873,50 @@
   .header {
     margin-left: 0;
   }
-}
 
-@media (min-width: 1481px) {
-  .perfilAreaResponsiva {
+  .barra,
+  .barraBiblioteca {
+    grid-template-areas: 'menu navegacao';
+    grid-template-columns: 2.75rem minmax(0, 1fr);
+    column-gap: 0.5rem;
+    min-height: 3.5rem;
+    max-width: 120rem;
+    padding: 0 0.75rem;
+  }
+
+  .headerBiblioteca .perfilArea,
+  .headerBiblioteca .acoes {
     display: none;
   }
 
-  .barraComPerfilResponsivo {
-    grid-template-areas: 'navegacao';
-    grid-template-columns: minmax(0, 1fr);
+  .menuPainel {
+    grid-area: menu;
+    display: inline-grid;
+    width: 2.75rem;
+    height: 2.75rem;
+    place-items: center;
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    background: var(--glass-background);
+    color: var(--text);
+    box-shadow: var(--atmosphere-shadow);
+    outline: none;
+    backdrop-filter: blur(18px) saturate(1.16);
+  }
+
+  .menuPainel:hover {
+    background: color-mix(in oklch, var(--surface-2) 88%, transparent);
+  }
+
+  .menuPainel:focus-visible {
+    box-shadow:
+      0 0 0 2px var(--surface),
+      0 0 0 4px color-mix(in oklch, var(--season-accent, var(--accent)) 52%, transparent);
+  }
+
+  .menuPainel svg {
+    width: 1.2rem;
+    height: 1.2rem;
   }
 }
 
@@ -940,10 +927,6 @@
 
   .perfilArea {
     width: min(100%, 10.5rem);
-  }
-
-  .perfilAreaResponsiva {
-    width: 3rem;
   }
 
   .perfilPainel {

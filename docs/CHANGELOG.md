@@ -8,6 +8,13 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## Próxima versão — acesso e suporte público (local, 2026-09-05)
 
+- Em 2026-09-09, após conferir o perfil compacto publicado, Gabriel optou por
+  um menu de três linhas ao lado da navegação que abre a coluna pessoal completa
+  como painel sobreposto até 1480 px. A revisão local reutiliza perfil, relógio,
+  calendário, Agenda, atmosfera e saída; fecha por fundo, `Esc` ou navegação e
+  remove a transformação longa da Biblioteca somente nessas larguras. Os 95
+  testes Node, typecheck, build de 47 páginas e lint do recorte passaram; falta
+  publicar e homologar a interface autenticada.
 - Em 2026-09-09, Gabriel definiu o perfil compacto no canto superior direito
   como alternativa responsiva à coluna pessoal. A implementação local exibe
   editar perfil, atmosfera e sair até 1480 px; no mobile, o avatar fica em uma

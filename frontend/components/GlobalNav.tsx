@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { BookOpen, Brain, CalendarDays, CalendarRange, ChevronDown, Code2, Dumbbell, FolderKanban, GraduationCap, Home, Languages, LogOut, Mail, NotebookTabs, Pencil } from 'lucide-react'
+import { BookOpen, Brain, CalendarDays, CalendarRange, ChevronDown, Code2, Dumbbell, FolderKanban, GraduationCap, Home, Languages, LogOut, Mail, Menu, NotebookTabs, Pencil } from 'lucide-react'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { CSSProperties, MouseEvent as ReactMouseEvent } from 'react'
 import { createPortal } from 'react-dom'
@@ -13,6 +13,7 @@ import { cn } from '@/lib/utils'
 import { ThemeToggle } from './ThemeToggle'
 import { SeasonalDecor } from './SeasonalDecor'
 import { useTema } from './ThemeProvider'
+import { usePersonalRail } from './PersonalRailProvider'
 import styles from './GlobalNav.module.css'
 
 type CaixaPerfil = {
@@ -63,15 +64,17 @@ export function GlobalNav() {
   const { corAmbiente, definirCorAmbiente } = useTema()
   const pathname = usePathname()
   const router = useRouter()
+  const { aberto: painelPessoalAberto, alternar: alternarPainelPessoal } = usePersonalRail()
   const ocultarNavegacao = isUnauthenticatedPage(pathname)
   const biblioteca = pathname === '/biblioteca' || pathname.startsWith('/biblioteca/')
-  const perfilCompactoResponsivo = !biblioteca && !usaTelaInteira(pathname)
   const [saindo, setSaindo] = useState(false)
   const [painelAberto, setPainelAberto] = useState<'perfil' | 'tema' | null>(null)
   const [rotaTransicao, setRotaTransicao] = useState<'entrando-biblioteca' | 'saindo-biblioteca' | null>(null)
   const [vooPerfil, setVooPerfil] = useState<VooPerfil | null>(null)
   const perfilAreaRef = useRef<HTMLDivElement>(null)
   const perfilBotaoRef = useRef<HTMLButtonElement>(null)
+  const menuPainelRef = useRef<HTMLButtonElement>(null)
+  const painelPessoalAnteriorRef = useRef(false)
   const navegacaoRef = useRef<HTMLElement>(null)
   const rotaTimeoutRef = useRef<number | null>(null)
   const destinoTransicaoRef = useRef<string | null>(null)
@@ -228,6 +231,11 @@ export function GlobalNav() {
     }
   }, [painelAberto])
 
+  useEffect(() => {
+    if (painelPessoalAnteriorRef.current && !painelPessoalAberto) menuPainelRef.current?.focus()
+    painelPessoalAnteriorRef.current = painelPessoalAberto
+  }, [painelPessoalAberto])
+
   if (ocultarNavegacao) {
     return (
       <div className={styles.temaLogin}>
@@ -284,6 +292,17 @@ export function GlobalNav() {
       || event.shiftKey
       || event.altKey
     ) return
+
+    if (window.matchMedia('(max-width: 1480px)').matches) {
+      if (destinoPaginaRef.current !== null) {
+        event.preventDefault()
+        return
+      }
+      if (!prepararMovimentoPagina(destino)) return
+      event.preventDefault()
+      navegacaoPaginaTimeoutRef.current = window.setTimeout(() => router.push(destino), 360)
+      return
+    }
 
     const entrando = !biblioteca && destino === '/biblioteca'
     const saindoDaBiblioteca = biblioteca && destino !== '/biblioteca'
@@ -357,12 +376,23 @@ export function GlobalNav() {
       <div className={cn(
         styles.barra,
         biblioteca && styles.barraBiblioteca,
-        perfilCompactoResponsivo && styles.barraComPerfilResponsivo,
       )}>
-        {(biblioteca || perfilCompactoResponsivo) ? (
+        <button
+          ref={menuPainelRef}
+          type="button"
+          className={styles.menuPainel}
+          aria-label={painelPessoalAberto ? 'Fechar coluna pessoal' : 'Abrir coluna pessoal'}
+          aria-expanded={painelPessoalAberto}
+          aria-controls="painel-lateral-pessoal"
+          onClick={alternarPainelPessoal}
+        >
+          <Menu aria-hidden="true" />
+        </button>
+
+        {biblioteca ? (
           <div
             ref={perfilAreaRef}
-            className={cn(styles.perfilArea, perfilCompactoResponsivo && styles.perfilAreaResponsiva)}
+            className={styles.perfilArea}
             data-perfil-compacto
           >
             <button
@@ -428,15 +458,6 @@ export function GlobalNav() {
                     <Pencil aria-hidden="true" />
                     Editar perfil
                   </Link>
-                  {perfilCompactoResponsivo ? (
-                    <div className={styles.perfilAcoesResponsivas}>
-                      <ThemeToggle className={styles.tema} />
-                      <button type="button" onClick={handleLogout} disabled={saindo} className={styles.sair}>
-                        <LogOut className="size-4" />
-                        <span>{saindo ? 'Saindo...' : 'Sair'}</span>
-                      </button>
-                    </div>
-                  ) : null}
                 </div>
               </div>
             ) : null}

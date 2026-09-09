@@ -108,6 +108,10 @@
   margin-right: auto;
 }
 
+.fundoPainelMovel {
+  display: none;
+}
+
 @media (max-width: 1480px) {
   .shell {
     margin-left: 0;
@@ -120,6 +124,23 @@
 
   .conteudo::before {
     inset: 3.5rem 0 0;
+  }
+
+  .fundoPainelMovel {
+    position: fixed;
+    z-index: 74;
+    inset: 0;
+    display: block;
+    border: 0;
+    background: color-mix(in oklch, var(--foreground) 42%, transparent);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .fundoPainelMovelVisivel {
+    opacity: 1;
+    pointer-events: auto;
   }
 }
 

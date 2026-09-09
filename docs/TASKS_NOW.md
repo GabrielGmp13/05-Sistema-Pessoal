@@ -115,8 +115,12 @@ Configurações, atmosfera e Sair. A implementação local passou nos 93 testes
 Node, typecheck, build de 47 páginas e lint do arquivo alterado. O commit
 `85bbdf1` foi publicado e a conferência autenticada passou em 360, 1440 e
 1840 px, incluindo abertura do perfil, atmosfera e fechamento por `Esc`, sem
-duplicar o controle na tela larga. Próxima ação: continuar os casos ainda não
-homologados de `teste.md` com a conta secundária.
+duplicar o controle na tela larga. Após conferir o resultado, Gabriel preferiu
+substituir o perfil compacto por um botão de três linhas ao lado da navegação,
+que abre a coluna pessoal completa como painel lateral inclusive na Biblioteca.
+A revisão está implementada localmente; 95 testes Node, typecheck, build de 47
+páginas e lint do recorte passaram. Próxima ação: publicar e homologar o painel
+em 360 e 1440 px, além de confirmar que o desktop acima de 1480 px não mudou.
 
 Defesa em profundidade de isolamento foi publicada no commit `b5bdf2f`
 (DEC-080):

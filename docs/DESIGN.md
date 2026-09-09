@@ -119,11 +119,11 @@ Todas self-hosted em `.woff2` — nunca carregar de CDN externo.
   área de conteúdo. Perfil, controle de atmosfera e saída ficam na coluna
   pessoal. A área principal recebe gradientes discretos e linhas luminosas por
   tema/estação, criando profundidade sem reescrever os cards de cada módulo.
-- Quando a coluna pessoal recolhe (até 1480 px), as rotas autenticadas comuns
-  exibem um perfil compacto no canto superior direito. O painel reúne editar
-  perfil, atmosfera e sair; até 959 px o avatar ocupa uma linha curta acima da
-  navegação e omite nome/seta para preservar espaço. Rotas de tela inteira
-  continuam sem esse controle, e a Biblioteca mantém sua variante própria.
+- Quando a coluna pessoal recolhe (até 1480 px), um botão de três linhas fica
+  imediatamente à esquerda da faixa de navegação. Ele abre a própria coluna
+  pessoal como painel sobreposto, com perfil, relógio, calendário, Agenda,
+  atmosfera e sair. O painel fecha pelo fundo, por `Esc` ou ao navegar. Esse
+  padrão também vale na Biblioteca; rotas de tela inteira continuam sem ele.
 - Cabeçalhos de página começam diretamente no título principal. Não usar
   eyebrow/kicker pequeno acima do `<h1>`; rótulos pequenos permanecem válidos
   dentro de seções e cards, onde ajudam a criar hierarquia (DEC-071).
@@ -218,10 +218,11 @@ de 960px; entre 960px e 1319px usa ícones com `aria-label`/tooltip, e a partir
 de 1320px volta a exibir os rótulos completos para evitar colisão com perfil e
 ações.
 
-Nas rotas autenticadas comuns, a mesma alternativa compacta de perfil aparece
-somente enquanto a coluna pessoal estiver recolhida, de 1480 px para baixo. Em
-mobile ela fica alinhada à direita acima da faixa rolável de navegação; abrir o
-perfil revela editar, atmosfera e sair sem introduzir uma segunda sidebar.
+Até 1480 px, a alternativa à coluna não é um resumo de perfil: é o botão de
+menu imediatamente à esquerda da faixa rolável de navegação. A coluna completa
+desliza pela esquerda sobre o conteúdo, sem deslocar a página. Na Biblioteca,
+a transição longa que transforma o perfil é reservada ao desktop; em telas
+compactas a troca de rota permanece direta e o menu abre a coluna normalmente.
 
 O wrapper do controlador não pinta superfície própria: somente o botão
 arredondado recebe fundo e borda. O foco de teclado usa anéis em duas camadas
