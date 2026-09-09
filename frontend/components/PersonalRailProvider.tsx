@@ -24,7 +24,7 @@ export function PersonalRailProvider({ children }: { children: ReactNode }) {
   }, [pathname])
 
   useEffect(() => {
-    const telaCompacta = window.matchMedia('(max-width: 1480px)')
+    const telaCompacta = window.matchMedia('(max-width: 1023px)')
     const atualizarLargura = () => {
       setCompacto(telaCompacta.matches)
       if (!telaCompacta.matches) setAberto(false)

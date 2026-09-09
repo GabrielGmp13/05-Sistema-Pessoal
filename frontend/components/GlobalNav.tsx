@@ -293,7 +293,7 @@ export function GlobalNav() {
       || event.altKey
     ) return
 
-    if (window.matchMedia('(max-width: 1480px)').matches) {
+    if (window.matchMedia('(max-width: 1023px)').matches) {
       if (destinoPaginaRef.current !== null) {
         event.preventDefault()
         return

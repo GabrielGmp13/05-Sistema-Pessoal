@@ -14,7 +14,7 @@ test('menu compacto controla a coluna pessoal completa', () => {
 })
 
 test('navegação compacta não executa a transformação longa da Biblioteca', () => {
-  const desvioCompacto = globalNav.indexOf("matchMedia('(max-width: 1480px)')")
+  const desvioCompacto = globalNav.indexOf("matchMedia('(max-width: 1023px)')")
   const transicaoBiblioteca = globalNav.indexOf("const entrando = !biblioteca && destino === '/biblioteca'")
 
   assert.ok(desvioCompacto >= 0)

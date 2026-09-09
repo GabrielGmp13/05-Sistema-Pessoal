@@ -821,8 +821,8 @@
   }
 
   .navegacao {
-    justify-content: center;
-    overflow: visible;
+    justify-content: safe center;
+    overflow-x: auto;
   }
 
   .link {
@@ -869,7 +869,7 @@
   }
 }
 
-@media (max-width: 1480px) {
+@media (max-width: 1023px) {
   .header {
     margin-left: 0;
   }
@@ -882,6 +882,12 @@
     min-height: 3.5rem;
     max-width: 120rem;
     padding: 0 0.75rem;
+  }
+
+  .navegacao {
+    justify-self: stretch;
+    justify-content: flex-start;
+    width: 100%;
   }
 
   .headerBiblioteca .perfilArea,

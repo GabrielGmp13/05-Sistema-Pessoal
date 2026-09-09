@@ -101,7 +101,7 @@ Todas self-hosted em `.woff2` — nunca carregar de CDN externo.
 - Breakpoint extra para telas muito pequenas: `360px`–`400px`.
 - Rotas autenticadas comuns passam pelo `AppChrome`: coluna pessoal fixa à
   esquerda, do topo ao rodapé da janela, e conteúdo principal à direita em
-  telas largas. A coluna recolhe abaixo de `1480px` para preservar módulos
+  telas largas. A coluna recolhe abaixo de `1024px` para preservar módulos
   densos e mobile. Telas de foco, como prova ENEM e sessão de Revisão, e todas
   as rotas `/biblioteca/*` continuam em largura total; a Biblioteca já possui
   sua própria sidebar local e nunca exibe as duas colunas juntas. Perfil,
@@ -119,7 +119,7 @@ Todas self-hosted em `.woff2` — nunca carregar de CDN externo.
   área de conteúdo. Perfil, controle de atmosfera e saída ficam na coluna
   pessoal. A área principal recebe gradientes discretos e linhas luminosas por
   tema/estação, criando profundidade sem reescrever os cards de cada módulo.
-- Quando a coluna pessoal recolhe (até 1480 px), um botão de três linhas fica
+- Quando a coluna pessoal recolhe (até 1023 px), um botão de três linhas fica
   imediatamente à esquerda da faixa de navegação. Ele abre a própria coluna
   pessoal como painel sobreposto, com perfil, relógio, calendário, Agenda,
   atmosfera e sair. O painel fecha pelo fundo, por `Esc` ou ao navegar. Esse
@@ -218,7 +218,7 @@ de 960px; entre 960px e 1319px usa ícones com `aria-label`/tooltip, e a partir
 de 1320px volta a exibir os rótulos completos para evitar colisão com perfil e
 ações.
 
-Até 1480 px, a alternativa à coluna não é um resumo de perfil: é o botão de
+Até 1023 px, a alternativa à coluna não é um resumo de perfil: é o botão de
 menu imediatamente à esquerda da faixa rolável de navegação. A coluna completa
 desliza pela esquerda sobre o conteúdo, sem deslocar a página. Na Biblioteca,
 a transição longa que transforma o perfil é reservada ao desktop; em telas

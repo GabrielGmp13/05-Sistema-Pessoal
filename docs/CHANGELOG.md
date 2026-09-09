@@ -8,6 +8,11 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## Próxima versão — acesso e suporte público (local, 2026-09-05)
 
+- Revisão do limite responsivo: a coluna fixa volta em janelas de 1024 px ou
+  mais; o menu sobreposto fica restrito a larguras menores. CSS, estado do
+  painel e transição da Biblioteca usam o mesmo limite. A navegação permite
+  rolagem própria quando os links não cabem no espaço restante.
+
 - Em 2026-09-09, após conferir o perfil compacto publicado, Gabriel optou por
   um menu de três linhas ao lado da navegação que abre a coluna pessoal completa
   como painel sobreposto até 1480 px. A revisão local reutiliza perfil, relógio,

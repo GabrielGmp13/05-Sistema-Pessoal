@@ -88,6 +88,11 @@ aplicada em produção em 2026-09-06. O cadastro continua fechado e o site
 
 ## Próxima ação
 
+Revisão responsiva de 2026-09-09: o limite anterior de 1480 px recolhia a coluna
+também em notebooks. Corrigido para menos de 1024 px em CSS e JavaScript; a
+partir de 1024 px a coluna permanece fixa nas rotas comuns. Navegação mantém
+rolagem própria quando necessário. Conferência visual e publicação em andamento.
+
 A matriz entre as duas contas passou para leitura em Agenda, Idiomas, Saúde,
 Finanças, Lugares e Treino. Ao testar URLs conhecidas da conta secundária na
 principal, foi descoberta uma lacuna de integridade: o RLS escondia os dados,

@@ -598,7 +598,7 @@
   to { transform: rotate(360deg); }
 }
 
-@media (max-width: 1480px) {
+@media (max-width: 1023px) {
   .rail {
     z-index: 80;
     display: flex;
