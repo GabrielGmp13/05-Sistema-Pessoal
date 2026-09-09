@@ -7,14 +7,14 @@ Codex.
 
 ## Antes de começar
 
-- [ ] Confirmar que o deploy contém o commit deste lote e que a migration
+- [x] Confirmar que o deploy contém o commit deste lote e que a migration
       `20260830000100_anime_related_works.sql` consta aplicada. Não executar
       migration novamente apenas porque este checklist foi atualizado.
-- [ ] Usar uma conta de teste com dados descartáveis; não apagar o usuário real
+- [x] Usar uma conta de teste com dados descartáveis; não apagar o usuário real
       no Supabase Auth, pois isso remove seus dados por cascade.
-- [ ] Testar ao menos uma vez em desktop e uma vez em celular real ou em largura
+- [x] Testar ao menos uma vez em desktop e uma vez em celular real ou em largura
       próxima de 360 px.
-- [ ] Repetir a inspeção visual em um tema claro e um escuro.
+- [x] Repetir a inspeção visual em um tema claro e um escuro.
 
 ## v0.2.0 — relatos de bugs e gates de convite
 
@@ -32,7 +32,7 @@ Codex.
       senha, login/logout, recuperar senha, link expirado/reutilizado e entrega SMTP.
 - [ ] Duas contas descartáveis: testar CRUD/relacionamentos/Storage e API; A não
       pode listar, alterar, vincular ou apagar dados de B (inclusive conhecendo UUID/path).
-- [ ] Após logout/troca de conta, nenhuma informação da anterior aparece.
+- [x] Após logout/troca de conta, nenhuma informação da anterior aparece.
 - [ ] Google: trocar usuário do site durante consentimento rejeita retorno;
       conectar outra conta Google e renovar não volta à anterior.
 - [ ] Conferir [BETA_PRIVADO.md](BETA_PRIVADO.md) antes de qualquer convite.
@@ -122,10 +122,11 @@ real; a preparação da release não os marca automaticamente como concluídos.
 
 ## Treino
 
-- [ ] No dashboard, adicionar um treino a um dia da semana atual; recarregar e
+- [x] No dashboard, adicionar um treino a um dia da semana atual; recarregar e
       confirmar persistência.
-- [ ] Editar dia/treino, remover o planejamento e conferir desktop/mobile.
-- [ ] Confirmar que o planejamento não cria automaticamente item duplicado na
+- [~] Editar dia/treino e remover o planejamento passaram no desktop; falta
+      repetir a conferência visual em largura mobile.
+- [x] Confirmar que o planejamento não cria automaticamente item duplicado na
       Agenda.
 
 ## Lugares e Google Places
@@ -141,10 +142,10 @@ real; a preparação da release não os marca automaticamente como concluídos.
 
 ## Responsividade, acessibilidade e beta privado
 
-- [ ] Em tela larga, confirmar que as páginas comuns exibem coluna pessoal à
+- [x] Em tela larga, confirmar que as páginas comuns exibem coluna pessoal à
       esquerda do topo ao rodapé e conteúdo principal à direita sem comprimir
       textos, cards ou menus.
-- [ ] Na Biblioteca e em Gêneros, confirmar que aparece somente a sidebar da
+- [x] Na Biblioteca e em Gêneros, confirmar que aparece somente a sidebar da
       Biblioteca, sem perfil/relógio/calendário como segunda coluna esquerda.
 - [ ] Ao entrar na Biblioteca em tela larga, confirmar que o perfil aparece
       compacto no início do topo, transformando-se a partir do card da coluna
@@ -160,33 +161,43 @@ real; a preparação da release não os marca automaticamente como concluídos.
 - [ ] Reduzir a altura da janela ou aumentar temporariamente o zoom e confirmar
       que a coluna pessoal esquerda rola com o mouse/trackpad sem cortar relógio,
       calendário, linha temporal, perfil, tema ou sair.
-- [ ] Confirmar que a barra superior autenticada mostra somente navegação, sem
-      perfil, seletor de tema ou botão sair.
-- [ ] Confirmar que editar perfil, trocar atmosfera e sair funcionam pela coluna
+- [~] Em telas acima de 1480 px, confirmar que a barra superior autenticada
+      mostra somente navegação; até 1480 px, confirmar que o perfil compacto
+      oferece Configurações, atmosfera e Sair. Implementação local aguarda o
+      reteste autenticado após publicação.
+- [x] Confirmar que editar perfil, trocar atmosfera e sair funcionam pela coluna
       pessoal.
 - [ ] Conferir relógio digital, calendário mensal, marcação de dias com eventos
       e linha temporal de Agenda/provas nos temas Sol, Nublado, Estrelado e Lua.
-- [ ] Confirmar que login, prova ENEM e sessão focada de Revisão não exibem a
+- [x] Confirmar que login, prova ENEM e sessão focada de Revisão não exibem a
       coluna lateral.
-- [ ] Nas páginas comuns, confirmar que o título principal começa diretamente
+- [x] Nas páginas comuns, confirmar que o título principal começa diretamente
       no topo do conteúdo, sem rótulo pequeno como “Sistema Pessoal v2”,
       “Módulo”, “Conta” ou equivalente acima dele.
 - [ ] Criar ou importar um flashcard vencido e confirmar que ele continua na
       ferramenta de Revisão Espaçada, mas não aparece como pendência de conteúdo
       no Início nem no hub de Estudos.
-- [ ] Em notebook estreito/mobile, confirmar que a coluna lateral recolhe e que
+- [x] Em notebook estreito/mobile, confirmar que a coluna lateral recolhe e que
       nenhuma página ganha rolagem horizontal por causa dela.
 - [ ] No bloco inferior da coluna, testar acesso a Configurações e troca de
       atmosfera sem conflito com o seletor do topo.
 - [ ] Nas páginas alteradas, navegar apenas por teclado e confirmar foco visível,
       fechamento de modais e ausência de armadilhas de foco.
-- [ ] Conferir que cards, prévias, selects e botões não vazam horizontalmente em
-      360 px e permanecem legíveis nos temas claro/escuro.
-- [ ] Em janela anônima sem sessão, acessar diretamente as novas API Routes de
+- [~] Em 360 px, 13 páginas autenticadas não vazaram horizontalmente nos temas
+      Lua e Sol; repetir quando houver cards/prévias reais para encerrar o item.
+
+### Achado da rodada responsiva de 2026-09-08
+
+- [~] Entre 360 px e 1480 px, a coluna pessoal recolhia sem alternativa para
+      Configurações, atmosfera ou Sair. Gabriel escolheu o perfil compacto no
+      canto superior direito; a correção está implementada e validada localmente
+      por testes automatizados, aguardando publicação e conferência visual
+      autenticada em 360, 1440 e 1840 px.
+- [x] Em janela anônima sem sessão, acessar diretamente as novas API Routes de
       Calendar e Places e confirmar resposta não autenticada, sem dados.
 - [ ] Nos logs Vercel, confirmar que falhas de Calendar/Places não exibem tokens,
       cookies, headers, URLs de banco ou valores de variáveis.
-- [ ] Com uma segunda conta de beta, confirmar que não aparecem eventos,
+- [x] Com uma segunda conta de beta, confirmar que não aparecem eventos,
       tentativas, flashcards, planejamentos ou lugares da primeira conta.
 
 ## Modelo curto de bug

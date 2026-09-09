@@ -65,6 +65,7 @@ export function GlobalNav() {
   const router = useRouter()
   const ocultarNavegacao = isUnauthenticatedPage(pathname)
   const biblioteca = pathname === '/biblioteca' || pathname.startsWith('/biblioteca/')
+  const perfilCompactoResponsivo = !biblioteca && !usaTelaInteira(pathname)
   const [saindo, setSaindo] = useState(false)
   const [painelAberto, setPainelAberto] = useState<'perfil' | 'tema' | null>(null)
   const [rotaTransicao, setRotaTransicao] = useState<'entrando-biblioteca' | 'saindo-biblioteca' | null>(null)
@@ -353,9 +354,17 @@ export function GlobalNav() {
       style={estiloAtmosfera}
     >
       <SeasonalDecor variante="topo" />
-      <div className={cn(styles.barra, biblioteca && styles.barraBiblioteca)}>
-        {biblioteca ? (
-          <div ref={perfilAreaRef} className={styles.perfilArea} data-perfil-compacto>
+      <div className={cn(
+        styles.barra,
+        biblioteca && styles.barraBiblioteca,
+        perfilCompactoResponsivo && styles.barraComPerfilResponsivo,
+      )}>
+        {(biblioteca || perfilCompactoResponsivo) ? (
+          <div
+            ref={perfilAreaRef}
+            className={cn(styles.perfilArea, perfilCompactoResponsivo && styles.perfilAreaResponsiva)}
+            data-perfil-compacto
+          >
             <button
               ref={perfilBotaoRef}
               type="button"
@@ -419,6 +428,15 @@ export function GlobalNav() {
                     <Pencil aria-hidden="true" />
                     Editar perfil
                   </Link>
+                  {perfilCompactoResponsivo ? (
+                    <div className={styles.perfilAcoesResponsivas}>
+                      <ThemeToggle className={styles.tema} />
+                      <button type="button" onClick={handleLogout} disabled={saindo} className={styles.sair}>
+                        <LogOut className="size-4" />
+                        <span>{saindo ? 'Saindo...' : 'Sair'}</span>
+                      </button>
+                    </div>
+                  ) : null}
                 </div>
               </div>
             ) : null}

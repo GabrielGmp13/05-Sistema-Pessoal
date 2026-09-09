@@ -8,6 +8,27 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## Próxima versão — acesso e suporte público (local, 2026-09-05)
 
+- Em 2026-09-09, Gabriel definiu o perfil compacto no canto superior direito
+  como alternativa responsiva à coluna pessoal. A implementação local exibe
+  editar perfil, atmosfera e sair até 1480 px; no mobile, o avatar fica em uma
+  linha curta acima da navegação. Rotas de tela inteira e a variante própria da
+  Biblioteca foram preservadas. Os 93 testes Node, typecheck, build de 47
+  páginas e lint do arquivo alterado passaram; resta publicar e conferir a UI
+  autenticada em 360, 1440 e 1840 px.
+- Em 2026-09-08, treze páginas autenticadas foram inspecionadas a 360 px sem
+  erro ou rolagem horizontal; Home passou nos temas Lua e Sol, e a coluna
+  pessoal apareceu completa a 1840 px. Login, ENEM e sessão focada de Revisão
+  permaneceram sem a coluna, como projetado. A rodada revelou uma pendência:
+  abaixo de 1481 px a coluna recolhia sem oferecer acesso alternativo visível a
+  Configurações, atmosfera ou Sair; o ajuste foi definido na entrada acima.
+- Em 2026-09-08, a rodada autenticada de duas contas foi encerrada para
+  Agenda, Idiomas, Saúde, Finanças, Lugares e Treino. Nenhum marcador da conta
+  secundária apareceu na principal, inclusive depois de mover o planejamento
+  semanal do treino. Após confirmação destrutiva, toda a massa temporária
+  desses módulos foi removida pela interface na ordem segura dos vínculos; as
+  sete modalidades padrão e a conta secundária foram preservadas. A varredura
+  final encontrou zero marcadores e nenhuma página com erro. A validação local
+  posterior manteve 93 testes Node, typecheck e build de 47 páginas aprovados.
 - Em 2026-09-08, o teste cruzado de Agenda, Idiomas, Saúde, Finanças, Lugares e
   Treino aprovou o isolamento de leitura. Uma URL direta de treino alheio
   revelou que formulários vazios ainda eram exibidos e que FKs simples não

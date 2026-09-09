@@ -1,6 +1,6 @@
 # Tarefas atuais — acesso e suporte público
 
-Atualizado em 2026-09-08. A v0.2.0 continua publicada. O lote de acesso e
+Atualizado em 2026-09-09. A v0.2.0 continua publicada. O lote de acesso e
 suporte foi publicado pelo commit `118e487` e a migration de suporte foi
 aplicada em produção em 2026-09-06. O cadastro continua fechado e o site
 **não foi aberto ao público**.
@@ -55,6 +55,12 @@ aplicada em produção em 2026-09-06. O cadastro continua fechado e o site
        URL direta sem assinatura (`400`) e o bucket `shape` ficou vazio após a
        exclusão autorizada. Projeto, tarefa, registro e imagem temporários foram
        removidos; a conta secundária foi preservada para os testes restantes.
+       Agenda, Idiomas, Saúde, Finanças, Lugares e Treino também passaram por
+       criação/leitura e isolamento cruzado em produção. Depois da confirmação
+       de Gabriel, toda a massa `TESTE ISOLAMENTO` desses seis módulos foi
+       removida pela interface; a varredura final encontrou zero marcadores e
+       nenhuma página com erro. As sete modalidades padrão do Treino e a conta
+       secundária foram preservadas.
 8. [x] Aviso de privacidade aprovado e publicado: Gabriel Oliveira como
        responsável, canal `sistemapessoa007@gmail.com`, piloto para maiores de
        18 anos, retenção e procedimento de acesso/exclusão definidos. Todos os
@@ -94,9 +100,20 @@ typecheck, build de 47 páginas e lint do recorte passaram. O precheck encontrou
 uma única sessão vazia criada pelo teste antigo; ela foi removida com
 confirmação. A migration foi aplicada em produção, o dry-run final voltou vazio
 e as três URLs cruzadas de módulo, exercícios e academia passaram a bloquear os
-formulários. A massa temporária da conta secundária permanece até a limpeza
-final autorizada. Próxima ação: continuar a matriz dos módulos restantes e,
-depois, pedir confirmação para remover toda a massa temporária listada.
+formulários. A massa temporária de Agenda, Idiomas, Saúde, Finanças, Lugares
+e Treino foi removida pela interface após confirmação; a checagem final
+retornou zero marcadores nos seis módulos. A rodada posterior manteve 93 testes
+Node, typecheck e build de 47 páginas aprovados. Próxima ação: continuar os
+casos ainda não homologados de `teste.md`, preservando dados reais e usando a
+conta secundária para novas massas descartáveis.
+
+A rodada responsiva autenticada passou sem erro nem rolagem horizontal em 13
+páginas a 360 px; Home também passou nos temas Lua e Sol, e a coluna pessoal
+apareceu corretamente a 1840 px. Gabriel escolheu corrigir o bloqueio abaixo de
+1481 px com um perfil compacto no canto superior direito, reunindo
+Configurações, atmosfera e Sair. A implementação local passou nos 93 testes
+Node, typecheck, build de 47 páginas e lint do arquivo alterado. Próxima ação:
+publicar e fazer a conferência visual autenticada em 360, 1440 e 1840 px.
 
 Defesa em profundidade de isolamento foi publicada no commit `b5bdf2f`
 (DEC-080):

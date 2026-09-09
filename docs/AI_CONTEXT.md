@@ -67,7 +67,7 @@ Projetos, tarefa relacionada e Shape/Storage privado; a matriz completa por
 módulo ainda está pendente.
 **Decisão-chave:** DEC-018 (reabre DEC-006) — frontend migrou de HTML puro para Next.js/React
 **Deploy:** ✅ em produção no Vercel desde 2026-07-13 (não "pendente" — ver `ARCHITECTURE.md`)
-**Schema:** produção possui 71 tabelas e 26 migrations aplicadas até `20260907000100_exportacao_dados_usuario.sql`; a exportação passou reset completo, 21 testes SQL, dry-run exclusivo, aplicação autorizada e dry-run final vazio.
+**Schema:** produção possui 71 tabelas e 27 migrations aplicadas até `20260908000100_treino_integridade_por_usuario.sql`; a migration mais recente passou reset completo, 22 testes SQL, dry-run exclusivo, aplicação autorizada e dry-run final vazio.
 **Histórico CLI:** evidências dos pós-checks anteriores estão em `DATABASE.md`/`CHANGELOG.md`; a revisão local atual não recertifica o remoto.
 **Reprodutibilidade:** Node.js `24.15.0`, npm `12.0.1`, lockfile e CI ativos. Na preparação v0.2.0: typecheck/build e 76 testes Node aprovados; lint informativo com 25 erros/28 avisos (dívida anterior), zero erros no recorte alterado. Evidências em `RELEASE_V0.2.0.md`.
 **Próxima tarefa imediata:** cadastro continua fechado e domínio/Resend/SMTP
@@ -123,7 +123,7 @@ exercícios e academia antes de exibir formulários.
 | Offline | Service Worker — fora de escopo por ora (Fase M2, ver `ROADMAP.md`) |
 | Hosting | Vercel — **em produção desde 2026-07-13** |
 | Toolchain | Node.js 24.15.0 + npm 12.0.1; versões fixadas no repositório |
-| CI/testes | GitHub Actions: `npm ci`, typecheck, testes Node e build bloqueantes; lint informativo. 20 scripts SQL locais; resultado publicado em `RELEASE_V0.2.0.md` e lote local em `TASKS_NOW.md` |
+| CI/testes | GitHub Actions: `npm ci`, typecheck, testes Node e build bloqueantes; lint informativo. 22 scripts SQL locais; resultado publicado em `RELEASE_V0.2.0.md` e lote local em `TASKS_NOW.md` |
 
 ---
 

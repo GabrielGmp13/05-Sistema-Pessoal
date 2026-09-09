@@ -119,6 +119,11 @@ Todas self-hosted em `.woff2` — nunca carregar de CDN externo.
   área de conteúdo. Perfil, controle de atmosfera e saída ficam na coluna
   pessoal. A área principal recebe gradientes discretos e linhas luminosas por
   tema/estação, criando profundidade sem reescrever os cards de cada módulo.
+- Quando a coluna pessoal recolhe (até 1480 px), as rotas autenticadas comuns
+  exibem um perfil compacto no canto superior direito. O painel reúne editar
+  perfil, atmosfera e sair; até 959 px o avatar ocupa uma linha curta acima da
+  navegação e omite nome/seta para preservar espaço. Rotas de tela inteira
+  continuam sem esse controle, e a Biblioteca mantém sua variante própria.
 - Cabeçalhos de página começam diretamente no título principal. Não usar
   eyebrow/kicker pequeno acima do `<h1>`; rótulos pequenos permanecem válidos
   dentro de seções e cards, onde ajudam a criar hierarquia (DEC-071).
@@ -212,6 +217,11 @@ Com Idiomas, Histórico e Programação, a faixa mantém rolagem horizontal abai
 de 960px; entre 960px e 1319px usa ícones com `aria-label`/tooltip, e a partir
 de 1320px volta a exibir os rótulos completos para evitar colisão com perfil e
 ações.
+
+Nas rotas autenticadas comuns, a mesma alternativa compacta de perfil aparece
+somente enquanto a coluna pessoal estiver recolhida, de 1480 px para baixo. Em
+mobile ela fica alinhada à direita acima da faixa rolável de navegação; abrir o
+perfil revela editar, atmosfera e sair sem introduzir uma segunda sidebar.
 
 O wrapper do controlador não pinta superfície própria: somente o botão
 arredondado recebe fundo e borda. O foco de teclado usa anéis em duas camadas
