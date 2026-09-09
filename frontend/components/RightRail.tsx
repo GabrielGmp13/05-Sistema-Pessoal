@@ -106,9 +106,11 @@ function criarItemProva(prova: Prova): ItemLinhaTempo {
 export function RightRail({
   recolhendo = false,
   movelAberto = false,
+  ocultoAcessibilidade = false,
 }: {
   recolhendo?: boolean
   movelAberto?: boolean
+  ocultoAcessibilidade?: boolean
 }) {
   const router = useRouter()
   const [agora, setAgora] = useState(() => new Date())
@@ -228,7 +230,7 @@ export function RightRail({
       id="painel-lateral-pessoal"
       className={cn(styles.rail, recolhendo && styles.railRecolhendo, movelAberto && styles.railMovelAberto)}
       aria-label="Painel lateral pessoal"
-      aria-hidden={(recolhendo && !movelAberto) || undefined}
+      aria-hidden={(ocultoAcessibilidade || (recolhendo && !movelAberto)) || undefined}
     >
       <SeasonalDecor variante="lateral" oculto={recolhendo} />
       <section className={cn(styles.card, styles.identidadeCard)} aria-label="Perfil" data-perfil-amplo>

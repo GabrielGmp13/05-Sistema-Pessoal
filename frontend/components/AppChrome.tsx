@@ -22,7 +22,11 @@ function deveUsarTelaInteira(pathname: string) {
 export function AppChrome({ children }: { children: ReactNode }) {
   const pathname = usePathname()
   const biblioteca = pathname === '/biblioteca' || pathname.startsWith('/biblioteca/')
-  const { aberto: painelMovelAberto, fechar: fecharPainelMovel } = usePersonalRail()
+  const {
+    aberto: painelMovelAberto,
+    compacto: layoutCompacto,
+    fechar: fecharPainelMovel,
+  } = usePersonalRail()
 
   if (deveUsarTelaInteira(pathname)) {
     return <>{children}</>
@@ -31,15 +35,19 @@ export function AppChrome({ children }: { children: ReactNode }) {
   return (
     <div className={cn(styles.shell, biblioteca && styles.shellBiblioteca)}>
       <div className={styles.ambiente} aria-hidden="true" />
-      <button
-        type="button"
-        className={cn(styles.fundoPainelMovel, painelMovelAberto && styles.fundoPainelMovelVisivel)}
-        aria-label="Fechar coluna pessoal"
-        aria-hidden={!painelMovelAberto}
-        tabIndex={painelMovelAberto ? 0 : -1}
-        onClick={fecharPainelMovel}
+      {painelMovelAberto ? (
+        <button
+          type="button"
+          className={cn(styles.fundoPainelMovel, styles.fundoPainelMovelVisivel)}
+          aria-label="Fechar coluna pessoal"
+          onClick={fecharPainelMovel}
+        />
+      ) : null}
+      <RightRail
+        recolhendo={biblioteca && !painelMovelAberto}
+        movelAberto={painelMovelAberto}
+        ocultoAcessibilidade={layoutCompacto && !painelMovelAberto}
       />
-      <RightRail recolhendo={biblioteca && !painelMovelAberto} movelAberto={painelMovelAberto} />
       <div className={cn(styles.conteudo, biblioteca && styles.conteudoBiblioteca)}>{children}</div>
     </div>
   )

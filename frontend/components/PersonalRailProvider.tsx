@@ -6,6 +6,7 @@ import type { ReactNode } from 'react'
 
 type PersonalRailContextValue = {
   aberto: boolean
+  compacto: boolean
   fechar: () => void
   alternar: () => void
 }
@@ -15,6 +16,7 @@ const PersonalRailContext = createContext<PersonalRailContextValue | null>(null)
 export function PersonalRailProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname()
   const [aberto, setAberto] = useState(false)
+  const [compacto, setCompacto] = useState(false)
 
   useEffect(() => {
     const timeout = window.setTimeout(() => setAberto(false), 0)
@@ -23,11 +25,13 @@ export function PersonalRailProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const telaCompacta = window.matchMedia('(max-width: 1480px)')
-    const fecharAoAmpliar = () => {
+    const atualizarLargura = () => {
+      setCompacto(telaCompacta.matches)
       if (!telaCompacta.matches) setAberto(false)
     }
-    telaCompacta.addEventListener('change', fecharAoAmpliar)
-    return () => telaCompacta.removeEventListener('change', fecharAoAmpliar)
+    atualizarLargura()
+    telaCompacta.addEventListener('change', atualizarLargura)
+    return () => telaCompacta.removeEventListener('change', atualizarLargura)
   }, [])
 
   useEffect(() => {
@@ -46,9 +50,10 @@ export function PersonalRailProvider({ children }: { children: ReactNode }) {
 
   const valor = useMemo(() => ({
     aberto,
+    compacto,
     fechar: () => setAberto(false),
     alternar: () => setAberto((atual) => !atual),
-  }), [aberto])
+  }), [aberto, compacto])
 
   return <PersonalRailContext.Provider value={valor}>{children}</PersonalRailContext.Provider>
 }
