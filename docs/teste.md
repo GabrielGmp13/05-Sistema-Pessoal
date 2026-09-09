@@ -161,10 +161,9 @@ real; a preparação da release não os marca automaticamente como concluídos.
 - [ ] Reduzir a altura da janela ou aumentar temporariamente o zoom e confirmar
       que a coluna pessoal esquerda rola com o mouse/trackpad sem cortar relógio,
       calendário, linha temporal, perfil, tema ou sair.
-- [~] Em telas acima de 1480 px, confirmar que a barra superior autenticada
+- [x] Em telas acima de 1480 px, confirmar que a barra superior autenticada
       mostra somente navegação; até 1480 px, confirmar que o botão de três
-      linhas fica ao lado dela e abre a coluna pessoal completa. Implementação
-      local aguarda publicação e reteste.
+      linhas fica ao lado dela e abre a coluna pessoal completa.
 - [x] Confirmar que editar perfil, trocar atmosfera e sair funcionam pela coluna
       pessoal.
 - [ ] Conferir relógio digital, calendário mensal, marcação de dias com eventos
@@ -194,11 +193,13 @@ real; a preparação da release não os marca automaticamente como concluídos.
       passou na conferência autenticada em 360, 1440 e 1840 px. O perfil abriu
       Editar, atmosfera e Sair; o seletor abriu dentro do painel e `Esc` fechou
       os controles sem armadilha. Em tela larga não houve duplicação.
-- [~] Revisão solicitada depois desse teste: substituir o perfil compacto pelo
+- [x] Revisão solicitada depois desse teste: substituir o perfil compacto pelo
       botão de três linhas ao lado da navegação e abrir a coluna completa como
       painel sobreposto, inclusive na Biblioteca. Confirmar fundo clicável,
       fechamento por `Esc`, retorno de foco, bloqueio da rolagem de fundo e
-      ausência da transformação longa da Biblioteca até 1480 px.
+      ausência da transformação longa da Biblioteca até 1480 px. Produção
+      aprovada a 1100 px na Home e na Biblioteca; painel fechado também ficou
+      fora da árvore de acessibilidade.
 - [x] Em janela anônima sem sessão, acessar diretamente as novas API Routes de
       Calendar e Places e confirmar resposta não autenticada, sem dados.
 - [ ] Nos logs Vercel, confirmar que falhas de Calendar/Places não exibem tokens,

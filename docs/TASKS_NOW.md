@@ -118,9 +118,12 @@ Node, typecheck, build de 47 páginas e lint do arquivo alterado. O commit
 duplicar o controle na tela larga. Após conferir o resultado, Gabriel preferiu
 substituir o perfil compacto por um botão de três linhas ao lado da navegação,
 que abre a coluna pessoal completa como painel lateral inclusive na Biblioteca.
-A revisão está implementada localmente; 95 testes Node, typecheck, build de 47
-páginas e lint do recorte passaram. Próxima ação: publicar e homologar o painel
-em 360 e 1440 px, além de confirmar que o desktop acima de 1480 px não mudou.
+A revisão foi publicada nos commits `89b5477` e `1d7c618`; 95 testes Node,
+typecheck, build de 47 páginas e lint do recorte passaram. Em produção, o painel
+abriu completo na Home e na Biblioteca a 1100 px, a troca para a Biblioteca foi
+direta, `Esc` fechou e devolveu o foco ao menu, e o conteúdo fechado deixou de
+ser exposto ao leitor de tela. Próxima ação: continuar os casos ainda não
+homologados de `teste.md` com a conta secundária.
 
 Defesa em profundidade de isolamento foi publicada no commit `b5bdf2f`
 (DEC-080):

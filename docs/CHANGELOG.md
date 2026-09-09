@@ -13,8 +13,10 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
   como painel sobreposto até 1480 px. A revisão local reutiliza perfil, relógio,
   calendário, Agenda, atmosfera e saída; fecha por fundo, `Esc` ou navegação e
   remove a transformação longa da Biblioteca somente nessas larguras. Os 95
-  testes Node, typecheck, build de 47 páginas e lint do recorte passaram; falta
-  publicar e homologar a interface autenticada.
+  testes Node, typecheck, build de 47 páginas e lint do recorte passaram. Os
+  commits `89b5477` e `1d7c618` foram publicados; Home e Biblioteca passaram no
+  teste autenticado a 1100 px, inclusive fechamento por `Esc`, retorno de foco
+  e ocultação correta do painel fechado para leitores de tela.
 - Em 2026-09-09, Gabriel definiu o perfil compacto no canto superior direito
   como alternativa responsiva à coluna pessoal. A implementação local exibe
   editar perfil, atmosfera e sair até 1480 px; no mobile, o avatar fica em uma
