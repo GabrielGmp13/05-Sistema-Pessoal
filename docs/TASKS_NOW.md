@@ -93,8 +93,9 @@ reset local e 22 testes SQL aprovados. A produção passou nos fluxos de Hub,
 TMDB, Redações, CSV/APKG, sessão de Revisão, suporte com print/protocolo,
 Calendar bidirecional básico, Lugares manual, responsividade e isolamento. Toda
 a massa `TESTE FINAL` foi removida, preservando contas, conexões e agenda real.
-O único ajuste de código impede Livros de ficar carregando indefinidamente;
-falta publicar e executar o reteste curto de `teste.md`. Pendências externas:
+O ajuste foi publicado em `ea77467`; CI e build passaram, e a busca por
+`Dom Casmurro` retornou resultados do Open Library e Google Books no deploy,
+sem carregamento infinito. Pendências externas:
 `GOOGLE_MAPS_API_KEY`, fontes de Anime/Mangá, SMTP/domínio e abertura deliberada
 do cadastro.
 

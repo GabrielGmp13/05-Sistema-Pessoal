@@ -117,10 +117,9 @@ chamados com históricos/metadados e um print privado, além do CSV e `.apkg`
 locais. Contas, conexões Google, agenda real, matérias e demais dados pessoais
 foram preservados. O prefixo da rodada foi `TESTE FINAL`.
 
-## Próximo reteste após publicação
+## Reteste após publicação
 
-1. Em Livros, pesquisar `Dom Casmurro`.
-2. Confirmar resultados ou fallback manual em no máximo 12 segundos — nunca
-   carregamento infinito.
-3. Fazer smoke de login, Biblioteca, Revisão, Agenda e Suporte.
-4. Conferir CI e deploy no commit publicado.
+- **APROVADO** — commit `ea77467` publicado na `main`; CI concluída com sucesso.
+- **APROVADO** — produção respondeu normalmente e manteve a sessão autenticada.
+- **APROVADO** — Livros pesquisou `Dom Casmurro` e retornou resultados do Open
+  Library e Google Books, sem carregamento infinito e sem salvar novo registro.

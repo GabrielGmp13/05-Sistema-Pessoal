@@ -15,7 +15,9 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
   timeout de 12 segundos para nunca carregar indefinidamente. Google Places sem
   chave e fontes de Anime/Mangá ficaram como pendências externas. Após
   confirmação, toda a massa `TESTE FINAL`, inclusive print privado e evento no
-  Google, foi removida sem tocar nas contas, conexões ou agenda real.
+  Google, foi removida sem tocar nas contas, conexões ou agenda real. O commit
+  `ea77467` foi publicado, a CI passou e o reteste em produção retornou
+  resultados de Livros sem criar registro novo.
 
 - Revisão do limite responsivo: a coluna fixa volta em janelas de 1024 px ou
   mais; o menu sobreposto fica restrito a larguras menores. CSS, estado do
