@@ -161,10 +161,9 @@ real; a preparação da release não os marca automaticamente como concluídos.
 - [ ] Reduzir a altura da janela ou aumentar temporariamente o zoom e confirmar
       que a coluna pessoal esquerda rola com o mouse/trackpad sem cortar relógio,
       calendário, linha temporal, perfil, tema ou sair.
-- [~] Em telas acima de 1480 px, confirmar que a barra superior autenticada
+- [x] Em telas acima de 1480 px, confirmar que a barra superior autenticada
       mostra somente navegação; até 1480 px, confirmar que o perfil compacto
-      oferece Configurações, atmosfera e Sair. Implementação local aguarda o
-      reteste autenticado após publicação.
+      oferece Configurações, atmosfera e Sair.
 - [x] Confirmar que editar perfil, trocar atmosfera e sair funcionam pela coluna
       pessoal.
 - [ ] Conferir relógio digital, calendário mensal, marcação de dias com eventos
@@ -188,11 +187,12 @@ real; a preparação da release não os marca automaticamente como concluídos.
 
 ### Achado da rodada responsiva de 2026-09-08
 
-- [~] Entre 360 px e 1480 px, a coluna pessoal recolhia sem alternativa para
+- [x] Entre 360 px e 1480 px, a coluna pessoal recolhia sem alternativa para
       Configurações, atmosfera ou Sair. Gabriel escolheu o perfil compacto no
-      canto superior direito; a correção está implementada e validada localmente
-      por testes automatizados, aguardando publicação e conferência visual
-      autenticada em 360, 1440 e 1840 px.
+      canto superior direito; a correção foi publicada no commit `85bbdf1` e
+      passou na conferência autenticada em 360, 1440 e 1840 px. O perfil abriu
+      Editar, atmosfera e Sair; o seletor abriu dentro do painel e `Esc` fechou
+      os controles sem armadilha. Em tela larga não houve duplicação.
 - [x] Em janela anônima sem sessão, acessar diretamente as novas API Routes de
       Calendar e Places e confirmar resposta não autenticada, sem dados.
 - [ ] Nos logs Vercel, confirmar que falhas de Calendar/Places não exibem tokens,

@@ -112,8 +112,11 @@ páginas a 360 px; Home também passou nos temas Lua e Sol, e a coluna pessoal
 apareceu corretamente a 1840 px. Gabriel escolheu corrigir o bloqueio abaixo de
 1481 px com um perfil compacto no canto superior direito, reunindo
 Configurações, atmosfera e Sair. A implementação local passou nos 93 testes
-Node, typecheck, build de 47 páginas e lint do arquivo alterado. Próxima ação:
-publicar e fazer a conferência visual autenticada em 360, 1440 e 1840 px.
+Node, typecheck, build de 47 páginas e lint do arquivo alterado. O commit
+`85bbdf1` foi publicado e a conferência autenticada passou em 360, 1440 e
+1840 px, incluindo abertura do perfil, atmosfera e fechamento por `Esc`, sem
+duplicar o controle na tela larga. Próxima ação: continuar os casos ainda não
+homologados de `teste.md` com a conta secundária.
 
 Defesa em profundidade de isolamento foi publicada no commit `b5bdf2f`
 (DEC-080):

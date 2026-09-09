@@ -13,8 +13,9 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
   editar perfil, atmosfera e sair até 1480 px; no mobile, o avatar fica em uma
   linha curta acima da navegação. Rotas de tela inteira e a variante própria da
   Biblioteca foram preservadas. Os 93 testes Node, typecheck, build de 47
-  páginas e lint do arquivo alterado passaram; resta publicar e conferir a UI
-  autenticada em 360, 1440 e 1840 px.
+  páginas e lint do arquivo alterado passaram. O commit `85bbdf1` foi publicado;
+  a UI autenticada passou em 360, 1440 e 1840 px, incluindo abertura de perfil,
+  atmosfera e fechamento por `Esc`, sem duplicação na tela larga.
 - Em 2026-09-08, treze páginas autenticadas foram inspecionadas a 360 px sem
   erro ou rolagem horizontal; Home passou nos temas Lua e Sol, e a coluna
   pessoal apareceu completa a 1840 px. Login, ENEM e sessão focada de Revisão
