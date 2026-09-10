@@ -30,20 +30,20 @@ export default function EscolaPage() {
   const [atividades, setAtividades] = useState<Atividade[]>([])
   const [carregando, setCarregando] = useState(true)
 
-  async function carregar() {
-    const [m, p, a] = await Promise.all([
+  useEffect(() => {
+    let ativo = true
+    void Promise.all([
       listarMateriasEscola(),
       listarProximasProvas('escola'),
       listarAtividadesPendentes(),
-    ])
+    ]).then(([m, p, a]) => {
+    if (!ativo) return
     setMaterias(m ?? [])
     setProvas(p ?? [])
     setAtividades(a ?? [])
     setCarregando(false)
-  }
-
-  useEffect(() => {
-    carregar()
+    })
+    return () => { ativo = false }
   }, [])
 
   return (

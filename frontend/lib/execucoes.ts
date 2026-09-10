@@ -1,4 +1,5 @@
 import { createBrowserClient } from '@supabase/ssr'
+import { logDiagnostic } from './safe-diagnostics'
 
 type SB = ReturnType<typeof createBrowserClient>
 
@@ -27,7 +28,7 @@ export async function criarSessao(sb: SB, userId: string, treinoUuid: string): P
     data_inicio: new Date().toISOString(),
   })
   if (error) {
-    console.error('[criarSessao]', error)
+    logDiagnostic('execucoes/criar-sessao', error)
     return null
   }
   return uuid
@@ -40,7 +41,7 @@ export async function finalizarSessao(sb: SB, userId: string, sessaoUuid: string
     .eq('uuid', sessaoUuid)
     .eq('user_id', userId)
     .eq('deleted', false)
-  if (error) console.error('[finalizarSessao]', error)
+  if (error) logDiagnostic('execucoes/finalizar-sessao', error)
   return { error: error?.message ?? null }
 }
 
@@ -58,7 +59,7 @@ export async function getRecordeCarga(sb: SB, userId: string, exercicioUuid: str
     .limit(1)
 
   if (error) {
-    console.error('[getRecordeCarga]', error)
+    logDiagnostic('execucoes/recorde-carga', error)
     return 0
   }
   return data?.[0]?.carga_real ?? 0
@@ -81,7 +82,7 @@ export async function salvarExecucoesForca(
   }))
 
   const { error } = await sb.from('execucoes_forca').insert(linhas)
-  if (error) console.error('[salvarExecucoesForca]', error)
+  if (error) logDiagnostic('execucoes/salvar-forca', error)
   return { error: error?.message ?? null }
 }
 
@@ -95,6 +96,6 @@ export async function salvarExecucaoCardio(
     sessao_uuid: sessaoUuid,
     ...registro,
   })
-  if (error) console.error('[salvarExecucaoCardio]', error)
+  if (error) logDiagnostic('execucoes/salvar-cardio', error)
   return { error: error?.message ?? null }
 }

@@ -4,9 +4,10 @@ Aplicação web de gestão pessoal de longo prazo, para uso individual. O
 frontend está em produção na Vercel; o repositório usa Next.js 16, React 19,
 TypeScript e Supabase (PostgreSQL, Auth, Storage e RLS).
 
-**Marco publicado: v0.2.0. Próximo lote: acesso e suporte público, ainda local.**
-Cadastro aberto continua desligado até banco, e-mail/Auth, isolamento,
-privacidade e homologação receberem aprovação separada.
+**Marco publicado: v0.2.0. Próximo marco planejado: v1.0.0.** O lote de acesso,
+suporte, isolamento e homologação já está publicado e validado; cadastro público
+continua desligado por decisão operacional. O fechamento da próxima versão está
+em [Plano da v1.0.0](docs/RELEASE_V1.0.0_PLAN.md).
 
 ## Entender o produto e operar o beta
 
@@ -19,11 +20,13 @@ privacidade e homologação receberem aprovação separada.
   decisões de dados e retenção que ainda precisam de aprovação.
 
 - [Release v0.2.0](docs/RELEASE_V0.2.0.md): módulos implementados, limitações,
-  integrações e o que falta testar.
+  integrações e evidências históricas daquele marco.
+- [Handoff para o próximo chat](docs/NEXT_ENGINEER_HANDOFF.md): estado factual,
+  itens que não devem ser refeitos e primeiro ponto de decisão da v1.0.0.
 - [Beta privado](docs/BETA_PRIVADO.md): abertura gradual (três amigos no piloto,
   teto dez), auditoria local de segurança e cuidados com contas/dados.
-- [Manutenção](docs/MANUTENCAO.md): rotina semanal/mensal e triagem. O próximo
-  lote registra bugs/sugestões com protocolo e prints privados; ainda não está em produção.
+- [Manutenção](docs/MANUTENCAO.md): rotina semanal/mensal e triagem. Bugs e
+  sugestões já geram protocolo, histórico e prints privados em produção.
 - [Integrações/variáveis](docs/INTEGRACOES_EXTERNAS.md),
   [retestes manuais](docs/teste.md), [roadmap](docs/ROADMAP.md) e
   [ideias futuras](docs/BACKLOG.md).
@@ -89,9 +92,10 @@ npm run build
 npm run lint
 ```
 
-O lint possui dívida técnica conhecida e é informativo na CI; typecheck e
-build e testes Node são bloqueantes. A suíte usa o test runner do Node; E2E
-autenticado e homologação manual continuam pendentes, não implícitos no build.
+O lint possui dívida técnica conhecida e é informativo na CI; typecheck, build
+e testes Node são bloqueantes. A homologação autenticada da rodada de 2026-09-09
+está concluída; novos testes manuais devem acompanhar regressões ou os gates
+específicos escolhidos para a v1.0.0.
 
 ## Supabase local
 

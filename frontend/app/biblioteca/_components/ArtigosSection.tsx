@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useEffectEvent, useState } from 'react';
 import PainelSimples from '@/components/PainelSimples';
 import type { CampoInfo } from '@/components/PainelDetalheObra';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
@@ -76,8 +76,30 @@ export default function ArtigosSection({
     setCarregando(false);
   }
 
-  useEffect(() => { void carregar(); }, []);
-  useEffect(() => { if (gatilhoAdicionar > 0) { abrirNovo(); if (rascunhoImportacao) setForm((atual) => ({ ...atual, ...rascunhoImportacao })); } }, [gatilhoAdicionar, rascunhoImportacao]);
+  const notificarTotal = useEffectEvent((total: number) => onTotalCarregado?.(total));
+  useEffect(() => {
+    let ativo = true;
+    void listarArtigos().then((resultado) => {
+      if (!ativo) return;
+      if (resultado === null) setErro('Não foi possível carregar os artigos.');
+      else {
+        setArtigos(resultado);
+        notificarTotal(resultado.length);
+      }
+      setCarregando(false);
+    });
+    return () => { ativo = false; };
+  }, []);
+  const [gatilhoAplicado, setGatilhoAplicado] = useState(0);
+  if (gatilhoAplicado !== gatilhoAdicionar) {
+    setGatilhoAplicado(gatilhoAdicionar);
+    if (gatilhoAdicionar > 0) {
+      setEditandoUuid(null);
+      setForm({ ...FORM_VAZIO, ...rascunhoImportacao });
+      setArquivoCapa(null);
+      setModalAberto(true);
+    }
+  }
 
   function abrirNovo() {
     setEditandoUuid(null);

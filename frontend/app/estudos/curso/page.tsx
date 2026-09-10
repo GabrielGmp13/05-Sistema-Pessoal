@@ -38,7 +38,13 @@ export default function CursoListaPage() {
   }
 
   useEffect(() => {
-    carregar()
+    let ativo = true
+    void listarMaterias('curso').then((m) => {
+      if (!ativo) return
+      setCursos(m ?? [])
+      setCarregando(false)
+    })
+    return () => { ativo = false }
   }, [])
 
   const filtrados = useMemo(() => {

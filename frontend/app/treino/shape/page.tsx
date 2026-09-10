@@ -6,6 +6,7 @@ import { createBrowserClient } from '@supabase/ssr'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { dataLocalIso } from '@/lib/date'
 import { otimizarImagem } from '@/lib/image-optimization'
+import { logDiagnostic } from '@/lib/safe-diagnostics'
 import styles from './page.module.css'
 
 interface RegistroShape {
@@ -50,7 +51,7 @@ export default function ShapePage() {
       .order('updated_at', { ascending: false })
 
     if (error) {
-      console.error('[shape recarregar]', error)
+      logDiagnostic('shape/recarregar', error)
       return
     }
     setRegistros(data ?? [])
@@ -110,7 +111,7 @@ export default function ShapePage() {
       fotoPath = `${userId}/${hoje}-${uuid}.${extensaoArquivo(arquivoOtimizado)}`
       const { error: erroUpload } = await sb.storage.from('shape').upload(fotoPath, arquivoOtimizado, { contentType: arquivoOtimizado.type })
       if (erroUpload) {
-        console.error('[upload shape]', erroUpload)
+        logDiagnostic('shape/upload', erroUpload)
         setErro('Não foi possível enviar a foto. Confira o formato e o tamanho do arquivo.')
         setEnviando(false)
         return
@@ -127,10 +128,10 @@ export default function ShapePage() {
     })
 
     if (error) {
-      console.error('[shape salvar]', error)
+      logDiagnostic('shape/salvar', error)
       if (fotoPath) {
         const { error: erroLimpeza } = await sb.storage.from('shape').remove([fotoPath])
-        if (erroLimpeza) console.error('[shape limpar upload]', erroLimpeza)
+        if (erroLimpeza) logDiagnostic('shape/limpar-upload', erroLimpeza)
       }
       setErro('Não foi possível salvar o registro de Shape.')
     } else {
@@ -196,7 +197,7 @@ export default function ShapePage() {
       novoFotoPath = `${userId}/${edicao.data}-${registroEditando.uuid}-${crypto.randomUUID()}.${extensaoArquivo(arquivoOtimizado)}`
       const { error: erroUpload } = await sb.storage.from('shape').upload(novoFotoPath, arquivoOtimizado, { contentType: arquivoOtimizado.type })
       if (erroUpload) {
-        console.error('[shape editar upload]', erroUpload)
+        logDiagnostic('shape/editar-upload', erroUpload)
         setErro('Não foi possível enviar a nova foto.')
         setSalvandoEdicao(false)
         return
@@ -219,7 +220,7 @@ export default function ShapePage() {
       .eq('deleted', false)
 
     if (erroAtualizacao) {
-      console.error('[shape editar]', erroAtualizacao)
+      logDiagnostic('shape/editar', erroAtualizacao)
       if (arquivoEdicao && novoFotoPath) await sb.storage.from('shape').remove([novoFotoPath])
       setErro('Não foi possível salvar as alterações do Shape.')
       setSalvandoEdicao(false)
@@ -228,7 +229,7 @@ export default function ShapePage() {
 
     if (registroEditando.foto_path && registroEditando.foto_path !== novoFotoPath) {
       const { error: erroRemocao } = await sb.storage.from('shape').remove([registroEditando.foto_path])
-      if (erroRemocao) console.error('[shape remover foto anterior]', erroRemocao)
+      if (erroRemocao) logDiagnostic('shape/remover-foto-anterior', erroRemocao)
     }
     setRegistroEditando(null)
     await recarregar(userId)
@@ -244,13 +245,13 @@ export default function ShapePage() {
       .eq('user_id', userId)
       .eq('deleted', false)
     if (erroExclusao) {
-      console.error('[shape excluir]', erroExclusao)
+      logDiagnostic('shape/excluir', erroExclusao)
       setErro('Não foi possível excluir o registro de Shape.')
       return
     }
     if (registroParaExcluir.foto_path) {
       const { error: erroFoto } = await sb.storage.from('shape').remove([registroParaExcluir.foto_path])
-      if (erroFoto) console.error('[shape excluir foto]', erroFoto)
+      if (erroFoto) logDiagnostic('shape/excluir-foto', erroFoto)
     }
     setRegistroEditando(null)
     setRegistroParaExcluir(null)

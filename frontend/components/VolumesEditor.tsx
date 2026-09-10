@@ -30,8 +30,13 @@ export default function VolumesEditor({ mangaUuid }: Props) {
   }
 
   useEffect(() => {
-    carregar();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    let ativo = true;
+    void listarVolumes(mangaUuid).then((res) => {
+      if (!ativo) return;
+      setItens(res ?? []);
+      setCarregando(false);
+    });
+    return () => { ativo = false; };
   }, [mangaUuid]);
 
   async function adicionar() {

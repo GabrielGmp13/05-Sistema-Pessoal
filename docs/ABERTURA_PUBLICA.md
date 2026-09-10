@@ -1,7 +1,13 @@
 # Plano de abertura pública
 
-O site ainda não está aberto. “Código pronto”, “publicado” e “cadastro público”
-são três estados diferentes e devem ser aprovados separadamente.
+> **Posição em 2026-09-09:** o site está publicado e funciona com contas
+> existentes, mas o cadastro público permanece desligado. A v1.0.0 pode ser
+> lançada de forma controlada para amigos sem transformar o serviço em cadastro
+> irrestrito. A decisão e os gates atuais estão em
+> [RELEASE_V1.0.0_PLAN.md](RELEASE_V1.0.0_PLAN.md).
+
+“Código pronto”, “publicado” e “cadastro público” são três estados diferentes e
+devem ser aprovados separadamente.
 
 FAQ significa “perguntas frequentes”: é a página pública `/ajuda`. Sugestão é
 feedback enviado por uma pessoa e, por isso, entra na central autenticada com protocolo.

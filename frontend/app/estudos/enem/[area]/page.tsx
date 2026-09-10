@@ -28,11 +28,14 @@ export default function AreaEnemPage() {
   const areaValida = AREAS_VALIDAS.includes(areaParam)
 
   useEffect(() => {
-    if (!areaValida) { setCarregando(false); return }
+    if (!areaValida) return
+    let ativo = true
     listarMateriasPorAreaEnem(areaParam).then((m) => {
+      if (!ativo) return
       setMaterias(m ?? [])
       setCarregando(false)
     })
+    return () => { ativo = false }
   }, [areaParam, areaValida])
 
   if (!areaValida) {

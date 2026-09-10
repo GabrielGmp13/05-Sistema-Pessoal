@@ -24,7 +24,7 @@ Chaves públicas do Supabase identificam o projeto; não substituem RLS.
 | `GOOGLE_BOOKS_API_KEY` | Chave servidor | Fonte Google Books, não Open Library |
 | `GOOGLE_MAPS_API_KEY` | Chave servidor; conferir billing/quota antes de habilitar | Places opcional |
 | `BRAPI_TOKEN` | Token servidor opcional | Cotações sob demanda |
-| SMTP no Supabase Dashboard | Segredo no provedor/Auth, não no frontend | Convites/recuperação para amigos; pendente |
+| SMTP no Supabase Dashboard | Segredo no provedor/Auth, não no frontend | Envio automático para amigos; alternativa manual privada em planejamento |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Site key pública | Widget CAPTCHA no login, cadastro e recuperação |
 
 O Turnstile está ativo em produção desde 2026-09-07. A chave pública fica
@@ -41,6 +41,15 @@ ainda dependem de cada provedor. Imagens remotas podem revelar IP ao host;
 uploads privados usam Storage. Não habilitar cobrança sem autorização.
 
 ## Google OAuth
+
+### Recuperação manual do piloto (decisão de 2026-09-10)
+
+Não exige comprar domínio. O envio padrão do Supabase é restrito à equipe;
+não garante entrega a amigos, mesmo acionado pelo painel. A alternativa é
+gerar link administrativo de recuperação e entregá-lo privadamente após
+confirmar identidade, sem pedir senhas ou compartilhar acesso à infraestrutura.
+Procedimento e teste ainda pendentes; nada foi executado no Auth remoto.
+Ver [plano operacional e fontes oficiais](EVOLUCAO_ESTUDOS_EDITORES.md#operação-gratuita-recuperação-e-privacidade).
 
 ### Login no Projeto Pessoal
 
@@ -196,6 +205,9 @@ prévia e deduplicação definidas; não existe parser especulativo nesta versã
 
 ## Google Places
 
+- **Decisão da v1.0.0 (2026-09-09):** manter desativado para preservar a
+  operação sem custos. Não cadastrar `GOOGLE_MAPS_API_KEY`, não habilitar a API
+  nem alterar a Vercel. O cadastro manual continua sendo o caminho suportado.
 - Habilitar **Places API (New)** no Google Cloud e configurar
   `GOOGLE_MAPS_API_KEY` no ambiente do servidor. Restrinja a chave à Places API.
 - A busca de `/lugares` passa por uma API Route autenticada; a chave nunca entra

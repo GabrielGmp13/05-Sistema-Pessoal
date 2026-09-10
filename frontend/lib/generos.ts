@@ -1,4 +1,5 @@
 import { createBrowserClient } from '@supabase/ssr'
+import { logDiagnostic } from './safe-diagnostics'
 
 type SB = ReturnType<typeof createBrowserClient>
 
@@ -92,7 +93,7 @@ export async function seedGenerosSeNecessario(sb: SB, userId: string): Promise<v
     .eq('deleted', false)
 
   if (erroContagem) {
-    console.error('[seedGenerosSeNecessario] erro ao contar:', erroContagem)
+    logDiagnostic('generos/contar-seed', erroContagem)
     return
   }
   const nomes = new Set((existentes ?? []).map((item: { nome: string }) => item.nome.trim().toLocaleLowerCase('pt-BR')))
@@ -107,7 +108,7 @@ export async function seedGenerosSeNecessario(sb: SB, userId: string): Promise<v
   }))
 
   const { error } = await sb.from('generos').insert(linhas)
-  if (error) console.error('[seedGenerosSeNecessario] erro ao inserir seed:', error)
+  if (error) logDiagnostic('generos/inserir-seed', error)
 }
 
 export async function getGeneros(sb: SB, userId: string): Promise<Genero[]> {
@@ -119,7 +120,7 @@ export async function getGeneros(sb: SB, userId: string): Promise<Genero[]> {
     .order('nome', { ascending: true })
 
   if (error) {
-    console.error('[getGeneros]', error)
+    logDiagnostic('generos/listar', error)
     return []
   }
   const lista: Genero[] = data ?? []
@@ -135,7 +136,7 @@ export async function criarGenero(
     nome: nome.trim(),
     descricao: descricao.trim() || null,
   })
-  if (error) console.error('[criarGenero]', error)
+  if (error) logDiagnostic('generos/criar', error)
   return { error: error?.message ?? null }
 }
 
@@ -146,7 +147,7 @@ export async function atualizarGenero(
     .from('generos')
     .update({ nome: nome.trim(), descricao: descricao.trim() || null, updated_at: new Date().toISOString() })
     .eq('uuid', uuid)
-  if (error) console.error('[atualizarGenero]', error)
+  if (error) logDiagnostic('generos/atualizar', error)
   return { error: error?.message ?? null }
 }
 
@@ -155,7 +156,7 @@ export async function softDeleteGenero(sb: SB, uuid: string): Promise<{ error: s
     .from('generos')
     .update({ deleted: true, updated_at: new Date().toISOString() })
     .eq('uuid', uuid)
-  if (error) console.error('[softDeleteGenero]', error)
+  if (error) logDiagnostic('generos/excluir', error)
   return { error: error?.message ?? null }
 }
 
@@ -191,7 +192,7 @@ export async function getMapaGenerosDosItens(
     .in(coluna, itemUuids)
 
   if (error) {
-    console.error('[getMapaGenerosDosItens]', error)
+    logDiagnostic('generos/mapa-itens', error)
     return {}
   }
 
@@ -259,7 +260,7 @@ export async function salvarGenerosDoItem(
     .eq('deleted', false)
 
   if (erroBusca) {
-    console.error('[salvarGenerosDoItem] busca', erroBusca)
+    logDiagnostic('generos/salvar-busca', erroBusca)
     return { error: erroBusca.message }
   }
 
@@ -288,7 +289,7 @@ export async function salvarGenerosDoItem(
 
     const { error: erroInsert } = await sb.from(tabela).insert(linhas)
     if (erroInsert) {
-      console.error('[salvarGenerosDoItem] insert', erroInsert)
+      logDiagnostic('generos/salvar-inserir', erroInsert)
       return { error: erroInsert.message }
     }
   }
@@ -301,7 +302,7 @@ export async function salvarGenerosDoItem(
       .in('uuid', uuidsParaRemover)
 
     if (erroDelete) {
-      console.error('[salvarGenerosDoItem] delete', erroDelete)
+      logDiagnostic('generos/salvar-excluir', erroDelete)
       return { error: erroDelete.message }
     }
   }

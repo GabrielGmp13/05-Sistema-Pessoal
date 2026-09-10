@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { isUnauthenticatedPage } from '@/lib/route-access'
+import { logDiagnostic } from '@/lib/safe-diagnostics'
 
 function periodoAtual() {
   const hoje = new Date()
@@ -62,7 +63,7 @@ export function CalendarAutoSync() {
           window.dispatchEvent(new Event('agenda-atualizada'))
         }
       } catch (error) {
-        console.error('Sincronização automática do Google Calendar:', error)
+        logDiagnostic('calendar/sincronizacao-automatica', error)
       } finally {
         sincronizandoRef.current = false
       }

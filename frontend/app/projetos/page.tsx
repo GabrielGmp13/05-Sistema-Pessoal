@@ -37,7 +37,7 @@ const PROJETO_VAZIO = { nome: '', descricao: '', status: 'ativo' as StatusProjet
 
 export default function ProjetosPage() {
   const [projetos, setProjetos] = useState<Projeto[]>([])
-  const [tarefas, setTarefas] = useState<TarefaProjeto[]>([])
+  const [tarefasCarregadas, setTarefas] = useState<TarefaProjeto[]>([])
   const [selecionadoUuid, setSelecionadoUuid] = useState<string | null>(null)
   const [novoProjeto, setNovoProjeto] = useState(PROJETO_VAZIO)
   const [edicao, setEdicao] = useState(PROJETO_VAZIO)
@@ -51,6 +51,17 @@ export default function ProjetosPage() {
     () => projetos.find((projeto) => projeto.uuid === selecionadoUuid) ?? null,
     [projetos, selecionadoUuid],
   )
+  const tarefas = tarefasCarregadas.filter((tarefa) => tarefa.projeto_uuid === selecionadoUuid)
+  const [projetoEmEdicao, setProjetoEmEdicao] = useState(selecionado)
+  if (projetoEmEdicao !== selecionado) {
+    setProjetoEmEdicao(selecionado)
+    setEdicao(selecionado ? {
+      nome: selecionado.nome,
+      descricao: selecionado.descricao ?? '',
+      status: selecionado.status,
+      data_prazo: selecionado.data_prazo ?? '',
+    } : PROJETO_VAZIO)
+  }
 
   const carregarProjetos = useCallback(async (preferirUuid?: string) => {
     const atuais = await listarProjetos()
@@ -77,23 +88,29 @@ export default function ProjetosPage() {
   }, [])
 
   useEffect(() => {
-    void carregarProjetos()
-  }, [carregarProjetos])
+    let ativo = true
+    void listarProjetos().then((atuais) => {
+      if (!ativo) return
+      if (atuais === null) setErro('Não foi possível carregar os projetos.')
+      else {
+        setProjetos(atuais)
+        setSelecionadoUuid(atuais[0]?.uuid ?? null)
+      }
+      setCarregando(false)
+    })
+    return () => { ativo = false }
+  }, [])
 
   useEffect(() => {
-    if (!selecionado) {
-      setTarefas([])
-      setEdicao(PROJETO_VAZIO)
-      return
-    }
-    setEdicao({
-      nome: selecionado.nome,
-      descricao: selecionado.descricao ?? '',
-      status: selecionado.status,
-      data_prazo: selecionado.data_prazo ?? '',
+    if (!selecionadoUuid) return
+    let ativo = true
+    void listarTarefasProjeto(selecionadoUuid).then((atuais) => {
+      if (!ativo) return
+      if (atuais === null) setErro('Não foi possível carregar as tarefas.')
+      else setTarefas(atuais)
     })
-    void carregarTarefas(selecionado.uuid)
-  }, [carregarTarefas, selecionado])
+    return () => { ativo = false }
+  }, [selecionadoUuid])
 
   async function adicionarProjeto(event: React.FormEvent) {
     event.preventDefault()

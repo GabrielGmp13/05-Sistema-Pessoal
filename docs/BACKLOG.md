@@ -20,13 +20,14 @@ Esta seção prevalece sobre fotografias históricas abaixo. Trabalho ativo em
 - [ ] Gate: prova de isolamento com dois participantes, Storage/relações/API e troca de conta.
 - [ ] Gate: ensaiar exportação/exclusão/suspensão, conferir custo/quota e fechar teste manual.
 - [ ] Antes de ampliar: rate limiting por usuário, orçamento de chamadas externas e E2E autenticados.
-- [ ] Hardening incremental de logs legados de Treino/Shape/gêneros/shell;
-      revisar antes de receber dados sensíveis, sem copiar console/HAR bruto.
+- [x] Hardening de logs legados de Treino/Shape/gêneros/shell: em 2026-09-09,
+      passaram a usar o registrador sanitizado com teste de regressão; não
+      copiar console/HAR bruto para relatos.
 - [ ] Futuro: exportação integral e gestão de conta self-service com confirmação segura.
 - [x] Relatar bugs via formulário com prévia/cópia, sem envio externo ou tabela nova (local).
 - [x] Operação semanal/mensal e notas de release documentadas, sem painel admin complexo.
-- [ ] Produção: configurar `GOOGLE_MAPS_API_KEY` na Vercel quando Gabriel quiser
-      ativar a busca visual do Google Places; o cadastro manual já funciona.
+- [ ] Pós-v1: somente reconsiderar `GOOGLE_MAPS_API_KEY`/Google Places se houver
+      autorização para custo e quota; a v1.0.0 permanece no cadastro manual.
 - [ ] Biblioteca: diagnosticar indisponibilidade real de Anime/Mangá nas fontes
       AniList/Jikan/Kitsu. Manter o fallback manual e não ampliar scraping.
 - [ ] OAuth de teste: adicionar `sistemapessoa007@gmail.com` à lista do Google
@@ -263,13 +264,16 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
 
 ## Dívida técnica de código (achados da auditoria de 2026-08)
 
-- [ ] Lint: 51 achados na execução reproduzível de 2026-08-15 (27 erros e
-      24 warnings), concentrados na dívida preexistente de efeitos síncronos,
-      dependências de hooks e imagens sem otimização. Os arquivos tocados no
-      lote Programação/Investimentos/CSV passaram lint direcionado sem erros;
-      restou apenas o `no-img-element` já conhecido do avatar global. Investigar
-      o restante caso a caso; lint continua informativo na CI.
-- [ ] npm 12 bloqueia por padrão os scripts de instalação transitivos de `sharp@0.34.5` e `unrs-resolver@1.12.2`. Instalação, typecheck e build passaram nesse estado; não aprovar scripts cegamente. Reavaliar somente se uma plataforma limpa demonstrar falha funcional (especialmente otimização de imagens ou resolução nativa).
+- [ ] Lint: após duas rodadas locais, a execução completa de 2026-09-10 tem 8 erros e 27 avisos,
+      sobretudo `react-hooks/set-state-in-effect`, dependências de hooks e
+      `no-img-element`. Os termos adicionados para a v1.0.0 não trouxeram
+      achados; a dívida anterior permanece a tratar. O lint segue informativo
+      na CI por decisão de processo.
+- [ ] npm 12 bloqueia por padrão o pós-script transitivo de
+      `unrs-resolver@1.12.2`. A instalação limpa, typecheck, lint e build
+      passaram nesse estado; não aprovar scripts cegamente. Reavaliar somente
+      se uma plataforma limpa demonstrar falha funcional, especialmente na
+      resolução nativa.
 - [ ] `@types/node` permanece na linha 20, herdada do setup do Next, enquanto o runtime é Node 24. Typecheck e build passam e o código não depende de APIs exclusivas da major 24; alinhar os tipos apenas numa atualização deliberada, sem misturar com feature.
 - [ ] Hardening do banco, sempre em migrations incrementais separadas: revisar o `GRANT ALL` atual de `authenticated` e a configuração `SECURITY DEFINER`/`search_path` de `public.rls_auto_enable()`. Policies de `redacoes`/`exercicios`, cascade e domínio de `materias` foram corrigidos em `20260815000200`; a baseline permanece histórica e não deve ser editada.
 - [x] `materias.user_id` alinhada com `ON DELETE CASCADE` pela migration incremental `20260815000200`.

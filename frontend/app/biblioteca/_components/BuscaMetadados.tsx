@@ -26,14 +26,20 @@ export default function BuscaMetadados({ fonte, termo, onSelect, formatos, relac
   const [mensagem, setMensagem] = useState('');
   const [buscando, setBuscando] = useState(false);
   const termosSelecionados = useRef(new Set<string>());
+  const consultaAtual = JSON.stringify([fonte, termo.trim(), formatos, relacoes]);
+  const [consultaExibida, setConsultaExibida] = useState(consultaAtual);
+
+  // Um resultado anterior nunca pertence ao novo termo/fonte/filtro.
+  if (consultaExibida !== consultaAtual) {
+    setConsultaExibida(consultaAtual);
+    setResultados([]);
+    setMensagem('');
+    setBuscando(false);
+  }
 
   useEffect(() => {
     const consulta = termo.trim();
-    if (consulta.length < 2) {
-      setResultados([]);
-      setMensagem('');
-      return;
-    }
+    if (consulta.length < 2) return;
 
     if (termosSelecionados.current.delete(consulta)) return;
 
@@ -44,13 +50,14 @@ export default function BuscaMetadados({ fonte, termo, onSelect, formatos, relac
       try {
         const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(12_000)]);
         const resposta = await buscarMetadados(fonte, consulta, signal);
+        if (controller.signal.aborted) return;
         const resultadosFiltrados = resposta.resultados.filter((resultado) =>
           (!formatos || formatos.includes(resultado.formato ?? '')) &&
           (!relacoes || relacoes.includes(resultado.tipoRelacao ?? ''))
         );
         setResultados(resultadosFiltrados);
         setMensagem(resposta.mensagem ?? (resultadosFiltrados.length === 0 ? 'Nenhum resultado compatível encontrado. Continue preenchendo manualmente.' : ''));
-      } catch (error) {
+      } catch {
         if (controller.signal.aborted) return;
         setResultados([]);
         setMensagem('Busca automática indisponível. Continue preenchendo manualmente.');

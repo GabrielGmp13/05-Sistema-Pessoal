@@ -29,8 +29,13 @@ export default function TemporadasEditor({ serieUuid }: Props) {
   }
 
   useEffect(() => {
-    carregar();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    let ativo = true;
+    void listarTemporadas(serieUuid).then((res) => {
+      if (!ativo) return;
+      setItens(res ?? []);
+      setCarregando(false);
+    });
+    return () => { ativo = false; };
   }, [serieUuid]);
 
   async function adicionar() {

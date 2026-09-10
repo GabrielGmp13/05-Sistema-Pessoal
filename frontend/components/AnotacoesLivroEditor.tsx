@@ -30,8 +30,13 @@ export default function AnotacoesLivroEditor({ livroUuid }: Props) {
   }
 
   useEffect(() => {
-    carregar();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    let ativo = true;
+    void listarAnotacoesLivro(livroUuid).then((res) => {
+      if (!ativo) return;
+      setItens(res ?? []);
+      setCarregando(false);
+    });
+    return () => { ativo = false; };
   }, [livroUuid]);
 
   async function adicionar() {

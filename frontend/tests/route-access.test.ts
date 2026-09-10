@@ -3,7 +3,7 @@ import test from 'node:test'
 import { loginDestination, unauthenticatedAction } from '../lib/route-access.ts'
 
 test('somente rotas de autenticação são públicas; APIs retornam 401 em vez de HTML', () => {
-  for (const path of ['/login', '/recuperar-senha', '/nova-senha', '/auth/confirm', '/auth/erro', '/ajuda', '/privacidade']) {
+  for (const path of ['/login', '/recuperar-senha', '/nova-senha', '/auth/confirm', '/auth/erro', '/ajuda', '/privacidade', '/termos']) {
     assert.equal(unauthenticatedAction(path), 'allow', path)
   }
   for (const path of ['/', '/biblioteca', '/configuracoes', '/login-admin', '/login/segredo', '/api-falso']) {

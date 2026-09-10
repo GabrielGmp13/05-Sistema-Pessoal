@@ -9,6 +9,7 @@ import { createPortal } from 'react-dom'
 
 import { getSession, getSignedUrl, sb } from '@/lib/supabase'
 import { isUnauthenticatedPage } from '@/lib/route-access'
+import { logDiagnostic } from '@/lib/safe-diagnostics'
 import { cn } from '@/lib/utils'
 import { ThemeToggle } from './ThemeToggle'
 import { SeasonalDecor } from './SeasonalDecor'
@@ -112,7 +113,7 @@ export function GlobalNav() {
           backgroundUrl: backgroundSigned || meta?.app_background_url || meta?.background_url || null,
         })
       } catch (error) {
-        console.error('Erro ao carregar perfil compacto da Biblioteca:', error)
+        logDiagnostic('navegacao/carregar-perfil-compacto', error)
       }
     }
     void carregarPerfil()
@@ -254,7 +255,7 @@ export function GlobalNav() {
     try {
       const { error } = await sb.auth.signOut()
       if (error) {
-        console.error('Erro ao sair:', error)
+        logDiagnostic('navegacao/sair', error)
         return
       }
       router.replace('/login')

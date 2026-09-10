@@ -6,6 +6,7 @@ import type { FonteMetadados, ResultadoMetadados } from '@/lib/biblioteca-metada
 import { extrairYoutubeId } from '@/lib/videos';
 import { extrairMetadadosArtigoHtml } from '@/lib/article-metadata';
 import { getApiUser } from '@/lib/server/supabase';
+import { logDiagnostic } from '@/lib/safe-diagnostics';
 
 const FONTES: FonteMetadados[] = [
   'youtube',
@@ -107,8 +108,8 @@ async function jsonExterno(url: string): Promise<unknown> {
         'User-Agent': 'Sistema-Pessoal/2.0',
       },
     });
-  } catch {
-    console.error('[biblioteca/metadados] Falha ao acessar serviço externo:', new URL(url).hostname);
+  } catch (error) {
+    logDiagnostic('biblioteca/metadados-servico-externo', error);
     throw new Error('Serviço externo temporariamente indisponível.');
   }
   if (!response.ok) throw new Error(`Serviço externo respondeu com status ${response.status}`);
@@ -129,8 +130,8 @@ async function jsonExternoPost(url: string, body: unknown): Promise<unknown> {
       },
       body: JSON.stringify(body),
     });
-  } catch {
-    console.error('[biblioteca/metadados] Falha ao acessar serviço externo:', new URL(url).hostname);
+  } catch (error) {
+    logDiagnostic('biblioteca/metadados-servico-externo', error);
     throw new Error('Serviço externo temporariamente indisponível.');
   }
   if (!response.ok) throw new Error(`Serviço externo respondeu com status ${response.status}`);
@@ -369,21 +370,19 @@ async function buscarGoogleLivros(q: string): Promise<ResultadoMetadados[] | nul
 }
 
 async function buscarJikan(q: string, manga: boolean): Promise<ResultadoMetadados[]> {
-  if (!manga) {
-    const [anilist, kitsu] = await Promise.allSettled([buscarAniList(q, false), buscarKitsu(q)]);
-    const combinados = [
-      ...(anilist.status === 'fulfilled' ? anilist.value : []),
-      ...(kitsu.status === 'fulfilled' ? kitsu.value : []),
-    ];
-    const vistos = new Set<string>();
-    const unicos = combinados.filter((item) => {
-      const chave = item.anilistId ? `anilist:${item.anilistId}` : `${item.titulo.toLocaleLowerCase('pt-BR')}|${item.ano ?? ''}`;
-      if (vistos.has(chave)) return false;
-      vistos.add(chave);
-      return true;
-    });
-    if (unicos.length > 0) return unicos.slice(0, 30);
-  }
+  const [anilist, kitsu] = await Promise.allSettled([buscarAniList(q, manga), buscarKitsu(q, manga)]);
+  const combinados = [
+    ...(anilist.status === 'fulfilled' ? anilist.value : []),
+    ...(kitsu.status === 'fulfilled' ? kitsu.value : []),
+  ];
+  const vistos = new Set<string>();
+  const unicos = combinados.filter((item) => {
+    const chave = item.anilistId ? `anilist:${item.anilistId}` : `${item.titulo.toLocaleLowerCase('pt-BR')}|${item.ano ?? ''}`;
+    if (vistos.has(chave)) return false;
+    vistos.add(chave);
+    return true;
+  });
+  if (unicos.length > 0) return unicos.slice(0, 30);
   try {
     const resultadosAniList = await buscarAniList(q, manga);
     if (resultadosAniList.length > 0) return resultadosAniList;
@@ -421,7 +420,7 @@ async function buscarJikan(q: string, manga: boolean): Promise<ResultadoMetadado
   try {
     data = (await jsonExterno(`https://api.jikan.moe/v4/${tipo}?${params}`)) as typeof data;
   } catch {
-    return buscarAniList(q, manga);
+    return buscarKitsu(q, manga);
   }
 
   const resultados = (data.data ?? []).map((item) => ({
@@ -519,14 +518,15 @@ async function buscarAniList(q: string, manga: boolean): Promise<ResultadoMetada
   });
 }
 
-async function buscarKitsu(q: string): Promise<ResultadoMetadados[]> {
+async function buscarKitsu(q: string, manga: boolean): Promise<ResultadoMetadados[]> {
+  const tipo = manga ? 'manga' : 'anime';
   const params = new URLSearchParams({ 'filter[text]': q, 'page[limit]': '15', include: 'mappings' });
-  const resposta = (await jsonExterno(`https://kitsu.io/api/edge/anime?${params}`)) as {
+  const resposta = (await jsonExterno(`https://kitsu.io/api/edge/${tipo}?${params}`)) as {
     data?: Array<{
       id: string;
       attributes?: {
         canonicalTitle?: string; titles?: Record<string, string>; synopsis?: string;
-        startDate?: string; endDate?: string; subtype?: string; episodeCount?: number;
+        startDate?: string; endDate?: string; subtype?: string; status?: string; episodeCount?: number;
         episodeLength?: number; posterImage?: { large?: string; medium?: string };
       };
       relationships?: { mappings?: { data?: Array<{ id: string }> } };
@@ -536,8 +536,8 @@ async function buscarKitsu(q: string): Promise<ResultadoMetadados[]> {
   const mappings = new Map((resposta.included ?? []).map((item) => [item.id, item.attributes]));
   return (resposta.data ?? []).map((item) => {
     const externos = (item.relationships?.mappings?.data ?? []).map((ref) => mappings.get(ref.id));
-    const anilist = externos.find((valor) => valor?.externalSite === 'anilist/anime')?.externalId;
-    const mal = externos.find((valor) => valor?.externalSite === 'myanimelist/anime')?.externalId;
+    const anilist = externos.find((valor) => valor?.externalSite === `anilist/${tipo}`)?.externalId;
+    const mal = externos.find((valor) => valor?.externalSite === `myanimelist/${tipo}`)?.externalId;
     const attrs = item.attributes;
     return {
       id: `kitsu:${item.id}`,
@@ -547,12 +547,13 @@ async function buscarKitsu(q: string): Promise<ResultadoMetadados[]> {
       capaUrl: attrs?.posterImage?.large ?? attrs?.posterImage?.medium,
       ano: ano(attrs?.startDate),
       anoTermino: ano(attrs?.endDate),
-      duracaoMinutos: attrs?.episodeLength,
-      episodios: attrs?.episodeCount,
+      duracaoMinutos: manga ? undefined : attrs?.episodeLength,
+      episodios: manga ? undefined : attrs?.episodeCount,
       formato: attrs?.subtype?.toUpperCase().replace(/-/g, '_'),
       anilistId: anilist,
       malId: mal,
-      linkOficial: anilist ? `https://anilist.co/anime/${anilist}` : `https://kitsu.io/anime/${item.id}`,
+      linkOficial: anilist ? `https://anilist.co/${tipo}/${anilist}` : `https://kitsu.io/${tipo}/${item.id}`,
+      statusPublicacao: manga ? statusPublicacaoJikan(attrs?.status) : undefined,
       siteOrigem: 'Kitsu',
     } satisfies ResultadoMetadados;
   });

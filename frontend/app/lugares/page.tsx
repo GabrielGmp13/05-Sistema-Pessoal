@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { PrivateMediaField } from '@/components/PrivateMediaField'
 import { deletarLugar, linkMapa, listarLugares, Lugar, salvarLugar } from '@/lib/lugares'
 import { apagarMidiaPessoal, persistirComMidia, urlMidiaPessoal } from '@/lib/midias-pessoais'
+import { GOOGLE_PLACES_HABILITADO } from '@/lib/integracoes-disponibilidade'
 
 const FORM_VAZIO = {
   nome: '', tipo: '', cidade: '', pais: '', latitude: '', longitude: '', endereco: '', google_place_id: '', data_inicio: '',
@@ -77,6 +78,7 @@ export default function LugaresPage() {
   }
 
   async function pesquisarGoogle() {
+    if (!GOOGLE_PLACES_HABILITADO) return
     if (buscaGoogle.trim().length < 2) return
     setBuscandoGoogle(true)
     setErro(null)
@@ -139,14 +141,14 @@ export default function LugaresPage() {
 
   return (
     <main className="min-h-[calc(100vh-3.5rem)] bg-background text-foreground"><div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
-      <header><h1 className="text-3xl font-semibold">Lugares</h1><p className="mt-2 text-muted-foreground">Pesquise no Google Places ou cadastre manualmente destinos visitados e desejados.</p></header>
+      <header><h1 className="text-3xl font-semibold">Lugares</h1><p className="mt-2 text-muted-foreground">Cadastre destinos visitados e desejados. A busca Google Places está desativada neste piloto gratuito.</p></header>
       {erro ? <p role="alert" className="mt-5 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm">{erro}</p> : null}
 
-      <section className="mt-8 rounded-xl border border-border bg-card p-4 text-card-foreground shadow-sm">
+      {GOOGLE_PLACES_HABILITADO ? <section className="mt-8 rounded-xl border border-border bg-card p-4 text-card-foreground shadow-sm">
         <p className="font-mono text-xs uppercase text-muted-foreground">Google Places</p><h2 className="mt-1 text-lg font-semibold">Encontrar um lugar</h2>
         <div className="mt-3 flex gap-2"><Input value={buscaGoogle} onChange={(event) => setBuscaGoogle(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter') void pesquisarGoogle() }} placeholder="Restaurante, parque, cidade..." /><Button type="button" onClick={() => void pesquisarGoogle()} disabled={buscandoGoogle || buscaGoogle.trim().length < 2}>{buscandoGoogle ? <Loader2 className="animate-spin" /> : <Search />}Pesquisar</Button></div>
         {resultadosGoogle.length > 0 ? <ul className="mt-4 grid gap-2 sm:grid-cols-2">{resultadosGoogle.map((place) => <li key={place.id}><button type="button" onClick={() => selecionarPlace(place)} className="flex h-full w-full items-start gap-3 rounded-lg border border-border bg-background p-3 text-left transition-colors hover:bg-muted"><MapPin className="mt-0.5 size-4 shrink-0 text-primary" /><span className="min-w-0"><strong className="block truncate text-sm">{place.nome}</strong><span className="mt-1 line-clamp-2 text-xs text-muted-foreground">{place.endereco}</span></span></button></li>)}</ul> : null}
-      </section>
+      </section> : null}
 
       <section className="mt-8 border-t border-border pt-5"><div className="flex items-center justify-between gap-3"><div><p className="font-mono text-xs uppercase text-muted-foreground">Cadastro manual</p><h2 className="mt-1 text-xl font-semibold">{editando ? 'Editar lugar' : 'Novo lugar'}</h2></div>{editando ? <Button variant="outline" onClick={limpar}>Cancelar edição</Button> : null}</div>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><Campo label="Nome *"><Input value={form.nome} onChange={(e) => atualizar('nome', e.target.value)} /></Campo><Campo label="Tipo"><Input placeholder="Viagem, restaurante..." value={form.tipo} onChange={(e) => atualizar('tipo', e.target.value)} /></Campo><Campo label="Cidade"><Input value={form.cidade} onChange={(e) => atualizar('cidade', e.target.value)} /></Campo><Campo label="País"><Input value={form.pais} onChange={(e) => atualizar('pais', e.target.value)} /></Campo><Campo label="Endereço"><Input value={form.endereco} onChange={(e) => atualizar('endereco', e.target.value)} /></Campo><Campo label="Data inicial"><Input type="date" value={form.data_inicio} onChange={(e) => atualizar('data_inicio', e.target.value)} /></Campo><Campo label="Data final"><Input type="date" value={form.data_fim} onChange={(e) => atualizar('data_fim', e.target.value)} /></Campo><Campo label="Custo"><Input type="number" min="0" step="0.01" value={form.custo} onChange={(e) => atualizar('custo', e.target.value)} /></Campo><Campo label="Nota (0-10)"><Input type="number" min="0" max="10" step="0.5" value={form.nota} onChange={(e) => atualizar('nota', e.target.value)} /></Campo><Campo label="URL da capa"><Input type="url" value={form.capa_url} onChange={(e) => atualizar('capa_url', e.target.value)} /></Campo><label className="flex h-8 items-center gap-2 self-end text-sm"><input type="checkbox" checked={form.favorito} onChange={(e) => atualizar('favorito', e.target.checked)} className="size-4 accent-current" /><Star className="size-4" /> Favorito</label></div>

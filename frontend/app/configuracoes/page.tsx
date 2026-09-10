@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Image, Loader2, Save, UserRound } from 'lucide-react'
+import { Image as ImageIcon, Loader2, Save, UserRound } from 'lucide-react'
 import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
@@ -230,7 +230,7 @@ export default function ConfiguracoesPage() {
                 </div>
               </div>
               <p className="flex items-start gap-2 text-xs leading-relaxed text-muted-foreground">
-                <Image className="mt-0.5 size-3.5 shrink-0" /> Envie uma imagem privada ou use URL externa. O upload privado tem prioridade e usa link assinado.
+                <ImageIcon aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" /> Envie uma imagem privada ou use URL externa. O upload privado tem prioridade e usa link assinado.
               </p>
               <p className="flex items-start gap-2 text-xs leading-relaxed text-muted-foreground">
                 <UserRound className="mt-0.5 size-3.5 shrink-0" /> {email}

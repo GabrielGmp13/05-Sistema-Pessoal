@@ -35,9 +35,14 @@ export default function ElencoEditor({ tipoObra, obraUuid }: Props) {
   }
 
   useEffect(() => {
-    carregar();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [obraUuid]);
+    let ativo = true;
+    void listarElenco(tipoObra, obraUuid).then((res) => {
+      if (!ativo) return;
+      setItens(res ?? []);
+      setCarregando(false);
+    });
+    return () => { ativo = false; };
+  }, [tipoObra, obraUuid]);
 
   async function adicionar() {
     if (!novo.ator.trim()) return;

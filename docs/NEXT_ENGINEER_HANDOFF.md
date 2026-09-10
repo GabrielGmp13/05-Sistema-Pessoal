@@ -1,100 +1,91 @@
-# Handoff de engenharia — acesso e suporte público
+# Handoff — fechamento da versão 1.0.0
 
-Atualizado em 2026-09-07. Leia `AGENTS.md`, `AI_CONTEXT.md`, `TASKS_NOW.md` e o
-pedido vigente antes de editar. Decisões e schema devem ser conferidos quando
-a tarefa tocar esses contratos. Toda comunicação em português.
+Atualizado em 2026-09-10. Este é o documento curto para iniciar o próximo chat.
+Leia antes `AGENTS.md` e `AI_CONTEXT.md`; depois use `TASKS_NOW.md` e
+`RELEASE_V1.0.0_PLAN.md`. Comunicação e documentação são em português.
 
-## Estado e autoridade
+## Estado confirmado
 
-> Atualização de 2026-09-07: DEC-075/076/077 superam a direção privada descrita
-> abaixo. Cadastro/recuperação, suporte com protocolos/prints e login Google
-> foram publicados pelo commit `118e487`. A migration de suporte está em
-> produção. Cadastro público e SMTP/Resend continuam bloqueados; CAPTCHA já
-> foi configurado e ativado após smoke.
+- Novos requisitos e limites: `EVOLUCAO_ESTUDOS_EDITORES.md`. Próxima ação:
+  restante do lint; depois recuperação manual privada e aceite dos termos.
+  Nenhuma expansão de ENEM/PDF/matérias está implementada nesta rodada.
+- Repositório: `C:\Gabriel Oliveira\05-Sistema-Pessoal`.
+- Aplicação única: `frontend/`, Next.js 16.3.3 + React 19 + TypeScript.
+- Produção: `https://expansiondominionpersonaledition.vercel.app`.
+- Versão publicada no manifesto: **0.2.0**. A **1.0.0 ainda é planejada**; não
+  alterar o número antes de os gates serem aprovados.
+- Último commit documentado: `4467a06`; `main` enviada ao GitHub, CI aprovada e
+  worktree limpa ao encerrar a homologação.
+- Banco de produção: 71 tabelas, 7 buckets privados e 27 migrations aplicadas
+  até `20260908000100_treino_integridade_por_usuario.sql`.
+- Validação local em 2026-09-10: 103/103 testes Node, typecheck e build de 48
+  páginas aprovados sobre a instalação limpa de 2026-09-09. Reset local e
+  22/22 testes SQL seguem como evidência da última recertificação de banco.
+  O lint completo caiu de 25 para 8 erros
+  e 27 avisos; não publicar a v1.0.0 sem resolver ou aceitar
+  formalmente essa dívida.
+- Auditoria local de dependências: Next.js/`eslint-config-next` 16.3.3,
+  `sharp` 0.35.4 e `baseline-browser-mapping` 2.11.21; `npm audit --omit=dev`
+  retornou 0 vulnerabilidades. Nada foi publicado.
+- Homologação funcional encerrada em `teste.md`; toda massa `TESTE FINAL` foi
+  removida. Contas, integrações Google e agenda real foram preservadas.
 
-- Repositório: `C:\Gabriel Oliveira\05-Sistema-Pessoal`, aplicação em `frontend/`.
-- Lote de acesso/suporte publicado em `main` em 2026-09-07. Login, FAQ,
-  recuperação, cabeçalhos e 401 da API sem sessão passaram no smoke. Login
-  Google concluiu o retorno autenticado e vinculou a identidade à conta já
-  existente, sem duplicata. Suporte criou protocolo e histórico em produção;
-  print e isolamento básico entre duas contas passaram; a matriz completa de
-  módulos continua pendente.
-- A migration `20260905000100_suporte_publico.sql` foi aplicada e validada em
-  produção em 2026-09-06.
-- O usuário autorizou e o lote foi commitado/pushado. Isso não autoriza novas
-  alterações remotas, contratação de e-mail, custo ou abertura pública.
-- Beta de até dez pessoas já autorizado conceitualmente pela DEC-069; piloto
-  proposto de até três. Convites bloqueados até os gates em `BETA_PRIVADO.md`.
+## O que já está pronto
 
-## Bloco implementado
+- Auth por e-mail/senha, confirmação, recuperação e login Google.
+- CAPTCHA Turnstile ativo; signup público continua fechado no Supabase e na UI.
+- Termos de uso em `/termos`: a conta autenticada sem aceite da versão vigente
+  só acessa essa página; páginas redirecionam e APIs retornam 403 até aceitar.
+- RLS, Storage privado, FKs compostas no Treino e segunda camada de escopo nas
+  rotas privilegiadas.
+- Bugs e sugestões com protocolo, histórico e prints privados; operação pelo
+  Supabase, sem painel admin público.
+- Exportação JSON e procedimento local ensaiado de exclusão de conta.
+- Google Calendar bilateral básico e YouTube separados por usuário/serviço.
+- Otimização de uploads para WebP apenas quando o resultado é menor.
+- Coluna pessoal fixa desde 1024 px; abaixo disso, menu de três linhas.
 
-- `frontend/app/configuracoes/BugReportForm.tsx` e `lib/bug-report.ts`: relato
-  guiado, prévia editável e copiar; sem fetch, banco, captura ou envio. Integração
-  em `configuracoes/page.tsx`; versão vem do `package.json`, agora 0.2.0.
-- `proxy.ts` / `lib/route-access.ts`: login público exato, JSON 401 em APIs,
-  redirect sem query e preservação de cookies de Auth.
-- `lib/safe-diagnostics.ts`, helper Supabase e rotas Google/Places: log por
-  operação/código/status, sem message/details/hint ou paths. Callers legados
-  fora desse helper ainda precisam de revisão, explicitados na auditoria.
-- `lib/google-service.ts`, `lib/server/google.ts`, connect/callback: contexto
-  OAuth vinculado ao usuário inicial; não herda refresh token de outra conta.
-- CI passou a executar `npm test` como bloqueante. Sem dependências novas.
+## Decisão de lançamento confirmada
 
-## Documentação e testes
+A v1.0.0 será um piloto controlado para uso pessoal do Gabriel e amigos nos
+primeiros meses. Signup público continua fechado; contas são liberadas
+nominalmente e OAuth permanece limitado a testadores autorizados. A decisão
+não autorizou nenhuma mudança remota em Auth, OAuth ou Vercel.
 
-- Produto/release/resultados finais: `docs/RELEASE_V0.2.0.md`.
-- Gates, auditoria local, privacidade e exclusão: `docs/BETA_PRIVADO.md`.
-- Rotina, triagem privada e publicação: `docs/MANUTENCAO.md`.
-- APIs/variáveis: `docs/INTEGRACOES_EXTERNAS.md`.
-- Tarefas antigas preservadas integralmente em
-  `docs/archive/TASKS_HISTORY_2026-08.md`. Não tratar fotografias antigas de
-  “nenhum bloqueio” como estado atual. Pendências vigentes em `TASKS_NOW.md`.
-- Smoke visual local concluído no computador e em viewport de celular:
-  Configurações e o formulário de relato abriram, a prévia editável foi gerada
-  com a versão 0.2.0 e nenhum dado foi enviado. Uma falha sanitizada e
-  transitória de Agenda apareceu na primeira carga e a linha do tempo carregou
-  depois. Google local permanece sem variáveis server-side. Retestes reais de
-  módulos, duas contas, integrações e produção seguem manuais.
+## Pendências reais para a 1.0
 
-## Próximo bloco (se autorizado)
+- Validar em produção Anime/Mangá com Kitsu, o primeiro aceite dos termos,
+  ENEM manual completo e touch em celular físico. Google Places está fora da
+  v1.0.0 por decisão de custo zero e o cadastro manual permanece.
+- Se cadastro aberto: fechar SMTP/remetente, URLs/templates/rate limits, OAuth
+  publicado/verificado e signup/CAPTCHA/recuperação fora da equipe.
+- Revisar privacidade/LGPD, retenção de chamados/prints e incidentes.
+- Fazer smoke publicado da CSP/headers — o smoke local de runtime passou —,
+  inclusive integrações e imagens externas.
+- Congelar escopo, validar, mudar `frontend/package.json` para `1.0.0`, criar
+  notas e publicar somente com autorização explícita.
 
-Publicar o frontend da exportação; `20260907000100` já passou reset completo,
-21 testes SQL, aplicação autorizada e dry-run final vazio. A ferramenta local
-de exclusão está implementada, mas ainda não foi ensaiada. Preservar cadastro
-público fechado e concluir recuperação de senha e a matriz completa de duas
-contas. SMTP próprio foi adiado enquanto Gabriel mantiver o projeto sem domínio
-pago; nunca adicionar participantes à equipe administradora nem compartilhar
-senha.
+## Não refazer
 
-Antes de abrir: testar duas contas descartáveis e dados cruzados, Storage,
-Google por usuário/serviço, expiração/troca de conta, exportação/exclusão e
-checklist `teste.md`. Não apagar a conta real do Gabriel como teste.
+- Não repetir a limpeza nem apagar contas/dados reais.
+- Não reaplicar migrations ou editar baselines.
+- Não recriar painel administrativo para suporte.
+- Não substituir Next.js/Supabase/Vercel nem a stack mista de CSS.
+- Não reabrir o breakpoint de 1024 px sem evidência nova.
+- Não colocar senhas, JSON OAuth, chaves, dumps ou relatórios privados no Git.
 
-## Comando de retomada das validações
+## Validação-base
 
-Executar sequencialmente, no PowerShell, preservando alterações locais:
+Em `frontend/`: `npm ci`, `npm test`, `npm run typecheck`, `npm run build` e
+`npm run lint`. Typecheck/test/build são bloqueantes; lint é informativo. Banco
+local: reset e 22 scripts SQL quando houver mudança ou recertificação deliberada.
 
-```powershell
-Set-Location 'C:\Gabriel Oliveira\05-Sistema-Pessoal\frontend'
-npm run typecheck
-npm test
-npm run build
-npm run lint
-Set-Location 'C:\Gabriel Oliveira\05-Sistema-Pessoal'
-git diff --check
-git status --short
-```
+## Prompt para o próximo chat
 
-Typecheck/test/build bloqueiam; lint tem dívida preexistente. Nunca registrar
-uma execução interrompida como aprovada. Conferir diff/stage e segredos antes
-de pedir publicação. Não repetir migrations sem necessidade/dry-run/permissão.
-
-## Prompt exato para continuar
-
-“Continue a preparação v0.2.0 no repositório Sistema Pessoal. Leia AGENTS.md,
-docs/NEXT_ENGINEER_HANDOFF.md, docs/TASKS_NOW.md e docs/RELEASE_V0.2.0.md.
-Confira git status e os resultados registrados antes de repetir trabalho.
-Finalize somente validações/revisões pendentes do lote local. Depois prepare
-o bloco separado de convite e recuperação de senha com Supabase Auth,
-preservando cadastro público fechado. Não altere Supabase remoto, contrate
-serviço, envie convites nem faça commit/push sem autorização explícita.”
+> Vamos concluir a versão 1.0.0 do Sistema Pessoal. Leia `AGENTS.md`,
+> `docs/AI_CONTEXT.md`, `docs/NEXT_ENGINEER_HANDOFF.md`,
+> `docs/TASKS_NOW.md` e `docs/RELEASE_V1.0.0_PLAN.md`. Não repita trabalhos já
+> homologados em `docs/teste.md`. A 1.0 será um piloto para uso pessoal e amigos,
+> com signup público fechado; congele o escopo e feche somente os gates desse
+> lançamento controlado. Não altere banco remoto, Auth/OAuth, Vercel, versão,
+> commit ou push sem minha autorização explícita para a etapa exata.

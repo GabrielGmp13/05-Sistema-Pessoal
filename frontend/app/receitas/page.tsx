@@ -103,14 +103,34 @@ export default function ReceitasPage() {
     setCarregando(false)
   }, [])
 
-  useEffect(() => { void carregar() }, [carregar])
-
   useEffect(() => {
-    if (criando) return
-    setForm(selecionada ? paraForm(selecionada) : FORM_VAZIO)
-    setArquivoFoto(null)
-    setRemoverFoto(false)
-  }, [criando, selecionada])
+    let ativo = true
+    void listarReceitas().then(async (atuais) => {
+      if (!ativo) return
+      if (atuais === null) {
+        setErro('Não foi possível carregar as receitas.')
+        setCarregando(false)
+        return
+      }
+      const assinadas = await Promise.all(atuais.filter((item) => item.foto_path).map(async (item) => [item.uuid, await urlMidiaPessoal(item.foto_path!)] as const))
+      if (!ativo) return
+      setReceitas(atuais)
+      setUrlsPrivadas(Object.fromEntries(assinadas.filter((item): item is readonly [string, string] => Boolean(item[1]))))
+      setSelecionadaUuid(atuais[0]?.uuid ?? null)
+      setCarregando(false)
+    })
+    return () => { ativo = false }
+  }, [])
+
+  const [receitaEmEdicao, setReceitaEmEdicao] = useState(selecionada)
+  if (receitaEmEdicao !== selecionada) {
+    setReceitaEmEdicao(selecionada)
+    if (!criando) {
+      setForm(selecionada ? paraForm(selecionada) : FORM_VAZIO)
+      setArquivoFoto(null)
+      setRemoverFoto(false)
+    }
+  }
 
   function atualizar<K extends keyof ReceitaForm>(campo: K, valor: ReceitaForm[K]) {
     setForm((atual) => ({ ...atual, [campo]: valor }))

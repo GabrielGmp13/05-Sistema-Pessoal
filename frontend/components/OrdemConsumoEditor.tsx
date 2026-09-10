@@ -40,8 +40,19 @@ export default function OrdemConsumoEditor({ animeUuid }: Props) {
   }
 
   useEffect(() => {
-    carregar();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    let ativo = true;
+    void Promise.all([
+      listarOrdemConsumo(animeUuid),
+      listarTemporadasAnime(animeUuid),
+      listarComplementosDoAnime(animeUuid),
+    ]).then(([ordemRes, temporadasRes, complementosRes]) => {
+      if (!ativo) return;
+      setItens(ordemRes ?? []);
+      setTemporadas(temporadasRes ?? []);
+      setComplementos(complementosRes ?? []);
+      setCarregando(false);
+    });
+    return () => { ativo = false; };
   }, [animeUuid]);
 
   const opcoesReferencia =

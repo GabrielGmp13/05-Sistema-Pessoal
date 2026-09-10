@@ -3,6 +3,14 @@
 > A direção foi ampliada em 2026-09-05 pela DEC-075. Este checklist continua
 > útil como primeiro estágio fechado; a abertura vigente está em
 > [ABERTURA_PUBLICA.md](ABERTURA_PUBLICA.md).
+>
+> **Atualização de 2026-09-09:** convite/recuperação, suporte, duas contas,
+> isolamento, Storage e homologação foram implementados e testados depois da
+> fotografia de 2026-08-31 abaixo. Cadastro público continua desligado, mas um
+> lançamento controlado para amigos não depende de SMTP próprio se as contas
+> forem administradas conscientemente. O estado vigente está em
+> [RELEASE_V1.0.0_PLAN.md](RELEASE_V1.0.0_PLAN.md); os checkboxes antigos são
+> evidência histórica, não a fila atual.
 
 Este documento descreve uma homologação privada com no máximo dez pessoas.
 Ela não transforma o Sistema Pessoal em produto público, não cria cadastro
@@ -178,13 +186,14 @@ não terão o novo cookie de vínculo. Nenhum token do banco foi migrado/apagado
 - **Gate / operação:** contatos, aviso, orçamento/quota, exportação/exclusão
   ensaiadas e plano de contenção. Sem esses itens, não liberar o piloto.
 - **Antes de ampliar:** rate limiting por usuário, controle de fan-out de
-  buscas/sincronização, testes E2E autenticados e revisão completa de CSP/headers.
-  Login limita acesso, não impede abuso/quota por uma conta autorizada.
-- **Hardening restante:** chamadas antigas de `console.error` em Treino/Shape,
-  gêneros e componentes do shell ainda podem registrar erros brutos no navegador.
-  Não enviar console/HAR completo como relato; revisar esses callers antes de
-  receber dados sensíveis. A sanitização deste lote cobre o helper comum e as
-  integrações citadas, não todos os logs possíveis do app/provedores.
+  buscas/sincronização, testes E2E autenticados e smoke publicado da CSP/headers
+  endurecidos localmente em 2026-09-09. Login limita acesso, não impede
+  abuso/quota por uma conta autorizada.
+- **Logs no cliente:** em 2026-09-09, as chamadas legadas de `console.error` em
+  Treino/Shape, gêneros e componentes do shell passaram a usar o registrador
+  sanitizado, com teste de regressão. Não enviar console/HAR completo como
+  relato; logs de outros provedores e da plataforma continuam fora do controle
+  do frontend.
 - **Limitação conhecida:** SSRF de artigos possui controles de DNS/redirect/
   tamanho já implementados; leitura local não certifica resistência a todos
   os cenários de rede. Revisão adversarial fica separada antes de público maior.

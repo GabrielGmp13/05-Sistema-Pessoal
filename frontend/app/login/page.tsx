@@ -65,6 +65,7 @@ export default function LoginPage() {
     {mode === 'login' ? <Link href="/recuperar-senha" className="login-link">Esqueci minha senha</Link> : null}
     <Link href="/ajuda" className="login-link">Dúvidas frequentes</Link>
     <Link href="/privacidade" className="login-link">Privacidade</Link>
+    <Link href="/termos" className="login-link">Termos de uso</Link>
     {signupEnabled ? <button type="button" className="login-secondary" onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setErro(null); setMensagem(null); setCaptchaReset((value) => value + 1) }}>{mode === 'login' ? 'Ainda não tenho conta' : 'Já tenho uma conta'}</button> : <p className="login-note">Novas contas ainda são liberadas por convite.</p>}
   </form></div>
 }

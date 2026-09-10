@@ -54,7 +54,34 @@ operacional.
 
 ## Estado atual (2026-09)
 
-**Fase:** release v0.2.0 publicada em 2026-09-05; lote de acesso, suporte público
+> **Consolidação de 2026-09-09:** a v0.2.0 continua sendo a versão declarada no
+> pacote, mas acesso, suporte, isolamento, otimização de imagens, responsividade
+> e homologação posteriores já estão publicados. A próxima versão planejada é a
+> v1.0.0; ela ainda não foi lançada. Use
+> [RELEASE_V1.0.0_PLAN.md](RELEASE_V1.0.0_PLAN.md) para seus gates e
+> [NEXT_ENGINEER_HANDOFF.md](NEXT_ENGINEER_HANDOFF.md) para retomar em outro
+> chat. O relato cronológico abaixo preserva evidências intermediárias e não
+> deve ser usado isoladamente como lista de pendências.
+
+**Resumo vigente (2026-09-10):** 103 testes Node, typecheck e build de 48
+páginas aprovados sobre a instalação limpa de 2026-09-09; o lint atual tem
+8 erros e 27 avisos após duas rodadas locais
+e permanece como gate de qualidade. Reset local e 22 testes SQL são a evidência da última
+recertificação de banco. A auditoria local está sem vulnerabilidades após
+atualizar Next.js/`eslint-config-next` para 16.3.3, `sharp` para 0.35.4 e
+`baseline-browser-mapping` para 2.11.21. A homologação autenticada e de duas contas terminou;
+a massa `TESTE FINAL` foi apagada, preservando contas, integrações e agenda real.
+Cadastro público segue desligado. Em 2026-09-09, Gabriel confirmou a v1.0.0
+como lançamento controlado para uso pessoal e amigos nos primeiros meses,
+compatível com a operação gratuita atual. Cadastro irrestrito fica para uma
+etapa futura e exigirá os gates adicionais de e-mail/OAuth, abuso, privacidade
+e retenção. Places foi desativado para a v1.0.0 por decisão de custo zero;
+Lugares segue manual. Pendências aceitas/externas: validação publicada das
+fontes de Anime/Mangá, ENEM completo e gestos físicos de toque.
+
+### Registro cronológico anterior (preservado como evidência)
+
+**Fase registrada no início do lote:** release v0.2.0 publicada em 2026-09-05; lote de acesso, suporte público
 e login Google publicado em 2026-09-07 pelo commit `118e487`. Cadastro continua
 desligado até SMTP, CAPTCHA, isolamento, privacidade e homologação. A migration
 de suporte já está em produção. As fases históricas v2/v2.1 continuam
@@ -70,7 +97,7 @@ módulo ainda está pendente.
 **Schema:** produção possui 71 tabelas e 27 migrations aplicadas até `20260908000100_treino_integridade_por_usuario.sql`; a migration mais recente passou reset completo, 22 testes SQL, dry-run exclusivo, aplicação autorizada e dry-run final vazio.
 **Histórico CLI:** evidências dos pós-checks anteriores estão em `DATABASE.md`/`CHANGELOG.md`; a revisão local atual não recertifica o remoto.
 **Reprodutibilidade:** Node.js `24.15.0`, npm `12.0.1`, lockfile e CI ativos. Na preparação v0.2.0: typecheck/build e 76 testes Node aprovados; lint informativo com 25 erros/28 avisos (dívida anterior), zero erros no recorte alterado. Evidências em `RELEASE_V0.2.0.md`.
-**Próxima tarefa imediata:** cadastro continua fechado e domínio/Resend/SMTP
+**Situação registrada durante a homologação:** cadastro continua fechado e domínio/Resend/SMTP
 foram adiados para manter a operação gratuita. A conta principal foi reiniciada
 em 2026-09-07, preservando login, perfil e duas conexões Google; o pós-check
 confirmou módulos/pedidos vazios e nenhum arquivo restante fora da mídia do
@@ -85,18 +112,19 @@ projeto da secundária e sua tarefa relacionada ficaram invisíveis na principal
 O mesmo ocorreu com um registro Shape e sua imagem otimizada para WebP; acesso
 direto sem assinatura respondeu `400`, e o bucket ficou vazio após a limpeza.
 CRUD, relacionamento, qualidade visual e remoção da massa temporária passaram.
-Continuar os casos restantes por módulo de `teste.md`. Há um único
+Naquele ponto, ainda restavam casos por módulo de `teste.md`; eles foram
+encerrados na consolidação de 2026-09-09 acima. Há um único
 e-mail operacional privado; marca e telefone público
 foram adiados. Estrutura em `MAPA_DO_PROJETO.md`, abertura/testes em
 `ABERTURA_PUBLICA.md` e operação em `MANUTENCAO.md`.
 
-**Hardening publicado:** DEC-080 adiciona uma segunda camada de isolamento no
+**Hardening publicado (registro intermediário):** DEC-080 adiciona uma segunda camada de isolamento no
 código, sem substituir RLS. APIs com `service_role`, relações
 de suporte, exclusão lógica compartilhada e paths genéricos de Storage repetem
 o escopo do usuário; testes de regressão foram adicionados à CI. A validação
 local passou com 91 testes, typecheck, build e lint do recorte; CI, deploy e
 recusa `401` de oito APIs sem sessão também passaram. O smoke autenticado desta
-camada deve continuar quando a sessão controlada do Edge estiver disponível.
+camada estava pendente naquele momento e foi concluído na homologação posterior.
 
 **Hardening de relacionamentos publicado:** a matriz real confirmou que as
 leituras de Agenda, Idiomas, Saúde, Finanças, Lugares e Treino não vazam entre
@@ -115,15 +143,15 @@ exercícios e academia antes de exibir formulários.
 | Camada | Tecnologia |
 |---|---|
 | Banco de dados | PostgreSQL via Supabase (71 tabelas em produção) |
-| Auth | Supabase Auth (email+senha) |
+| Auth | Supabase Auth (e-mail/senha, recuperação e login Google) |
 | Storage | Supabase Storage — 7 buckets privados e 18 policies; suporte não aceita acesso direto do cliente |
-| Frontend | Next.js 16.3.2 (React 19) + TypeScript — pasta `frontend/`, único frontend do projeto |
+| Frontend | Next.js 16.3.3 (React 19) + TypeScript — pasta `frontend/`, único frontend do projeto |
 | Estilização | CSS Modules (Treino/Biblioteca/Dashboard) + Tailwind v4/shadcn (Estudos) — stack mista intencional, DEC-038 |
 | Backend leve | 19 API Routes (Next.js/Vercel): metadados, BRAPI, Anki, Google OAuth/YouTube/Calendar, Places, suporte e exportação de dados, com credenciais server-only |
 | Offline | Service Worker — fora de escopo por ora (Fase M2, ver `ROADMAP.md`) |
 | Hosting | Vercel — **em produção desde 2026-07-13** |
 | Toolchain | Node.js 24.15.0 + npm 12.0.1; versões fixadas no repositório |
-| CI/testes | GitHub Actions: `npm ci`, typecheck, testes Node e build bloqueantes; lint informativo. 22 scripts SQL locais; resultado publicado em `RELEASE_V0.2.0.md` e lote local em `TASKS_NOW.md` |
+| CI/testes | GitHub Actions: `npm ci`, typecheck, testes Node e build bloqueantes; lint informativo. Estado local mais recente: 103 testes Node, typecheck e build aprovados; lint tem 8 erros/27 avisos; 22 testes SQL na última recertificação |
 
 ---
 
@@ -152,7 +180,9 @@ exercícios e academia antes de exibir formulários.
 | `ROADMAP.md` | Fases do projeto e o que falta em cada uma |
 | `VISION.md` | Visão macro de módulos futuros |
 | `TASKS_NOW.md` | Tarefas ativas e próximas ações |
-| `RELEASE_V0.2.0.md` | Mapa atual do produto, limites, release e evidências de validação |
+| `RELEASE_V0.2.0.md` | Fotografia histórica do marco v0.2.0 e suas evidências |
+| `RELEASE_V1.0.0_PLAN.md` | Escopo, decisões, gates e definição de pronto para a próxima versão |
+| `NEXT_ENGINEER_HANDOFF.md` | Retomada curta e prompt recomendado para o próximo chat |
 | `BETA_PRIVADO.md` | Convites, privacidade, gates e auditoria local de segurança |
 | `MANUTENCAO.md` | Rotinas, relatos de bugs e publicação de notas de atualização |
 | `INTEGRACOES_EXTERNAS.md` | Inventário de APIs, variáveis e limitações |

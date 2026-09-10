@@ -62,8 +62,17 @@ export default function CursoDetalhePage() {
   }
 
   useEffect(() => {
-    if (materiaUuid) carregar()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (!materiaUuid) return
+    let ativo = true
+    void Promise.all([listarMaterias('curso'), listarModulosCurso(materiaUuid)]).then(async ([cursos, mods]) => {
+      const entradas = await Promise.all((mods ?? []).map(async (mod) => [mod.uuid, (await listarConteudosPorModuloCurso(mod.uuid)) ?? []] as const))
+      if (!ativo) return
+      setCurso((cursos ?? []).find((c) => c.uuid === materiaUuid) ?? null)
+      setModulos(mods ?? [])
+      setConteudosPorModulo(Object.fromEntries(entradas))
+      setCarregando(false)
+    })
+    return () => { ativo = false }
   }, [materiaUuid])
 
   const todosConteudos = useMemo(

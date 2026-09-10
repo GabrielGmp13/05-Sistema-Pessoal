@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useEffectEvent, useState } from 'react';
 import PainelSimples from '@/components/PainelSimples';
 import PainelPlaylist from '@/components/PainelPlaylist';
 import painelStyles from '@/components/PainelDetalheObra.module.css';
@@ -134,8 +134,31 @@ export default function VideosSection({
     setCarregando(false);
   }
 
-  useEffect(() => { void carregar(); }, []);
-  useEffect(() => { if (gatilhoAdicionar > 0) { abrirNovo(); if (rascunhoImportacao) setForm((atual) => ({ ...atual, ...rascunhoImportacao })); } }, [gatilhoAdicionar, rascunhoImportacao]);
+  const notificarTotal = useEffectEvent((total: number) => onTotalCarregado?.(total));
+  useEffect(() => {
+    let ativo = true;
+    void Promise.all([listarVideos(), listarPlaylistsVideos()]).then(([resultado, playlistsResultado]) => {
+      if (!ativo) return;
+      if (resultado === null || playlistsResultado === null) setErro('Não foi possível carregar os vídeos ou playlists.');
+      else {
+        setVideos(resultado);
+        setPlaylists(playlistsResultado);
+        notificarTotal(resultado.length);
+      }
+      setCarregando(false);
+    });
+    return () => { ativo = false; };
+  }, []);
+  const [gatilhoAplicado, setGatilhoAplicado] = useState(0);
+  if (gatilhoAplicado !== gatilhoAdicionar) {
+    setGatilhoAplicado(gatilhoAdicionar);
+    if (gatilhoAdicionar > 0) {
+      setEditandoUuid(null);
+      setForm({ ...FORM_VAZIO, ...rascunhoImportacao });
+      setArquivoCapa(null);
+      setModalAberto(true);
+    }
+  }
 
   function abrirNovo() {
     setEditandoUuid(null);

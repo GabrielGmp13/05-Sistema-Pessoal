@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { BookOpen, FileText, Film, Library, Mic2, Play, Sparkles, Tv } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
 import FilmesSection from './_components/FilmesSection';
@@ -40,23 +41,23 @@ const TABELAS_POR_CATEGORIA: Record<CategoriaId, string> = {
 };
 
 export default function BibliotecaPage() {
-  const [categoriaAtiva, setCategoriaAtiva] = useState<CategoriaId>('filmes');
-  const [gatilhoAdicionar, setGatilhoAdicionar] = useState(0);
+  return <Suspense fallback={<p role="status">Carregando biblioteca…</p>}><BibliotecaConteudo /></Suspense>;
+}
+
+function BibliotecaConteudo() {
+  const params = useSearchParams();
+  const tipo = params.get('importar');
+  const url = params.get('url')?.trim();
+  const importar = (tipo === 'artigo' || tipo === 'video') && Boolean(url);
+  const [categoriaAtiva, setCategoriaAtiva] = useState<CategoriaId>(importar ? (tipo === 'video' ? 'videos' : 'artigos') : 'filmes');
+  const [gatilhoAdicionar, setGatilhoAdicionar] = useState(importar ? 1 : 0);
   const [busca, setBusca] = useState('');
   const [ordenacao, setOrdenacao] = useState<OrdenacaoBiblioteca>('recentes');
-  const [rascunhoImportacao, setRascunhoImportacao] = useState<{ url: string; titulo: string } | null>(null);
+  const [rascunhoImportacao] = useState<{ url: string; titulo: string } | null>(importar && url ? { url, titulo: params.get('titulo')?.trim() || '' } : null);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const tipo = params.get('importar');
-    const url = params.get('url')?.trim();
-    if ((tipo === 'artigo' || tipo === 'video') && url) {
-      setCategoriaAtiva(tipo === 'video' ? 'videos' : 'artigos');
-      setRascunhoImportacao({ url, titulo: params.get('titulo')?.trim() || '' });
-      setGatilhoAdicionar(1);
-      window.history.replaceState({}, '', '/biblioteca');
-    }
-  }, []);
+    if (importar) window.history.replaceState(window.history.state, '', '/biblioteca');
+  }, [importar]);
 
   // A carga inicial preenche tudo; cada Section mantém sua contagem atualizada após CRUD.
   const [contagens, setContagens] = useState<Record<CategoriaId, number | null>>({

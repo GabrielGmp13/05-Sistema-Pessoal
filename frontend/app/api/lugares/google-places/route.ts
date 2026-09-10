@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { logDiagnostic } from '@/lib/safe-diagnostics'
 
 import { getApiUser } from '@/lib/server/supabase'
+import { GOOGLE_PLACES_HABILITADO } from '@/lib/integracoes-disponibilidade'
 
 interface PlaceComponent { longText?: string; types?: string[] }
 interface GooglePlace {
@@ -21,6 +22,7 @@ function componente(place: GooglePlace, tipo: string) {
 export async function POST(request: NextRequest) {
   const user = await getApiUser()
   if (!user) return NextResponse.json({ erro: 'Não autenticado.' }, { status: 401 })
+  if (!GOOGLE_PLACES_HABILITADO) return NextResponse.json({ erro: 'Google Places está desativado neste piloto. Cadastre o lugar manualmente.' }, { status: 503 })
   const apiKey = process.env.GOOGLE_MAPS_API_KEY?.trim()
   if (!apiKey) return NextResponse.json({ erro: 'Busca do Google Places não configurada no servidor.' }, { status: 503 })
   const body = await request.json().catch(() => null) as { busca?: unknown } | null

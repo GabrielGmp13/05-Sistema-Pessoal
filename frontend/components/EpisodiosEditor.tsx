@@ -31,8 +31,13 @@ export default function EpisodiosEditor({ temporadaUuid }: Props) {
   }
 
   useEffect(() => {
-    carregar();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    let ativo = true;
+    void listarEpisodios(temporadaUuid).then((res) => {
+      if (!ativo) return;
+      setItens(res ?? []);
+      setCarregando(false);
+    });
+    return () => { ativo = false; };
   }, [temporadaUuid]);
 
   async function adicionar() {

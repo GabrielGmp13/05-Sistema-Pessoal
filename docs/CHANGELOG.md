@@ -6,7 +6,65 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ---
 
-## Próxima versão — acesso e suporte público (local, 2026-09-05)
+## Próxima versão — fechamento da v1.0.0 (iniciado em 2026-09-05)
+
+- Candidato de 2026-09-10: oito erros restantes de lint corrigidos em
+  Biblioteca/Artigos/Vídeos/Receitas/Curso, incluindo carregamento paralelo de
+  aulas e cancelamento lógico ao sair. Lint 0 erros/25 avisos; 103 testes,
+  typecheck, build e auditoria de dependências aprovados. Commit/push
+  autorizados, sem alteração do número de versão; retestes em `teste.md`.
+
+- Segunda rodada local de 2026-09-10: link MEC Enem no cadastro de redação,
+  bloqueio explícito de Places no servidor/interface, proteção contra respostas
+  antigas em buscas, imagens e carregamentos, isolamento visual das tarefas
+  pelo projeto selecionado e tratamento de falha no aceite. 103 testes Node,
+  typecheck e build aprovados; lint reduzido a 8 erros/27 avisos, sem alterar
+  regras. Ainda sem publicação ou alteração remota.
+
+- Em 2026-09-10, corrigidas localmente duas regressões da preparação: CSP
+  bloqueava Turnstile, e o gate de termos bloqueava privacidade/recuperação.
+  Nove erros de lint resolvidos (oito editores e capa privada), restando
+  16 erros/29 avisos; 101 testes Node, typecheck e build de 48 páginas aprovados. Requisitos novos
+  consolidados em `EVOLUCAO_ESTUDOS_EDITORES.md`, sem implementar expansões,
+  alterar banco remoto/Auth/OAuth/Vercel, versão, commit ou push.
+
+- Em 2026-09-09, localmente e ainda sem publicação, a busca de Anime/Mangá
+  passou a usar Kitsu como fallback paralelo para as duas categorias após o
+  ensaio registrar indisponibilidade de AniList e Jikan. Logs brutos de
+  Treino, Shape, gêneros e componentes globais foram substituídos pelo
+  registrador sanitizado. Uma CSP global e os headers associados foram
+  adicionados com teste de regressão. A validação local passou com 98 testes,
+  typecheck e build; a indicação anterior de lint sem achados estava incorreta
+  (ver rechecagem abaixo). O manifesto do frontend também passou a
+  declarar ESM, eliminando os avisos de reinterpretar os testes. Falta o smoke
+  publicado autorizado.
+
+- Ainda localmente em 2026-09-09, uma instalação limpa confirmou 98 testes,
+  typecheck e build depois de atualizar Next.js/`eslint-config-next` para
+  16.3.3, `sharp` para 0.35.4 e `baseline-browser-mapping` para 2.11.21.
+  `npm audit --omit=dev` passou a retornar 0 vulnerabilidades. Versão do
+  aplicativo, serviços remotos, commit e push permaneceram inalterados. O
+  servidor local também entregou a CSP e `X-Frame-Options: DENY` no smoke da
+  tela de login; o smoke publicado continua pendente de autorização. Uma
+  rechecagem posterior revelou 25 erros e 29 avisos preexistentes no lint
+  completo, portanto esse gate não está encerrado.
+
+- Ainda sem publicação, a v1.0.0 passou a ter `/termos`: contas autenticadas
+  sem aceite da versão vigente são levadas à confirmação e recebem 403 nas APIs
+  até aceitar. O registro fica nos metadados da própria conta, sem migration.
+  Google Places foi explicitamente deixado fora da versão para manter custo
+  zero; Lugares continua com cadastro manual, capa privada e link externo.
+
+- Em 2026-09-09, Gabriel definiu a v1.0.0 como piloto de uso pessoal e amigos,
+  com acesso controlado e signup público fechado nos primeiros meses. A escolha
+  não alterou Auth, OAuth, Vercel, banco, versão, commit ou push; os gates de
+  cadastro aberto foram preservados para uma etapa futura.
+
+- Em 2026-09-09, a documentação foi reconciliada para transferir o fechamento
+  da v1.0.0 a um novo chat sem repetir trabalho concluído. `TASKS_NOW`,
+  `AI_CONTEXT`, `ROADMAP`, `README` e o handoff agora distinguem o marco v0.2.0
+  publicado da v1.0.0 planejada; `RELEASE_V1.0.0_PLAN.md` centraliza as duas
+  opções de lançamento, gates, pendências externas e definição de pronto.
 
 - Em 2026-09-09, a homologação funcional consolidou 95 testes Node, typecheck,
   build, reset local e 22 testes SQL. No deploy passaram Hub, TMDB, Redações,

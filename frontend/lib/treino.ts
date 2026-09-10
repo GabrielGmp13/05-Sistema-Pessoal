@@ -1,5 +1,6 @@
 import { createBrowserClient } from '@supabase/ssr'
 import { otimizarImagem } from './image-optimization'
+import { logDiagnostic } from './safe-diagnostics'
 
 type SB = ReturnType<typeof createBrowserClient>
 const BUCKET_EXERCICIOS = 'exercicios'
@@ -72,7 +73,7 @@ export interface DadosDashboardTreino {
 export async function usuarioPossuiModuloTreino(sb: SB, userId: string, moduloUuid: string): Promise<boolean> {
   const { data, error } = await sb.from('modulos_treino').select('uuid')
     .eq('uuid', moduloUuid).eq('user_id', userId).eq('deleted', false).maybeSingle()
-  if (error) console.error('[usuarioPossuiModuloTreino]', error)
+  if (error) logDiagnostic('treino/usuario-possui-modulo', error)
   return Boolean(data) && !error
 }
 
@@ -83,7 +84,7 @@ export async function usuarioPossuiTreino(
     .eq('uuid', treinoUuid).eq('user_id', userId).eq('deleted', false)
   if (moduloUuid) consulta = consulta.eq('modulo_uuid', moduloUuid)
   const { data, error } = await consulta.maybeSingle()
-  if (error) console.error('[usuarioPossuiTreino]', error)
+  if (error) logDiagnostic('treino/usuario-possui-treino', error)
   return Boolean(data) && !error
 }
 
@@ -97,7 +98,7 @@ export async function getTreinosPorModulo(sb: SB, userId: string, moduloUuid: st
     .order('updated_at', { ascending: false })
 
   if (error) {
-    console.error('[getTreinosPorModulo]', error)
+    logDiagnostic('treino/listar-por-modulo', error)
     return []
   }
   return data ?? []
@@ -113,7 +114,7 @@ export async function criarTreino(
     nome,
     descricao: descricao || null,
   })
-  if (error) console.error('[criarTreino]', error)
+  if (error) logDiagnostic('treino/criar', error)
   return { error: error?.message ?? null }
 }
 
@@ -126,7 +127,7 @@ export async function atualizarTreino(
     .eq('uuid', treinoUuid)
     .eq('user_id', userId)
     .eq('deleted', false)
-  if (error) console.error('[atualizarTreino]', error)
+  if (error) logDiagnostic('treino/atualizar', error)
   return { error: error?.message ?? null }
 }
 
@@ -137,7 +138,7 @@ export async function softDeleteTreino(sb: SB, userId: string, treinoUuid: strin
     .eq('uuid', treinoUuid)
     .eq('user_id', userId)
     .eq('deleted', false)
-  if (error) console.error('[softDeleteTreino]', error)
+  if (error) logDiagnostic('treino/excluir', error)
   return { error: error?.message ?? null }
 }
 
@@ -153,7 +154,7 @@ export async function getExerciciosForca(sb: SB, userId: string, treinoUuid: str
     .order('ordem', { ascending: true })
 
   if (error) {
-    console.error('[getExerciciosForca]', error)
+    logDiagnostic('treino/listar-exercicios-forca', error)
     return []
   }
   return data ?? []
@@ -169,7 +170,7 @@ export async function criarExercicioForca(
     treino_uuid: treinoUuid,
     ...dados,
   })
-  if (error) console.error('[criarExercicioForca]', error)
+  if (error) logDiagnostic('treino/criar-exercicio-forca', error)
   return { error: error?.message ?? null }
 }
 
@@ -180,7 +181,7 @@ export async function softDeleteExercicioForca(sb: SB, userId: string, uuid: str
     .eq('uuid', uuid)
     .eq('user_id', userId)
     .eq('deleted', false)
-  if (error) console.error('[softDeleteExercicioForca]', error)
+  if (error) logDiagnostic('treino/excluir-exercicio-forca', error)
   return { error: error?.message ?? null }
 }
 
@@ -196,7 +197,7 @@ export async function getExerciciosCardio(sb: SB, userId: string, treinoUuid: st
     .order('ordem', { ascending: true })
 
   if (error) {
-    console.error('[getExerciciosCardio]', error)
+    logDiagnostic('treino/listar-exercicios-cardio', error)
     return []
   }
   return data ?? []
@@ -212,7 +213,7 @@ export async function criarExercicioCardio(
     treino_uuid: treinoUuid,
     ...dados,
   })
-  if (error) console.error('[criarExercicioCardio]', error)
+  if (error) logDiagnostic('treino/criar-exercicio-cardio', error)
   return { error: error?.message ?? null }
 }
 
@@ -223,7 +224,7 @@ export async function softDeleteExercicioCardio(sb: SB, userId: string, uuid: st
     .eq('uuid', uuid)
     .eq('user_id', userId)
     .eq('deleted', false)
-  if (error) console.error('[softDeleteExercicioCardio]', error)
+  if (error) logDiagnostic('treino/excluir-exercicio-cardio', error)
   return { error: error?.message ?? null }
 }
 
@@ -237,7 +238,7 @@ export async function uploadImagemExercicio(sb: SB, userId: string, file: File):
   const path = `${userId}/${crypto.randomUUID()}.${extensao}`
   const { error } = await sb.storage.from(BUCKET_EXERCICIOS).upload(path, arquivo, { contentType: arquivo.type, upsert: false })
   if (error) {
-    console.error('[uploadImagemExercicio]', error)
+    logDiagnostic('treino/upload-imagem-exercicio', error)
     return { path: null, error: 'Não foi possível enviar a imagem.' }
   }
   return { path, error: null }
@@ -246,7 +247,7 @@ export async function uploadImagemExercicio(sb: SB, userId: string, file: File):
 export async function getImagemExercicioUrl(sb: SB, path: string): Promise<string | null> {
   const { data, error } = await sb.storage.from(BUCKET_EXERCICIOS).createSignedUrl(path, 60 * 60)
   if (error) {
-    console.error('[getImagemExercicioUrl]', error)
+    logDiagnostic('treino/url-imagem-exercicio', error)
     return null
   }
   return data.signedUrl
@@ -254,7 +255,7 @@ export async function getImagemExercicioUrl(sb: SB, path: string): Promise<strin
 
 export async function deleteImagemExercicio(sb: SB, path: string): Promise<boolean> {
   const { error } = await sb.storage.from(BUCKET_EXERCICIOS).remove([path])
-  if (error) console.error('[deleteImagemExercicio]', error)
+  if (error) logDiagnostic('treino/excluir-imagem-exercicio', error)
   return !error
 }
 
@@ -267,7 +268,7 @@ export async function getTodosTreinos(sb: SB, userId: string): Promise<Treino[]>
     .order('nome')
 
   if (error) {
-    console.error('[getTodosTreinos]', error)
+    logDiagnostic('treino/listar-todos', error)
     return []
   }
   return data ?? []
@@ -281,7 +282,7 @@ export async function salvarPlanejamentoSemanal(
     ? sb.from('treinos_planejamento_semanal').update(valores).eq('uuid', uuid).eq('user_id', userId)
     : sb.from('treinos_planejamento_semanal').insert({ ...valores, uuid: crypto.randomUUID(), user_id: userId })
   const { error } = await consulta
-  if (error) console.error('[salvarPlanejamentoSemanal]', error)
+  if (error) logDiagnostic('treino/salvar-planejamento-semanal', error)
   return { error: error?.message ?? null }
 }
 
@@ -289,7 +290,7 @@ export async function removerPlanejamentoSemanal(sb: SB, userId: string, uuid: s
   const { error } = await sb.from('treinos_planejamento_semanal')
     .update({ deleted: true, updated_at: new Date().toISOString() })
     .eq('uuid', uuid).eq('user_id', userId)
-  if (error) console.error('[removerPlanejamentoSemanal]', error)
+  if (error) logDiagnostic('treino/remover-planejamento-semanal', error)
   return !error
 }
 
@@ -314,7 +315,7 @@ export async function getDadosDashboardTreino(
 
   const erro = treinos.error ?? sessoes.error ?? sessoesSemana.error ?? sessoesConcluidas.error ?? shape.error ?? planejamento.error ?? forca.error ?? cardio.error
   if (erro) {
-    console.error('[getDadosDashboardTreino]', erro)
+    logDiagnostic('treino/dados-dashboard', erro)
     return null
   }
 

@@ -1,5 +1,12 @@
 # v0.2.0 — preparação do beta privado
 
+> **Registro histórico fechado.** Este documento preserva o que era verdadeiro
+> no marco v0.2.0; números e pendências abaixo não descrevem necessariamente o
+> estado atual. Para continuar, use
+> [RELEASE_V1.0.0_PLAN.md](RELEASE_V1.0.0_PLAN.md) e
+> [NEXT_ENGINEER_HANDOFF.md](NEXT_ENGINEER_HANDOFF.md). Não atualize esta
+> fotografia retroativamente.
+
 Data: 2026-08-31; validada e publicada em 2026-09-05. **Release disponível no
 deploy de produção protegido da Vercel.** Não é liberação automática de
 convites nem garantia de homologação completa.

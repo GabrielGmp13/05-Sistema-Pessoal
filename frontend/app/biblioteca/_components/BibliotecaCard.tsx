@@ -62,12 +62,15 @@ export default function BibliotecaCard({
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const generosVisiveis = generos.slice(0, 2);
-  const [capaPrivada, setCapaPrivada] = useState<string | null>(null);
+  const [capaAssinada, setCapaAssinada] = useState<{ path: string; url: string | null } | null>(null);
+  const capaPrivada = capaAssinada && capaAssinada.path === capaPath ? capaAssinada.url : null;
 
   useEffect(() => {
     let ativo = true;
-    if (!capaPath) { setCapaPrivada(null); return; }
-    void getSignedUrl('capas', capaPath, 3600).then((url) => { if (ativo) setCapaPrivada(url); });
+    if (!capaPath) return;
+    void getSignedUrl('capas', capaPath, 3600).then((url) => {
+      if (ativo) setCapaAssinada({ path: capaPath, url });
+    });
     return () => { ativo = false; };
   }, [capaPath]);
 

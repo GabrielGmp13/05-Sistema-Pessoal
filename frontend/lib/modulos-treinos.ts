@@ -1,4 +1,5 @@
 import { createBrowserClient } from '@supabase/ssr'
+import { logDiagnostic } from './safe-diagnostics'
 
 export interface ModuloTreino {
   uuid: string
@@ -30,7 +31,7 @@ export async function seedModulosSeNecessario(
     .eq('deleted', false)
 
   if (erroContagem) {
-    console.error('[seedModulosSeNecessario] erro ao contar:', erroContagem)
+    logDiagnostic('modulos-treino/contar-seed', erroContagem)
     return
   }
 
@@ -45,7 +46,7 @@ export async function seedModulosSeNecessario(
 
   const { error: erroInsert } = await sb.from('modulos_treino').insert(linhas)
   if (erroInsert) {
-    console.error('[seedModulosSeNecessario] erro ao inserir seed:', erroInsert)
+    logDiagnostic('modulos-treino/inserir-seed', erroInsert)
   }
 }
 
@@ -61,7 +62,7 @@ export async function getModulosTreino(
     .eq('deleted', false)
 
   if (error) {
-    console.error('[getModulosTreino] erro:', error)
+    logDiagnostic('modulos-treino/listar', error)
     return []
   }
 

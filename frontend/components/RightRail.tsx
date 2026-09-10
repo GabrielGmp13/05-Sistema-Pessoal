@@ -9,6 +9,7 @@ import { listarEventosAgenda, type EventoAgenda } from '@/lib/agenda'
 import { dataLocalIso } from '@/lib/date'
 import { listarProvasNoPeriodo, type Prova } from '@/lib/provas'
 import { getSignedUrl, getSession, sb } from '@/lib/supabase'
+import { logDiagnostic } from '@/lib/safe-diagnostics'
 import { cn } from '@/lib/utils'
 import { ThemeToggle } from './ThemeToggle'
 import { SeasonalDecor } from './SeasonalDecor'
@@ -180,7 +181,7 @@ export function RightRail({
         || (Boolean(session) && (eventosData === null || provasData === null))
       if (houveFalha) setAviso('Parte dos dados não pôde ser carregada. Tente atualizar.')
     } catch (error) {
-      console.error('Erro inesperado ao carregar a coluna pessoal:', error)
+      logDiagnostic('coluna-pessoal/carregar', error)
       setAviso('Não foi possível atualizar a coluna pessoal.')
     } finally {
       setCarregando(false)
@@ -215,7 +216,7 @@ export function RightRail({
     try {
       const { error } = await sb.auth.signOut()
       if (error) {
-        console.error('Erro ao sair:', error)
+        logDiagnostic('coluna-pessoal/sair', error)
         return
       }
       router.replace('/login')

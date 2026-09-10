@@ -97,7 +97,14 @@ export default function RedacoesPage() {
   }
 
   useEffect(() => {
-    carregar()
+    let ativo = true
+    void listarRedacoes().then((r) => {
+      if (!ativo) return
+      setErro(r === null ? 'Não foi possível carregar as redações.' : '')
+      setRedacoes(r ?? [])
+      setCarregando(false)
+    })
+    return () => { ativo = false }
   }, [])
 
   const scored = redacoes
@@ -197,6 +204,11 @@ export default function RedacoesPage() {
 
       <div className="mt-10 flex flex-col gap-10">
         <Section label="Nova" title="Registrar redação">
+          <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
+            Quer uma avaliação gratuita? Conheça o{' '}
+            <a href="https://app.mecenem.mec.gov.br/" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-4">MEC Enem (abre em outra aba)</a>.
+            {' '}A plataforma usa conta Gov.br e oferece correção por inteligência artificial. A nota é estimada, não a nota oficial do exame. Nenhum texto ou arquivo seu é enviado pelo Sistema Pessoal.
+          </p>
           <Card className="p-5">
             <form onSubmit={handleCriar} className="flex flex-col gap-5">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-[2fr_1fr]">
@@ -336,7 +348,8 @@ function RedacaoCard({
   const score = somaCompetencias(r)
   const comps = [r.competencia_1, r.competencia_2, r.competencia_3, r.competencia_4, r.competencia_5]
 
-  const [urlImagem, setUrlImagem] = useState<string | null>(null)
+  const [imagemAssinada, setImagemAssinada] = useState<{ path: string; url: string | null } | null>(null)
+  const urlImagem = imagemAssinada && imagemAssinada.path === r.imagem_path ? imagemAssinada.url : null
   const [enviandoImagem, setEnviandoImagem] = useState(false)
   const [salvando, setSalvando] = useState(false)
   const [confirmarRemocaoImagem, setConfirmarRemocaoImagem] = useState(false)
@@ -357,11 +370,13 @@ function RedacaoCard({
   })
 
   useEffect(() => {
-    if (r.imagem_path) {
-      getUrlImagemRedacao(r.imagem_path).then(setUrlImagem)
-    } else {
-      setUrlImagem(null)
-    }
+    const path = r.imagem_path
+    if (!path) return
+    let ativo = true
+    void getUrlImagemRedacao(path).then((url) => {
+      if (ativo) setImagemAssinada({ path, url })
+    })
+    return () => { ativo = false }
   }, [r.imagem_path])
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {

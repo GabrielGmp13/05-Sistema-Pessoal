@@ -4,21 +4,19 @@
 
 Sistema de gestão pessoal online, multi-dispositivo, para uso pessoal de longo prazo. Fases independentes e entregáveis por si sós.
 
-## Prioridade vigente — release v0.2.0 / beta privado (2026-08-31)
+## Prioridade vigente — fechamento da v1.0.0 (2026-09-09)
 
-As fases v1/v2/v2.1 abaixo são histórico de construção; a release 0.2.0
-consolida o produto existente, sem reabrir stack ou prometer produto público.
+As fases v1/v2/v2.1 abaixo são histórico de construção. A v0.2.0 está publicada,
+e acesso, suporte, isolamento e homologação posteriores também já chegaram à
+produção. O escopo e os gates vigentes estão em
+[RELEASE_V1.0.0_PLAN.md](RELEASE_V1.0.0_PLAN.md).
 
-1. Preparação local: relatos de bugs, auditoria/correções pequenas de segurança,
-   documentação e CI. Marco: [RELEASE_V0.2.0.md](RELEASE_V0.2.0.md).
-2. **Gate antes dos convites:** aceitar convite/definir/recuperar senha, SMTP,
-   signup fechado, isolamento com duas contas, dados/quotas e testes do deploy.
-3. Piloto até três amigos; revisão após uma semana; ampliação aprovada até dez,
-   somente se [BETA_PRIVADO.md](BETA_PRIVADO.md) não tiver bloqueios.
-4. Manutenção contínua por [MANUTENCAO.md](MANUTENCAO.md); regressões e E2E,
-   limites por usuário e operação de conta antes de ampliar produto.
-5. Novos módulos, editor PDF/desenho, sincronização em segundo plano e produto
-   público são etapas futuras independentes, sem prazo/compromisso neste marco.
+1. Escolher o tipo de lançamento: controlado para amigos ou cadastro público.
+2. Fechar somente os bloqueios da opção escolhida e registrar exceções aceitas.
+3. Rodar a validação-base, revisar segurança/segredos e preparar notas da versão.
+4. Alterar a versão para `1.0.0` somente após aprovação dos gates.
+5. Publicar com autorização explícita e executar o smoke pós-deploy.
+6. Entrar na rotina de manutenção de [MANUTENCAO.md](MANUTENCAO.md).
 
 Pendências ativas: [TASKS_NOW.md](TASKS_NOW.md). O histórico detalhado foi
 preservado em [archive/TASKS_HISTORY_2026-08.md](archive/TASKS_HISTORY_2026-08.md).

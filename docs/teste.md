@@ -1,5 +1,34 @@
 # Homologação funcional — rodada encerrada em 2026-09-09
 
+## Reteste do candidato — 2026-09-10 (em andamento)
+
+Sem repetir a rodada histórica abaixo. Commit/push autorizados por Gabriel.
+
+- **APROVADO LOCALMENTE** — 103 testes Node, typecheck e build de 48 páginas;
+  auditoria de produção com zero vulnerabilidades; lint com 0 erros/25 avisos
+  (10 dependências de efeitos e 15 recomendações de imagens). Regras mantidas.
+- **PENDENTE PUBLICAÇÃO** — termos: checkbox inicialmente desmarcado, bloqueio
+  da navegação sem aceite, leitura de privacidade/ajuda/recuperação sem bloqueio,
+  registro/retorno após aceite e CAPTCHA funcional. Aceitar em nome do usuário
+  exige confirmação no momento da ação; não manipular metadados para contornar.
+- **PENDENTE PUBLICAÇÃO** — Anime/Mangá com fallback Kitsu; busca cancelada não
+  exibe resposta antiga; importação de artigo/vídeo abre formulário correto.
+- **PENDENTE PUBLICAÇÃO** — link MEC Enem no cadastro, foto atual da redação,
+  carregamentos de Estudos/Receitas e troca de Projetos sem tarefas anteriores.
+- **PENDENTE PUBLICAÇÃO** — Places sem busca ativa, cadastro manual preservado;
+  CSP/headers e APIs sem sessão. Sem alteração de configuração remota.
+- **PENDENTE** — ENEM existente: fixture curta para finalizar/corrigir/refazer
+  e vínculo de redação. Testa o comportamento atual, não os requisitos novos.
+- **DEPENDE DE ETAPA AUTH** — convite/primeira senha e links expirados/reutilizados
+  para amigos; recuperação manual ainda não homologada. Não confundir com o
+  e-mail entregue à conta do administrador na rodada histórica.
+- **PENDENTE ESPECÍFICO** — Agenda: conflito, cancelamento externo, dia inteiro
+  e atualização automática. Não alterar eventos pessoais para testar.
+- **DEPENDE DE DISPOSITIVO** — toque/trackpad, celular físico e redução de
+  movimento no sistema. Não declarar concluído apenas por inspeção desktop.
+
+As evidências publicadas serão acrescentadas após confirmar o deploy do commit.
+
 Este arquivo registra o resultado real da rodada final. Ele não mistura teste
 aprovado com tarefa futura.
 

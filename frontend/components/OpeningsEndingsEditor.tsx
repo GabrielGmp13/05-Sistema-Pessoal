@@ -32,8 +32,13 @@ export default function OpeningsEndingsEditor({ animeUuid }: Props) {
   }
 
   useEffect(() => {
-    carregar();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    let ativo = true;
+    void listarOpeningsEndings(animeUuid).then((res) => {
+      if (!ativo) return;
+      setItens(res ?? []);
+      setCarregando(false);
+    });
+    return () => { ativo = false; };
   }, [animeUuid]);
 
   async function adicionar() {
