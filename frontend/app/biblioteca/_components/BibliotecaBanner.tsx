@@ -3,6 +3,7 @@
 import { ArrowUpDown, Check, ChevronDown, Plus } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import type { OrdenacaoBiblioteca } from '@/lib/biblioteca-ordenacao';
+import { UnoptimizedExternalImage } from '@/components/UnoptimizedExternalImage';
 import styles from './BibliotecaBanner.module.css';
 
 const OPCOES_ORDENACAO: { value: OrdenacaoBiblioteca; label: string }[] = [
@@ -86,7 +87,7 @@ export default function BibliotecaBanner({
         <div className={styles.colagem} aria-hidden="true">
           {capasValidas.length > 0 ? (
             capasValidas.map((url) => (
-              <img
+              <UnoptimizedExternalImage
                 key={url}
                 className={styles.miniCapa}
                 src={url}

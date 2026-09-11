@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { buscarMetadados, type FonteMetadados, type ResultadoMetadados } from '@/lib/biblioteca-metadados';
+import { UnoptimizedExternalImage } from '@/components/UnoptimizedExternalImage';
 import styles from './BibliotecaSection.module.css';
 
 const FONTE_LABEL: Record<FonteMetadados, string> = {
@@ -94,7 +95,7 @@ export default function BuscaMetadados({ fonte, termo, onSelect, formatos, relac
                 setMensagem('Dados preenchidos. Revise antes de salvar.');
               }}
             >
-              {resultado.capaUrl ? <img src={resultado.capaUrl} alt="" /> : <span className={styles.resultadoSemCapa} />}
+              {resultado.capaUrl ? <UnoptimizedExternalImage src={resultado.capaUrl} alt="" /> : <span className={styles.resultadoSemCapa} />}
               <span><strong>{resultado.titulo}</strong><small>{[resultado.subtitulo ?? resultado.autor, resultado.formato, resultado.ano, resultado.episodios ? `${resultado.episodios} episódios` : null, resultado.idioma?.toUpperCase(), resultado.siteOrigem, resultado.duracaoMinutos ? `${resultado.duracaoMinutos} min` : null].filter(Boolean).join(' · ')}</small>{resultado.descricao ? <em>{resultado.descricao}</em> : null}</span>
             </button>
           ))}

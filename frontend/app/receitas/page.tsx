@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { PrivateMediaField } from '@/components/PrivateMediaField'
+import { UnoptimizedExternalImage } from '@/components/UnoptimizedExternalImage'
 import { apagarMidiaPessoal, persistirComMidia, urlMidiaPessoal } from '@/lib/midias-pessoais'
 import { atualizarReceita, criarReceita, deletarReceita, listarReceitas, Receita, ReceitaInput } from '@/lib/receitas'
 import { cn } from '@/lib/utils'
@@ -213,7 +214,7 @@ export default function ReceitasPage() {
             <aside className="grid auto-rows-max grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-1">
               {receitas.map((receita) => (
                 <button key={receita.uuid} type="button" onClick={() => { setCriando(false); setSelecionadaUuid(receita.uuid) }} className={cn('overflow-hidden rounded-lg border text-left outline-none transition-all hover:border-foreground/30 focus-visible:ring-[3px] focus-visible:ring-ring/30', selecionadaUuid === receita.uuid && !criando ? 'border-foreground/30 bg-accent' : 'border-border bg-card')}>
-                  {urlsPrivadas[receita.uuid] || receita.foto_url ? <img src={urlsPrivadas[receita.uuid] || receita.foto_url || ''} alt="" className="h-24 w-full object-cover" /> : null}
+                  {urlsPrivadas[receita.uuid] || receita.foto_url ? <UnoptimizedExternalImage src={urlsPrivadas[receita.uuid] || receita.foto_url || ''} alt="" className="h-24 w-full object-cover" /> : null}
                   <div className="p-3"><div className="flex items-start gap-2"><strong className="min-w-0 flex-1 truncate text-sm">{receita.titulo}</strong>{receita.favorito ? <Star className="size-4 fill-current text-warning" /> : null}</div><div className="mt-2 flex flex-wrap gap-2">{receita.categoria ? <Badge variant="outline">{receita.categoria}</Badge> : null}{receita.fez ? <Badge variant="success">Feita</Badge> : null}{receita.nota !== null ? <Badge variant="outline">{receita.nota}/10</Badge> : null}</div></div>
                 </button>
               ))}

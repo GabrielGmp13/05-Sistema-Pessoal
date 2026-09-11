@@ -1,7 +1,7 @@
 'use client';
 import { historicoObra } from '@/components/painel-obra-dados';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import {
   Anime,
   AnimeInput,
@@ -135,8 +135,10 @@ export default function AnimesSection({
     setCarregando(false);
   }
 
+  const carregarInicial = useEffectEvent(carregar);
+
   useEffect(() => {
-    const timeoutId = window.setTimeout(() => void carregar(), 0);
+    const timeoutId = window.setTimeout(() => void carregarInicial(), 0);
     return () => window.clearTimeout(timeoutId);
   }, []);
 

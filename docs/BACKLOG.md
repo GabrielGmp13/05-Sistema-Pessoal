@@ -28,12 +28,12 @@ Esta seção prevalece sobre fotografias históricas abaixo. Trabalho ativo em
 - [x] Operação semanal/mensal e notas de release documentadas, sem painel admin complexo.
 - [ ] Pós-v1: somente reconsiderar `GOOGLE_MAPS_API_KEY`/Google Places se houver
       autorização para custo e quota; a v1.0.0 permanece no cadastro manual.
-- [ ] Biblioteca: diagnosticar indisponibilidade real de Anime/Mangá nas fontes
+- [x] Biblioteca: diagnosticar indisponibilidade real de Anime/Mangá nas fontes
       AniList/Jikan/Kitsu. Manter o fallback manual e não ampliar scraping.
 - [ ] OAuth de teste: adicionar `sistemapessoa007@gmail.com` à lista do Google
       somente se essa conta também precisar conectar Calendar/YouTube.
-- [ ] ENEM: criar fixture/prova curta para homologar finalizar/refazer e upload
-      de redação sem preencher uma prova inteira.
+- [~] ENEM: Gabriel decidiu testar finalizar/refazer e redação durante o uso;
+      retomar somente diante de regressão concreta ou quando ele solicitar.
 
 ---
 
@@ -264,11 +264,9 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
 
 ## Dívida técnica de código (achados da auditoria de 2026-08)
 
-- [ ] Lint: após a rodada autorizada, a execução completa de 2026-09-10 tem 0 erros e 25 avisos,
-      sobretudo `react-hooks/set-state-in-effect`, dependências de hooks e
-      `no-img-element`. Os termos adicionados para a v1.0.0 não trouxeram
-      achados; a dívida anterior permanece a tratar. O lint segue informativo
-      na CI por decisão de processo.
+- [x] Lint: a execução completa de 2026-09-10 chegou a 0 erros/0 avisos.
+      Dependências de efeitos foram corrigidas; imagens privadas/externas foram
+      centralizadas num componente nativo documentado, sem supressão global.
 - [ ] npm 12 bloqueia por padrão o pós-script transitivo de
       `unrs-resolver@1.12.2`. A instalação limpa, typecheck, lint e build
       passaram nesse estado; não aprovar scripts cegamente. Reavaliar somente

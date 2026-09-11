@@ -11,6 +11,7 @@ import {
 import EpisodiosEditor from './EpisodiosEditor';
 import BuscaMetadados from '@/app/biblioteca/_components/BuscaMetadados';
 import { completarResultadoAniList, type ResultadoMetadados } from '@/lib/biblioteca-metadados';
+import { UnoptimizedExternalImage } from '@/components/UnoptimizedExternalImage';
 import styles from './ListaEditavel.module.css';
 import StarRating from './StarRating';
 
@@ -152,7 +153,7 @@ function EditorTemporadas({ animeUuid, anilistId, onChanged }: Props) {
       ) : <p className={styles.vazio}>Digite ao menos 2 caracteres para pesquisar uma temporada.</p>}
       </> : <section className={styles.adicaoTemporada} aria-label="Adicionar temporada selecionada">
       <div className={styles.obraSelecionada}>
-        {relacaoSelecionada.capaUrl ? <img src={relacaoSelecionada.capaUrl} alt="" /> : null}
+        {relacaoSelecionada.capaUrl ? <UnoptimizedExternalImage src={relacaoSelecionada.capaUrl} alt="" /> : null}
         <span><strong>{relacaoSelecionada.titulo}</strong>{relacaoSelecionada.subtitulo ? <small>{relacaoSelecionada.subtitulo}</small> : null}<small>{[relacaoSelecionada.formato, relacaoSelecionada.ano, relacaoSelecionada.episodios ? `${relacaoSelecionada.episodios} episódios` : null].filter(Boolean).join(' · ')}</small></span>
       </div>
       {completando && <p className={styles.vazio} role="status">Completando informações da temporada...</p>}

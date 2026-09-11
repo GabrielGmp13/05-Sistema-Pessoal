@@ -63,9 +63,9 @@ operacional.
 > chat. O relato cronológico abaixo preserva evidências intermediárias e não
 > deve ser usado isoladamente como lista de pendências.
 
-**Resumo vigente (2026-09-10):** 105 testes Node, typecheck e build de 48
+**Resumo vigente (2026-09-10):** 106 testes Node, typecheck e build de 48
 páginas aprovados sobre a instalação limpa de 2026-09-09; o lint atual tem
-0 erros e 25 avisos após a rodada autorizada para publicação
+0 erros e 0 avisos após a rodada autorizada para publicação
 e permanece como gate de qualidade. Reset local e 22 testes SQL são a evidência da última
 recertificação de banco. A auditoria local está sem vulnerabilidades após
 atualizar Next.js/`eslint-config-next` para 16.3.3, `sharp` para 0.35.4 e
@@ -76,8 +76,9 @@ como lançamento controlado para uso pessoal e amigos nos primeiros meses,
 compatível com a operação gratuita atual. Cadastro irrestrito fica para uma
 etapa futura e exigirá os gates adicionais de e-mail/OAuth, abuso, privacidade
 e retenção. Places foi desativado para a v1.0.0 por decisão de custo zero;
-Lugares segue manual. Pendências aceitas/externas: validação publicada das
-fontes de Anime/Mangá, ENEM completo e gestos físicos de toque.
+Lugares segue manual. Pendências aceitas/externas: reteste publicado da
+correção de Anime/Mangá e gestos físicos de toque. Gabriel adiou a homologação
+ENEM completa para fazê-la pessoalmente durante o uso.
 
 ### Registro cronológico anterior (preservado como evidência)
 
@@ -151,7 +152,7 @@ exercícios e academia antes de exibir formulários.
 | Offline | Service Worker — fora de escopo por ora (Fase M2, ver `ROADMAP.md`) |
 | Hosting | Vercel — **em produção desde 2026-07-13** |
 | Toolchain | Node.js 24.15.0 + npm 12.0.1; versões fixadas no repositório |
-| CI/testes | GitHub Actions: `npm ci`, typecheck, testes Node e build bloqueantes; lint informativo. Estado local mais recente: 103 testes Node, typecheck e build aprovados; lint tem 0 erros/25 avisos; 22 testes SQL na última recertificação |
+| CI/testes | GitHub Actions: `npm ci`, typecheck, testes Node e build bloqueantes; lint informativo. Estado local mais recente: 106 testes Node, typecheck e build aprovados; lint tem 0 erros/0 avisos; 22 testes SQL na última recertificação |
 
 ---
 

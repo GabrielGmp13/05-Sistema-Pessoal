@@ -106,7 +106,6 @@ async function jsonExterno(url: string): Promise<unknown> {
       signal: AbortSignal.timeout(10_000),
       headers: {
         Accept: 'application/json',
-        'User-Agent': 'Sistema-Pessoal/2.0',
       },
     });
   } catch (error) {
@@ -127,7 +126,6 @@ async function jsonExternoPost(url: string, body: unknown): Promise<unknown> {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        'User-Agent': 'Sistema-Pessoal/2.1',
       },
       body: JSON.stringify(body),
     });

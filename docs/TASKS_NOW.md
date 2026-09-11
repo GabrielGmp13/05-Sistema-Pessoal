@@ -26,9 +26,9 @@ próximo marco planejado, ainda sem autorização de abertura pública.
 3. [ ] Resolver ou aceitar formalmente:
    - [x] Google Places fica desativado na v1.0.0 por decisão de custo zero;
      Lugares continua com cadastro manual, capa e link externo.
-   - validação publicada de Anime/Mangá após adicionar Kitsu como fallback para
-     as duas categorias;
-   - ENEM completo e gestos touch sem teste manual físico (adiados por Gabriel);
+   - validação publicada de Anime/Mangá após corrigir a requisição à Kitsu;
+   - gestos touch sem teste manual físico (adiados por Gabriel); ENEM completo
+     será testado pessoalmente por Gabriel e não bloqueia mais o piloto;
    - smoke publicado da CSP/headers (o smoke local de runtime passou) e os
      demais controles de segurança antes de ampliar além do piloto controlado.
    - [x] atualização de segurança autorizada: Next.js e `eslint-config-next`
@@ -84,10 +84,11 @@ abrir hoje não significa que o gate operacional já foi aprovado.
 ## Candidato autorizado para publicação — 2026-09-10
 
 Gabriel autorizou commit e push e pediu retestes após publicação. Validação:
-103 testes Node, typecheck/build aprovados, audit de produção zero, lint
-**0 erros/25 avisos**. Corrigidos os oito erros remanescentes de carregamento e
+106 testes Node, typecheck/build aprovados, audit de produção zero, lint
+**0 erros/0 avisos**. Corrigidos os efeitos remanescentes de carregamento e
 sincronização de formulários; conteúdo dos módulos de Curso carrega em paralelo.
-Os avisos restantes são 10 dependências e 15 imagens, sem desativação de regras.
+Os 10 avisos de dependências foram corrigidos e as 15 imagens variáveis foram
+centralizadas com justificativa local, sem desativação global de regras.
 O roteiro específico está no topo de `teste.md`; convite/recuperação e recursos
 físicos continuam dependentes de autorização/ambiente. Não anunciar v1 pronta.
 
@@ -96,18 +97,22 @@ físicos continuam dependentes de autorização/ambiente. Não anunciar v1 pront
 ### Estado que substitui a triagem histórica abaixo
 
 - [x] Código publicado em `cc2ccde` e ajuste de latência em `bbfb166`.
-- [x] 105 testes Node e build aprovados; lint direcionado do ajuste sem erros.
-  Lint completo: **0 erros/25 avisos**, sem regras desativadas.
+- [x] 106 testes Node, typecheck e build aprovados. Lint completo:
+  **0 erros/0 avisos**, sem supressão global de regras.
 - [x] Termos: bloqueio antes do aceite, privacidade acessível, aceite autorizado
   registrado e persistência confirmada. CSP/headers/APIs sem sessão aprovados.
 - [x] Link MEC Enem e Places manual conferidos na publicação; importação de
   artigo/vídeo abriu campos corretos, sem salvar registros.
-- [ ] Anime/Mangá: espera redundante corrigida, mas Naruto continua sem
-  resultados nas duas categorias. Não declarar integração homologada.
+- [~] Anime/Mangá: espera redundante corrigida e causa do vazio encontrada no
+  Vercel. Kitsu recusava `User-Agent` próprio com 406; correção local aceita
+  busca parcial nas duas categorias. Falta somente publicar e retestar.
 - [ ] Investigar registro `calendar/sincronizacao-automatica` de falha genérica;
   não há evidência suficiente para atribuir causa nem concluir perda de eventos.
-- [ ] Executar ENEM completo com massa descartável e limpeza definida; conta
-  atual está sem provas. Convite/recuperação continuam exigindo etapa Auth.
+- [x] ENEM completo adiado por decisão de Gabriel, que fará o teste durante o
+  uso. Não repetir sem regressão concreta. Recuperação perdida segue manual.
+- [~] Acesso de amigos: painel permite criar usuário com senha temporária e
+  auto-confirmação; troca de senha no site implementada localmente. Falta
+  publicar e testar com a primeira conta real, sem criar usuário agora.
 - [ ] Retestes detalhados de carregamentos/seleções, CAPTCHA e Agenda em
   `teste.md`; testes físicos continuam adiados. Não anunciar a v1 pronta.
 

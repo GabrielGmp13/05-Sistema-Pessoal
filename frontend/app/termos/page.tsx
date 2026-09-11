@@ -91,7 +91,7 @@ export default function TermosPage() {
         </section>
 
         {carregando ? <p className="text-sm text-muted-foreground">Conferindo sua conta…</p> : null}
-        {!carregando && !autenticado ? <p className="rounded-xl border border-border bg-card p-5 text-sm text-muted-foreground">Leia os termos antes de entrar. Ao receber um convite, entre pelo link enviado e confirme sua aceitação nesta página.</p> : null}
+        {!carregando && !autenticado ? <p className="rounded-xl border border-border bg-card p-5 text-sm text-muted-foreground">Leia os termos antes de entrar. Ao receber acesso, entre com as credenciais temporárias e confirme sua aceitação nesta página.</p> : null}
         {!carregando && autenticado && !termosAceitos ? (
           <section className="space-y-4 rounded-xl border border-primary/30 bg-card p-5" aria-labelledby="aceite-title">
             <h2 id="aceite-title" className="text-xl font-semibold">Confirme para iniciar</h2>

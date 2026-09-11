@@ -3,6 +3,7 @@
 import { Heart, MoreHorizontal, Pencil, Star, Trash2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { getSignedUrl } from '@/lib/supabase';
+import { UnoptimizedExternalImage } from '@/components/UnoptimizedExternalImage';
 
 import styles from './BibliotecaCard.module.css';
 
@@ -103,7 +104,7 @@ export default function BibliotecaCard({
     <div className={styles.card}>
       <div className={styles.capaWrapper} onClick={onClick}>
         {capaPrivada ?? capaUrl ? (
-          <img className={styles.capa} src={(capaPrivada ?? capaUrl) as string} alt={titulo} loading="lazy" />
+          <UnoptimizedExternalImage className={styles.capa} src={(capaPrivada ?? capaUrl) as string} alt={titulo} loading="lazy" />
         ) : (
           <div className={styles.capaPlaceholder}>
             <span>{placeholder}</span>

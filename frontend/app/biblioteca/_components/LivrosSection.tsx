@@ -1,7 +1,7 @@
 'use client';
 import { historicoObra } from '@/components/painel-obra-dados';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useEffectEvent, useState } from 'react';
 import {
   Livro,
   LivroInput,
@@ -119,8 +119,10 @@ export default function LivrosSection({
     setCarregando(false);
   }
 
+  const carregarInicial = useEffectEvent(carregar);
+
   useEffect(() => {
-    const timeoutId = window.setTimeout(() => void carregar(), 0);
+    const timeoutId = window.setTimeout(() => void carregarInicial(), 0);
     return () => window.clearTimeout(timeoutId);
   }, []);
 

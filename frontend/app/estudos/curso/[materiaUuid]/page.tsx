@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/input'
 import { Progress } from '@/components/ui/progress'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { UnoptimizedExternalImage } from '@/components/UnoptimizedExternalImage'
 import { cn } from '@/lib/utils'
 import { dataLocalIso } from '@/lib/date'
 
@@ -274,7 +275,7 @@ export default function CursoDetalhePage() {
                             <li key={aula.uuid} className="flex flex-col gap-3 px-5 py-3 sm:flex-row sm:items-center">
                               <div className="flex min-w-0 flex-1 items-center gap-3">
                                 {aula.video?.capa_url ? (
-                                  <img
+                                  <UnoptimizedExternalImage
                                     src={aula.video.capa_url}
                                     alt=""
                                     className="aspect-video w-16 shrink-0 rounded-md object-cover"

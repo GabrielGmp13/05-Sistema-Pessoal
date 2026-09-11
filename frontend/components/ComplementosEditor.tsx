@@ -5,6 +5,7 @@ import { listarComplementosDoAnime, criarFilme, Filme } from '@/lib/filmes';
 import styles from './ListaEditavel.module.css';
 import BuscaMetadados from '@/app/biblioteca/_components/BuscaMetadados';
 import { completarResultadoAniList, type ResultadoMetadados } from '@/lib/biblioteca-metadados';
+import { UnoptimizedExternalImage } from '@/components/UnoptimizedExternalImage';
 
 interface Props {
   animeUuid: string;
@@ -106,7 +107,7 @@ export default function ComplementosEditor({ animeUuid, anilistId, onChanged }: 
       {anilistId ? <p className={styles.vazio}>Sugestões relacionadas pela AniList</p> : null}
       {anilistId ? <BuscaMetadados fonte="anilist_relacoes" termo={anilistId} formatos={FORMATOS_COMPLEMENTO} onSelect={(resultado) => void selecionarObra(resultado)} /> : <p className={styles.vazio}>Selecione um resultado da AniList no cadastro principal para pesquisar complementos.</p>}
       {selecionado ? <div className={styles.obraSelecionada}>
-        {selecionado.capaUrl ? <img src={selecionado.capaUrl} alt="" /> : null}
+        {selecionado.capaUrl ? <UnoptimizedExternalImage src={selecionado.capaUrl} alt="" /> : null}
         <span><strong>{selecionado.titulo}</strong>{selecionado.subtitulo ? <small>{selecionado.subtitulo}</small> : null}<small>{[selecionado.formato, selecionado.ano].filter(Boolean).join(' · ')}</small></span>
       </div> : null}
       {carregando ? (

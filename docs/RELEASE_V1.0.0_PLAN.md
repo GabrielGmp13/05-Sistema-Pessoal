@@ -54,9 +54,8 @@ forem descritos como opcionais ou futuros.
 - `npm audit --omit=dev` sem vulnerabilidade crítica ou alta conhecida na
   cadeia publicada (0 vulnerabilidades na auditoria local de 2026-09-09).
 - Testes Node, typecheck e build aprovados em instalação limpa em 2026-09-09;
-  nova rodada em 2026-09-10 passou com 103 testes, typecheck e build de 48
-  páginas. O lint caiu para 0 erros e 25 avisos a classificar antes do
-  gate final.
+  nova rodada em 2026-09-10 passou com 106 testes, typecheck e build de 48
+  páginas. O lint caiu para 0 erros e 0 avisos.
 - Migrations alinhadas; nenhuma pendência inesperada.
 - Smoke de login, recuperação, isolamento, CRUD, Storage, suporte, Agenda e
   exportação.
@@ -73,10 +72,11 @@ forem descritos como opcionais ou futuros.
   envio automático do SMTP padrão do Supabase.
 - Places permanece desativado na v1.0.0 por decisão de custo zero; lançar com
   cadastro manual, capa privada e link externo já existentes.
-- Validar em produção a busca de Anime/Mangá com Kitsu como fonte paralela de
-  fallback para Anime e Mangá; em 2026-09-09, AniList e Jikan estavam
-  indisponíveis no ensaio local, enquanto Kitsu respondeu normalmente.
-- Exigir ENEM manual completo antes da 1.0 ou fazê-lo no piloto controlado.
+- Publicar e validar a correção de Anime/Mangá: o Vercel chamou as três fontes,
+  mas a Kitsu recusava o `User-Agent` próprio com 406. Sem esse cabeçalho,
+  `attac` retornou Attack on Titan para Anime e Mangá.
+- ENEM manual completo não bloqueia mais a abertura aos amigos: Gabriel decidiu
+  testá-lo pessoalmente durante o uso e registrar qualquer regressão concreta.
 - Validar no deploy a CSP e os headers endurecidos (o smoke local de runtime
   passou), com smoke das integrações e imagens após a publicação autorizada.
 - Domínio/SMTP somente se o lançamento escolhido exigir; nenhum serviço pago

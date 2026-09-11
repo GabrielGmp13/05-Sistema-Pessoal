@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useEffectEvent, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { createBrowserClient } from '@supabase/ssr'
@@ -28,8 +28,7 @@ export default function PlanoModuloPage() {
     setTreinos(lista)
   }
 
-  useEffect(() => {
-    async function init() {
+  const iniciarCarregamento = useEffectEvent(async () => {
       const { data: { session } } = await sb.auth.getSession()
       if (!session) return
       setUserId(session.user.id)
@@ -41,8 +40,11 @@ export default function PlanoModuloPage() {
       }
       await recarregar(session.user.id)
       setCarregando(false)
-    }
-    init()
+  })
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => void iniciarCarregamento(), 0)
+    return () => window.clearTimeout(timeoutId)
   }, [moduloUuid])
 
   async function handleCriar(e: React.FormEvent) {

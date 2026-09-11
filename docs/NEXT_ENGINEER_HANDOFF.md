@@ -7,8 +7,8 @@ Leia antes `AGENTS.md` e `AI_CONTEXT.md`; depois use `TASKS_NOW.md` e
 ## Estado confirmado
 
 - Novos requisitos e limites: `EVOLUCAO_ESTUDOS_EDITORES.md`. Próxima ação:
-  investigar buscas Anime/Mangá sem resultado e falha registrada no autosync;
-  depois os testes pendentes de `teste.md` e recuperação manual autorizada.
+  publicar e retestar busca parcial Anime/Mangá e troca de senha temporária;
+  depois investigar a falha registrada no autosync.
   Nenhuma expansão de ENEM/PDF/matérias está implementada nesta rodada.
 - Repositório: `C:\Gabriel Oliveira\05-Sistema-Pessoal`.
 - Aplicação única: `frontend/`, Next.js 16.3.3 + React 19 + TypeScript.
@@ -20,12 +20,10 @@ Leia antes `AGENTS.md` e `AI_CONTEXT.md`; depois use `TASKS_NOW.md` e
   explicitamente autorizados. Versão e configurações remotas preservadas.
 - Banco de produção: 71 tabelas, 7 buckets privados e 27 migrations aplicadas
   até `20260908000100_treino_integridade_por_usuario.sql`.
-- Validação local em 2026-09-10: 105/105 testes Node, typecheck e build de 48
+- Validação local em 2026-09-10: 106/106 testes Node, typecheck e build de 48
   páginas aprovados sobre a instalação limpa de 2026-09-09. Reset local e
   22/22 testes SQL seguem como evidência da última recertificação de banco.
-  O lint completo caiu de 25 para 0 erros
-  e 25 avisos; não publicar a v1.0.0 sem resolver ou aceitar
-  formalmente essa dívida.
+  O lint completo caiu de 25 erros/29 avisos para **0 erros/0 avisos**.
 - Auditoria local de dependências: Next.js/`eslint-config-next` 16.3.3,
   `sharp` 0.35.4 e `baseline-browser-mapping` 2.11.21; `npm audit --omit=dev`
   retornou 0 vulnerabilidades. Atualizações publicadas em `cc2ccde`.
@@ -56,15 +54,20 @@ não autorizou nenhuma mudança remota em Auth, OAuth ou Vercel.
 
 ## Pendências reais para a 1.0
 
-- Anime/Mangá ainda sem resultado para Naruto no reteste de `bbfb166`;
-  termos aceitos com autorização específica e persistência confirmada.
-  Restam ENEM manual completo e touch em celular físico. Google Places está fora da
+- Anime/Mangá: Vercel confirmou as três chamadas; a Kitsu recusava o
+  `User-Agent` personalizado com 406. Cabeçalho removido localmente; busca
+  parcial retornou Attack on Titan para Anime e Mangá fora do deploy.
+  Termos aceitos com autorização específica e persistência confirmada.
+  ENEM completo foi adiado por Gabriel; resta touch em celular físico. Google Places está fora da
   v1.0.0 por decisão de custo zero e o cadastro manual permanece.
 - Se cadastro aberto: fechar SMTP/remetente, URLs/templates/rate limits, OAuth
   publicado/verificado e signup/CAPTCHA/recuperação fora da equipe.
 - Revisar privacidade/LGPD, retenção de chamados/prints e incidentes.
 - CSP/headers publicados passaram no smoke; CAPTCHA interativo ainda não
   retestado. Autosync registrou falha genérica, sem causa confirmada.
+- Conta de amigo pode ser criada manualmente no Supabase com senha temporária e
+  auto-confirmação, sem SMTP. Troca autenticada foi adicionada às Configurações;
+  procedimento em `BETA_PRIVADO.md` e guia em `GUIA_PARA_AMIGOS.md`.
 - Congelar escopo, validar, mudar `frontend/package.json` para `1.0.0`, criar
   notas e publicar somente com autorização explícita.
 

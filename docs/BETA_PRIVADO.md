@@ -75,7 +75,31 @@ https://vercel.com/docs/deployment-protection
 
 ## Antes do primeiro convite
 
-- [ ] Convite, primeira senha e recuperação implementados e homologados.
+### Acesso manual sem SMTP pago — procedimento vigente
+
+O painel foi conferido em 2026-09-10 e oferece **Authentication → Users → Add
+user → Create new user**, com e-mail, senha e **Auto confirm user**. Para o
+piloto pequeno, este é o caminho gratuito e controlado:
+
+1. combinar previamente com a pessoa qual e-mail ela usará;
+2. gerar uma senha temporária aleatória de pelo menos 16 caracteres;
+3. no Supabase, abrir o projeto `sistema_pessoal`, seguir o caminho acima,
+   preencher e-mail/senha e manter **Auto confirm user** marcado;
+4. revisar o e-mail e só então criar o usuário;
+5. entregar URL, e-mail e senha temporária em conversa privada, nunca em Git,
+   documento público, chamado ou print;
+6. pedir que a pessoa entre, aceite os termos e altere a senha em **Editar →
+   Alterar senha** antes de inserir dados pessoais.
+
+Não usar **Send invitation** para amigos enquanto o SMTP padrão estiver ativo:
+ele só envia a membros da equipe do projeto. Não adicionar amigos como membros
+da organização Supabase, pois isso daria acesso administrativo desnecessário.
+Se a pessoa esquecer a senha, confirmar sua identidade por contato conhecido e
+tratar a recuperação como operação administrativa separada; não pedir a senha
+antiga. Nenhuma conta foi criada durante a conferência deste procedimento.
+
+- [~] Criação manual e troca da senha temporária implementadas; recuperação
+      administrativa para quem perdeu o acesso ainda requer procedimento/teste.
 - [ ] SMTP entrega para amigos; signup público/anon desativados remotamente.
 - [ ] Homologação do Gabriel concluída nos módulos que receberão dados reais.
 - [ ] Migration local/remota e frontend publicados na ordem correta.

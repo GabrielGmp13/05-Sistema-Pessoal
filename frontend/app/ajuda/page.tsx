@@ -2,8 +2,8 @@ import Link from 'next/link'
 
 const questions = [
   ['O que é o Sistema Pessoal?', 'Um espaço para organizar áreas pessoais como estudos, agenda, treino e biblioteca. Cada conta deve acessar somente os próprios dados.'],
-  ['Como consigo uma conta?', 'Durante a fase fechada, novas contas são liberadas por convite. O cadastro direto aparecerá somente depois dos testes e da aprovação de abertura.'],
-  ['Esqueci minha senha. O que faço?', 'Use “Esqueci minha senha” na entrada. Se houver uma conta para o e-mail, você receberá um link temporário. Nunca envie sua senha a Gabriel.'],
+  ['Como consigo uma conta?', 'Durante a fase fechada, Gabriel cria cada conta manualmente e entrega uma senha temporária. Troque-a em Perfil e configurações no primeiro acesso.'],
+  ['Esqueci minha senha. O que faço?', 'Durante o piloto, fale com Gabriel pelo contato combinado. O envio automático de recuperação para amigos não é garantido. Nunca envie sua senha atual.'],
   ['Como envio um problema ou ideia?', 'Depois de entrar, abra Configurações → Bugs e sugestões. Você receberá um protocolo e poderá acompanhar o histórico na mesma página.'],
   ['Posso enviar um print?', 'Sim, até três imagens por pedido. Oculte e-mails, documentos, dados financeiros, compromissos e informações de outras pessoas antes do envio.'],
   ['O print ou relato vai para o GitHub?', 'Não. Relatos, e-mails e prints ficam em armazenamento privado. No GitHub entra apenas um resumo técnico sem identificação quando necessário.'],

@@ -11,6 +11,17 @@
 
 Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem em `DATABASE.md` → Gotchas (se forem de schema/coluna) ou ficam registrados apenas aqui em 1 linha (se forem pontuais e sem risco de repetição). Decisões arquiteturais vivem em `DECISIONS.md`, não aqui.
 
+### Acesso privado e qualidade final — 2026-09-10
+
+- Busca parcial de Anime/Mangá corrigida: a Kitsu recusava o `User-Agent`
+  personalizado com 406; Vercel confirmou que as três fontes eram chamadas.
+- Lint passou de 0 erros/25 avisos para 0/0: dez efeitos estabilizados e imagens
+  privadas/externas centralizadas sem ativar otimização incompatível.
+- Configurações ganhou troca de senha atual por uma nova senha de 12+ caracteres,
+  permitindo conta manual com senha temporária sem SMTP pago.
+- Guia simples para amigos e procedimento de criação manual documentados.
+- 106 testes Node, typecheck e build de 48 páginas aprovados localmente.
+
 > Entradas até 2026-07-09 foram reconstruídas retroativamente nessa data. A partir dali, cada entrada leva a data real do evento.
 
 ---

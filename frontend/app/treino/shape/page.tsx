@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useEffectEvent, useRef, useState } from 'react'
 import Link from 'next/link'
 import { createBrowserClient } from '@supabase/ssr'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { UnoptimizedExternalImage } from '@/components/UnoptimizedExternalImage'
 import { dataLocalIso } from '@/lib/date'
 import { otimizarImagem } from '@/lib/image-optimization'
 import { logDiagnostic } from '@/lib/safe-diagnostics'
@@ -66,14 +67,16 @@ export default function ShapePage() {
     setUrlsFotos(urls)
   }
 
-  useEffect(() => {
-    async function init() {
+  const iniciarCarregamento = useEffectEvent(async () => {
       const { data: { session } } = await sb.auth.getSession()
       if (!session) return
       setUserId(session.user.id)
       await recarregar(session.user.id)
-    }
-    init()
+  })
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => void iniciarCarregamento(), 0)
+    return () => window.clearTimeout(timeoutId)
   }, [])
 
   useEffect(() => {
@@ -276,7 +279,7 @@ export default function ShapePage() {
       <div className={styles.grid}>
         {registros.map((r) => (
           <button key={r.uuid} type="button" className={styles.card} onClick={() => abrirEdicao(r)} aria-label={`Editar Shape de ${r.data}`}>
-            {urlsFotos[r.uuid] && <img src={urlsFotos[r.uuid]} alt="" className={styles.foto} />}
+            {urlsFotos[r.uuid] && <UnoptimizedExternalImage src={urlsFotos[r.uuid]} alt="" className={styles.foto} />}
             <p className={styles.data}>{r.data}</p>
             {r.peso && <p className={styles.peso}>{r.peso}kg</p>}
             {r.observacoes && <p className={styles.obs}>{r.observacoes}</p>}
@@ -292,7 +295,7 @@ export default function ShapePage() {
               <div><p className={styles.modalEyebrow}>Registro de Shape</p><h2 id="shape-editar-titulo">Editar evolução</h2></div>
               <button type="button" onClick={() => setRegistroEditando(null)} aria-label="Fechar edição">×</button>
             </div>
-            {urlsFotos[registroEditando.uuid] && !removerFotoAtual ? <img src={urlsFotos[registroEditando.uuid]} alt="" className={styles.fotoEdicao} /> : null}
+            {urlsFotos[registroEditando.uuid] && !removerFotoAtual ? <UnoptimizedExternalImage src={urlsFotos[registroEditando.uuid]} alt="" className={styles.fotoEdicao} /> : null}
             <form className={styles.formEdicao} onSubmit={salvarEdicao}>
               <label>Data<input className={styles.input} type="date" required value={edicao.data} onChange={(event) => setEdicao((atual) => ({ ...atual, data: event.target.value }))} /></label>
               <label>Peso (kg)<input className={styles.input} type="number" inputMode="decimal" value={edicao.peso} onChange={(event) => setEdicao((atual) => ({ ...atual, peso: event.target.value }))} /></label>

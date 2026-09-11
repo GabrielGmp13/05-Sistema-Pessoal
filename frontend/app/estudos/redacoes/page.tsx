@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { UnoptimizedExternalImage } from '@/components/UnoptimizedExternalImage'
 import { cn } from '@/lib/utils'
 
 import {
@@ -511,7 +512,7 @@ function RedacaoCard({
         <MonoLabel>Foto da redação</MonoLabel>
         {urlImagem ? (
           <div className="relative mt-2 inline-block">
-            <img src={urlImagem} alt={`Foto da redação: ${r.tema}`} className="max-h-64 rounded-lg border border-border" />
+            <UnoptimizedExternalImage src={urlImagem} alt={`Foto da redação: ${r.tema}`} className="max-h-64 rounded-lg border border-border" />
             <Button
               type="button"
               variant="ghost"

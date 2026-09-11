@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useEffectEvent, useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { UnoptimizedExternalImage } from '@/components/UnoptimizedExternalImage'
 import {
   getExerciciosForca, criarExercicioForca, softDeleteExercicioForca,
   getExerciciosCardio, criarExercicioCardio, softDeleteExercicioCardio,
@@ -53,8 +54,7 @@ export default function PlanoTreinoPage() {
     setImagensUrl(Object.fromEntries(urls.filter((item): item is readonly [string, string] => Boolean(item[1]))))
   }
 
-  useEffect(() => {
-    async function init() {
+  const iniciarCarregamento = useEffectEvent(async () => {
       const { data: { session } } = await sb.auth.getSession()
       if (!session) return
       setUserId(session.user.id)
@@ -63,9 +63,12 @@ export default function PlanoTreinoPage() {
       setCarregando(false)
       if (!permitido) return
       await recarregar(session.user.id)
-    }
-    init()
-  }, [treinoUuid])
+  })
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => void iniciarCarregamento(), 0)
+    return () => window.clearTimeout(timeoutId)
+  }, [treinoUuid, moduloUuid])
 
   async function handleAdicionar(e: React.FormEvent) {
     e.preventDefault()
@@ -203,7 +206,7 @@ export default function PlanoTreinoPage() {
           <div className={styles.lista}>
             {forca.map((ex) => (
               <div key={ex.uuid} className={styles.card}>
-                {imagensUrl[ex.uuid] ? <img src={imagensUrl[ex.uuid]} alt="" className={styles.imagemExercicio} /> : null}
+                {imagensUrl[ex.uuid] ? <UnoptimizedExternalImage src={imagensUrl[ex.uuid]} alt="" className={styles.imagemExercicio} /> : null}
                 <div>
                   <p className={styles.nome}>{ex.nome}</p>
                   <p className={styles.meta}>{ex.series_alvo}x{ex.reps_alvo} · {ex.carga_alvo}kg · {ex.descanso_segundos}s descanso</p>
@@ -221,7 +224,7 @@ export default function PlanoTreinoPage() {
           <div className={styles.lista}>
             {cardio.map((ex) => (
               <div key={ex.uuid} className={styles.card}>
-                {imagensUrl[ex.uuid] ? <img src={imagensUrl[ex.uuid]} alt="" className={styles.imagemExercicio} /> : null}
+                {imagensUrl[ex.uuid] ? <UnoptimizedExternalImage src={imagensUrl[ex.uuid]} alt="" className={styles.imagemExercicio} /> : null}
                 <div>
                   <p className={styles.nome}>{ex.nome}</p>
                   <p className={styles.meta}>{ex.distancia_alvo_km ? `${ex.distancia_alvo_km}km` : ''} {ex.duracao_alvo_minutos ? `· ${ex.duracao_alvo_minutos}min` : ''}</p>

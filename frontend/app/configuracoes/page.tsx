@@ -10,11 +10,13 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { PrivateMediaField } from '@/components/PrivateMediaField'
+import { UnoptimizedExternalImage } from '@/components/UnoptimizedExternalImage'
 import { apagarMidiaPessoal, uploadMidiaPessoal, urlMidiaPessoal, validarImagemPessoal } from '@/lib/midias-pessoais'
 import { getSession, sb } from '@/lib/supabase'
 import { GoogleConnections } from './GoogleConnections'
 import { BugReportForm } from './BugReportForm'
 import { PrivacyRequestForm } from './PrivacyRequestForm'
+import { PasswordChangeForm } from './PasswordChangeForm'
 
 interface PerfilForm {
   nome: string
@@ -221,7 +223,7 @@ export default function ConfiguracoesPage() {
               >
                 <div className="flex items-center gap-3">
                   <span className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-background bg-secondary font-semibold">
-                    {avatarPrivadoUrl || form.avatarUrl ? <img src={avatarPrivadoUrl || form.avatarUrl} alt="Prévia do avatar" className="size-full object-cover" /> : <span>{inicial}</span>}
+                    {avatarPrivadoUrl || form.avatarUrl ? <UnoptimizedExternalImage src={avatarPrivadoUrl || form.avatarUrl} alt="Prévia do avatar" className="size-full object-cover" /> : <span>{inicial}</span>}
                   </span>
                   <div className="min-w-0">
                     <strong className="block truncate">{form.nome || 'Seu nome'}</strong>
@@ -238,6 +240,7 @@ export default function ConfiguracoesPage() {
             </aside>
           </div>
         )}
+        <PasswordChangeForm />
         <GoogleConnections />
         <PrivacyRequestForm />
         <BugReportForm />
