@@ -98,14 +98,14 @@ function duracaoJikanEmMinutos(valor?: string | null): number | undefined {
   return total > 0 ? total : undefined;
 }
 
-async function jsonExterno(url: string): Promise<unknown> {
+async function jsonExterno(url: string, accept = 'application/json'): Promise<unknown> {
   let response: Response;
   try {
     response = await fetch(url, {
       cache: 'no-store',
       signal: AbortSignal.timeout(10_000),
       headers: {
-        Accept: 'application/json',
+        Accept: accept,
       },
     });
   } catch (error) {
@@ -509,7 +509,10 @@ async function buscarAniList(q: string, manga: boolean): Promise<ResultadoMetada
 async function buscarKitsu(q: string, manga: boolean): Promise<ResultadoMetadados[]> {
   const tipo = manga ? 'manga' : 'anime';
   const params = new URLSearchParams({ 'filter[text]': q, 'page[limit]': '15', include: 'mappings' });
-  const resposta = (await jsonExterno(`https://kitsu.io/api/edge/${tipo}?${params}`)) as {
+  const resposta = (await jsonExterno(
+    `https://kitsu.io/api/edge/${tipo}?${params}`,
+    'application/vnd.api+json',
+  )) as {
     data?: Array<{
       id: string;
       attributes?: {

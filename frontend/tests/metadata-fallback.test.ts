@@ -11,6 +11,7 @@ test('Anime e Mangá têm Kitsu como fonte paralela quando AniList ou Jikan osci
   assert.match(source, /\(\) => buscarJikanDireto\(q, manga\)/)
   assert.match(source, /async function buscarKitsu\(q: string, manga: boolean\)/)
   assert.match(source, /https:\/\/kitsu\.io\/api\/edge\/\$\{tipo\}\?\$\{params\}/)
+  assert.match(source, /'application\/vnd\.api\+json'/)
   assert.doesNotMatch(source, /'User-Agent': 'Sistema-Pessoal\/2\.0'/)
 })
 
