@@ -63,7 +63,7 @@ operacional.
 > chat. O relato cronológico abaixo preserva evidências intermediárias e não
 > deve ser usado isoladamente como lista de pendências.
 
-**Resumo vigente (2026-09-10):** 103 testes Node, typecheck e build de 48
+**Resumo vigente (2026-09-10):** 105 testes Node, typecheck e build de 48
 páginas aprovados sobre a instalação limpa de 2026-09-09; o lint atual tem
 0 erros e 25 avisos após a rodada autorizada para publicação
 e permanece como gate de qualidade. Reset local e 22 testes SQL são a evidência da última

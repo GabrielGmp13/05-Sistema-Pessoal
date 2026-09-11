@@ -7,18 +7,20 @@ Leia antes `AGENTS.md` e `AI_CONTEXT.md`; depois use `TASKS_NOW.md` e
 ## Estado confirmado
 
 - Novos requisitos e limites: `EVOLUCAO_ESTUDOS_EDITORES.md`. Próxima ação:
-  restante do lint; depois recuperação manual privada e aceite dos termos.
+  investigar buscas Anime/Mangá sem resultado e falha registrada no autosync;
+  depois os testes pendentes de `teste.md` e recuperação manual autorizada.
   Nenhuma expansão de ENEM/PDF/matérias está implementada nesta rodada.
 - Repositório: `C:\Gabriel Oliveira\05-Sistema-Pessoal`.
 - Aplicação única: `frontend/`, Next.js 16.3.3 + React 19 + TypeScript.
 - Produção: `https://expansiondominionpersonaledition.vercel.app`.
 - Versão publicada no manifesto: **0.2.0**. A **1.0.0 ainda é planejada**; não
   alterar o número antes de os gates serem aprovados.
-- Último commit documentado: `4467a06`; `main` enviada ao GitHub, CI aprovada e
-  worktree limpa ao encerrar a homologação.
+- Código publicado: `cc2ccde` (CI/Vercel aprovados), seguido de `bbfb166`
+  (CI e Vercel aprovadas). Commit/push foram
+  explicitamente autorizados. Versão e configurações remotas preservadas.
 - Banco de produção: 71 tabelas, 7 buckets privados e 27 migrations aplicadas
   até `20260908000100_treino_integridade_por_usuario.sql`.
-- Validação local em 2026-09-10: 103/103 testes Node, typecheck e build de 48
+- Validação local em 2026-09-10: 105/105 testes Node, typecheck e build de 48
   páginas aprovados sobre a instalação limpa de 2026-09-09. Reset local e
   22/22 testes SQL seguem como evidência da última recertificação de banco.
   O lint completo caiu de 25 para 0 erros
@@ -26,7 +28,7 @@ Leia antes `AGENTS.md` e `AI_CONTEXT.md`; depois use `TASKS_NOW.md` e
   formalmente essa dívida.
 - Auditoria local de dependências: Next.js/`eslint-config-next` 16.3.3,
   `sharp` 0.35.4 e `baseline-browser-mapping` 2.11.21; `npm audit --omit=dev`
-  retornou 0 vulnerabilidades. Nada foi publicado.
+  retornou 0 vulnerabilidades. Atualizações publicadas em `cc2ccde`.
 - Homologação funcional encerrada em `teste.md`; toda massa `TESTE FINAL` foi
   removida. Contas, integrações Google e agenda real foram preservadas.
 
@@ -54,14 +56,15 @@ não autorizou nenhuma mudança remota em Auth, OAuth ou Vercel.
 
 ## Pendências reais para a 1.0
 
-- Validar em produção Anime/Mangá com Kitsu, o primeiro aceite dos termos,
-  ENEM manual completo e touch em celular físico. Google Places está fora da
+- Anime/Mangá ainda sem resultado para Naruto no reteste de `bbfb166`;
+  termos aceitos com autorização específica e persistência confirmada.
+  Restam ENEM manual completo e touch em celular físico. Google Places está fora da
   v1.0.0 por decisão de custo zero e o cadastro manual permanece.
 - Se cadastro aberto: fechar SMTP/remetente, URLs/templates/rate limits, OAuth
   publicado/verificado e signup/CAPTCHA/recuperação fora da equipe.
 - Revisar privacidade/LGPD, retenção de chamados/prints e incidentes.
-- Fazer smoke publicado da CSP/headers — o smoke local de runtime passou —,
-  inclusive integrações e imagens externas.
+- CSP/headers publicados passaram no smoke; CAPTCHA interativo ainda não
+  retestado. Autosync registrou falha genérica, sem causa confirmada.
 - Congelar escopo, validar, mudar `frontend/package.json` para `1.0.0`, criar
   notas e publicar somente com autorização explícita.
 

@@ -4,7 +4,7 @@
 
 Sem repetir a rodada histórica abaixo. Commit/push autorizados por Gabriel.
 
-- **APROVADO LOCALMENTE** — 103 testes Node, typecheck e build de 48 páginas;
+- **APROVADO LOCALMENTE** — 105 testes Node, typecheck e build de 48 páginas;
   auditoria de produção com zero vulnerabilidades; lint com 0 erros/25 avisos
   (10 dependências de efeitos e 15 recomendações de imagens). Regras mantidas.
 - **PENDENTE PUBLICAÇÃO** — termos: checkbox inicialmente desmarcado, bloqueio
@@ -41,7 +41,24 @@ Sem repetir a rodada histórica abaixo. Commit/push autorizados por Gabriel.
   Código aguardava fontes lentas e repetia consultas; corrigido localmente para
   primeira resposta não vazia entre AniList/Kitsu/Jikan, com dois testes novos.
   Kitsu respondeu 200 em 1,38 s no diagnóstico local, o que não certifica a Vercel.
-  Correção ainda precisa de publicação/reteste. Nenhuma obra criada neste ensaio.
+  Correção publicada em `bbfb166`; resultado do reteste abaixo.
+
+### Reteste incremental de bbfb166
+
+- **APROVADO** — CI e Vercel concluíram com sucesso; 105 testes locais e build
+  passaram, assim como lint direcionado. CI: execução `34545064622`.
+- **APROVADO** — revisitar `/termos` mostrou “Você já aceitou esta versão”.
+- **APROVADO** — importações de artigo e vídeo abriram o formulário e os campos
+  esperados; preview do artigo carregou. Formulários cancelados sem salvar.
+- **ACHADO PERSISTENTE** — Naruto em Anime e Mangá retornou “Nenhum resultado
+  compatível encontrado”. A redução da espera não certificou disponibilidade
+  das fontes em produção; precisa de diagnóstico adicional.
+- **ACHADO A INVESTIGAR** — console continha uma falha genérica sanitizada de
+  `calendar/sincronizacao-automatica`. Não prova perda de dados nem identifica
+  causa. Não foram alterados eventos pessoais para reproduzir.
+- **INSPEÇÃO SOMENTE** — ENEM carregou áreas e formulário Dia 1/Dia 2, sem
+  provas existentes. Finalizar/corrigir/refazer e redação continuam pendentes.
+- Nenhuma massa persistente foi criada nesta rodada de navegação.
 
 Este arquivo registra o resultado real da rodada final. Ele não mistura teste
 aprovado com tarefa futura.

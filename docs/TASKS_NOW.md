@@ -93,6 +93,26 @@ físicos continuam dependentes de autorização/ambiente. Não anunciar v1 pront
 
 ## Próxima ação exata
 
+### Estado que substitui a triagem histórica abaixo
+
+- [x] Código publicado em `cc2ccde` e ajuste de latência em `bbfb166`.
+- [x] 105 testes Node e build aprovados; lint direcionado do ajuste sem erros.
+  Lint completo: **0 erros/25 avisos**, sem regras desativadas.
+- [x] Termos: bloqueio antes do aceite, privacidade acessível, aceite autorizado
+  registrado e persistência confirmada. CSP/headers/APIs sem sessão aprovados.
+- [x] Link MEC Enem e Places manual conferidos na publicação; importação de
+  artigo/vídeo abriu campos corretos, sem salvar registros.
+- [ ] Anime/Mangá: espera redundante corrigida, mas Naruto continua sem
+  resultados nas duas categorias. Não declarar integração homologada.
+- [ ] Investigar registro `calendar/sincronizacao-automatica` de falha genérica;
+  não há evidência suficiente para atribuir causa nem concluir perda de eventos.
+- [ ] Executar ENEM completo com massa descartável e limpeza definida; conta
+  atual está sem provas. Convite/recuperação continuam exigindo etapa Auth.
+- [ ] Retestes detalhados de carregamentos/seleções, CAPTCHA e Agenda em
+  `teste.md`; testes físicos continuam adiados. Não anunciar a v1 pronta.
+
+### Triagem histórica (não representa o estado atual)
+
 Triagem anterior de 2026-09-10: os 16 erros/29 avisos eram de análise estática, não de
 console em produção. Os 16 erros pertencem à regra `set-state-in-effect`;
 os avisos são 12 de dependências de efeitos, 15 de imagens nativas, um de

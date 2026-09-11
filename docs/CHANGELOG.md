@@ -1,5 +1,14 @@
 # CHANGELOG.md
 
+### Reteste publicado do candidato — 2026-09-10
+
+- `cc2ccde` e `bbfb166` publicados com CI/Vercel aprovadas; versão segue 0.2.0.
+- 105 testes Node aprovados, build aprovado e lint completo em 0 erros/25 avisos.
+- Aceite de termos autorizado e persistente; link MEC Enem, Places manual e
+  abertura de importações de artigo/vídeo conferidos no navegador.
+- Anime/Mangá continuam sem resultado para Naruto; falha genérica de autosync
+  observada. Detalhes e testes ainda pendentes em `teste.md`; v1 não encerrada.
+
 Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem em `DATABASE.md` → Gotchas (se forem de schema/coluna) ou ficam registrados apenas aqui em 1 linha (se forem pontuais e sem risco de repetição). Decisões arquiteturais vivem em `DECISIONS.md`, não aqui.
 
 > Entradas até 2026-07-09 foram reconstruídas retroativamente nessa data. A partir dali, cada entrada leva a data real do evento.
