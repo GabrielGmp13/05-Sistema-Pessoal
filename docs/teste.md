@@ -1,6 +1,6 @@
 # Homologação funcional — rodada encerrada em 2026-09-09
 
-## Reteste do candidato — 2026-09-10 (em andamento)
+## Reteste do candidato — concluído em 2026-09-11
 
 Sem repetir a rodada histórica abaixo. Commit/push autorizados por Gabriel.
 
@@ -9,15 +9,16 @@ Sem repetir a rodada histórica abaixo. Commit/push autorizados por Gabriel.
 - **APROVADO PUBLICADO** — termos: checkbox inicialmente desmarcado, bloqueio
   da navegação sem aceite, privacidade acessível, registro autorizado e
   persistência confirmada. CAPTCHA interativo ainda não foi retestado.
-- **PENDENTE PUBLICAÇÃO** — Anime/Mangá com fallback Kitsu; busca cancelada não
-  exibe resposta antiga; importação de artigo/vídeo abre formulário correto.
+- **APROVADO PUBLICADO** — Anime/Mangá com fallback Kitsu: `attac` retornou
+  Attack on Titan nas duas categorias; busca cancelada não exibe resposta antiga.
+  Importação de artigo/vídeo abriu o formulário correto.
 - **APROVADO PUBLICADO** — link MEC Enem, Places manual, CSP/headers, APIs sem
   sessão e abertura dos formulários de artigo/vídeo.
 - **ADIADO POR GABRIEL** — ENEM completo será testado pelo próprio usuário
   durante o uso; não repetir a homologação sem regressão concreta.
-- **APROVADO LOCALMENTE / PENDENTE PUBLICAÇÃO** — criação manual com senha
-  temporária confirmada no painel e troca de senha adicionada ao site. Nenhuma
-  conta foi criada; recuperação perdida ainda não foi homologada.
+- **APROVADO PUBLICADO / CICLO REAL PENDENTE** — criação manual com senha
+  temporária confirmada no painel e formulário de troca de senha conferido no
+  site. Nenhuma conta foi criada; recuperação perdida ainda não foi homologada.
 - **PENDENTE ESPECÍFICO** — Agenda: conflito, cancelamento externo, dia inteiro
   e atualização automática. Não alterar eventos pessoais para testar.
 - **DEPENDE DE DISPOSITIVO** — toque/trackpad, celular físico e redução de
@@ -56,18 +57,22 @@ Sem repetir a rodada histórica abaixo. Commit/push autorizados por Gabriel.
   provas existentes. Finalizar/corrigir/refazer e redação continuam pendentes.
 - Nenhuma massa persistente foi criada nesta rodada de navegação.
 
-### Correções locais posteriores
+### Correções finais e reteste de produção
 
-- **CAUSA CONFIRMADA** — o Vercel registrou chamadas a AniList, Kitsu e Jikan.
-  A Kitsu responde 406 ao `User-Agent: Sistema-Pessoal/2.0`; removido esse
-  cabeçalho, `attac` retornou Attack on Titan para Anime e Mangá em menos de
-  dois segundos no teste direto. Falta o reteste após publicação.
+- **APROVADO** — a causa final do 406 era o media type: Kitsu requer
+  `Accept: application/vnd.api+json`. A correção `c81c727` passou em 106 testes,
+  typecheck, build, lint 0/0, GitHub Actions e Vercel. No domínio publicado,
+  `attac` retornou Attack on Titan em Anime e Mangá.
 - **APROVADO LOCALMENTE** — os 10 avisos de dependências de efeitos foram
   resolvidos; as 15 imagens privadas/externas foram centralizadas num componente
   nativo documentado, pois o otimizador não encaminha autenticação. Lint 0/0.
-- **APROVADO LOCALMENTE** — troca de senha temporária exige senha atual, nova
-  senha de 12+ caracteres e confirmação. Criação manual foi apenas inspecionada
-  no Supabase; nenhum usuário foi criado.
+- **APROVADO PUBLICADO** — troca de senha temporária exige senha atual, nova
+  senha de 12+ caracteres e confirmação; os três campos foram conferidos em
+  Configurações. Criação manual foi apenas inspecionada; nenhum usuário criado.
+- **TRIADO, NÃO REPRODUZIDO** — a requisição Calendar associada ao achado
+  isolado retornou 200 no Vercel; a sessão final autenticada não registrou novo
+  erro de console. Sem evidência de perda, não se alteraram eventos reais para
+  forçar os casos já homologados.
 
 Este arquivo registra o resultado real da rodada final. Ele não mistura teste
 aprovado com tarefa futura.

@@ -63,7 +63,7 @@ operacional.
 > chat. O relato cronológico abaixo preserva evidências intermediárias e não
 > deve ser usado isoladamente como lista de pendências.
 
-**Resumo vigente (2026-09-10):** 106 testes Node, typecheck e build de 48
+**Resumo vigente (2026-09-11):** 106 testes Node, typecheck e build de 48
 páginas aprovados sobre a instalação limpa de 2026-09-09; o lint atual tem
 0 erros e 0 avisos após a rodada autorizada para publicação
 e permanece como gate de qualidade. Reset local e 22 testes SQL são a evidência da última
@@ -76,9 +76,10 @@ como lançamento controlado para uso pessoal e amigos nos primeiros meses,
 compatível com a operação gratuita atual. Cadastro irrestrito fica para uma
 etapa futura e exigirá os gates adicionais de e-mail/OAuth, abuso, privacidade
 e retenção. Places foi desativado para a v1.0.0 por decisão de custo zero;
-Lugares segue manual. Pendências aceitas/externas: reteste publicado da
-correção de Anime/Mangá e gestos físicos de toque. Gabriel adiou a homologação
-ENEM completa para fazê-la pessoalmente durante o uso.
+Lugares segue manual. A correção Kitsu `c81c727` passou CI/Vercel e o smoke
+publicado de `attac` retornou Attack on Titan em Anime e Mangá. Pendências
+aceitas/externas: gestos físicos de toque e homologação ENEM completa, que
+Gabriel fará pessoalmente durante o uso.
 
 ### Registro cronológico anterior (preservado como evidência)
 

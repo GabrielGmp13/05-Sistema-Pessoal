@@ -98,23 +98,26 @@ Se a pessoa esquecer a senha, confirmar sua identidade por contato conhecido e
 tratar a recuperação como operação administrativa separada; não pedir a senha
 antiga. Nenhuma conta foi criada durante a conferência deste procedimento.
 
-- [~] Criação manual e troca da senha temporária implementadas; recuperação
-      administrativa para quem perdeu o acesso ainda requer procedimento/teste.
-- [ ] SMTP entrega para amigos; signup público/anon desativados remotamente.
-- [ ] Homologação do Gabriel concluída nos módulos que receberão dados reais.
-- [ ] Migration local/remota e frontend publicados na ordem correta.
-- [ ] RLS comportamental validada entre dois usuários e acesso anônimo negado.
-- [ ] Buckets privados, MIME, tamanho e primeira pasta por usuário retestados.
-- [ ] Todas as API Routes autenticadas retornam 401 sem sessão.
-- [ ] Segredos existem somente na Vercel/Supabase e não em bundle, logs ou Git.
-- [ ] URL, Site URL, redirects de Auth/OAuth e domínio de produção conferidos.
-- [ ] Texto curto de privacidade informa finalidade, dados armazenados, serviços
+- [~] Criação manual disponível e troca da senha temporária publicada e
+  conferida em 2026-09-11; o primeiro ciclo com conta real e recuperação
+  administrativa para quem perdeu o acesso ainda requer pedido real.
+- [x] SMTP não é usado no piloto; signup público/anon está desativado.
+- [x] Homologação concluída, exceto ENEM completo e dispositivo físico adiados.
+- [x] Cadeia de migrations e frontend publicados na ordem correta.
+- [x] RLS comportamental validada entre dois usuários e acesso anônimo negado.
+- [x] Buckets privados, MIME, tamanho e primeira pasta por usuário retestados.
+- [x] APIs autenticadas amostradas e cobertura automática confirmam 401 sem sessão.
+- [x] Revisões de stage/bundle/logs não encontraram segredos expostos.
+- [x] URLs de Auth/OAuth e domínio de produção conferidos no fechamento.
+- [x] Texto curto de privacidade informa finalidade, dados armazenados, serviços
       externos, contato e como pedir exclusão antes de terceiros enviarem dados.
-- [ ] Escopo e retenção de dados explicados; não coletar dados desnecessários.
-- [ ] Backup/exportação definido antes de apagar usuário ou dados.
-- [ ] Canal privado de suporte, retenção de prints e limite de gasto aprovados.
-- [ ] Google Cloud: cada conta convidada que usar OAuth está na lista de testadores;
-      conectar/desconectar Calendar e YouTube não cruza usuários/contas.
+- [x] Escopo e retenção de dados explicados; não coletar dados desnecessários.
+- [x] Exportação definida antes de apagar usuário ou dados.
+- [x] Suporte usa a mesma conversa privada do convite; prints seguem a retenção
+      documentada e nenhum serviço pago foi autorizado.
+- [~] Google Cloud: antes de um amigo usar OAuth, adicioná-lo como testador;
+      quem usar apenas e-mail/senha não depende desse passo. O isolamento entre
+      Calendar/YouTube e contas já foi homologado.
 
 ## Durante o beta
 
@@ -164,12 +167,12 @@ dados para operação/suporte; RLS isola participantes, não administradores.
 Google é opcional e pede autorização por serviço. Buscas/imagens externas
 podem transmitir consultas, endereço IP e requisições aos provedores.
 Reportar bug apenas prepara texto para você copiar; revise e oculte dados de
-prints antes de enviar. Para suporte, acesso, exportação ou exclusão, use
-**[Gabriel preencher o canal privado]**. O piloto não é serviço público nem
+prints antes de enviar. Para suporte, acesso, exportação ou exclusão, use a
+mesma conversa privada pela qual Gabriel enviou o acesso. O piloto não é público nem
 possui certificação de conformidade legal.”
 
-Gabriel deve aprovar o texto, preencher contato e combinar prazos/retenção
-antes de usá-lo. Isso não substitui revisão jurídica/LGPD para público geral.
+Gabriel deve enviar esse texto antes do primeiro acesso. Isso não substitui
+revisão jurídica/LGPD caso o sistema seja aberto ao público geral.
 
 ## Auditoria local de segurança — 2026-08-31
 

@@ -1,5 +1,14 @@
 # CHANGELOG.md
 
+### Correção final das buscas externas — 2026-09-11
+
+- Corrigido o contrato HTTP da Kitsu: o endpoint exige
+  `Accept: application/vnd.api+json`. Commit `c81c727` passou nos 106 testes,
+  typecheck, build, lint 0/0, GitHub Actions e Vercel.
+- Smoke no domínio de produção confirmou `attac` → Attack on Titan em Anime e
+  Mangá. O formulário publicado de troca da senha temporária também foi
+  conferido, sem criar usuário nem alterar credenciais.
+
 ### Reteste publicado do candidato — 2026-09-10
 
 - `cc2ccde` e `bbfb166` publicados com CI/Vercel aprovadas; versão segue 0.2.0.
@@ -13,8 +22,8 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ### Acesso privado e qualidade final — 2026-09-10
 
-- Busca parcial de Anime/Mangá corrigida: a Kitsu recusava o `User-Agent`
-  personalizado com 406; Vercel confirmou que as três fontes eram chamadas.
+- Busca parcial de Anime/Mangá recebeu fallback paralelo; o diagnóstico final
+  do contrato `Accept` e o smoke publicado estão na entrada de 2026-09-11.
 - Lint passou de 0 erros/25 avisos para 0/0: dez efeitos estabilizados e imagens
   privadas/externas centralizadas sem ativar otimização incompatível.
 - Configurações ganhou troca de senha atual por uma nova senha de 12+ caracteres,

@@ -72,13 +72,13 @@ forem descritos como opcionais ou futuros.
   envio automático do SMTP padrão do Supabase.
 - Places permanece desativado na v1.0.0 por decisão de custo zero; lançar com
   cadastro manual, capa privada e link externo já existentes.
-- Publicar e validar a correção de Anime/Mangá: o Vercel chamou as três fontes,
-  mas a Kitsu recusava o `User-Agent` próprio com 406. Sem esse cabeçalho,
-  `attac` retornou Attack on Titan para Anime e Mangá.
+- Anime/Mangá validado no domínio publicado: a Kitsu exige
+  `Accept: application/vnd.api+json`; após `c81c727`, `attac` retornou Attack on
+  Titan nas duas categorias.
 - ENEM manual completo não bloqueia mais a abertura aos amigos: Gabriel decidiu
   testá-lo pessoalmente durante o uso e registrar qualquer regressão concreta.
-- Validar no deploy a CSP e os headers endurecidos (o smoke local de runtime
-  passou), com smoke das integrações e imagens após a publicação autorizada.
+- CSP e headers endurecidos validados no deploy. Integrações opcionais mantêm
+  fallback manual; ENEM completo e dispositivo físico foram adiados por Gabriel.
 - Domínio/SMTP somente se o lançamento escolhido exigir; nenhum serviço pago
   sem estimativa e aprovação.
 

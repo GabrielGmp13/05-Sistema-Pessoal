@@ -1,6 +1,6 @@
 # Tarefas atuais — fechamento da versão 1.0.0
 
-Atualizado em 2026-09-10. A versão publicada continua **0.2.0**. A 1.0.0 é o
+Atualizado em 2026-09-11. A versão publicada continua **0.2.0**. A 1.0.0 é o
 próximo marco planejado, ainda sem autorização de abertura pública.
 
 ## Base já concluída
@@ -22,24 +22,25 @@ próximo marco planejado, ainda sem autorização de abertura pública.
 
 1. [x] Gabriel definiu lançamento controlado para uso pessoal e amigos; signup
        público permanece fechado nos primeiros meses.
-2. [ ] Congelar o que entra na 1.0; mover melhorias ao `BACKLOG.md`.
-3. [ ] Resolver ou aceitar formalmente:
+2. [x] Escopo do piloto congelado; expansões estão no `BACKLOG.md` e em
+       `EVOLUCAO_ESTUDOS_EDITORES.md`.
+3. [x] Resolver ou aceitar formalmente:
    - [x] Google Places fica desativado na v1.0.0 por decisão de custo zero;
      Lugares continua com cadastro manual, capa e link externo.
-   - validação publicada de Anime/Mangá após corrigir a requisição à Kitsu;
+   - [x] validação publicada de Anime/Mangá após enviar o media type exigido
+     pela Kitsu; `attac` retornou Attack on Titan nas duas categorias;
    - gestos touch sem teste manual físico (adiados por Gabriel); ENEM completo
      será testado pessoalmente por Gabriel e não bloqueia mais o piloto;
-   - smoke publicado da CSP/headers (o smoke local de runtime passou) e os
-     demais controles de segurança antes de ampliar além do piloto controlado.
+   - [x] smoke publicado da CSP/headers e controles automatizados de segurança;
+     CAPTCHA interativo fica fora do gate enquanto signup público estiver fechado.
    - [x] atualização de segurança autorizada: Next.js e `eslint-config-next`
      16.3.3, `sharp` 0.35.4 e `baseline-browser-mapping` 2.11.21 no
      lockfile. `npm audit --omit=dev` encerrou com 0 vulnerabilidades após
      `npm ci`; nenhuma publicação foi feita.
    - [x] Logs brutos de Treino, Shape, gêneros e componentes globais substituídos
      pelo registrador sanitizado, com teste de regressão.
-   - [ ] Lint completo: de 25 erros/29 avisos para **8 erros/27 avisos** em
-     2026-09-10. Corrigidos carregamentos de oito editores e capa privada;
-     restante de efeitos/imagens continua aberto, sem supressão global de regras.
+   - [x] Lint completo reduzido de 25 erros/29 avisos para **0 erros/0 avisos**,
+     sem supressão global de regras.
    - [x] Regressões locais: CSP permite scripts/frames do CAPTCHA; termos não
      bloqueiam privacidade, ajuda e recuperação. Testes adicionados, smoke
      autenticado da publicação ainda depende da etapa autorizada.
@@ -48,11 +49,12 @@ próximo marco planejado, ainda sem autorização de abertura pública.
 4. [ ] Manter documentados os gates de cadastro público (SMTP/domínio, OAuth
        publicado/verificado, limites, templates, retenção e incidente) para
        uma decisão futura; eles não bloqueiam este piloto controlado.
-5. [~] Aviso de privacidade revisado e termos com aceite obrigatório criados
-       localmente; validar o primeiro aceite no deploy autorizado.
-6. [ ] Rodar bateria final limpa e smoke do candidato.
+5. [x] Aviso de privacidade revisado; termos com aceite obrigatório publicados,
+       aceitos com autorização e persistência confirmada.
+6. [x] Rodar bateria final limpa e smoke do candidato, preservadas as exceções
+       explicitamente adiadas (ENEM completo e dispositivo físico).
 7. [ ] Somente então mudar a versão para `1.0.0` e gerar notas.
-8. [ ] Com autorização separada: commit, push, deploy e smoke.
+8. [x] Com autorização separada: commit, push, deploy e smoke.
 9. [ ] Observar por 24 horas e 7 dias; fechar signup diante de P0/P1.
 
 ## Rodada local para convidados — 2026-09-10
@@ -67,15 +69,13 @@ próximo marco planejado, ainda sem autorização de abertura pública.
 - [x] Carregamentos iniciais de Estudos e Projetos ignoram respostas após sair;
   tarefas são filtradas pelo projeto selecionado, sem exibir as de outro projeto.
 - [x] Aceite de termos mantém botão ocupado até atualizar a sessão e trata falha
-  inesperada; ícone de Configurações identificado como decorativo.
+     inesperada; ícone de Configurações identificado como decorativo.
 - [x] 103 testes Node, typecheck e build de 48 páginas aprovados. Lint atual:
   **8 erros e 27 avisos** (antes desta rodada: 16/29). Nenhuma regra desativada.
-- [ ] Restante de efeitos em Biblioteca, Artigos, Vídeos, detalhe de Curso e
-  Receitas; 12 avisos de dependências e 15 recomendações de imagens.
-- [ ] Recuperação manual para amigo fora da equipe: preparar procedimento
-  executável e testar em etapa Auth autorizada. Não prometer entrega automática.
-- [ ] Revisão final de diff/segredos, validação visual dos recortes alterados e
-  publicação autorizada; somente depois smoke de acesso/aceite do convidado.
+- [x] Restante de efeitos e imagens resolvido; lint final 0/0.
+- [~] Recuperação administrativa para amigo fora da equipe está documentada;
+  executar somente quando houver um pedido real e identidade confirmada.
+- [x] Revisão final de diff/segredos, validação visual, publicação e smoke.
 
 “Acesso full” foi recebido como autonomia de trabalho; não foram executadas
 operações remotas, mudança de versão, commit ou push nesta rodada. A meta de
@@ -103,18 +103,21 @@ físicos continuam dependentes de autorização/ambiente. Não anunciar v1 pront
   registrado e persistência confirmada. CSP/headers/APIs sem sessão aprovados.
 - [x] Link MEC Enem e Places manual conferidos na publicação; importação de
   artigo/vídeo abriu campos corretos, sem salvar registros.
-- [~] Anime/Mangá: espera redundante corrigida e causa do vazio encontrada no
-  Vercel. Kitsu recusava `User-Agent` próprio com 406; correção local aceita
-  busca parcial nas duas categorias. Falta somente publicar e retestar.
-- [ ] Investigar registro `calendar/sincronizacao-automatica` de falha genérica;
-  não há evidência suficiente para atribuir causa nem concluir perda de eventos.
+- [x] Anime/Mangá: espera redundante corrigida e causa do vazio confirmada. A
+  Kitsu exige `Accept: application/vnd.api+json`; commit `c81c727` publicado
+  com CI/Vercel aprovadas e `attac` retornou Attack on Titan nas duas categorias.
+- [x] Registro isolado `calendar/sincronizacao-automatica` triado: a requisição
+  correspondente retornou 200 no Vercel e o erro não reapareceu na sessão final.
+  Sem regressão reproduzível ou perda; reabrir somente se houver recorrência.
 - [x] ENEM completo adiado por decisão de Gabriel, que fará o teste durante o
   uso. Não repetir sem regressão concreta. Recuperação perdida segue manual.
 - [~] Acesso de amigos: painel permite criar usuário com senha temporária e
-  auto-confirmação; troca de senha no site implementada localmente. Falta
-  publicar e testar com a primeira conta real, sem criar usuário agora.
-- [ ] Retestes detalhados de carregamentos/seleções, CAPTCHA e Agenda em
-  `teste.md`; testes físicos continuam adiados. Não anunciar a v1 pronta.
+  auto-confirmação; formulário de troca de senha está publicado e visível.
+  Falta somente executar o ciclo com a primeira conta real, sem criar usuário
+  durante a homologação técnica.
+- [~] Primeiro ciclo de amigo, recuperação perdida e observação operacional
+  permanecem para o uso real. Testes físicos continuam adiados. A mudança do
+  número para 1.0.0 ainda exige autorização específica.
 
 ### Triagem histórica (não representa o estado atual)
 

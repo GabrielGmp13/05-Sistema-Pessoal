@@ -1,22 +1,22 @@
 # Handoff — fechamento da versão 1.0.0
 
-Atualizado em 2026-09-10. Este é o documento curto para iniciar o próximo chat.
+Atualizado em 2026-09-11. Este é o documento curto para iniciar o próximo chat.
 Leia antes `AGENTS.md` e `AI_CONTEXT.md`; depois use `TASKS_NOW.md` e
 `RELEASE_V1.0.0_PLAN.md`. Comunicação e documentação são em português.
 
 ## Estado confirmado
 
 - Novos requisitos e limites: `EVOLUCAO_ESTUDOS_EDITORES.md`. Próxima ação:
-  publicar e retestar busca parcial Anime/Mangá e troca de senha temporária;
-  depois investigar a falha registrada no autosync.
+  executar o primeiro acesso real de um amigo e, separadamente, investigar a
+  falha sanitizada registrada no autosync.
   Nenhuma expansão de ENEM/PDF/matérias está implementada nesta rodada.
 - Repositório: `C:\Gabriel Oliveira\05-Sistema-Pessoal`.
 - Aplicação única: `frontend/`, Next.js 16.3.3 + React 19 + TypeScript.
 - Produção: `https://expansiondominionpersonaledition.vercel.app`.
 - Versão publicada no manifesto: **0.2.0**. A **1.0.0 ainda é planejada**; não
   alterar o número antes de os gates serem aprovados.
-- Código publicado: `cc2ccde` (CI/Vercel aprovados), seguido de `bbfb166`
-  (CI e Vercel aprovadas). Commit/push foram
+- Código publicado: candidato consolidado em `4546ea0`, seguido da correção
+  Kitsu `c81c727`; ambos com CI e Vercel aprovadas. Commit/push foram
   explicitamente autorizados. Versão e configurações remotas preservadas.
 - Banco de produção: 71 tabelas, 7 buckets privados e 27 migrations aplicadas
   até `20260908000100_treino_integridade_por_usuario.sql`.
@@ -54,20 +54,23 @@ não autorizou nenhuma mudança remota em Auth, OAuth ou Vercel.
 
 ## Pendências reais para a 1.0
 
-- Anime/Mangá: Vercel confirmou as três chamadas; a Kitsu recusava o
-  `User-Agent` personalizado com 406. Cabeçalho removido localmente; busca
-  parcial retornou Attack on Titan para Anime e Mangá fora do deploy.
+- Anime/Mangá: a Kitsu exige `Accept: application/vnd.api+json`. A correção foi
+  publicada em `c81c727`; `attac` retornou Attack on Titan em Anime e Mangá no
+  domínio de produção, sem salvar massa de teste.
   Termos aceitos com autorização específica e persistência confirmada.
   ENEM completo foi adiado por Gabriel; resta touch em celular físico. Google Places está fora da
   v1.0.0 por decisão de custo zero e o cadastro manual permanece.
 - Se cadastro aberto: fechar SMTP/remetente, URLs/templates/rate limits, OAuth
   publicado/verificado e signup/CAPTCHA/recuperação fora da equipe.
 - Revisar privacidade/LGPD, retenção de chamados/prints e incidentes.
-- CSP/headers publicados passaram no smoke; CAPTCHA interativo ainda não
-  retestado. Autosync registrou falha genérica, sem causa confirmada.
+- CSP/headers publicados passaram no smoke; CAPTCHA interativo não bloqueia o
+  piloto com signup fechado. O erro isolado do autosync não reapareceu e a
+  requisição amostrada no Vercel respondeu 200; reabrir somente se recorrer.
 - Conta de amigo pode ser criada manualmente no Supabase com senha temporária e
-  auto-confirmação, sem SMTP. Troca autenticada foi adicionada às Configurações;
-  procedimento em `BETA_PRIVADO.md` e guia em `GUIA_PARA_AMIGOS.md`.
+  auto-confirmação, sem SMTP. A troca autenticada está publicada e o formulário
+  foi conferido em Configurações; o primeiro ciclo real será feito ao cadastrar
+  o primeiro amigo. Procedimento em `BETA_PRIVADO.md` e guia em
+  `GUIA_PARA_AMIGOS.md`.
 - Congelar escopo, validar, mudar `frontend/package.json` para `1.0.0`, criar
   notas e publicar somente com autorização explícita.
 
