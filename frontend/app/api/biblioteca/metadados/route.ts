@@ -7,6 +7,7 @@ import { extrairYoutubeId } from '@/lib/videos';
 import { extrairMetadadosArtigoHtml } from '@/lib/article-metadata';
 import { getApiUser } from '@/lib/server/supabase';
 import { logDiagnostic } from '@/lib/safe-diagnostics';
+import { firstNonempty } from '@/lib/first-nonempty';
 
 const FONTES: FonteMetadados[] = [
   'youtube',
@@ -370,25 +371,14 @@ async function buscarGoogleLivros(q: string): Promise<ResultadoMetadados[] | nul
 }
 
 async function buscarJikan(q: string, manga: boolean): Promise<ResultadoMetadados[]> {
-  const [anilist, kitsu] = await Promise.allSettled([buscarAniList(q, manga), buscarKitsu(q, manga)]);
-  const combinados = [
-    ...(anilist.status === 'fulfilled' ? anilist.value : []),
-    ...(kitsu.status === 'fulfilled' ? kitsu.value : []),
-  ];
-  const vistos = new Set<string>();
-  const unicos = combinados.filter((item) => {
-    const chave = item.anilistId ? `anilist:${item.anilistId}` : `${item.titulo.toLocaleLowerCase('pt-BR')}|${item.ano ?? ''}`;
-    if (vistos.has(chave)) return false;
-    vistos.add(chave);
-    return true;
-  });
-  if (unicos.length > 0) return unicos.slice(0, 30);
-  try {
-    const resultadosAniList = await buscarAniList(q, manga);
-    if (resultadosAniList.length > 0) return resultadosAniList;
-  } catch {
-    // A Jikan permanece como segunda fonte pública quando a AniList oscilar.
-  }
+  return firstNonempty([
+    () => buscarAniList(q, manga),
+    () => buscarKitsu(q, manga),
+    () => buscarJikanDireto(q, manga),
+  ]);
+}
+
+async function buscarJikanDireto(q: string, manga: boolean): Promise<ResultadoMetadados[]> {
   const tipo = manga ? 'manga' : 'anime';
   const params = new URLSearchParams({ q, limit: '6', sfw: 'true' });
   let data: {
@@ -420,7 +410,7 @@ async function buscarJikan(q: string, manga: boolean): Promise<ResultadoMetadado
   try {
     data = (await jsonExterno(`https://api.jikan.moe/v4/${tipo}?${params}`)) as typeof data;
   } catch {
-    return buscarKitsu(q, manga);
+    return [];
   }
 
   const resultados = (data.data ?? []).map((item) => ({

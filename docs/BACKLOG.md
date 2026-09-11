@@ -264,7 +264,7 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
 
 ## Dívida técnica de código (achados da auditoria de 2026-08)
 
-- [ ] Lint: após duas rodadas locais, a execução completa de 2026-09-10 tem 8 erros e 27 avisos,
+- [ ] Lint: após a rodada autorizada, a execução completa de 2026-09-10 tem 0 erros e 25 avisos,
       sobretudo `react-hooks/set-state-in-effect`, dependências de hooks e
       `no-img-element`. Os termos adicionados para a v1.0.0 não trouxeram
       achados; a dívida anterior permanece a tratar. O lint segue informativo

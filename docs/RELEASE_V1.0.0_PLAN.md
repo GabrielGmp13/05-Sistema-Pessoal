@@ -55,7 +55,7 @@ forem descritos como opcionais ou futuros.
   cadeia publicada (0 vulnerabilidades na auditoria local de 2026-09-09).
 - Testes Node, typecheck e build aprovados em instalação limpa em 2026-09-09;
   nova rodada em 2026-09-10 passou com 103 testes, typecheck e build de 48
-  páginas. O lint caiu para 8 erros e 27 avisos a tratar antes do
+  páginas. O lint caiu para 0 erros e 25 avisos a classificar antes do
   gate final.
 - Migrations alinhadas; nenhuma pendência inesperada.
 - Smoke de login, recuperação, isolamento, CRUD, Storage, suporte, Agenda e

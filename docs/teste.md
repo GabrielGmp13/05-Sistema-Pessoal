@@ -27,7 +27,21 @@ Sem repetir a rodada histórica abaixo. Commit/push autorizados por Gabriel.
 - **DEPENDE DE DISPOSITIVO** — toque/trackpad, celular físico e redução de
   movimento no sistema. Não declarar concluído apenas por inspeção desktop.
 
-As evidências publicadas serão acrescentadas após confirmar o deploy do commit.
+### Evidências publicadas do commit cc2ccde
+
+- **APROVADO** — GitHub Actions e status Vercel concluíram com sucesso.
+- **APROVADO** — `/login`, `/termos`, `/privacidade`, `/nova-senha` com HTTP 200;
+  três APIs privadas sem sessão com 401; CSP/nosniff presentes.
+- **APROVADO** — caixa de termos inicialmente desmarcada/botão desabilitado,
+  Biblioteca redirecionando aos termos e privacidade acessível antes do aceite.
+  Com autorização específica, aceite registrado e retorno autenticado ao início.
+- **APROVADO** — link e aviso do MEC Enem visíveis no cadastro de redação;
+  Places desativado e formulário manual preservado na interface publicada.
+- **ACHADO** — busca Anime por Naruto terminou em indisponibilidade no reteste.
+  Código aguardava fontes lentas e repetia consultas; corrigido localmente para
+  primeira resposta não vazia entre AniList/Kitsu/Jikan, com dois testes novos.
+  Kitsu respondeu 200 em 1,38 s no diagnóstico local, o que não certifica a Vercel.
+  Correção ainda precisa de publicação/reteste. Nenhuma obra criada neste ensaio.
 
 Este arquivo registra o resultado real da rodada final. Ele não mistura teste
 aprovado com tarefa futura.

@@ -65,7 +65,7 @@ operacional.
 
 **Resumo vigente (2026-09-10):** 103 testes Node, typecheck e build de 48
 páginas aprovados sobre a instalação limpa de 2026-09-09; o lint atual tem
-8 erros e 27 avisos após duas rodadas locais
+0 erros e 25 avisos após a rodada autorizada para publicação
 e permanece como gate de qualidade. Reset local e 22 testes SQL são a evidência da última
 recertificação de banco. A auditoria local está sem vulnerabilidades após
 atualizar Next.js/`eslint-config-next` para 16.3.3, `sharp` para 0.35.4 e
@@ -151,7 +151,7 @@ exercícios e academia antes de exibir formulários.
 | Offline | Service Worker — fora de escopo por ora (Fase M2, ver `ROADMAP.md`) |
 | Hosting | Vercel — **em produção desde 2026-07-13** |
 | Toolchain | Node.js 24.15.0 + npm 12.0.1; versões fixadas no repositório |
-| CI/testes | GitHub Actions: `npm ci`, typecheck, testes Node e build bloqueantes; lint informativo. Estado local mais recente: 103 testes Node, typecheck e build aprovados; lint tem 8 erros/27 avisos; 22 testes SQL na última recertificação |
+| CI/testes | GitHub Actions: `npm ci`, typecheck, testes Node e build bloqueantes; lint informativo. Estado local mais recente: 103 testes Node, typecheck e build aprovados; lint tem 0 erros/25 avisos; 22 testes SQL na última recertificação |
 
 ---
 

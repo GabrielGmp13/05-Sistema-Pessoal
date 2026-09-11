@@ -8,6 +8,11 @@ Histórico de marcos do projeto. Bugs corrigidos e seus detalhes técnicos vivem
 
 ## Próxima versão — fechamento da v1.0.0 (iniciado em 2026-09-05)
 
+- `cc2ccde` enviado à main com autorização: CI/Vercel aprovados; primeiro
+  aceite e smoke público aprovados. Reteste encontrou busca de Anime indisponível.
+  Correção incremental troca espera/repetição de fontes pela primeira resposta
+  útil em paralelo; 105 testes Node aprovados. Reteste pendente após publicação.
+
 - Candidato de 2026-09-10: oito erros restantes de lint corrigidos em
   Biblioteca/Artigos/Vídeos/Receitas/Curso, incluindo carregamento paralelo de
   aulas e cancelamento lógico ao sair. Lint 0 erros/25 avisos; 103 testes,

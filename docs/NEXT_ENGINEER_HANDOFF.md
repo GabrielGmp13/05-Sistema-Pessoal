@@ -21,8 +21,8 @@ Leia antes `AGENTS.md` e `AI_CONTEXT.md`; depois use `TASKS_NOW.md` e
 - Validação local em 2026-09-10: 103/103 testes Node, typecheck e build de 48
   páginas aprovados sobre a instalação limpa de 2026-09-09. Reset local e
   22/22 testes SQL seguem como evidência da última recertificação de banco.
-  O lint completo caiu de 25 para 8 erros
-  e 27 avisos; não publicar a v1.0.0 sem resolver ou aceitar
+  O lint completo caiu de 25 para 0 erros
+  e 25 avisos; não publicar a v1.0.0 sem resolver ou aceitar
   formalmente essa dívida.
 - Auditoria local de dependências: Next.js/`eslint-config-next` 16.3.3,
   `sharp` 0.35.4 e `baseline-browser-mapping` 2.11.21; `npm audit --omit=dev`

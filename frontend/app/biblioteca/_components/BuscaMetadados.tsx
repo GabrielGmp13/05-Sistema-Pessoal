@@ -7,7 +7,7 @@ import styles from './BibliotecaSection.module.css';
 
 const FONTE_LABEL: Record<FonteMetadados, string> = {
   youtube: 'YouTube', tmdb_filme: 'TMDB', tmdb_serie: 'TMDB', google_livros: 'Google Books + Open Library',
-  jikan_anime: 'AniList + Jikan', jikan_manga: 'AniList + Jikan', itunes_podcast: 'iTunes',
+  jikan_anime: 'AniList + Kitsu + Jikan', jikan_manga: 'AniList + Kitsu + Jikan', itunes_podcast: 'iTunes',
   anilist_relacoes: 'relações da AniList', musica: 'YouTube + Apple Music',
   anilist_detalhe: 'AniList',
   artigo: 'site do artigo',
