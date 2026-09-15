@@ -1,5 +1,8 @@
 .claude/
 
+# Artefatos intermediários locais
+tmp/
+
 # Painel operacional privado do dono (contas, contatos e decisões não públicas)
 private/
 

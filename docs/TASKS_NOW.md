@@ -15,7 +15,7 @@ próximo marco planejado, ainda sem autorização de abertura pública.
 - [x] Imagens novas otimizadas de forma conservadora.
 - [x] Responsividade: coluna fixa desde 1024 px e menu abaixo disso.
 - [x] Homologação de 2026-09-09 encerrada e massa de teste removida.
-- [x] Instalação limpa, 98 testes Node, typecheck e build aprovados.
+- [x] Instalação limpa, 106 testes Node, typecheck e build aprovados.
 - [x] Reset local e 22 testes SQL aprovados na última recertificação de banco.
 
 ## Gates da 1.0.0
@@ -118,6 +118,10 @@ físicos continuam dependentes de autorização/ambiente. Não anunciar v1 pront
 - [~] Primeiro ciclo de amigo, recuperação perdida e observação operacional
   permanecem para o uso real. Testes físicos continuam adiados. A mudança do
   número para 1.0.0 ainda exige autorização específica.
+- [x] Guia para amigos ampliado com exemplos, login Google, três capturas
+  públicas sem dados da conta e versão PDF visual em `output/pdf/`.
+- [x] Guia para amigos e PDF destacam o estado beta e identificam Programação,
+  Projetos, Finanças e Saúde como áreas ainda em planejamento.
 
 ### Triagem histórica (não representa o estado atual)
 

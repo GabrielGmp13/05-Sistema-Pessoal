@@ -1,5 +1,21 @@
 # CHANGELOG.md
 
+### Aviso de beta no guia de convidados - 2026-09-11
+
+- O guia Markdown e o PDF agora destacam que o site está em beta e que algumas
+  páginas podem apresentar comportamento inesperado.
+- Programação, Projetos, Finanças e Saúde foram identificadas explicitamente
+  como áreas ainda em planejamento.
+- O aviso do PDF foi reposicionado para o espaço livre acima dos cards, sem
+  sobrepor nenhuma informação.
+
+### Guia visual para convidados - 2026-09-11
+
+- `GUIA_PARA_AMIGOS.md` ganhou exemplos de uso, dois caminhos de login,
+  explicação separada de Calendar/YouTube, suporte e primeiro acesso.
+- Criado PDF A4 de seis páginas com capturas públicas de login, Termos e
+  Privacidade, sem expor dados da conta autenticada.
+
 ### Correção final das buscas externas — 2026-09-11
 
 - Corrigido o contrato HTTP da Kitsu: o endpoint exige
