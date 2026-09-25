@@ -2,7 +2,7 @@
 
 **Data da auditoria:** 2026-09-25
 
-**Estado:** implementação local concluída; publicação e smoke em andamento
+**Estado:** implementada e publicada no commit `79dce60`
 
 **Escopo preservado:** V2.1 essencial, sem reativar cômodos pausados e sem
 antecipar itens de V3
@@ -58,6 +58,13 @@ Os maiores ganhos esperados para a V2.2 estão em quatro pontos:
 
 Validação local até este ponto: 155 testes Node, typecheck, lint, build de 49
 páginas, `/login` ainda estático e QA de tema escuro sem aviso de hidratação.
+
+Validação publicada: CI `Validate repository` aprovada; Vercel concluiu o
+deploy; `/login` respondeu 200 com `X-Vercel-Cache: PRERENDER` e bootstrap
+nativo antes da fila do Next; raiz sem sessão respondeu 307 para `/login`.
+Na sessão autenticada, Início abriu com `html.dark`, `color-scheme: dark`, zero
+atalho pausado e nenhum aviso/erro no console. Biblioteca abriu pelo menu e o
+fluxo retornou ao Início.
 
 ## Evidências levantadas
 

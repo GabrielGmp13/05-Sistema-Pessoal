@@ -9,16 +9,18 @@
 
 - Repositório: `C:\Gabriel Oliveira\05-Sistema-Pessoal`; frontend único em
   `frontend/`; produção em `https://expansiondominionpersonaledition.vercel.app`.
-- Publicados em `main`: `c862edb`, `dde129e`, `af05990`, `3eae531`, `e09be53`.
-  CI e deploy Vercel passaram. O PDF avulso na raiz pertence ao usuário e segue
-  fora do Git.
+- Último lote funcional em `main`: `79dce60` (V2.2 de desempenho), após
+  `14d85a1`, `547889b` e `bdc4ac5`. CI e deploy Vercel passaram. O PDF avulso
+  na raiz pertence ao usuário e segue fora do Git.
 - Banco: `20260915000100`, `20260917000100`, `20260917000200` e
   `20260917000300` estão aplicadas em produção. A `00100` foi aplicada por
   rito isolado em 2026-09-25; não executar `db push` genérico. A função só
   reordena elenco/trilha/OP-ED dentro de uma obra e a UI ainda não a chama.
-- Validação atual: 147 testes Node, typecheck, lint e build de 49 páginas
-  passaram. QA local confirmou Treino/Agenda, avaliações, ENEM, Redações,
-  progresso de leitura, OFX/CSV sintéticos e Storage privado entre duas contas.
+- Validação atual: 155 testes Node, typecheck, lint e build de 49 páginas
+  passaram. V2.2 eliminou o flash de tema, reduziu operações do Início,
+  compartilhou sessão/perfil e removeu espera artificial de navegação; smoke
+  público/autenticado passou. QA anterior confirmou Treino/Agenda, avaliações,
+  ENEM, Redações, progresso de leitura, OFX/CSV sintéticos e Storage privado.
 - V2.1 pausa Idiomas, Projetos, Programação e o conjunto Diário (Saúde,
   Finanças, Lugares e Receitas). A lista central em
   `frontend/lib/modulos-pausados.ts` remove navegação/Início e reescreve a URL

@@ -1,5 +1,12 @@
 # Retomada operacional — 2026-09-24
 
+> **V2.2 publicada em 2026-09-25:** commit `79dce60` elimina o flash de tema
+> com bootstrap nativo, reduz as operações fixas do Início de 16 para cinco,
+> compartilha sessão/perfil no shell, isola o relógio e remove espera artificial
+> antes da navegação. 155 testes, typecheck, lint, build de 49 páginas, CI,
+> Vercel e smoke público/autenticado aprovados. Detalhes em
+> `TASK_V2_2_DESEMPENHO.md`; DEC-093.
+
 ## Atualização em 2026-09-25 — I05 aplicada isoladamente
 
 Na V2.1, Idiomas, Projetos, Programação e o conjunto Diário foram retirados da

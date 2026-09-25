@@ -1,13 +1,14 @@
 # Tarefas atuais — preparação funcional da versão 2
 
-**V2.2 local em 2026-09-25:** o plano de `TASK_V2_2_DESEMPENHO.md` foi aplicado
+**V2.2 publicada em 2026-09-25:** o plano de `TASK_V2_2_DESEMPENHO.md` foi aplicado
 ao gargalo medido. Bootstrap de tema é nativo; Início caiu de 16 operações
 fixas para cinco essenciais e não consulta cômodos pausados; perfil/sessão e
 módulos ocultos são compartilhados; relógio foi isolado; navegação não espera
 360 ms/2,45 s; mídia externa usa decodificação assíncrona. Validação: 155 testes,
-typecheck, lint e build de 49 páginas aprovados; QA local recarregou Lua sem
-flash lógico, divergência de classe ou aviso de hidratação. Falta concluir
-commit/push, CI, deploy e smoke publicado desta rodada.
+typecheck, lint e build de 49 páginas aprovados. Commit `79dce60` enviado;
+CI e Vercel aprovados. Smoke publicou o script nativo antes da fila do Next,
+preservou `/login` prerenderizado e confirmou Início autenticado escuro, sem
+atalhos pausados ou avisos no console; Biblioteca abriu pelo menu.
 
 **Atualização em 2026-09-25 (V2.1):** Idiomas, Projetos, Programação e Diário
 (incluindo Saúde, Finanças, Lugares e Receitas) foram pausados centralmente:

@@ -24,6 +24,9 @@
   pesos atuais sob demanda.
 - Gates locais: 155 testes Node, typecheck, lint, build de 49 páginas e QA de
   recarga escura sem avisos de hidratação.
+- Commit `79dce60`: CI e deploy Vercel aprovados. Smoke público preservou login
+  prerenderizado e proteção da raiz; smoke autenticado abriu Início diretamente
+  escuro, sem atalhos pausados/avisos, e navegou para Biblioteca.
 
 ## 2026-09-25 — V2.1: superfície essencial e catálogo V3
 
