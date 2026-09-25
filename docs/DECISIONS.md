@@ -1,5 +1,117 @@
 # DECISIONS.md
 
+## DEC-088 — Presença usa ocorrências datadas da Agenda (2026-09-23)
+
+A inspeção confirmou que `agenda` já contém data, treino, conclusão e
+`updated_at`, com FK própria e RLS aplicadas. Ela é a ocorrência concreta;
+não é necessário duplicá-la numa tabela de faltas. O estado falta é derivado
+quando a data local passou e a ocorrência não foi concluída, mesmo que o site
+estivesse fechado. Correção manual atualiza a própria ocorrência e seu horário
+de alteração. Finalizar Academia conclui o compromisso daquele treino no dia
+em que a sessão começou quando há uma única ocorrência. Se houver mais de uma,
+a sessão é salva e a UI pede escolher na Agenda, sem concluir todas por engano.
+Reenvio mantém o horário final e recupera falha parcial
+da Agenda. Não há transação entre essas duas gravações, por isso a UI informa
+falha e permite reenvio. O plano semanal continua modelo sem retrospecto:
+somente datas efetivamente marcadas na Agenda contam como presença/falta.
+Materialização automática e ilimitada de semanas não está implementada.
+
+## DEC-087 — Vídeo visto conclui teoria da aula vinculada (2026-09-23)
+
+Gabriel alterou explicitamente a regra anterior de progresso independente.
+Salvar um vídeo assistido na Biblioteca propaga `teoria_vista=true` para
+aulas ativas vinculadas do mesmo usuário; criar o vínculo já traz esse estado.
+Não alterar domínio manual, SM-2 ou próxima aula. Desmarcar assistido não
+apaga teoria já registrada. Sem migration: campos existentes em produção.
+As gravações são separadas e idempotentes: falha na segunda etapa mantém o
+vídeo salvo, informa pendência e oferece reenvio. Após recarga, editar/salvar
+novamente o vídeo reexecuta a propagação. Não há transação ou fila de retry
+persistida. Implementação local; homologação autenticada pendente.
+
+## DEC-086 — PDF nativo do navegador na V2; caderno digital separado (2026-09-17)
+
+**Status:** decisão funcional confirmada por Gabriel; abertura privada já
+existe no candidato local, homologação final pendente.
+
+Na V2, PDFs privados são abertos por URL assinada em outra aba. O navegador os
+exibe quando oferece visualizador compatível ou inicia download; o site não
+implementa edição, desenho, OCR ou persistência de anotações em PDF. Isso evita
+manter um editor complexo e diferenças de compatibilidade que não trazem valor
+claro para o uso atual. Um caderno digital dentro do site foi registrado como
+ideia futura **separada**, sem versão ou contrato funcional definidos.
+
+## DEC-085 — Tentativas ENEM independentes e avaliações pessoais separadas (2026-09-17)
+
+**Status em 2026-09-24:** modelo aplicado em produção com rito isolado;
+frontend implementado localmente, publicação e homologação final pendentes.
+
+Cada execução nova do ENEM pertence a uma prova existente e tem identidade,
+prazo calculado pelo servidor, respostas próprias e número de versão para
+detectar gravação concorrente. Encerramento conserva o histórico; refazer cria
+outra tentativa, sem apagar gabarito ou classificações da prova. O histórico
+legado em `provas_tentativas` fica intacto e requer transição explícita na UI.
+O percentual de acertos não é nota TRI.
+
+Redação guarda versões do texto/imagem e avaliações individuais com origem,
+avaliador e data. A média aritmética das avaliações pessoais não é nota oficial;
+eventual nota oficial tem campo distinto. Relações privadas entre prova,
+tentativa, redação, versão e avaliação incluem `user_id` na FK. A substituição
+de imagem não poderá apagar um arquivo ainda referenciado por versão.
+
+## DEC-084 — Avaliações independentes e anuladas sem converter o legado
+
+**Data:** 2026-09-17 · **Status:** SQL somente local, reset e 25 scripts aprovados;
+sem frontend dependente e sem autorização/aplicação remota.
+
+O escopo de avaliações com peso e nota máxima já foi aprovado na inclusão do
+BACKLOG na v2. Usa nova tabela `lancamentos_nota`, como previsto no BACKLOG,
+para incluir prova, lista e outros títulos sem transformar toda avaliação em
+evento `provas`. Cada lançamento pertence a uma matéria da mesma conta, por
+FK composta. `provas.nota` permanece intacta: sua escala histórica não é
+inferida nem copiada automaticamente, evitando duplicar notas.
+
+Nota nula é pendente; zero é nota real. Nota máxima e peso são positivos e
+finitos. A média normaliza cada nota pela sua máxima antes de ponderar e
+retorna percentual, contagens e peso efetivamente avaliado; pendentes e
+removidos não entram no denominador. Sem notas avaliadas, resultado nulo,
+nunca zero. A função é invoker e exige propriedade da matéria ativa.
+
+`simulados.total_anuladas` começa em zero para preservar totais históricos.
+Válidas = total - anuladas; erros = válidas - acertos. Todos devem ser
+coerentes/não negativos. Se não houver questão válida, não calcular desempenho
+nem atualizar SM-2 com uma nota artificial. Não duplicar `arquivo_path`.
+O SQL não corrige dados incoerentes silenciosamente: precheck remoto deve
+identificá-los antes de qualquer aplicação. UI e ajuste de SM-2 só após schema
+confirmado em produção, conforme schema-first.
+
+## DEC-083 — Contexto acadêmico personalizável sem duplicar matérias
+
+**Data:** 2026-09-17 · **Status:** implementação local; CRUD/persistência/falhas
+conferidos na UI e isolamento entre contas na API local. Troca de contas na UI
+e publicação ainda pendentes.
+
+Implementa o pedido confirmado em EVOLUCAO_ESTUDOS_EDITORES: Escola/Faculdade
+é um rótulo por conta (`user_metadata.app_contexto_academico`, lista permitida,
+default Escola), incluído na exportação. Usa `mostra_escola` já aplicado para
+retirar/reincluir; nunca exclui matéria, vínculos, ENEM ou histórico. O editor
+explica que renomear uma matéria compartilhada afeta ambos os contextos.
+Seed passa a ocorrer somente em conta sem qualquer matéria acadêmica, incluindo
+linhas removidas. Grava lote atômico com IDs textuais determinísticos e conflito
+ignorado, sem ressuscitar nomes personalizados. Não requer migration nova.
+
+## DEC-082 — Preferência de atalhos por conta não controla autorização
+
+**Data:** 2026-09-16 · **Status:** implementada localmente, homologação pendente.
+
+O pedido de módulos visíveis é atendido inicialmente pela seleção dos atalhos
+na navegação e na lista de módulos do Início. `user_metadata.app_hidden_modules`
+guarda somente rotas de uma lista permitida. Início e Configurações não podem
+ser ocultados. A preferência é reversível, participa da exportação e acompanha
+a conta, sem tabela, migration ou dependência nova. Não é uma permissão: RLS,
+links diretos, dados e resumos transversais permanecem intactos. A interface
+explica esses limites; ocultação completa de conteúdo requer uma etapa própria.
+
+
 Registro de decisões arquiteturais. Cada decisão ativa inclui contexto, alternativas e justificativa — não reabrir sem informação nova. Decisões **superadas** ficam resumidas (o quê + por que foi superada + o que vale agora), sem manter a análise original completa — quem precisar do raciocínio histórico integral pode pedir para eu recuperar via `CHANGELOG.md`/versão anterior deste arquivo.
 
 ---

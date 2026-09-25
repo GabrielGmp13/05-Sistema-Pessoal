@@ -4,13 +4,16 @@ Padrões observados e a seguir daqui em diante. Onde já existe inconsistência 
 
 ---
 
-## Arquivos HTML
+## Arquivos HTML (legado v1; não criar novas páginas nesse formato)
 
 `kebab-case`, prefixado pelo módulo quando há mais de uma página: `treino-plano.html`, `treino-academia.html`, `treino-shape.html`. Página única de um módulo não leva prefixo redundante: `revisao.html`, `estudos.html`, não `estudos-estudos.html`.
 
 ## Páginas e componentes React (v2, desde DEC-018)
 
 - Componentes: `PascalCase.tsx` — `CardExercicio.tsx`, `ModalObra.tsx`, `RatingEstrela.tsx`.
+  Exceção já estabelecida em `components/study/` e `components/ui/`:
+  `kebab-case.tsx`, mantendo a convenção do diretório e DEC-038. Não renomear
+  em massa componentes existentes para uniformizar estilos distintos.
 - Rotas (App Router): pasta em `kebab-case` seguindo a URL — `app/biblioteca/page.tsx`, `app/treino/plano/page.tsx`.
 **Exceção (DEC-032):** módulos com navegação por categoria interna (ex:
   Biblioteca) usam uma única página consolidada
@@ -25,9 +28,14 @@ Padrões observados e a seguir daqui em diante. Onde já existe inconsistência 
 
 ## Classes CSS
 
+No frontend atual, CSS Modules usam também `camelCase` (por exemplo
+`styles.cabecalho`); o isolamento é do módulo. Estudos combina classes
+utilitárias Tailwind com componentes compartilhados. Seguir o arquivo/diretório
+real e `DESIGN.md`, não aplicar o padrão global da v1 a CSS Modules.
+
 *(sem mudança na convenção em si — kebab-case, prefixo por escopo — mas o "onde é definida" agora é: `globals.css` = compartilhado, `Componente.module.css` ou classe local do componente = com prefixo/escopo do componente, mesmo espírito do padrão antigo por página)*
 
-## Scripts (`assets/`)
+## Scripts (`assets/`, legado v1)
 
 Nome curto, sem prefixo: `supabase.js`, `auth.js`, `sm2.js`.
 

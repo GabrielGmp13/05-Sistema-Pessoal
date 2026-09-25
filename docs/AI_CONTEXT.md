@@ -1,5 +1,8 @@
 # AI_CONTEXT.md
 
+> Cursor atual de execução: `RETOMADA_V2.md` (2026-09-23). Contém as últimas
+> respostas de Gabriel, ponto de parada do Nubank e ordem dos próximos lotes.
+
 > **Leia este arquivo primeiro.** Ele é o ponto de entrada do projeto — um bootstrap para qualquer agente de IA (ou o próprio Gabriel) retomar o trabalho sem precisar reler tudo. Detalhes técnicos vivem nos documentos linkados abaixo, não aqui.
 >
 > **Retomada rápida:** depois deste arquivo, leia `docs/NEXT_ENGINEER_HANDOFF.md`
@@ -9,6 +12,17 @@
 ---
 
 ## Projeto
+
+Escopo aprovado em 2026-09-16: Hábitos, Metas e Arquivos ficam para v3,
+com especificação posterior ao lançamento da v2. Custo zero mantido;
+integrações indisponíveis são bloqueadas, não concluídas. Estado funcional
+vigente e pendências reunidas em `TASK_V2_FECHAMENTO.md`; a v2 integral ainda
+não está pronta. `TASK_V2_IMPLEMENTACAO.md` guarda os detalhes de origem.
+Em 2026-09-17, ENEM/Redações ganharam migration **somente local**
+`20260917000300`; 26 testes SQL, 134 testes frontend, tipos, lint e build
+passaram. A UI nova e a aplicação remota permanecem pendentes. Para escolhas
+de produto, ver `V2_ESCOLHAS_POR_TOPICO.md`. Biblioteca `20260917000100`
+continua expressamente local.
 
 **Sistema Pessoal** — gestão pessoal online, multi-dispositivo, para uso individual de longo prazo.
 **Desenvolvedor:** Gabriel, estudante (Pernambuco, BR).
@@ -53,6 +67,35 @@ operacional.
 ---
 
 ## Estado atual (2026-09)
+
+> **Banco de Estudos — 2026-09-17:** I04 tem SQL incremental local validado:
+> lançamentos de nota, média ponderada e anuladas (DEC-084). Reset e 25 scripts
+> SQL passaram. Produção permanece inalterada; UI aguarda aplicação específica
+> autorizada. Não aplicar junto a reordenação Biblioteca mantida local pelo dono.
+> Contas fictícias locais foram removidas pelo reset; recriar antes de E2E.
+
+> **Retomada de 2026-09-17:** homologação acadêmica autenticada iniciada em
+> ambiente inteiramente local: editar/retirar/reincluir e persistência aprovados,
+> sem remover Matemática do ENEM nem recriar nome inicial personalizado.
+> 133 testes Node aprovados; gravação incerta bloqueia reenvio até atualização.
+> Ainda há implementação e homologação pendentes. Biblioteca permanece com
+> migration SOMENTE LOCAL, por determinação de Gabriel; não aplicar remotamente.
+
+> **Lote local adicional:** edição de listas da Biblioteca, tendências de Saúde,
+> relógio ENEM em blocos e atalhos por conta implementados em 2026-09-16.
+> Validação final em andamento; consultar o topo de `TASKS_NOW.md`. Sem publicação.
+
+> **Pedido vigente de 2026-09-15:** Gabriel incluiu todas as ideias futuras na
+> versão 2 e autorizou commit/push após conclusão. O objetivo está incompleto;
+> consultar `TASK_V2_IMPLEMENTACAO.md` e o inventário de 39 páginas em
+> `TASK_V2_DESIGN.md`. Frontend de Treino continua local; migration incremental
+> já aplicada em produção, conforme a retomada abaixo.
+
+> **Retomada de 2026-09-16:** migration `20260915000100` aplicada com dry-run e
+> pós-checks aprovados. UI local: edição, grupos/instruções, ordem transacional,
+> volume semanal e retomada com rascunho no navegador. 114 testes Node,
+> typecheck e lint aprovados; 23 scripts SQL da migration aprovados localmente.
+> Homologação autenticada pendente. Sem commit/push; v2 integral incompleta.
 
 > **Consolidação de 2026-09-09:** a v0.2.0 continua sendo a versão declarada no
 > pacote, mas acesso, suporte, isolamento, otimização de imagens, responsividade

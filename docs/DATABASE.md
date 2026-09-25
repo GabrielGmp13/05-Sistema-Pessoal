@@ -1,5 +1,15 @@
 # DATABASE.md
 
+## Estado remoto confirmado em 2026-09-23
+
+Aplicadas exclusivamente `20260917000200` (avaliações/anuladas) e
+`20260917000300` (tentativas ENEM/versões e avaliações de redações), após
+precheck, revisão e dry-run exclusivo. Histórico confirmou ambas; quatro
+tabelas novas com RLS, CRUD authenticated e sem SELECT anon; dry-run final
+da cadeia isolada vazio. Os contratos abaixo antes marcados como locais
+dessas duas versões agora estão disponíveis em produção. Biblioteca
+`20260917000100` continua somente local. As baselines não foram reexecutadas.
+
 Documento único de referência para o banco de dados. Qualquer dúvida sobre nome de tabela, coluna ou relacionamento é resolvida aqui — não em memória, não por suposição.
 
 > **Nota de proveniência (2026-08):** este documento foi reconciliado contra um
@@ -53,6 +63,59 @@ dessas duas pastas deve ser executado como migration.
 
 ### Cadeia ativa
 
+**SQL somente local, reset e 25 scripts aprovados (sem aplicação remota):**
+`20260917000200_estudos_avaliacoes_anuladas.sql` (DEC-084):
+
+- `lancamentos_nota`: `uuid TEXT PK`, `user_id UUID`, `materia_uuid TEXT`,
+  `titulo TEXT` (1–200 caracteres após trim), `data DATE` opcional,
+  `nota NUMERIC(10,3)` opcional, `nota_maxima NUMERIC(10,3)` obrigatória,
+  `peso NUMERIC(10,3)` default 1, `updated_at`, `deleted`.
+  Nota entre zero/máxima; máxima/peso positivos e finitos. FK composta
+  `(user_id,materia_uuid)` com unique correspondente em `materias`.
+  RLS/CRUD somente authenticated; remoção lógica preserva nota histórica.
+- `media_ponderada_materia(TEXT)` invoker: percentual ponderado normalizado,
+  avaliadas, pendentes e peso_avaliado. Exige dono da matéria ativa; não é TRI.
+- `simulados.total_anuladas INTEGER NOT NULL DEFAULT 0`, CHECK de totais
+  coerentes. Zero válidas é permitido, sem resultado percentual calculável.
+- Exportação já enumera tabelas por `user_id`; nova tabela é incluída sem
+  conceder leitura direta ao service_role. `provas.nota` não é convertido.
+
+O estado esperado da cadeia LOCAL passa a 75 tabelas/PKs, 146 FKs, 133 checks,
+81 índices explícitos e dez funções. **Produção continua com 71 tabelas e
+quatro funções**; nenhuma UI deve depender destes novos objetos ainda.
+Antes de aplicar remotamente: conferir se existem simulados com total/acertos
+negativos ou acertos acima do total; inconsistências exigem tratamento explícito,
+não normalização automática. O dry-run da cadeia inteira incluiria também a
+reordenação Biblioteca NÃO autorizada; não executar um push indiscriminado.
+
+**Somente local, aplicação remota não autorizada:**
+`20260917000100_biblioteca_reordenacao.sql` acrescenta a função invoker
+`reordenar_lista_biblioteca(p_lista TEXT, p_tipo_obra TEXT, p_obra_uuid TEXT,
+p_ordem TEXT[], p_esperada TEXT[])`. Alvos permitidos: elenco, trilha_sonora e
+openings_endings; verifica dono da obra, lista completa e ordem anterior antes
+de alterar. Não reorganiza cards do catálogo. Reset local e teste específico
+aprovados; Gabriel determinou manter local. Não criar frontend dependente nem
+incluir em aplicação remota sem nova autorização explícita. O consolidado local
+inclui essa função e a nova média local; a produção segue com quatro.
+
+**Aplicada em produção em 2026-09-16:** `20260915000100_treino_grupos_instrucoes_ordem.sql`
+passou reset e 23 testes SQL locais, dry-run exclusivo e aplicação autorizada. Acrescenta
+`exercicios_forca.grupo_muscular` (texto opcional, 1–80 caracteres não vazios),
+`instrucoes` (texto opcional até 4000) em força/cardio e a função
+`reordenar_exercicios_treino(p_treino_uuid TEXT, p_tipo TEXT, p_ordem TEXT[])`.
+A função é SECURITY INVOKER, usa auth.uid(), valida a lista completa de
+exercícios ativos e reordena em uma transação, sem alterar dados de outra conta.
+Somente authenticated recebe EXECUTE; GRANT CRUD das tabelas permanece explícito.
+Pós-check confirmou três colunas, função invoker, EXECUTE de authenticated,
+recusa de anon, uma entrada no histórico e dry-run final sem pendências.
+
+**Validação retomada em 2026-09-16:** reset local concluído e 23 scripts SQL
+aprovados; o consolidado espera agora 105 checks e quatro funções. O teste novo
+cobre força/cardio, permissões, duplicatas, lista incompleta, item nulo, item
+excluído, ausência de identidade, isolamento, limites e preservação após erro.
+Precheck de alvo remoto confere com o frontend; a falha inicial de autenticação
+foi resolvida com credencial fornecida por Gabriel, usada somente na sessão.
+
 | Versão | Arquivo | Estado oficial |
 |---|---|---|
 | `20260807000100` | `20260807000100_baseline_public.sql` | ✅ Baseline de `public`, replay local aprovado e registrada como `applied` em produção |
@@ -82,6 +145,7 @@ dessas duas pastas deve ser executado como migration.
 | `20260905000100` | `20260905000100_suporte_publico.sql` | ✅ Reset/teste local aprovados; aplicada em produção em 2026-09-06; histórico de 25 versões e dry-run final vazio |
 | `20260907000100` | `20260907000100_exportacao_dados_usuario.sql` | ✅ Reset completo e 21 testes SQL aprovados; dry-run listou somente esta migration; aplicada em produção em 2026-09-07; dry-run final vazio |
 | `20260908000100` | `20260908000100_treino_integridade_por_usuario.sql` | ✅ Reset completo e 22 testes SQL aprovados; aplicada em produção após precheck seguro e limpeza confirmada de uma sessão vazia de teste; dry-run final vazio |
+| `20260915000100` | `20260915000100_treino_grupos_instrucoes_ordem.sql` | ✅ Reset e 23 testes SQL aprovados; aplicada em produção em 2026-09-16 após dry-run exclusivo; colunas/permissões/histórico confirmados e dry-run final vazio |
 
 > **Estado confirmado (2026-08-30):** produção e cadeia local estão alinhadas
 > até `20260830000100_anime_related_works.sql`, com 68 tabelas, seis buckets
@@ -770,6 +834,8 @@ series_alvo        INTEGER,
 reps_alvo          INTEGER,
 carga_alvo         NUMERIC(6,2),
 descanso_segundos  INTEGER,
+grupo_muscular     TEXT, -- opcional, 1–80 caracteres após trim
+instrucoes         TEXT, -- opcional, até 4000 caracteres
 imagem_path        TEXT,
 ordem              INTEGER DEFAULT 0,
 updated_at         TIMESTAMPTZ DEFAULT NOW(),
@@ -784,6 +850,7 @@ treino_uuid           TEXT NOT NULL, FOREIGN KEY (user_id, treino_uuid) REFERENC
 nome                  TEXT NOT NULL,
 distancia_alvo_km     NUMERIC(6,3),
 duracao_alvo_minutos  INTEGER,
+instrucoes            TEXT, -- opcional, até 4000 caracteres
 imagem_path           TEXT,
 ordem                 INTEGER DEFAULT 0,
 updated_at            TIMESTAMPTZ DEFAULT NOW(),
@@ -877,8 +944,9 @@ dominado_manual   BOOLEAN NOT NULL DEFAULT FALSE
 > A migration `20260811000300_conteudos_video.sql`, aplicada em produção em
 > 2026-08-12, adicionou `video_uuid` nullable para identificar aulas originadas
 > da Biblioteca. Também criou o índice parcial
-> `idx_conteudos_video_ativos`. O progresso permanece independente entre o
-> vídeo da Biblioteca e o conteúdo do Curso.
+> `idx_conteudos_video_ativos`. DEC-087 altera o comportamento local do
+> frontend: salvar vídeo assistido conclui teoria das aulas vinculadas;
+> domínio continua independente. Sem alteração de schema; homologação pendente.
 
 ### `conteudos_materias`
 ```sql
@@ -1252,6 +1320,29 @@ UNIQUE (user_id, prova_uuid, numero)
 ```
 > Guarda o resumo e a estrutura da tentativa anterior antes de “Refazer prova”.
 > Gabarito correto, matéria, conteúdo e redação continuam nas fontes atuais.
+
+### ENEM e Redações — modelo novo SOMENTE LOCAL (`20260917000300`)
+
+Ainda não existe em produção. A migration adiciona `provas.enem_ano`,
+`enem_aplicacao`, `enem_caderno`, `enem_lingua` (opcionais para legado) e
+`redacoes.nota_oficial`, que **não** substitui `redacoes.nota` nem a média
+pessoal. `enem_tentativas` guarda uma linha por execução, com `(user_id,
+prova_uuid, numero)` único, `estado`, `iniciada_em`, `prazo_em`, `respostas`
+JSONB das questões 1–90, `versao` otimista e vínculo opcional posterior à
+redação. O banco bloqueia alterações após o prazo/finalização, impede exclusão
+de histórico e exige FKs compostas por usuário; as funções invoker
+`iniciar_tentativa_enem` e `salvar_tentativa_enem` fazem início e gravação
+consistentes. `provas_tentativas` permanece como acervo legado sem conversão.
+
+`redacoes_versoes` preserva texto e/ou `imagem_path` por revisão;
+`redacoes_avaliacoes` registra avaliador, origem, data, nota 0–1000,
+competências opcionais 0–200 e versão
+opcional. A média pessoal é `AVG(nota)` das avaliações ativas da redação,
+separada de `nota_oficial`. O frontend não usa essas entidades até a aplicação
+remota autorizada e confirmação do schema real. A troca de imagem atual ainda
+remove o arquivo anterior; a UI nova deve reter arquivos referenciados por
+versões antes de permitir substituir. Todas as tabelas novas têm RLS e CRUD
+explícito para `authenticated`.
 
 ### `treinos_planejamento_semanal` (migration aplicada `20260827000100`)
 ```sql

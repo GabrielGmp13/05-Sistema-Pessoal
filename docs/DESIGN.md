@@ -339,6 +339,20 @@ medidas e aparência dos componentes reais para não haver piscada, duplicação
 
 ## Convenções de UI
 
+Escola/Faculdade mantém os componentes de Estudos. O painel de gerenciamento
+explica nomes compartilhados com ENEM; retirar é diferente de apagar e tem
+confirmação/reinclusão. Resultados ENEM usam barras nativas `meter` acompanhadas
+de contagens e denominadores legíveis; não dependem somente de cor e não
+aparecem durante o modo de prova. Percentual é explicitamente distinto de TRI.
+
+Configurações oferece checkboxes para os atalhos dos módulos (DEC-082), com
+salvamento explícito e explicação de que ocultar não apaga dados. Os editores
+de listas da Biblioteca mantêm Editar/Remover junto a cada item; Editar reutiliza
+os campos do próprio editor dentro do modal, com Salvar/Cancelar, sem alterar
+o painel somente leitura. Tendências de Saúde reutilizam o gráfico SVG e sua
+lista acessível de valores. O relógio ENEM mantém o tempo numérico visível e
+oferece blocos opcionais com rótulos de concluído/atual/pendente, não só cores.
+
 - Estados vazios sempre têm texto explicativo + call-to-action quando aplicável.
 - Toda ação destrutiva passa por modal de confirmação — nunca `confirm()` nativo do browser.
 - Toda lista que pode ficar vazia tem um elemento `.vazio` dedicado.

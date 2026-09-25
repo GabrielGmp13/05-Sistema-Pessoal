@@ -1,4 +1,67 @@
-# Handoff — fechamento da versão 1.0.0
+# Handoff — preparação funcional da versão 2
+
+> **Cursor vigente: `RETOMADA_V2.md` (2026-09-23).** As notas abaixo são
+> históricas. Nubank conta/fatura tem implementação local ainda em validação;
+> escolhas novas de Treino/vídeo/leitura estão no cursor. Não repetir perguntas
+> já respondidas nem tratar testes anteriores como homologação deste lote.
+
+> **Retomada 2026-09-17:** ENEM/Redações `20260917000300` preparadas SOMENTE
+> LOCAL (DEC-085), sem UI dependente nem operação remota. A cadeia local tem
+> 75 tabelas/dez funções; produção continua 71/quatro. Reset/26 scripts SQL,
+> 134 testes Node, typecheck, lint e build de 49 páginas passaram. Treino agora
+> bloqueia finalização quando rascunho ou execuções apontam exercício removido
+> do plano. `V2_ESCOLHAS_POR_TOPICO.md` destrincha D01–D21/E01–E13. Faltam
+> aplicação autorizada, transição de UI/legado e E2E. Não houve commit/push.
+> Biblioteca `20260917000100` segue local por decisão do Gabriel.
+
+> **Banco I04 — 2026-09-17:** `20260917000200` implementada/testada SOMENTE
+> LOCAL: lançamentos de nota, média ponderada e anuladas de simulados (DEC-084).
+> Reset e 25 scripts aprovados naquela etapa; agora 75 tabelas/dez funções na cadeia local.
+> Não integrar frontend antes de aplicação remota autorizada. Biblioteca
+> `20260917000100` continua expressamente fora de qualquer aplicação remota.
+> Reset removeu as duas contas fictícias; recriá-las antes de novo E2E local.
+> Nenhuma produção alterada, nenhum commit/push. I01/I02 têm somente o modelo
+> local preparado; interface e E2E não estão implementados.
+
+> **Retomada autenticada 2026-09-17:** candidato local em 127.0.0.1:3100,
+> Supabase local 54321/54322, sem alteração de .env.local. Edição/retirada/
+> reinclusão de matéria, persistência de Faculdade e nome, ausência de seed
+> duplicado e preservação de Matemática no ENEM conferidas na interface.
+> 133 testes Node, typecheck/lint e build de 49 páginas aprovados. Storage local
+> não iniciou; não declarar uploads homologados. Falha/recuperação REST local
+> aprovadas na UI; leitura/alteração cruzada entre duas contas recusadas pela API.
+> Erro de gravação acadêmica bloqueia reenvio até atualizar. Troca de conta na
+> interface pendente: controle da aba bloqueado após reiniciar servidor local.
+> Próximo trabalho: I01/I02/I04 e restante de I08, sem pedir redefinição funcional.
+
+> **Continuação 2026-09-17:** Escola/Faculdade implementada localmente (DEC-083),
+> edição ampliada de temporadas e distribuição/motivos do resultado ENEM.
+> 131 testes Node e 24 scripts SQL locais aprovados; tipos/lint/build aprovados.
+> Migration Biblioteca 20260917000100 permanece SOMENTE LOCAL por determinação
+> de Gabriel; não aplicar remotamente. UI da reordenação não foi integrada.
+> Homologação autenticada pendente; ambiente Supabase completo local em preparação.
+
+> **Lote local adicional em 2026-09-16:** Biblioteca ganhou edição de elenco,
+> trilhas, temporadas de séries, volumes e OP/ED/OST. Saúde ganhou tendências;
+> ENEM, relógio em blocos. Atalhos por conta em Configurações (DEC-082) e
+> exportação ajustada. Validar candidato local antes de commit/push. Sessão
+> publicada foi confirmada por navegador; não equivale à sessão de localhost.
+> Não anunciar o escopo integral como pronto. O PDF solto na raiz pertence ao
+> usuário e não deve ser incluído automaticamente no stage.
+
+> **Retomada 2026-09-16:** migration `20260915000100` aplicada em produção;
+> pós-check e dry-run final aprovados. 23 scripts SQL locais aprovados;
+> 114 testes Node, typecheck e lint aprovados. Edição, grupos/instruções,
+> reordenação transacional, volume e rascunho de Academia integrados localmente.
+> Homologação autenticada pendente; sessão do usuário não está acessível no
+> navegador de testes atual. Nenhum commit/push. Não reaplicar a migration nem
+> guardar credenciais em arquivo. Continuar por `TASK_V2_IMPLEMENTACAO.md`.
+
+> **Retomada atualizada em 2026-09-15:** a prioridade mudou para incluir todas
+> as ideias futuras na versão 2. Ler `TASK_V2_IMPLEMENTACAO.md` e
+> `TASK_V2_DESIGN.md` antes da fotografia histórica abaixo. O objetivo ainda
+> está incompleto; migration Treino já aplicada em produção. Commit/push
+> autorizados após conclusão, sem publicação desta rodada.
 
 Atualizado em 2026-09-11. Este é o documento curto para iniciar o próximo chat.
 Leia antes `AGENTS.md` e `AI_CONTEXT.md`; depois use `TASKS_NOW.md` e

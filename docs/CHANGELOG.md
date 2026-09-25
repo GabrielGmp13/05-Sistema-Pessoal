@@ -1,5 +1,214 @@
 # CHANGELOG.md
 
+## 2026-09-24 — modelo acadêmico aplicado e fluxos integrados
+
+- Candidato funcional passou typecheck, 147 testes Node, lint e build de 49
+  páginas. O pacote contém importação sintética de OFX/CSV, progresso de
+  leitura e controles de treino/Estudos; isso não encerra as escolhas D/E do
+  escopo ampliado nem substitui ensaio com arquivo bancário real e celular.
+- Inspeção confirmou que a UI não chama a função de reordenação da Biblioteca;
+  a migration `20260917000100` segue fora do banco de produção. Foto privada de
+  redação foi enviada e exibida em ambiente local; abertura pelo histórico
+  depois da remoção da foto atual aguarda reteste por indisponibilidade do
+  Docker/navegador ao final do ensaio.
+- Migrations acadêmicas `20260917000200` e `20260917000300` aplicadas
+  isoladamente em produção; precheck, dry-run, histórico, RLS/GRANTs e dry-run
+  final conferidos. Reordenação da Biblioteca permanece exclusivamente local.
+- UI de avaliações ponderadas, simulados com anuladas, versões/avaliações de
+  redações e tentativas ENEM independentes integrada. Correção separada das
+  respostas, catálogo e vínculo posterior de redação; sem estimar TRI.
+- Presenças usam ocorrências datadas da Agenda: falta após o dia local,
+  correção posterior e conclusão automática de ocorrência única ao finalizar
+  Academia. Ambiguidade é informada sem marcar vários compromissos.
+- QA local confirmou trava entre abas, restauração/finalização de treino,
+  persistência acadêmica e OFX sintético. Nubank sugere excluir pagamentos de
+  fatura para evitar dupla contagem. Não equivale a homologação de arquivo real.
+- Roteiro de redesign já existe em `TASK_V2_DESIGN.md`; não foi iniciado.
+
+## 2026-09-23 — retomada organizada e importação Nubank local
+
+- Autorização recebida para Estudos/ENEM; precheck remoto bloqueado por
+  autenticação (28P01), sem alterações remotas. Reset local/26 testes SQL
+  repetidos com sucesso; procedimento isolado preparado, excluindo Biblioteca.
+- Academia ganhou trava por usuário/treino entre abas antes de montar o
+  editor; homologação de navegação/concorrência pendente.
+
+- Vídeo assistido passa a concluir teoria da aula vinculada, sem alterar
+  domínio ou próxima aula; falha parcial oferece reenvio explícito (DEC-087).
+
+- Continuação: leitura rápida por acréscimo ou página absoluta, limites e
+  proteção de concorrência; 141 testes aprovados. Análises financeiras por
+  mês/categoria e correções de prévia/proprietário na importação. Código local,
+  homologação de uso pendente. Planejamento cronológico atualizado no ROADMAP.
+
+- Adicionado `RETOMADA_V2.md` com cursor, ordem de execução, decisões recentes
+  e limites de produção; referências nos documentos de entrada.
+- Conta OFX/fatura CSV integradas à página Finanças com prévia, categorias,
+  seleção e identidade por usuário. Mês/cartão exigidos e troca de conta
+  detectada antes da confirmação. Homologação real/UI ainda pendente.
+- Cinco testes direcionados e typecheck aprovados. Sem commit/push ou
+  operação no banco de produção nesta retomada.
+
+### Decisões de escopo com Gabriel — 2026-09-17
+
+- V2 usa a abertura privada de PDF no navegador, sem editor interno; caderno
+  digital registrado como ideia futura sem versão nem especificação.
+- Treino terá falta automática após o dia planejado; troca de aparelho durante
+  uma sessão não é necessária. Metas de estudo vão à V3. Revisões poderão ser
+  editadas pela Agenda sem duplicar o registro original.
+- Detalhes de correção de falta, campos da Agenda e efeito de “vídeo visto” na
+  aula vinculada continuam em aberto; não foi implementado código nesta rodada.
+
+### Encaminhamento único das pendências da V2 — 2026-09-17
+
+- `TASK_V2_FECHAMENTO.md` consolida implementação definida, decisões de produto,
+  dependências externas, sequência de migrations e gates de homologação/deploy.
+  Distingue claramente código local, produção e checklists históricos; nenhum
+  recurso foi marcado concluído apenas por estar documentado ou bloqueado.
+- Nenhuma alteração no site ou banco, commit ou push nesta consolidação.
+
+### Modelo de tentativas ENEM e redações — 2026-09-17 (somente local)
+
+- Migration incremental `20260917000300` acrescenta identidade estruturada à
+  prova e tentativas independentes com prazo de servidor, rascunho versionado,
+  finalização/catálogo e vínculo posterior à redação. Tentativas antigas não
+  são apagadas nem convertidas automaticamente.
+- Versões e avaliações de redação têm RLS/FK por conta; nota oficial fica
+  separada da média pessoal. A interface ainda não foi integrada, por depender
+  de aplicação autorizada no banco de produção. Nenhuma operação remota.
+- Treino: plano divergente entre sessão e rascunho/execuções é detectado; a
+  finalização fica bloqueada, sem sobrescrever o rascunho. Reenvio confirma
+  fechamento anterior sem sobrescrever `data_fim`. Guia de escolhas
+  D01–D21/E01–E13 criado com estado e alternativas.
+- Reset local e 26 scripts SQL, 134 testes de frontend, typecheck, lint e build
+  de 49 páginas aprovados. Banco de produção, Git remoto e dados dos amigos
+  não foram alterados.
+
+
+### Banco de avaliações e anuladas — 2026-09-17 (somente local)
+
+- Migration incremental `20260917000200`: lançamentos independentes por matéria,
+  nota máxima/peso e média normalizada com contagens/denominador; nota pendente
+  não vira zero. FK composta e RLS impedem acesso/vínculo cruzado.
+- Simulados ganham anuladas com totais coerentes; todas anuladas não produzem
+  percentual de desempenho. Sem converter notas legadas ou duplicar uploads.
+- Reset local e 25 scripts SQL aprovados. Teste novo cobre limites, NaN,
+  nota zero, pendências, remoção lógica, média, acesso sem identidade, duas
+  contas e exportação própria. Massa fictícia da homologação foi removida
+  pelo reset local e pode ser recriada; produção não foi tocada.
+- Frontend dependente/SM-2 ainda não integrados por schema-first. Aplicação
+  remota exige autorização específica e deve excluir a migration Biblioteca.
+  Sem commit/push; I01/I02 e demais validações continuam em aberto.
+
+### Homologação acadêmica e gravação incerta — 2026-09-17 (local)
+
+- Login local recuperado sem copiar credenciais da sessão de produção.
+- Edição, retirada e reinclusão de matéria conferidas na interface; rótulo e
+  nome persistiram ao reabrir. Retirar Matemática da Faculdade preservou ENEM;
+  personalização de matéria inicial não foi revertida pelo seed.
+- Erro de gravação exige conferir dados antes de novo envio, preservando
+  formulário e evitando a mensagem incorreta de certeza sobre a gravação.
+- Falha/recuperação da API REST local conferidas na interface, incluindo
+  persistência da trava durante falha de leitura e recusa de nome duplicado.
+- Link de revisão do hub declara semântica de link ao componente Button,
+  corrigindo aviso de acessibilidade observado na homologação.
+- Duas contas fictícias via API autenticada: leitura/alteração cruzada de
+  matéria recusadas, nome original e preferências independentes preservados.
+- 133 testes Node, typecheck, lint e build final de 49 páginas aprovados.
+  Troca de contas pela UI ainda não homologada: aba inacessível ao controle
+  após reinício local. Homologação integral ainda não concluída;
+  Storage local indisponível nesta retomada. Sem commit/push/operação remota.
+
+### Escola/Faculdade, temporadas e resultados ENEM — 2026-09-17 (local)
+
+- Contexto acadêmico personalizável: criar/renomear/retirar/reincluir matérias,
+  rótulo por conta e exportação, com seed idempotente sem repor nomes retirados.
+- Temporadas de anime: edição ampliada de metadados, datas e URLs com validação;
+  preserva IDs externos, episódios e progresso. Séries: nota IMDb e data editáveis.
+- Resultado ENEM com barras, denominadores e motivos, sem chamar percentual de
+  TRI; ocultação durante prova e bloqueio das respostas após expiração.
+- Reordenação Biblioteca: função transacional preparada no banco local,
+  sem aplicação remota por determinação de Gabriel. Não move cards do catálogo.
+- 131 testes Node, typecheck, lint e build de 49 páginas aprovados. 24 scripts
+  SQL passaram no banco local. Testes autenticados de interface ainda pendentes;
+  preparação de ambiente integral local iniciada, sem contas reais.
+
+### Descanso e triagem individual — 2026-09-16 (local)
+
+- Aviso sonoro opcional com teste por gesto explícito, sem rede, preservando
+  aviso visual e explicitando limitações de tela bloqueada/navegador suspenso.
+- Nota de temporada de série usa estrelas conforme DESIGN; planejamento
+  semanal exige confirmação antes de remover, preservando treino/sessões.
+- Lista individual I/D/E em `V2_DECISOES_PENDENTES.md`, sem declarar trabalho
+  incompleto como decisão de produto nem adiar requisitos automaticamente.
+- 122 testes, typecheck, lint e build aprovados. Som/UI autenticada ainda
+  precisam homologação. Sem migration nova, commit ou push.
+
+### Refinamento de escopo e temporadas de anime — 2026-09-16 (local)
+
+- Gabriel adiou Hábitos, Metas e Arquivos para v3 e confirmou custo zero;
+  integrações indisponíveis permanecem bloqueadas, não entregues.
+- Edição de número, episódios, nomes e sinopse de temporada de anime preserva
+  vínculos, identidade externa e progresso; remoção exige confirmação.
+- Typecheck, 122 testes Node e build de 49 páginas aprovados; lint terminou
+  sem achados. Uma segunda invocação de build encontrou o lock do build ativo;
+  o build ativo terminou com sucesso. Homologação autenticada pendente.
+
+### Biblioteca, Saúde, ENEM e atalhos — 2026-09-16 (local, em validação)
+
+- Edição de elenco, trilhas, temporadas de séries, volumes de mangá e músicas
+  de anime; confirmação de remoção, validação e filtros próprios nas atualizações.
+- Editor textual compartilhado substitui formulários duplicados de elenco,
+  trilhas e temporadas; mantém edição no modal e não no painel de leitura.
+- Tendências manuais de Saúde em 7/30/90 dias e relógio ENEM em blocos de 30
+  minutos, sem novos contratos de banco ou serviço externo.
+- Atalhos configuráveis por conta (DEC-082) e exportação de perfil corrigida
+  para os campos realmente usados no formulário, preservando fallback legado.
+- 120 testes Node, build de 49 páginas e lint sem achados aprovados.
+  V2 integral não concluída; validação autenticada e publicação ainda pendentes.
+
+### Integração de Treino — 2026-09-16 (banco aplicado, frontend local)
+
+- Migration `20260915000100` aplicada após dry-run exclusivo; pós-check de
+  histórico/colunas/permissões e dry-run final aprovados. Credencial apenas em
+  memória do processo. A falha de autenticação da tentativa anterior foi resolvida.
+- Edição de planos e exercícios, grupo muscular, instruções e ordem transacional.
+- Volume semanal paginado por grupo, distinguindo séries e carga × repetições;
+  estatísticas e PR excluem sessões não finalizadas.
+- Academia passa a iniciar explicitamente e recuperar sessão aberta, execuções
+  parcialmente enviadas e rascunho local isolado por conta/sessão. UUIDs de envio
+  persistidos antes da primeira gravação. Sem sincronização multi-dispositivo
+  de rascunhos; mudanças incompatíveis no plano exigem revisão.
+- 114 testes Node, typecheck, lint e build (49 páginas) aprovados. Homologação autenticada pendente;
+  objetivo integral da v2 incompleto. Sem commit/push ou release do frontend.
+
+### Retomada da versão 2 — 2026-09-16 (local, incompleta)
+
+- Academia/Exercícios encerram carregamento em falha e redirecionam sessão
+  ausente; botão Sair de Academia pede confirmação. Campos e botões de conclusão
+  ganharam identificação acessível. Finalização exige sessão realmente atualizada.
+- Protótipo de reordenação com duas gravações retirado por risco de estado parcial;
+  substituição transacional aguarda migration aplicada, conforme schema-first.
+- Teste consolidado ajustado para os três checks e função novos. Os 23 scripts SQL
+  passaram localmente; teste de Treino ampliado para permissões e caminhos de erro.
+- Build, typecheck, lint e 112 testes Node aprovados na retomada. Dry-run remoto bloqueado
+  por credencial rejeitada (28P01), sem alteração remota. Sem commit/push.
+
+### Preparação funcional da versão 2 — 2026-09-15 (local, incompleta)
+
+- Escopo ampliado por Gabriel para incluir ideias futuras; tarefas em
+  `TASK_V2_IMPLEMENTACAO.md`. Não representa lançamento nem mudança de versão.
+- `TASK_V2_DESIGN.md` inventaria 39 páginas atuais, fluxos, fontes, riscos e
+  cenários de revisão; redesign fica depois do fechamento funcional.
+- Revisão do lote local de Treino: histórico recente em vez dos primeiros
+  registros, agrupamento Cardio com ano, recorte explícito e valores textuais
+  acessíveis nos gráficos.
+- Academia verifica gravações antes do sucesso, permite reenvio com UUIDs
+  estáveis na mesma página, restringe PR a séries concluídas e adiciona timer
+  visual de descanso. Recuperação após fechar a página continua pendente.
+- Migration incremental para grupo muscular, instruções e reordenação
+  transacional preparada localmente, ainda não aplicada em produção.
+
 ### Aviso de beta no guia de convidados - 2026-09-11
 
 - O guia Markdown e o PDF agora destacam que o site está em beta e que algumas

@@ -1,6 +1,21 @@
 # BACKLOG.md
 
-Ideias futuras e funcionalidades não priorizadas. Nada aqui é compromisso — é uma lista de possibilidades para quando o núcleo do sistema estiver estável. Ver também `ROADMAP.md` → Fase 6 (Integrações Externas) e `VISION.md` para módulos ainda mais distantes.
+Ideias futuras e pendências históricas. Desde 2026-09-15, Gabriel incluiu as
+ideias futuras no escopo da versão 2; o estado vigente e as dependências estão
+em `TASK_V2_IMPLEMENTACAO.md`. As fotografias antigas abaixo não substituem esse
+controle. Ver também `ROADMAP.md` e `VISION.md`.
+
+**Ajuste de 2026-09-16:** Gabriel adiou Hábitos, Metas e Arquivos para v3,
+com futura reformulação/especificação. Mantém orçamento zero e exige que
+integrações indisponíveis permaneçam bloqueadas, nunca concluídas.
+
+**Ideia futura registrada em 2026-09-17:** caderno digital dentro do site.
+Gabriel ainda não definiu páginas, escrita, desenho, organização, sincronização
+ou exportação; a versão de entrega não foi escolhida. Não confundir com o PDF:
+para a V2, ele escolheu apenas abrir arquivo privado no navegador, sem editor
+próprio ou anotações persistidas no site.
+O banco de ideias sem versão definida é `IDEIAS_MELHORIAS.md`; lembretes de
+Saúde foram movidos para lá por Gabriel nesta rodada.
 
 > **Nota (2026-08):** este arquivo estava com todo o conteúdo duplicado — a
 > segunda metade era uma cópia mais antiga e menos completa da primeira.
@@ -125,9 +140,15 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
 ## Treino
 
 - [ ] Notificações push (Service Worker Push API) — lembrete de treino — **depende de M2, fora de escopo v1**
-- [ ] Gráfico de evolução de carga por exercício
-- [ ] Volume semanal por grupo muscular
-- [ ] Página dedicada para `cardio` — evolução pós-v2; o dashboard e os fluxos de cardio atuais permanecem como entrega da release candidate
+- [x] Gráfico de evolução de carga por exercício — entregue localmente em
+      2026-09-15 no painel de Treino, com SVG nativo e dados de séries
+      concluídas; aguarda revisão/publicação.
+- [ ] Volume semanal por grupo muscular — schema aplicado e frontend local
+      integrado em 2026-09-16; aguarda homologação autenticada. Séries e
+      carga × repetições separadas; grupo atual, sem classificação inventada.
+- [x] Página dedicada para `cardio` — entregue localmente em 2026-09-15 com
+      distância, duração e atividades concluídas, além de históricos diários;
+      aguarda revisão/publicação.
 
 ## Geral
 
@@ -258,9 +279,13 @@ Os detalhes e dependências de cada item permanecem nas seções temáticas abai
 ## Treino v2
 
 - [x] Substituir `confirm()` nativo do navegador por modal de confirmação ao apagar treino — concluído com o `ConfirmDialog` reutilizável em 2026-08-11.
-- [ ] Gráfico de evolução de peso em `app/treino/shape/page.tsx` — decisão de dependência ainda não tomada para v2 (Chart.js não está no `package.json` atual — se retomado, escolher biblioteca do zero, não assumir Chart.js como já decidido)
+- [x] Gráfico de evolução de peso — entregue localmente em 2026-09-15 no
+      painel de Treino com SVG nativo, sem adicionar Chart.js; aguarda
+      revisão/publicação.
 - [x] Upload de imagem/GIF de exercício (`imagem_path`) entregue na v2.1 com bucket privado, signed URL, validação de tipo/tamanho, rollback e policy endurecida pela migration incremental `20260815000200`.
-- [ ] Reordenação de exercícios (`ordem`) via drag-and-drop ou setas — hoje `ordem` só reflete sequência de criação
+- [ ] Reordenação de exercícios (`ordem`) por setas — o protótipo local de
+      2026-09-15 foi retirado na revisão por permitir gravação parcial. A função
+      transacional está preparada/testada localmente; aplicação remota e UI pendentes.
 
 ## Dívida técnica de código (achados da auditoria de 2026-08)
 

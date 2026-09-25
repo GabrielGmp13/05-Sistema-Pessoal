@@ -72,16 +72,25 @@ Não enviar redações pessoais a terceiros sem informação e autorização.
 Direção confirmada: usuário escolhe o rótulo Escola ou Faculdade e cria, edita
 ou remove suas matérias desse contexto; demais comportamentos são preservados.
 Isso revisa explicitamente a regra anterior de matérias escolares fixas, com
-a nova necessidade informada pelo dono. Não é mudança já implementada.
+a nova necessidade informada pelo dono. Implementação local em 2026-09-17
+(DEC-083), ainda sem publicação.
 
 O modelo atual usa uma matéria acadêmica compartilhada com `mostra_escola` e
 `mostra_enem`: Matemática não precisa ser duplicada. Retirar da Escola não
 deve excluir a matéria do ENEM nem seu histórico. Na implementação, distinguir
 remoção de contexto de exclusão global, esclarecer o alcance da edição do nome
-compartilhado e preservar contas existentes. O seed automático e a tela fixa
-ainda precisam ser adaptados após conferir o schema e as decisões vigentes.
+compartilhado e preservar contas existentes. O seed e a tela foram adaptados;
+homologação local confirmou renomear, retirar/reincluir, persistência, falha de
+conexão e preservação da matéria compartilhada no ENEM. Não equivale à
+homologação integral entre contas nem à publicação do candidato.
 
 ## Dois editores distintos
+
+**Decisão posterior de Gabriel (2026-09-17):** para a V2, PDF privado apenas
+abre no navegador (ou baixa, conforme suporte do navegador). Não construir
+editor interno de PDF nem anotações próprias nesta fase. Registrar separadamente
+o caderno digital como ideia futura sem versão/especificação definida. O texto
+abaixo preserva o pedido anterior como histórico, não como escopo ativo de PDF.
 
 O BACKLOG já registrava visualizador/editor interno de PDF com desenho no
 modo de prova. Não foi localizada especificação antiga de editor rico comum
