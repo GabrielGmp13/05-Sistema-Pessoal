@@ -1,6 +1,6 @@
 # ROADMAP.md
 
-## Sequência vigente — 2026-09-23
+## Sequência vigente — 2026-09-24
 
 1. Concluir funcionalidades definidas da V2: cursor `RETOMADA_V2.md` e
    inventário `TASK_V2_FECHAMENTO.md`. Leitura rápida e análise de gastos
@@ -8,8 +8,9 @@
 2. Resolver escolhas abertas e autorizações de banco; implementar interfaces
    dependentes após conferir schema aplicado. Não aplicar Biblioteca enquanto
    valer a instrução de mantê-la local.
-3. Homologar candidato completo, revisar alterações/segredos e fazer commit,
-   push e verificação de CI/deploy conforme pedido de Gabriel.
+3. O lote já definido foi publicado com CI/deploy aprovados. Homologar os
+   fluxos restantes do candidato publicado, corrigir apenas achados concretos
+   e repetir os gates afetados.
 4. Revisão visual integral com `TASK_V2_DESIGN.md`, preservando funcionalidades
    e usando as skills aplicáveis disponíveis na execução.
 5. Validar/publicar redesign, observar uso real e só então especificar V3

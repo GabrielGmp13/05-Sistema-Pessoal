@@ -1,5 +1,44 @@
 # DECISIONS.md
 
+## DEC-092 — Pausa centralizada de cômodos na V2.1 (2026-09-25)
+
+Idiomas, Projetos, Programação e todo o conjunto Diário (Diário, Saúde,
+Finanças, Lugares e Receitas) saem da navegação e do Início na V2.1. As URLs
+originais são reescritas no proxy autenticado para uma tela de “cômodo em
+pausa”; código, schema, RLS e registros permanecem intactos. A lista vive em
+`lib/modulos-pausados.ts`, para que cada cômodo possa ser liberado com uma
+alteração central e sem migração de dados. Preferências individuais não podem
+reexpor um módulo pausado.
+
+**Motivo:** reduzir a superfície cotidiana ao essencial enquanto Gabriel
+consolida o uso do organizador, sem descarte irreversível de trabalho ou dados.
+
+## DEC-090 — Agenda reage apenas ao registro original da revisão (2026-09-25)
+
+A Agenda mostra as revisões ativas pela data `proxima_revisao` e permite somente
+reagendá-las. A alteração grava o próprio card de `revisao_espacada`; não cria
+evento paralelo, não conclui, não apaga e não arquiva o card. Interromper uma
+revisão de forma definitiva continua sendo a ação Arquivar no módulo Revisão.
+
+O Calendar consulta e sincroniza quando a Agenda é aberta ou quando a pessoa
+usa Atualizar. Não existe sincronização contínua com o navegador fechado.
+
+## DEC-091 — Reordenação interna da Biblioteca aplicada isoladamente (2026-09-25)
+
+`reordenar_lista_biblioteca` está em produção após precheck, dry-run e
+pós-check isolados. Recebe apenas elenco, trilha sonora e openings/endings de
+uma obra que pertence à sessão; exige a lista completa e a ordem esperada para
+evitar perda concorrente. Não reorganiza cards do catálogo, não recebe
+identificador de tabela do cliente e não altera 00200/00300.
+
+## DEC-089 — Avisos opt-in enquanto a aba está aberta (2026-09-25)
+
+Treino e Revisão oferecem aviso do navegador somente após gesto explícito e
+permissão concedida. Enquanto a respectiva página estiver aberta, podem emitir
+notificação quando a aba estiver em segundo plano. O recurso não promete som,
+fone, tela bloqueada, entrega pontual nem comportamento idêntico entre
+navegadores ou celulares; o aviso visual do fluxo continua sendo a referência.
+
 ## DEC-088 — Presença usa ocorrências datadas da Agenda (2026-09-23)
 
 A inspeção confirmou que `agenda` já contém data, treino, conclusão e
@@ -42,8 +81,9 @@ ideia futura **separada**, sem versão ou contrato funcional definidos.
 
 ## DEC-085 — Tentativas ENEM independentes e avaliações pessoais separadas (2026-09-17)
 
-**Status em 2026-09-24:** modelo aplicado em produção com rito isolado;
-frontend implementado localmente, publicação e homologação final pendentes.
+**Status em 2026-09-24:** modelo aplicado em produção com rito isolado e
+frontend publicado. Restam homologação abrangente do candidato publicado e
+casos de uso real; não reaplicar a migration.
 
 Cada execução nova do ENEM pertence a uma prova existente e tem identidade,
 prazo calculado pelo servidor, respostas próprias e número de versão para
@@ -60,8 +100,9 @@ de imagem não poderá apagar um arquivo ainda referenciado por versão.
 
 ## DEC-084 — Avaliações independentes e anuladas sem converter o legado
 
-**Data:** 2026-09-17 · **Status:** SQL somente local, reset e 25 scripts aprovados;
-sem frontend dependente e sem autorização/aplicação remota.
+**Data:** 2026-09-17 · **Status em 2026-09-24:** SQL aplicado em produção por
+rito isolado; frontend publicado. Reset e 25 scripts locais continuam como
+evidência complementar; resta homologação abrangente.
 
 O escopo de avaliações com peso e nota máxima já foi aprovado na inclusão do
 BACKLOG na v2. Usa nova tabela `lancamentos_nota`, como previsto no BACKLOG,

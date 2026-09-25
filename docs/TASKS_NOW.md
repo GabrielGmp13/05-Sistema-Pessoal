@@ -1,5 +1,23 @@
 # Tarefas atuais — preparação funcional da versão 2
 
+**Atualização em 2026-09-25 (V2.1):** Idiomas, Projetos, Programação e Diário
+(incluindo Saúde, Finanças, Lugares e Receitas) foram pausados centralmente:
+sumiram de navegação/Início e as URLs autenticadas exibem tela de pausa, sem
+apagar código, dados ou schema. A reativação futura é centralizada em
+`lib/modulos-pausados.ts`. O catálogo V3 de telas transversais, incluindo 404,
+erros, rede e integrações, está em `V3_CATALOGO_DE_TELAS.md`; não implementar
+essas telas antes da V3. Validação local deste lote: 149 testes Node,
+typecheck, lint e build de produção aprovados.
+
+**Atualização em 2026-09-25:** D03/D06/E08 foram implementados no candidato:
+avisos opt-in do navegador para descanso e revisões, reagendamento da revisão
+original pela Agenda (Arquivar fica em Revisão) e Calendar somente na abertura
+da Agenda ou em Atualizar. Testes Node (147), typecheck, lint e build de 49
+rotas passaram. I05 foi aplicada em produção após a credencial ser renovada:
+precheck, dry-run exclusivo, histórico, função invoker, RLS/GRANTs e dry-run
+final passaram. Cards do catálogo seguem fora da função. Próxima fase é a
+revisão V2.1 de navegação/visibilidade, preservando dados e rotas.
+
 **Publicado em 2026-09-24:** lote funcional parcial nos commits `c862edb`,
 `dde129e` e `af05990` em `main`; CI e deploy Vercel de `af05990` aprovados.
 Smoke público de login, proteção da rota Treino/Cardio e recusa de exportação
@@ -8,8 +26,9 @@ continua aberta pelos itens D/E de `TASK_V2_FECHAMENTO.md` e pelos retestes
 indicados abaixo; não iniciar redesign como se todos estivessem encerrados.
 
 **Atualização prioritária 2026-09-24:** conexão resolvida; migrations
-`20260917000200`/`00300` aplicadas em produção após precheck/dry-run exclusivo,
-com histórico, RLS/GRANT e dry-run final conferidos. Biblioteca segue local.
+`20260917000100`/`00200`/`00300` aplicadas em produção por ritos isolados,
+com histórico, RLS/GRANT e dry-run final conferidos. A `00100` não altera
+cards do catálogo.
 UI nova de avaliações/anuladas, versões/avaliações de redações e tentativas
 ENEM integrada localmente; validação autenticada em andamento. As falhas de
 credencial abaixo são histórico, não bloqueio atual. Cursor: `RETOMADA_V2.md`.
@@ -18,8 +37,8 @@ credencial abaixo são histórico, não bloqueio atual. Cursor: `RETOMADA_V2.md`
 de produção com 49 páginas passaram. Foto histórica de redação abriu por URL
 assinada na conta dona (200), não foi assinada por outra conta (400) nem aberta
 bruta sem sessão (400).
-A migration de reordenação da Biblioteca permanece somente local; a UI atual
-não chama sua função. Upload, exibição e abertura histórica da foto privada
+A migration de reordenação da Biblioteca foi aplicada; a UI atual ainda não
+chama sua função. Upload, exibição e abertura histórica da foto privada
 de redação passaram localmente; falta ensaio visual completo em produção.
 O inventário de decisões e dependências ainda aberto segue em
 `TASK_V2_FECHAMENTO.md`; não declarar a V2 100% concluída por essa rodada.
@@ -28,10 +47,10 @@ QA autenticada em Docker local: avaliações/média e anuladas persistiram;
 ENEM preservou duas tentativas, correção e catálogo com redação após recarga;
 Treino bloqueou segunda aba, restaurou série/descanso após recarga, finalizou
 e marcou compromisso de hoje feito; falta de ontem pôde ser corrigida.
-Nubank OFX importou dois movimentos sintéticos sem pagamento da fatura.
-Fatura CSV ainda precisa completar teste pela UI; nenhum arquivo bancário real
-foi fornecido. Versões de redação, uploads privados, isolamento e matriz completa
-continuam na verificação final. Não repetir QA já comprovada sem mudança relevante.
+Nubank OFX e CSV sintéticos passaram pela UI, com pagamento de fatura excluído,
+compra/estorno persistidos e bloqueio de reimportação. Nenhum arquivo bancário
+real foi fornecido. Versões de redação, uploads privados e isolamento também
+foram cobertos localmente; a matriz completa em produção continua pendente.
 
 Reinícios do ambiente encerraram serviços locais, não os dados persistidos.
 Rodar lint/build sem Docker/dev simultâneos em máquina de 8 GB. Checkpoint
@@ -46,10 +65,11 @@ com a ordem funcional → validação/publicação → redesign → V3.
 Vídeo assistido agora conclui teoria das aulas vinculadas, com mensagem de
 falha parcial e reenvio (DEC-087); homologação autenticada pendente.
 
-**Próxima ação:** seguir `RETOMADA_V2.md`, começando por fechar e homologar
-Nubank conta/fatura. Integração local e cinco testes de parser/identidade foram
-adicionados e aprovados, junto com typecheck em 2026-09-23. Falta revisão
-funcional/UI, arquivo real, lint/build. Banco/produção não alterados.
+**Próxima ação:** seguir `RETOMADA_V2.md` e `TASK_V2_FECHAMENTO.md`: fechar
+somente escolhas funcionais que Gabriel definir e executar os ensaios reais
+restantes. Nubank conta/fatura já passou com massa sintética, lint/build e
+publicação; ainda requer arquivo anonimizado real para cobrir variações do
+banco. Não reaplicar migrations já aplicadas.
 
 **Encaminhamento único vigente:** `TASK_V2_FECHAMENTO.md` reúne todas as
 pendências I01–I10, escolhas D01–D22, dependências E01–E14, migrations e gates
@@ -61,7 +81,13 @@ agendado e sem troca de aparelho na mesma sessão; metas de estudo na V3;
 revisões editáveis pela Agenda sem duplicar fonte. Detalhes ainda abertos de
 falta/Agenda/vídeo estão discriminados no documento único.
 
-## Prioridade vigente — retomada em 2026-09-16
+## Histórico de retomadas anteriores
+
+As seções abaixo são evidência cronológica. O estado vigente está no topo e em
+`RETOMADA_V2.md`; não usar trechos sobre migrations somente locais, UI antiga
+ou ausência de commit/push como tarefas atuais.
+
+### Prioridade registrada em 2026-09-16
 
 ### Continuação de 2026-09-17
 
@@ -95,7 +121,7 @@ falta/Agenda/vídeo estão discriminados no documento único.
   recriar a massa de testes. Próximo passo de I04: autorização específica para
   precheck/dry-run/aplicação exclusiva desta migration, preservando Biblioteca local.
 
-- Retomada autenticada LOCAL: renomear/retirar/reincluir matéria aprovados;
+- Retomada autenticada LOCAL (histórico): renomear/retirar/reincluir matéria aprovados;
   nome personalizado e rótulo Faculdade persistiram ao reabrir. Matemática
   retirada da Faculdade continuou acessível no ENEM; seed não recriou AO.
 - Gravação acadêmica incerta agora bloqueia reenvio até atualizar os dados,
@@ -120,8 +146,9 @@ falta/Agenda/vídeo estão discriminados no documento único.
   episódios e nota pessoal; séries incluem nota IMDb/data de conclusão.
 - ENEM: gráficos de resultados/motivos e percentuais com denominador explícito,
   ocultos durante modo de prova; respostas bloqueadas ao vencer prazo.
-- Reordenação Biblioteca: migration nova testada somente local. Gabriel pediu
-  explicitamente não aplicar em produção. Nenhuma UI depende dessa função.
+- Reordenação Biblioteca (histórico): antes da autorização de 2026-09-25, a
+  migration estava somente local. Hoje ela está aplicada, e nenhuma UI ainda
+  depende dessa função.
 - 131 testes Node, typecheck, lint e build aprovados; 24 scripts SQL locais
   aprovados. Homologação autenticada continua pendente; preparando ambiente
   local com dados fictícios, sem alterar contas dos amigos.

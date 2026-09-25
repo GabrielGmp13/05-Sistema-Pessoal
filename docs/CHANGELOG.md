@@ -1,7 +1,37 @@
 # CHANGELOG.md
 
+## 2026-09-25 — V2.1: superfície essencial e catálogo V3
+
+- Idiomas, Projetos, Programação e todo o conjunto Diário foram retirados da
+  navegação e do Início. As URLs autenticadas mantêm o endereço e exibem uma
+  tela de “cômodo em pausa”; nenhum dado, código, schema ou permissão foi
+  apagado.
+- A pausa é centralizada e não pode ser contornada pela preferência individual
+  de atalhos, permitindo liberar cada cômodo posteriormente sem migração.
+- Criado `V3_CATALOGO_DE_TELAS.md`: inventário de 404, erro por rota/global,
+  indisponibilidade, rede, acesso, sessão, formulários, integrações e demais
+  estados transversais. É planejamento V3, sem implementação antecipada.
+- Validação do lote: 149 testes Node, typecheck, lint e build de produção
+  aprovados; o proxy preserva a URL e entrega a pausa autenticada.
+
+## 2026-09-25 — avisos, Agenda e preparação isolada de I05
+
+- Avisos de navegador opt-in adicionados ao descanso de Treino e às revisões
+  pendentes; funcionam apenas com a página aberta e a permissão do navegador,
+  sem promessa de áudio, fone ou equivalência entre celulares.
+- A Agenda passou a listar revisões ativas e alterar somente
+  `proxima_revisao`; arquivamento continua exclusivamente em Revisão Espaçada.
+  A sincronização Calendar ocorre ao abrir a Agenda ou em Atualizar.
+- I05 teve reset e teste SQL local aprovados. Com a credencial renovada,
+  precheck/dry-run exclusivo, aplicação, histórico, invoker, RLS/GRANTs e
+  dry-run final foram aprovados; somente `20260917000100` foi aplicada.
+- Candidato: 147 testes Node, typecheck, lint e build de 49 rotas aprovados.
+
 ## 2026-09-24 — modelo acadêmico aplicado e fluxos integrados
 
+- Pontos de entrada e handoff reconciliados para o próximo chat: distinguem o
+  lote publicado das pendências reais e identificam a cronologia antiga como
+  evidência, sem reabrir migrations já aplicadas.
 - Lote funcional enviado em três commits (`c862edb`, `dde129e`, `af05990`);
   CI e deploy Vercel aprovados. Smoke sem sessão: login 200, Treino/Cardio
   redireciona para login, exportação privada 401. Publicação parcial, sem
@@ -15,9 +45,8 @@
   escopo ampliado nem substitui ensaio com arquivo bancário real e celular.
 - Inspeção confirmou que a UI não chama a função de reordenação da Biblioteca;
   a migration `20260917000100` segue fora do banco de produção. Foto privada de
-  redação foi enviada e exibida em ambiente local; abertura pelo histórico
-  depois da remoção da foto atual aguarda reteste por indisponibilidade do
-  Docker/navegador ao final do ensaio.
+  redação foi enviada, removida da versão atual e reaberta pelo histórico via
+  URL assinada no reteste local.
 - Migrations acadêmicas `20260917000200` e `20260917000300` aplicadas
   isoladamente em produção; precheck, dry-run, histórico, RLS/GRANTs e dry-run
   final conferidos. Reordenação da Biblioteca permanece exclusivamente local.

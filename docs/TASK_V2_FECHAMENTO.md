@@ -27,8 +27,9 @@ atual do banco ou o critério final desta V2.
 - O custo autorizado é **zero**. Serviço indisponível/gratuito insuficiente
   não é uma entrega concluída; escolher alternativa viável ou adiar por ID.
 - Treino `20260915000100` está aplicado em produção. As três migrations de
-  2026-09-17 não têm o mesmo estado: `00200` e `00300` foram aplicadas em produção em 2026-09-24 após precheck e dry-run isolado; `00100` permanece local. Gabriel pediu que a de Biblioteca
-  `20260917000100` permaneça local; não incluí-la em aplicação remota.
+  2026-09-17 também estão aplicadas: `00200` e `00300` em 2026-09-24, e
+  `00100` em 2026-09-25, sempre após precheck e dry-run isolados. A de
+  Biblioteca não pode ser incluída em `db push` genérico e nunca reordena cards.
 - A implementação local existente passou reset/26 scripts SQL, 134 testes de
   frontend, typecheck, lint e build de 49 páginas. Isso **não** equivale a
   homologação autenticada do candidato atual nem publicação. A última rodada
@@ -71,6 +72,26 @@ rodada. Cursor atualizado e ordem de execução: `RETOMADA_V2.md`.
 
 ### Respostas posteriores do Gabriel
 
+- **Fechamento de decisões em 2026-09-25:** D03 usa avisos opt-in de navegador
+  enquanto a aba estiver aberta; não prometer som/fone/celular. D05 mantém os
+  números e percentuais atuais, sem força/fraqueza. D06 permite à Agenda apenas
+  reagendar a revisão original; Arquivar permanece em Revisão. D07 não terá
+  texto formatado. D12 fica em Anki básico/cloze. D13 mantém banners por obra e
+  cada conta pode definir sua imagem. D16 não cria patrimônio, proventos ou
+  alertas. D18 só remove atalhos da navegação/Início. D21 é V3 e D22 preserva
+  resumos e Histórico, sem dashboard analítico novo.
+- **Ajuste V2.1 posterior:** para reduzir a superfície cotidiana, a decisão D18
+  é ampliada somente para Idiomas, Projetos, Programação e o conjunto Diário
+  (Diário, Saúde, Finanças, Lugares e Receitas): além de sair da navegação e do
+  Início, suas URLs exibem “cômodo em pausa”. Dados, código e permissões não
+  são removidos; a lista de liberação é centralizada.
+- **Dependências fechadas:** E01, E02, E04, E07, E09 e E11 são V3; E03 mantém
+  apenas o link oficial MEC; E05 é V2.1 com investigação gratuita/documentada
+  de hospedagem própria, sem serviço pago; E06 não tem legado; E08 sincroniza
+  apenas ao abrir a Agenda ou usar Atualizar; E10 mantém cadastro fechado; E12
+  é V2.1; E13 é acompanhamento operacional de Gabriel, não conclusão técnica;
+  E14 exige conferência/fallback/erros das integrações ativas, sem recriá-las.
+
 - **Saúde:** lembretes saem dos bloqueadores da V2 e entram no banco de ideias
   `IDEIAS_MELHORIAS.md`, sem versão/prazo; fotos corporais ficam apenas em Shape,
   sem segundo acervo de Saúde.
@@ -105,20 +126,21 @@ Nenhum item muda de V2 para V3 por silêncio.
 **Atualização operacional 2026-09-24:** `00200` e `00300` aplicadas em produção,
 com histórico, RLS/GRANTs das quatro tabelas e dry-run final vazio conferidos.
 Frontend de tentativas ENEM, versões/avaliações de redações, avaliações por
-matéria e anuladas implementado. Os textos abaixo que descrevem implementação
-ausente são a linha de base; esta atualização e `RETOMADA_V2.md` prevalecem.
+matéria e anuladas implementado e publicado. Os textos abaixo que descrevem
+implementação ausente são a linha de base; esta atualização e
+`RETOMADA_V2.md` prevalecem.
 QA local confirmou avaliações/simulado após recarga; duas tentativas ENEM
 independentes, correção e vínculo de redação persistidos; correção posterior
-de falta de treino. 145 testes Node e typecheck passaram antes dos dois
-ajustes finais de UI/cálculo. Homologação completa e publicação ainda pendentes.
+de falta de treino. A rodada final aprovou 147 testes Node, typecheck, lint,
+build, CI e deploy. Homologação completa permanece pendente.
 
 | ID | Estado verificável | Para fechar |
 |---|---|---|
-| I01 ENEM | SQL aplicado; frontend local usa tentativas independentes, respostas versionadas, prazo de servidor, finalização, correção, catálogo e vínculo posterior. QA confirmou duas tentativas, recarga, correção e vínculo. SQL testa prazo/imutabilidade/conflito; API confirmou isolamento. | Completar matriz de UI Dia 1/2, 0/90/parcial e concorrência; arquivos privados e publicação. Preservado o legado. Percentual ≠ TRI. |
+| I01 ENEM | SQL aplicado; frontend publicado usa tentativas independentes, respostas versionadas, prazo de servidor, finalização, correção, catálogo e vínculo posterior. QA confirmou duas tentativas, recarga, correção e vínculo. SQL testa prazo/imutabilidade/conflito; API confirmou isolamento. | Completar matriz de UI Dia 1/2, 0/90/parcial e concorrência; arquivos privados. Preservado o legado. Percentual ≠ TRI. |
 | I02 Redações | SQL aplicado; versões/avaliações/média pessoal/nota oficial integradas. QA confirmou texto original preservado, texto revisado, avaliação 800 e oficial 920 separados após recarga; vínculo ao ENEM persistiu. API confirmou isolamento/exportação. Upload e exibição da foto passaram localmente; após remoção da foto atual, a versão histórica abriu por URL assinada da conta dona e outra conta foi recusada. | Completar matriz visual/falhas no candidato publicado. Fotos referenciadas por versões não são apagadas. MEC automático é E03, não parte desta entrega. |
 | I03 Escola/Faculdade | Rótulo por conta e criar/renomear/retirar/reincluir matérias implementados localmente. CRUD, seed, duplicatas e falha/recuperação foram conferidos; Matemática não sumiu do ENEM e duas contas tiveram escopo separado via API. | Homologar troca de contas **pela UI** no candidato final, recarga e páginas relacionadas; corrigir falhas encontradas. Não refazer a implementação já feita. |
-| I04 Avaliações/simulados | SQL aplicado e UI integrada. QA: 8/10 produz 80%; 4 acertos de 10 com 2 anuladas mostra 4/8 após recarga. Testes cobrem pendentes/zero válidas e exclusão de anuladas; sem SM-2 quando não há válidas. | Completar homologação geral I08 e publicação; não repetir aplicação de banco. |
-| I05 Ordem interna da Biblioteca | SQL local `20260917000100` reordena **elenco, trilha e OP/ED dentro de uma obra**, não os cards do catálogo. Testado localmente, mas Gabriel mandou mantê-lo local. | Preservar essa restrição. A UI dependente não pode ser ligada em produção. Para entregar na V2, Gabriel precisa mudar explicitamente essa instrução e autorizar a aplicação específica; caso contrário, decidir V3 para este item. |
+| I04 Avaliações/simulados | SQL aplicado e UI publicada. QA: 8/10 produz 80%; 4 acertos de 10 com 2 anuladas mostra 4/8 após recarga. Testes cobrem pendentes/zero válidas e exclusão de anuladas; sem SM-2 quando não há válidas. | Completar homologação geral I08; não repetir aplicação de banco. |
+| I05 Ordem interna da Biblioteca | SQL aplicado em produção em 2026-09-25. Reordena **elenco, trilha e OP/ED dentro de uma obra**, nunca cards do catálogo. Reset/teste local, precheck, dry-run exclusivo, pós-check de invoker/RLS/GRANT e dry-run final passaram. | Integrar e homologar a UI de reordenação sem ampliar para cards do catálogo. |
 | I06 Metadados de temporadas | Editores de Anime e Série foram ampliados localmente; IDs externos, episódios e progresso são preservados. | Homologar criar/editar/cancelar/recarregar com registros existentes e duas contas; corrigir regressões. Sem sincronização externa automática implícita. |
 | I07 Treino | Rascunho/IDs estáveis, proteção de plano divergente, reenvio idempotente, trava entre abas e presenças implementados. QA: segunda aba bloqueada; recarga restaura série/descanso; finalização salva e conclui Agenda; falta anterior corrigível. | Completar quedas de rede reais, restauração de plano divergente, áudio em aparelho físico e matriz de histórico/PR. Sem sincronização entre aparelhos. |
 | I08 Homologação do candidato | Testes automatizados passaram; só parte da UI acadêmica local foi conferida com conta fictícia. A página publicada/logada não demonstra o código local. | Executar fluxos autenticados do **candidato atual** com duas contas descartáveis: Treino, ENEM, Redações, avaliações, temporadas/listas, Saúde, módulos ocultos, uploads/Storage, revisão, Agenda e demais módulos. Recarregar, forçar erros, testar mobile/desktop/temas e registrar evidência, correção e reteste. Não usar dados reais dos amigos para ensaio destrutivo. |
@@ -127,9 +149,9 @@ ajustes finais de UI/cálculo. Homologação completa e publicação ainda pende
 
 ### Banco: ordem e autorização não são decisões de funcionamento
 
-1. **`20260917000100_biblioteca_reordenacao.sql`: não aplicar** enquanto valer
-   a instrução de manter local. Não executar `db push` indiscriminado, pois a
-   cadeia incluiria essa migration.
+1. **`20260917000100_biblioteca_reordenacao.sql`: aplicada isoladamente em
+   2026-09-25.** Não executar `db push` indiscriminado em futuras operações;
+   o histórico da cadeia deve continuar sendo conferido pelo escopo autorizado.
 2. **`20260917000200_estudos_avaliacoes_anuladas.sql`:** aplicada e conferida
    em produção; não reaplicar nem editar a migration.
 3. **`20260917000300_enem_redacoes_modelo.sql`:** aplicada e conferida
@@ -219,8 +241,9 @@ ajustes finais de UI/cálculo. Homologação completa e publicação ainda pende
 
 ## Resposta mínima do Gabriel para destravar as próximas etapas
 
-1. Conexão de produção resolvida e rito acadêmico concluído. Não é necessária
-   outra credencial para esse passo. Biblioteca `00100` permanece local.
+1. Conexão de produção resolvida e ritos acadêmico e I05 concluídos. Não é
+   necessária outra credencial para esses passos; Biblioteca `00100` já está
+   aplicada exclusivamente para as listas internas autorizadas.
 2. Completar D06 e responder os IDs `D`/`E` ainda abertos; D01/D09 já definidos; marcar V3
    ou não aplicável explicitamente quando for o caso. Não reabrir PDF,
    retomada entre aparelhos ou metas de estudo sem nova intenção do Gabriel.

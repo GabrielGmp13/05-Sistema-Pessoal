@@ -2,6 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { isUnauthenticatedPage, loginDestination, unauthenticatedAction } from './lib/route-access';
 import { hasAcceptedTerms } from './lib/terms';
+import { moduloPausadoDaRota } from './lib/modulos-pausados';
 
 // Rotas que NÃO exigem sessão. Tudo que não estiver aqui é protegido por padrão
 // (fail-safe — ver PROJECT_PRINCIPLES.md #4, segurança acima de conveniência).
@@ -56,6 +57,14 @@ export async function proxy(request: NextRequest) {
     response.cookies.getAll().forEach((cookie) => terms.cookies.set(cookie));
     terms.headers.set('Cache-Control', 'private, no-store');
     return terms;
+  }
+
+  const moduloPausado = moduloPausadoDaRota(request.nextUrl.pathname);
+  if (user && moduloPausado) {
+    const pausada = NextResponse.rewrite(new URL(`/em-pausa/${moduloPausado.slug}`, request.url));
+    response.cookies.getAll().forEach((cookie) => pausada.cookies.set(cookie));
+    pausada.headers.set('Cache-Control', 'private, no-store');
+    return pausada;
   }
 
   return response;

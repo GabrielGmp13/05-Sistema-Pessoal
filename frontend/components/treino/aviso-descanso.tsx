@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { AvisoNavegador } from '@/components/avisos-navegador'
 
 /** Áudio opcional, liberado por gesto explícito. Não depende de rede ou assets. */
 export function AvisoDescanso({ prazo }: { prazo: number | null }) {
@@ -62,6 +63,13 @@ export function AvisoDescanso({ prazo }: { prazo: number | null }) {
       {ativo ? 'Desativar som do descanso' : 'Ativar e testar som do descanso'}
     </button>
     <p>O som depende do volume do aparelho e da página aberta. Tela bloqueada ou navegador suspenso podem atrasar o aviso.</p>
+    <AvisoNavegador
+      chave="descanso"
+      titulo="Descanso concluído"
+      corpo="Você pode iniciar a próxima série."
+      pronto={prazo !== null && Date.now() >= prazo}
+      disparador={prazo}
+    />
     {erro && <p role="status">{erro}</p>}
   </div>
 }

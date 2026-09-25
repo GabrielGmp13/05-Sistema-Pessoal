@@ -1,7 +1,7 @@
 # AI_CONTEXT.md
 
-> Cursor atual de execução: `RETOMADA_V2.md` (2026-09-23). Contém as últimas
-> respostas de Gabriel, ponto de parada do Nubank e ordem dos próximos lotes.
+> Cursor atual de execução: `RETOMADA_V2.md` (2026-09-25). Contém o estado
+> publicado, as validações e a ordem dos próximos lotes.
 
 > **Leia este arquivo primeiro.** Ele é o ponto de entrada do projeto — um bootstrap para qualquer agente de IA (ou o próprio Gabriel) retomar o trabalho sem precisar reler tudo. Detalhes técnicos vivem nos documentos linkados abaixo, não aqui.
 >
@@ -18,11 +18,19 @@ com especificação posterior ao lançamento da v2. Custo zero mantido;
 integrações indisponíveis são bloqueadas, não concluídas. Estado funcional
 vigente e pendências reunidas em `TASK_V2_FECHAMENTO.md`; a v2 integral ainda
 não está pronta. `TASK_V2_IMPLEMENTACAO.md` guarda os detalhes de origem.
-Em 2026-09-17, ENEM/Redações ganharam migration **somente local**
-`20260917000300`; 26 testes SQL, 134 testes frontend, tipos, lint e build
-passaram. A UI nova e a aplicação remota permanecem pendentes. Para escolhas
-de produto, ver `V2_ESCOLHAS_POR_TOPICO.md`. Biblioteca `20260917000100`
-continua expressamente local.
+Em 2026-09-24, as migrations acadêmicas `20260917000200` e
+`20260917000300` foram aplicadas em produção por rito isolado; a UI associada
+foi publicada. O candidato passou 147 testes Node, typecheck, lint e build de
+49 páginas; CI e deploy Vercel também passaram. A migration de Biblioteca
+`20260917000100` foi aplicada isoladamente em 2026-09-25, sem reaplicar
+`00200`/`00300` e sem tocar nos cards do catálogo. A V2 integral ainda depende de
+escolhas de produto, integrações e homologações reais discriminadas em
+`TASK_V2_FECHAMENTO.md`.
+
+**V2.1 em 2026-09-25:** Idiomas, Projetos, Programação e Diário (Saúde,
+Finanças, Lugares e Receitas) estão pausados na superfície; dados e código
+permanecem. URLs autenticadas mostram tela de pausa. O catálogo futuro de telas
+de sistema, incluindo 404 e erros, está em `V3_CATALOGO_DE_TELAS.md`.
 
 **Sistema Pessoal** — gestão pessoal online, multi-dispositivo, para uso individual de longo prazo.
 **Desenvolvedor:** Gabriel, estudante (Pernambuco, BR).
@@ -67,6 +75,15 @@ operacional.
 ---
 
 ## Estado atual (2026-09)
+
+> **Estado operacional vigente — 2026-09-24:** commits `c862edb`, `dde129e`,
+> `af05990`, `3eae531` e `e09be53` estão em `main`, com CI e Vercel aprovados.
+> Smoke sem sessão passou; o ambiente local autenticado confirmou fluxos de
+> Treino, Estudos, ENEM, Redações, OFX/CSV sintéticos e isolamento de Storage.
+> Não chamar a V2 de concluída: decisões D03/D05/D06/D07/D12/D13/D16/D18/D21/
+> D22, dependências E01–E14 e ensaios com aparelho/arquivos reais permanecem
+> abertos no inventário único. O roteiro visual Astra existe, mas não começou.
+> O restante desta seção é cronologia histórica.
 
 > **Banco de Estudos — 2026-09-17:** I04 tem SQL incremental local validado:
 > lançamentos de nota, média ponderada e anuladas (DEC-084). Reset e 25 scripts

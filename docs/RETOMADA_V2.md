@@ -1,5 +1,28 @@
 # Retomada operacional — 2026-09-24
 
+## Atualização em 2026-09-25 — I05 aplicada isoladamente
+
+Na V2.1, Idiomas, Projetos, Programação e o conjunto Diário foram retirados da
+superfície sem apagar dados: navegação/Início não os oferecem e URLs mostram
+“cômodo em pausa”. A lista central está em `frontend/lib/modulos-pausados.ts`.
+O inventário V3 de 404, erros, rede, permissões e estados transversais está em
+`docs/V3_CATALOGO_DE_TELAS.md`; é planejamento, não código desta rodada. O
+lote passou em 149 testes Node, typecheck, lint e build de produção.
+
+O reset local e o teste transacional da reordenação de Biblioteca passaram:
+elenco, trilha e OP/ED são reordenados dentro de uma obra, com concorrência e
+isolamento cobertos; cards do catálogo não são alvo. Com a credencial renovada,
+o precheck e dry-run listaram exclusivamente I05; a aplicação e o pós-check
+confirmaram histórico, invoker, `search_path` seguro, RLS/GRANTs e dry-run
+final vazio. As migrations 00200/00300 não foram reaplicadas.
+
+O candidato ganhou avisos opt-in de navegador para Treino/Revisão, reagendamento
+da data original da revisão pela Agenda e sincronização Calendar somente ao
+abrir a Agenda ou usar Atualizar. Testes 147/147, typecheck, lint e build de 49
+rotas passaram. Próxima ação: iniciar a revisão V2.1 de navegação/visibilidade
+preservando dados, depois retomar QA autenticada/publicação e o redesign Astra.
+Não incluir o PDF avulso no Git.
+
 ## Validação mais recente — 2026-09-24
 
 Publicação funcional parcial: commits `c862edb`, `dde129e` e `af05990`
@@ -42,7 +65,13 @@ leitura, duas contas e recortes visuais. Docker/dev foram desligados por
 reinício externo; dados persistiram antes. Restaurar sem reset e sem repetir
 produção. Datas/estados antigos abaixo são histórico, não novos bloqueios.
 
-## Cursor mais recente — conexão resolvida e SQL aplicado
+## Histórico da execução anterior
+
+As seções abaixo preservam o caminho até o estado vigente acima. Não usar seus
+trechos sobre credencial, migrations locais, ausência de publicação ou testes
+pendentes como instrução atual.
+
+### Cursor que levou à aplicação do SQL
 
 `20260917000200` e `20260917000300` foram aplicadas em produção nesta
 continuação, com precheck/dry-run exclusivo e dry-run final vazio. RLS/CRUD
@@ -64,9 +93,11 @@ Docker Desktop iniciado para recuperar Supabase local. Sem commit/push ainda.
 
 Gabriel autorizou explicitamente precheck/simulação/aplicação isolada de
 `20260917000200` e `20260917000300`. **Não pedir autorização novamente.**
-Biblioteca `20260917000100` continua excluída. A conexão `SUPABASE_DB_URL`
-foi conferida contra o projeto esperado, mas o precheck remoto falhou na
-autenticação PostgreSQL (28P01). Nenhuma migration foi aplicada remotamente;
+Este bloco é histórico: em 2026-09-25, a Biblioteca `20260917000100` foi
+aplicada isoladamente após credencial renovada, com precheck, simulação e
+pós-check aprovados. `00200`/`00300` não foram reaplicadas. A conexão
+`SUPABASE_DB_URL` foi conferida contra o projeto esperado; o 28P01 descrito
+abaixo ocorreu antes da renovação da credencial.
 é necessário atualizar a credencial no ambiente, sem registrar no Git/chat.
 
 Docker iniciado; reset local completo e 26 scripts SQL aprovados novamente.
@@ -172,9 +203,9 @@ Ordem cronológica reconciliada no topo de `ROADMAP.md`.
 - Atualizar aqui o último resultado, próximo passo e bloqueio concreto.
   Resumir saída de testes; ampliar apenas falhas. Não repetir suítes sem
   mudança relevante ou motivo novo. Não abrir agentes sem pedido aplicável.
-- Biblioteca `20260917000100` deve permanecer local por instrução explícita.
-  Estudos `20260917000200` e ENEM/Redações `20260917000300` têm autorização;
-  permanecem locais até resolver credencial e passar precheck/dry-run.
+- Biblioteca `20260917000100`, Estudos `20260917000200` e ENEM/Redações
+  `20260917000300` já estão aplicadas em produção. Em qualquer nova operação,
+  conferir o histórico e limitar o plano ao escopo expressamente autorizado.
 - Não ler/divulgar segredos do ambiente ou copiar credenciais desta conversa.
 - Sessão aberta em produção não comprova login no candidato local. Estado
   de servidores/contas de teste descrito em setembro é histórico; verificar.

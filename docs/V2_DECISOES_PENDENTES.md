@@ -1,8 +1,9 @@
 # V2 — decisões pendentes, sem confundir com implementação
 
 > Histórico de triagem. O estado consolidado e as decisões posteriores do
-> Gabriel estão em `TASK_V2_FECHAMENTO.md`; D01/D02/D04/D06/D08/D09 desta
-> fotografia não devem ser usados como perguntas ainda integralmente abertas.
+> Gabriel estão em `TASK_V2_FECHAMENTO.md`; o lote publicado em 2026-09-24
+> substitui estados locais/sem UI abaixo. Usar este arquivo somente para
+> entender a origem das perguntas, nunca como cursor.
 
 Atualizado em 2026-09-17. Resposta ao pedido de Gabriel para individualizar
 o que precisa de definição ou pode ser adiado para v3.
@@ -22,7 +23,7 @@ As opções e consequências de cada ID abaixo estão detalhadas em
 | I02 | Redações: versões, avaliações com origem/data, média pessoal e nota oficial separadas; vínculo posterior à prova | Tabelas/coluna novas em `20260917000300` somente local; falta aplicação autorizada, UI, retenção das imagens de versões e E2E. Não confundir com integração automática MEC. |
 | I03 | Escola/Faculdade: rótulo por conta e criar/renomear/retirar/reincluir matérias | Implementado localmente (DEC-083). CRUD de contexto, persistência, seed, falha/recuperação e duplicatas conferidos na UI local; Matemática preservada no ENEM. Leitura/alteração cruzadas recusadas na API com duas contas fictícias, rótulos independentes. Troca de contas pela UI ainda em I08. |
 | I04 | Avaliações: nota máxima/peso e média ponderada; simulados: questões anuladas com totais coerentes | Migration 20260917000200 local validada: tabela privada de lançamentos, RPC invoker de média e total_anuladas. Reset/25 scripts passaram. Falta autorização remota específica, aplicação e UI/SM-2 dependentes. Não incluir Biblioteca na aplicação. |
-| I05 | Biblioteca: reordenar listas dentro da obra (elenco/trilha/OP-ED), não cards do catálogo | Migration 20260917000100 preparada/testada localmente. Gabriel determinou manter local; não aplicar remotamente. UI ainda não integrada por schema-first. |
+| I05 | Biblioteca: reordenar listas dentro da obra (elenco/trilha/OP-ED), não cards do catálogo | Migration 20260917000100 aplicada isoladamente em produção em 2026-09-25, após reset/teste local, precheck, dry-run e pós-check. UI ainda não integrada por schema-first. |
 | I06 | Completar edição dos metadados já existentes nas temporadas | Anime: nomes, período/duração, equipe, links/capa, sinopse e data; séries: número/episódios/notas/data implementados localmente. Identidade externa e episódios preservados. Homologar. |
 | I07 | Treino: recuperar finalização parcial, plano modificado e edição concorrente sem perder execuções | Plano divergente detectado no rascunho e nas execuções salvas, bloqueando finalização sem apagar dados. Reenvio confirma sessão já fechada sem alterar horário. Faltam E2E e política D02 de simultaneidade. |
 | I08 | Homologar candidato autenticado: CRUD/recarga, reordenação, treino/falhas, gráficos, relógio e atalhos de duas contas | Login na versão local e contas de teste identificadas; aba publicada não comprova código local. |

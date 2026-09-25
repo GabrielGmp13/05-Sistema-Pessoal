@@ -1,14 +1,22 @@
 # DATABASE.md
 
-## Estado remoto confirmado em 2026-09-23
+> **I05 em 2026-09-25:** reset local e
+> `validate_biblioteca_reordenacao.sql` passaram. Após precheck e dry-run
+> isolados, `20260917000100_biblioteca_reordenacao.sql` foi aplicada em
+> produção. Pós-check confirmou histórico, função invoker com `search_path`
+> seguro, RLS e GRANTs; o dry-run final está vazio. Os roteiros I05 aceitam
+> exclusivamente essa versão e preservam 00200/00300.
 
-Aplicadas exclusivamente `20260917000200` (avaliações/anuladas) e
+## Estado remoto confirmado em 2026-09-24
+
+Aplicadas nesta rodada exclusivamente `20260917000200` (avaliações/anuladas) e
 `20260917000300` (tentativas ENEM/versões e avaliações de redações), após
 precheck, revisão e dry-run exclusivo. Histórico confirmou ambas; quatro
 tabelas novas com RLS, CRUD authenticated e sem SELECT anon; dry-run final
 da cadeia isolada vazio. Os contratos abaixo antes marcados como locais
-dessas duas versões agora estão disponíveis em produção. Biblioteca
-`20260917000100` continua somente local. As baselines não foram reexecutadas.
+dessas duas versões agora estão disponíveis em produção. Em 2026-09-25, a
+Biblioteca `20260917000100` também foi aplicada isoladamente. As baselines não
+foram reexecutadas.
 
 Documento único de referência para o banco de dados. Qualquer dúvida sobre nome de tabela, coluna ou relacionamento é resolvida aqui — não em memória, não por suposição.
 
@@ -63,7 +71,7 @@ dessas duas pastas deve ser executado como migration.
 
 ### Cadeia ativa
 
-**SQL somente local, reset e 25 scripts aprovados (sem aplicação remota):**
+**Aplicada em produção em 2026-09-24, após precheck e dry-run isolados:**
 `20260917000200_estudos_avaliacoes_anuladas.sql` (DEC-084):
 
 - `lancamentos_nota`: `uuid TEXT PK`, `user_id UUID`, `materia_uuid TEXT`,
@@ -80,23 +88,19 @@ dessas duas pastas deve ser executado como migration.
 - Exportação já enumera tabelas por `user_id`; nova tabela é incluída sem
   conceder leitura direta ao service_role. `provas.nota` não é convertido.
 
-O estado esperado da cadeia LOCAL passa a 75 tabelas/PKs, 146 FKs, 133 checks,
-81 índices explícitos e dez funções. **Produção continua com 71 tabelas e
-quatro funções**; nenhuma UI deve depender destes novos objetos ainda.
-Antes de aplicar remotamente: conferir se existem simulados com total/acertos
-negativos ou acertos acima do total; inconsistências exigem tratamento explícito,
-não normalização automática. O dry-run da cadeia inteira incluiria também a
-reordenação Biblioteca NÃO autorizada; não executar um push indiscriminado.
+O banco de produção contém esses objetos e a UI publicada pode usá-los. A
+aplicação não converteu notas legadas. A cadeia inteira ainda inclui a
+reordenação Biblioteca NÃO autorizada; nunca executar um push indiscriminado.
 
-**Somente local, aplicação remota não autorizada:**
+**Aplicada em produção em 2026-09-25, após precheck e dry-run isolados:**
 `20260917000100_biblioteca_reordenacao.sql` acrescenta a função invoker
 `reordenar_lista_biblioteca(p_lista TEXT, p_tipo_obra TEXT, p_obra_uuid TEXT,
 p_ordem TEXT[], p_esperada TEXT[])`. Alvos permitidos: elenco, trilha_sonora e
 openings_endings; verifica dono da obra, lista completa e ordem anterior antes
 de alterar. Não reorganiza cards do catálogo. Reset local e teste específico
-aprovados; Gabriel determinou manter local. Não criar frontend dependente nem
-incluir em aplicação remota sem nova autorização explícita. O consolidado local
-inclui essa função e a nova média local; a produção segue com quatro.
+aprovados. O pós-check remoto confirmou histórico, invoker, `search_path`
+seguro, RLS, CRUD para `authenticated` e recusa de `anon`; o dry-run final
+ficou vazio. A função não é chamada pela UI publicada ainda.
 
 **Aplicada em produção em 2026-09-16:** `20260915000100_treino_grupos_instrucoes_ordem.sql`
 passou reset e 23 testes SQL locais, dry-run exclusivo e aplicação autorizada. Acrescenta
@@ -146,6 +150,9 @@ foi resolvida com credencial fornecida por Gabriel, usada somente na sessão.
 | `20260907000100` | `20260907000100_exportacao_dados_usuario.sql` | ✅ Reset completo e 21 testes SQL aprovados; dry-run listou somente esta migration; aplicada em produção em 2026-09-07; dry-run final vazio |
 | `20260908000100` | `20260908000100_treino_integridade_por_usuario.sql` | ✅ Reset completo e 22 testes SQL aprovados; aplicada em produção após precheck seguro e limpeza confirmada de uma sessão vazia de teste; dry-run final vazio |
 | `20260915000100` | `20260915000100_treino_grupos_instrucoes_ordem.sql` | ✅ Reset e 23 testes SQL aprovados; aplicada em produção em 2026-09-16 após dry-run exclusivo; colunas/permissões/histórico confirmados e dry-run final vazio |
+| `20260917000100` | `20260917000100_biblioteca_reordenacao.sql` | ✅ Reset/teste SQL, precheck e dry-run exclusivos; aplicada em produção em 2026-09-25 com função invoker, RLS/GRANTs e dry-run final conferidos |
+| `20260917000200` | `20260917000200_estudos_avaliacoes_anuladas.sql` | ✅ Reset/25 scripts locais, precheck e dry-run exclusivos; aplicada em produção em 2026-09-24 com RLS/GRANT e histórico conferidos |
+| `20260917000300` | `20260917000300_enem_redacoes_modelo.sql` | ✅ Reset/26 scripts locais, precheck e dry-run exclusivos; aplicada em produção em 2026-09-24 com RLS/GRANT e histórico conferidos |
 
 > **Estado confirmado (2026-08-30):** produção e cadeia local estão alinhadas
 > até `20260830000100_anime_related_works.sql`, com 68 tabelas, seis buckets
@@ -1321,9 +1328,9 @@ UNIQUE (user_id, prova_uuid, numero)
 > Guarda o resumo e a estrutura da tentativa anterior antes de “Refazer prova”.
 > Gabarito correto, matéria, conteúdo e redação continuam nas fontes atuais.
 
-### ENEM e Redações — modelo novo SOMENTE LOCAL (`20260917000300`)
+### ENEM e Redações — modelo novo aplicado (`20260917000300`)
 
-Ainda não existe em produção. A migration adiciona `provas.enem_ano`,
+Aplicada em produção em 2026-09-24 por rito isolado. A migration adiciona `provas.enem_ano`,
 `enem_aplicacao`, `enem_caderno`, `enem_lingua` (opcionais para legado) e
 `redacoes.nota_oficial`, que **não** substitui `redacoes.nota` nem a média
 pessoal. `enem_tentativas` guarda uma linha por execução, com `(user_id,
@@ -1338,11 +1345,10 @@ consistentes. `provas_tentativas` permanece como acervo legado sem conversão.
 `redacoes_avaliacoes` registra avaliador, origem, data, nota 0–1000,
 competências opcionais 0–200 e versão
 opcional. A média pessoal é `AVG(nota)` das avaliações ativas da redação,
-separada de `nota_oficial`. O frontend não usa essas entidades até a aplicação
-remota autorizada e confirmação do schema real. A troca de imagem atual ainda
-remove o arquivo anterior; a UI nova deve reter arquivos referenciados por
-versões antes de permitir substituir. Todas as tabelas novas têm RLS e CRUD
-explícito para `authenticated`.
+separada de `nota_oficial`. O frontend publicado usa essas entidades. A troca
+ou remoção da imagem atual preserva arquivo referenciado por versão; o ensaio
+local confirmou URL assinada para a conta dona e recusa para outra conta.
+Todas as tabelas novas têm RLS e CRUD explícito para `authenticated`.
 
 ### `treinos_planejamento_semanal` (migration aplicada `20260827000100`)
 ```sql

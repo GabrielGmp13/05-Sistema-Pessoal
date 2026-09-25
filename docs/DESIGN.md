@@ -339,6 +339,16 @@ medidas e aparência dos componentes reais para não haver piscada, duplicação
 
 ## Convenções de UI
 
+### Cômodo em pausa
+
+Quando um módulo é retirado temporariamente da superfície, a URL original
+preservada mostra uma tela central com ícone de pausa, rótulo curto, título que
+nomeia o cômodo, explicação de que código e dados foram preservados e um único
+botão para Início. Ela usa o card padrão, não cria hero, ilustração nova ou
+ação de reativação para o usuário. A lista de módulos pausados é uma decisão de
+produto centralizada em `lib/modulos-pausados.ts`; preferências individuais não
+podem contorná-la.
+
 Escola/Faculdade mantém os componentes de Estudos. O painel de gerenciamento
 explica nomes compartilhados com ENEM; retirar é diferente de apagar e tem
 confirmação/reinclusão. Resultados ENEM usam barras nativas `meter` acompanhadas

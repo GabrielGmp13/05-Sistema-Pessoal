@@ -1,4 +1,49 @@
-# Handoff — preparação funcional da versão 2
+# Handoff — continuidade da V2 após publicação parcial
+
+> **Estado vigente — 2026-09-25.** Siga primeiro a ordem obrigatória de leitura
+> do `AGENTS.md`. Depois consulte este documento, `RETOMADA_V2.md` e
+> `TASK_V2_FECHAMENTO.md`. Os parágrafos abaixo do bloco vigente são evidência
+> histórica.
+
+## Ponto de retomada único
+
+- Repositório: `C:\Gabriel Oliveira\05-Sistema-Pessoal`; frontend único em
+  `frontend/`; produção em `https://expansiondominionpersonaledition.vercel.app`.
+- Publicados em `main`: `c862edb`, `dde129e`, `af05990`, `3eae531`, `e09be53`.
+  CI e deploy Vercel passaram. O PDF avulso na raiz pertence ao usuário e segue
+  fora do Git.
+- Banco: `20260915000100`, `20260917000100`, `20260917000200` e
+  `20260917000300` estão aplicadas em produção. A `00100` foi aplicada por
+  rito isolado em 2026-09-25; não executar `db push` genérico. A função só
+  reordena elenco/trilha/OP-ED dentro de uma obra e a UI ainda não a chama.
+- Validação atual: 147 testes Node, typecheck, lint e build de 49 páginas
+  passaram. QA local confirmou Treino/Agenda, avaliações, ENEM, Redações,
+  progresso de leitura, OFX/CSV sintéticos e Storage privado entre duas contas.
+- V2.1 pausa Idiomas, Projetos, Programação e o conjunto Diário (Saúde,
+  Finanças, Lugares e Receitas). A lista central em
+  `frontend/lib/modulos-pausados.ts` remove navegação/Início e reescreve a URL
+  autenticada para “cômodo em pausa”, sem apagar dados ou código.
+- O candidato V2.1 passou em 149 testes Node, typecheck, lint e build de
+  produção antes do commit; confirmar CI, Vercel e smoke pelo commit publicado.
+- Trabalho restante não é “implementar tudo”: usar `TASK_V2_FECHAMENTO.md`.
+  Existem escolhas D03/D05/D06/D07/D12/D13/D16/D18/D21/D22, dependências
+  E01–E14 e testes reais (arquivo Nubank anonimizado, celular e uso prolongado).
+  Não inventar produto nem marcar integração externa como concluída.
+- O redesign ainda não começou. `TASK_V2_DESIGN.md` é o briefing para Astra;
+  iniciar somente quando o escopo funcional que Gabriel escolher estiver fechado.
+
+## Prompt sugerido para o próximo chat
+
+> Siga `AGENTS.md` e leia os documentos de entrada. Retome pelo primeiro item
+> ainda aberto em `TASK_V2_FECHAMENTO.md` que esteja definido pelo Gabriel.
+> Preserve o banco de produção: não reaplique `00100`/`00200`/`00300`, não
+> remova a pausa central sem decisão nova e não use dados dos amigos em ensaios
+> destrutivos.
+> Atualize `RETOMADA_V2.md`, `TASKS_NOW.md`, `CHANGELOG.md`, `DECISIONS.md` e
+> `DATABASE.md` quando o estado mudar. Não faça commit/push sem autorização
+> explícita na nova conversa.
+
+## Evidência histórica anterior
 
 > **Cursor vigente: `RETOMADA_V2.md` (2026-09-23).** As notas abaixo são
 > históricas. Nubank conta/fatura tem implementação local ainda em validação;

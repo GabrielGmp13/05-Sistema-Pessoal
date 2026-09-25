@@ -57,13 +57,10 @@ continua zero; recurso sem fonte gratuita comprovada permanece pendente, não
 
 ## Dependências de banco já definidas, sem decisão de produto
 
-- `20260917000100` Biblioteca: **manter local**, conforme orientação explícita
-  de Gabriel. É a ordem de elenco/trilha/aberturas **dentro da obra**, não dos
-  cards do catálogo. UI não será ativada antes da aplicação autorizada.
-- `20260917000200` Avaliações/anuladas: SQL local validado; falta autorização
-  específica para precheck/dry-run/aplicação isolada e depois UI.
-- `20260917000300` ENEM/Redações: SQL local validado; falta revisão/aplicação
-  autorizada e transição de interface/legado. Não executar `db push` da cadeia
-  inteira, pois incluiria Biblioteca sem autorização.
-
-Nenhuma dessas três migrations foi aplicada em produção nesta rodada.
+- `20260917000100` Biblioteca: aplicada isoladamente em 2026-09-25. É a ordem
+  de elenco/trilha/aberturas **dentro da obra**, não dos cards do catálogo; UI
+  ainda não foi ativada.
+- `20260917000200` Avaliações/anuladas e `20260917000300` ENEM/Redações:
+  aplicadas isoladamente em 2026-09-24; restam homologações, não nova aplicação.
+- Não executar `db push` genérico: qualquer operação futura precisa conferir
+  histórico, plano e autorização do escopo.

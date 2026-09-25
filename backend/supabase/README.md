@@ -20,13 +20,14 @@ Esta pasta separa três finalidades que não devem ser misturadas:
 
 ## Histórico ativo
 
-**Estado em 2026-09-24:** Treino `20260915000100` está aplicado em
-produção (ver DATABASE). Biblioteca `20260917000100` foi mantida SOMENTE LOCAL
-por ordem de Gabriel. Estudos `20260917000200` e ENEM/Redações
-`20260917000300` estão aplicadas em produção; interface integrada no candidato
-local. Não executar push da cadeia inteira: ele incluiria Biblioteca,
-cuja aplicação remota não está autorizada. As quatro tabelas acadêmicas novas
-foram verificadas; contagens históricas de funções não substituem inspeção atual.
+**Estado em 2026-09-25:** Treino `20260915000100`, Biblioteca
+`20260917000100`, Estudos `20260917000200` e ENEM/Redações
+`20260917000300` estão aplicadas em produção. A Biblioteca foi aplicada por
+rito isolado, exclusivamente para ordem interna de elenco/trilha/OP-ED; nunca
+usar `db push` genérico nem tratar essa migration como ordem de cards. A
+interface acadêmica está integrada no candidato local. As quatro tabelas
+acadêmicas novas foram verificadas; contagens históricas de funções não
+substituem inspeção atual.
 
 O ponto inicial oficial da cadeia CLI é:
 

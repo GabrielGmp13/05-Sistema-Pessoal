@@ -7,6 +7,7 @@ import ts from 'typescript'
 import type { NextRequest, NextResponse } from 'next/server'
 import * as routeAccess from '../lib/route-access.ts'
 import { TERMS_VERSION, hasAcceptedTerms } from '../lib/terms.ts'
+import * as modulosPausados from '../lib/modulos-pausados.ts'
 
 const require = createRequire(import.meta.url)
 const next = require('next/server') as typeof import('next/server')
@@ -23,6 +24,7 @@ function proxyWithUser(authenticated: boolean, termsAccepted = true) {
       if (name === 'next/server') return next
       if (name === './lib/route-access') return routeAccess
       if (name === './lib/terms') return { hasAcceptedTerms }
+      if (name === './lib/modulos-pausados') return modulosPausados
       if (name === '@supabase/ssr') return {
         createServerClient: (_url: string, _key: string, options: { cookies: { setAll: (cookies: object[]) => void } }) => ({
           auth: { getUser: async () => {
@@ -78,4 +80,15 @@ test('proxy exige aceite antes de liberar páginas ou APIs autenticadas', async 
     const response = await proxyWithUser(true, false)(new next.NextRequest(`https://example.invalid${path}`))
     assert.equal(response.status, 200, path)
   }
+})
+
+test('proxy mantém a URL e mostra pausa para os cômodos V2.1 autorizados', async () => {
+  const response = await proxyWithUser(true)(new next.NextRequest('https://example.invalid/financas?mes=2026-09'))
+  assert.equal(response.status, 200)
+  assert.match(response.headers.get('x-middleware-rewrite') ?? '', /\/em-pausa\/diario$/)
+  assert.equal(response.headers.get('cache-control'), 'private, no-store')
+
+  const ativo = await proxyWithUser(true)(new next.NextRequest('https://example.invalid/estudos'))
+  assert.equal(ativo.status, 200)
+  assert.equal(ativo.headers.get('x-middleware-rewrite'), null)
 })

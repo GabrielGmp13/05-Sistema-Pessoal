@@ -26,6 +26,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { AvisoNavegador } from '@/components/avisos-navegador'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -313,6 +314,13 @@ export default function RevisaoPage() {
       <PageHeader
         title="Revisão Espaçada"
         description="Revise o que está pendente e registre o resultado para calcular o próximo intervalo."
+      />
+      <AvisoNavegador
+        chave="revisoes"
+        titulo="Revisões pendentes"
+        corpo={pendentes.length === 1 ? 'Há 1 revisão para fazer.' : `Há ${pendentes.length} revisões para fazer.`}
+        pronto={!carregando && pendentes.length > 0}
+        disparador={`${hoje}:${pendentes.map((card) => card.uuid).join(',')}`}
       />
 
       <div role="tablist" aria-label="Filtros de revisão" className="mt-7 flex flex-wrap gap-2 border-b border-border pb-3">

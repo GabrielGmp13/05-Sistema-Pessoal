@@ -406,8 +406,9 @@ export default function HomePage() {
           </section>
         </div>
 
-        <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <ResumoNovoModulo
+        {!modulosOcultos.includes('/projetos') || !modulosOcultos.includes('/receitas') ? (
+          <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-2">
+          {!modulosOcultos.includes('/projetos') ? <ResumoNovoModulo
             eyebrow="Execução"
             title="Projetos ativos"
             href="/projetos"
@@ -420,8 +421,8 @@ export default function HomePage() {
               detail: projeto.data_prazo ? `Prazo ${new Date(`${projeto.data_prazo}T00:00:00`).toLocaleDateString('pt-BR')}` : projeto.status,
               icon: FolderKanban,
             }))}
-          />
-          <ResumoNovoModulo
+          /> : null}
+          {!modulosOcultos.includes('/receitas') ? <ResumoNovoModulo
             eyebrow="Cozinha"
             title="Receitas em destaque"
             href="/receitas"
@@ -434,8 +435,9 @@ export default function HomePage() {
               detail: receita.favorito ? 'Favorita' : receita.categoria || 'Receita',
               icon: receita.favorito ? Star : Utensils,
             }))}
-          />
-        </div>
+          /> : null}
+          </div>
+        ) : null}
 
         <section aria-labelledby="modulos-title" className="mt-12 border-t border-border pt-6">
           <div>

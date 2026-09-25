@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { getSession, sb } from '@/lib/supabase'
 import { MODULOS_OPCIONAIS, normalizarModulosOcultos } from '@/lib/modulos-visiveis'
+import { ROTAS_MODULOS_PAUSADOS } from '@/lib/modulos-pausados'
 
 export function ModuleVisibilityForm() {
   const [ocultos, setOcultos] = useState<string[]>([])
@@ -34,13 +35,13 @@ export function ModuleVisibilityForm() {
 
   return <section className="mt-8 rounded-lg border border-border bg-card p-5" aria-label="Atalhos dos módulos">
     <h2 className="text-lg font-semibold">Atalhos dos módulos</h2>
-    <p className="mt-2 text-sm text-muted-foreground">Escolha os atalhos da navegação e da lista de módulos do Início. Ocultar não apaga dados, não bloqueia links diretos e não remove registros dos resumos. Você pode reativar aqui a qualquer momento.</p>
+    <p className="mt-2 text-sm text-muted-foreground">Escolha os atalhos da navegação e da lista de módulos do Início. Ocultar não apaga dados, não bloqueia links diretos e não remove registros dos resumos. Os cômodos pausados na V2.1 não aparecem aqui e serão liberados em revisão futura.</p>
     <fieldset disabled={!pronto || salvando} className="mt-4 grid gap-3 sm:grid-cols-2">
-      {MODULOS_OPCIONAIS.map((item) => <label key={item.rota} className="flex items-center gap-2 text-sm">
+      {MODULOS_OPCIONAIS.filter((item) => !ROTAS_MODULOS_PAUSADOS.includes(item.rota)).map((item) => <label key={item.rota} className="flex items-center gap-2 text-sm">
         <input type="checkbox" checked={!ocultos.includes(item.rota)} onChange={(event) => setOcultos((atuais) => event.target.checked ? atuais.filter((rota) => rota !== item.rota) : [...atuais, item.rota])} />{item.nome}
       </label>)}
     </fieldset>
-    <div className="mt-4 flex flex-wrap gap-2"><Button disabled={!pronto || salvando} onClick={() => void salvar()}>{salvando ? 'Salvando…' : 'Salvar atalhos'}</Button><Button variant="outline" disabled={!pronto || salvando} onClick={() => setOcultos([])}>Selecionar todos</Button></div>
+    <div className="mt-4 flex flex-wrap gap-2"><Button disabled={!pronto || salvando} onClick={() => void salvar()}>{salvando ? 'Salvando…' : 'Salvar atalhos'}</Button><Button variant="outline" disabled={!pronto || salvando} onClick={() => setOcultos((atuais) => atuais.filter((rota) => ROTAS_MODULOS_PAUSADOS.includes(rota)))}>Selecionar todos</Button></div>
     {mensagem ? <p role="status" className="mt-3 text-sm">{mensagem}</p> : null}
   </section>
 }

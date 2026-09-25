@@ -184,6 +184,46 @@ export async function listarCardsRevisao(): Promise<CardRevisao[] | null> {
   return data
 }
 
+/** Revisões ativas dentro de um período, para a Agenda reagendar o registro original. */
+export async function listarRevisoesNoPeriodo(inicio: string, fim: string): Promise<CardRevisao[] | null> {
+  const userId = await getUserId()
+  if (!userId) return null
+
+  const { data, error } = await sb
+    .from('revisao_espacada')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('deleted', false)
+    .eq('arquivado', false)
+    .gte('proxima_revisao', inicio)
+    .lte('proxima_revisao', fim)
+    .order('proxima_revisao')
+    .order('updated_at', { ascending: false })
+
+  if (error) return sbErr(error, 'listarRevisoesNoPeriodo')
+  return data as CardRevisao[]
+}
+
+/** A Agenda só altera a próxima data; arquivamento permanece no módulo Revisão. */
+export async function reagendarRevisao(uuid: string, proximaRevisao: string): Promise<boolean> {
+  const userId = await getUserId()
+  if (!userId || !/^\d{4}-\d{2}-\d{2}$/.test(proximaRevisao)) return false
+
+  const { error } = await sb
+    .from('revisao_espacada')
+    .update({ proxima_revisao: proximaRevisao, updated_at: now() })
+    .eq('uuid', uuid)
+    .eq('user_id', userId)
+    .eq('deleted', false)
+    .eq('arquivado', false)
+
+  if (error) {
+    sbErr(error, 'reagendarRevisao')
+    return false
+  }
+  return true
+}
+
 /** Lista cards suspensos, preservando progresso e vínculos existentes. */
 export async function listarCardsArquivados(): Promise<CardRevisao[] | null> {
   const userId = await getUserId()

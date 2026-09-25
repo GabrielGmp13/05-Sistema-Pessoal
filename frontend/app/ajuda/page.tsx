@@ -7,7 +7,7 @@ const questions = [
   ['Como envio um problema ou ideia?', 'Depois de entrar, abra Configurações → Bugs e sugestões. Você receberá um protocolo e poderá acompanhar o histórico na mesma página.'],
   ['Posso enviar um print?', 'Sim, até três imagens por pedido. Oculte e-mails, documentos, dados financeiros, compromissos e informações de outras pessoas antes do envio.'],
   ['O print ou relato vai para o GitHub?', 'Não. Relatos, e-mails e prints ficam em armazenamento privado. No GitHub entra apenas um resumo técnico sem identificação quando necessário.'],
-  ['Preciso usar todos os recursos?', 'Não. Você escolhe quais recursos usar e quais dados inserir. Saúde, diário e finanças continuam disponíveis, mas recomendamos dados fictícios ou de baixo risco durante o piloto.'],
+  ['Preciso usar todos os recursos?', 'Não. Você escolhe quais recursos usar e quais dados inserir. Alguns cômodos podem ficar temporariamente em pausa enquanto o sistema prioriza o essencial; isso não apaga os dados já guardados.'],
   ['Existe prazo de resposta?', 'Ainda não há prazo garantido. Problemas de segurança e perda de dados recebem prioridade sobre defeitos visuais e sugestões.'],
 ]
 

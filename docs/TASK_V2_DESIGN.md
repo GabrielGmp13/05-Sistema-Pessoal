@@ -3,8 +3,9 @@
 ## Estado e dependência
 
 Preparação iniciada em 2026-09-15 a pedido de Gabriel para execução futura pelo
-Astra 6. **Redesign não iniciado.** A fase funcional de
-[TASK_V2_IMPLEMENTACAO.md](TASK_V2_IMPLEMENTACAO.md) ainda está incompleta.
+Astra 6. **Redesign não iniciado.** O lote funcional definido foi publicado em
+2026-09-24, mas a V2 ampliada ainda tem escolhas de produto, integrações e
+homologações reais abertas em [TASK_V2_FECHAMENTO.md](TASK_V2_FECHAMENTO.md).
 Este inventário é uma base de trabalho, não uma certificação visual de cada tela.
 
 Atualização funcional local de 2026-09-16: considerar os novos editores de
@@ -12,6 +13,13 @@ elenco/trilhas/temporadas de séries/volumes/OP-ED na Biblioteca, tendências de
 Saúde, relógio ENEM em blocos e seleção dos atalhos em Configurações. Nenhuma
 rota nova neste segundo lote. Preservar os estados de erro, cancelamento,
 campos vazios e confirmação adicionados; homologação visual continua pendente.
+
+**Recorte V2.1 (2026-09-25):** Idiomas, Projetos, Programação e o conjunto
+Diário (Diário, Saúde, Finanças, Lugares e Receitas) estão em pausa de produto:
+não redesenhar esses fluxos nesta rodada e preservar a tela funcional de pausa.
+As telas transversais que ainda faltam — 404, erro por rota/global, rede,
+permissões, sessão e integrações — foram catalogadas para V3 em
+`V3_CATALOGO_DE_TELAS.md`; não criar mocks nem novas rotas nesta revisão.
 
 Foram inventariados 39 arquivos `page.tsx`. Contagens de páginas do build
 incluem geração e infraestrutura e não substituem este inventário de telas.

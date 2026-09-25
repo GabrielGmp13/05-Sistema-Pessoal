@@ -1,9 +1,10 @@
-# Task — versão 2: fechamento de todas as implementações
+# Task — versão 2: fotografia de implementação (histórico)
 
 ## Pedido e estado
 
-Triagem individual para resposta do Gabriel: `V2_DECISOES_PENDENTES.md`.
-O documento separa implementação restante de escolhas e bloqueios externos.
+Este documento registra o inventário de origem. O estado operacional e as
+pendências reais foram consolidados em `TASK_V2_FECHAMENTO.md`; não usar os
+itens abaixo para afirmar que migrations/UI continuam somente locais.
 
 Em 2026-09-15, Gabriel incluiu **todas as ideias futuras** de BACKLOG/VISION
 no objetivo da versão 2, além das funcionalidades anteriormente especificadas.

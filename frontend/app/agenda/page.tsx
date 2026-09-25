@@ -43,6 +43,7 @@ import { getUserId, sb } from '@/lib/supabase'
 import { getTodosTreinos, Treino } from '@/lib/treino'
 import { dataLocalIso } from '@/lib/date'
 import { estadoTreinoAgendado } from '@/lib/treino-presenca'
+import { CardRevisao, listarRevisoesNoPeriodo, reagendarRevisao } from '@/lib/revisao'
 import type { AcaoImportacaoCalendar } from '@/lib/calendar-import'
 
 interface EventoCalendarPrevia {
@@ -134,6 +135,7 @@ function formatarPeriodo(inicio: Date, fim: Date) {
 export default function AgendaPage() {
   const [dataReferencia, setDataReferencia] = useState(hojeLocal())
   const [eventos, setEventos] = useState<EventoAgenda[]>([])
+  const [revisoes, setRevisoes] = useState<CardRevisao[]>([])
   const [provas, setProvas] = useState<Prova[]>([])
   const [materias, setMaterias] = useState<Materia[]>([])
   const [treinos, setTreinos] = useState<Treino[]>([])
@@ -141,6 +143,8 @@ export default function AgendaPage() {
   const [formulario, setFormulario] = useState<FormularioEvento>(FORMULARIO_VAZIO)
   const [eventoEditando, setEventoEditando] = useState<EventoAgenda | null>(null)
   const [eventoParaApagar, setEventoParaApagar] = useState<EventoAgenda | null>(null)
+  const [revisaoEditando, setRevisaoEditando] = useState<CardRevisao | null>(null)
+  const [novaDataRevisao, setNovaDataRevisao] = useState('')
   const [diaAberto, setDiaAberto] = useState<string | null>(null)
   const [dialogAberto, setDialogAberto] = useState(false)
   const [carregando, setCarregando] = useState(true)
@@ -153,6 +157,7 @@ export default function AgendaPage() {
   const [previaCalendar, setPreviaCalendar] = useState<EventoCalendarPrevia[]>([])
   const [selecionadosCalendar, setSelecionadosCalendar] = useState<Set<string>>(new Set())
   const sincronizacaoEmCursoRef = useRef(false)
+  const sincronizacaoInicialFeitaRef = useRef(false)
 
   const semana = useMemo(() => {
     const inicio = inicioDaSemana(dataReferencia)
@@ -177,19 +182,21 @@ export default function AgendaPage() {
 
   const carregar = useCallback(async () => {
     setCarregando(true)
-    const [eventosAtuais, provasAtuais, materiasAtuais, userId] = await Promise.all([
+    const [eventosAtuais, provasAtuais, materiasAtuais, revisoesAtuais, userId] = await Promise.all([
       listarEventosAgenda(inicioIso, fimIso),
       listarProvasNoPeriodo(inicioIso, fimIso),
       listarMaterias(),
+      listarRevisoesNoPeriodo(inicioIso, fimIso),
       getUserId(),
     ])
     const treinosAtuais = userId ? await getTodosTreinos(sb, userId) : []
 
-    if (eventosAtuais === null || provasAtuais === null || materiasAtuais === null) {
+    if (eventosAtuais === null || provasAtuais === null || materiasAtuais === null || revisoesAtuais === null) {
       setErro('Não foi possível carregar todos os dados da agenda.')
     } else {
       setEventos(eventosAtuais)
       setProvas(provasAtuais)
+      setRevisoes(revisoesAtuais)
       setMaterias(materiasAtuais)
       setTreinos(treinosAtuais)
       setErro('')
@@ -280,6 +287,12 @@ export default function AgendaPage() {
       )
       .catch(() => setGoogleConectado(false))
   }, [])
+
+  useEffect(() => {
+    if (!googleConectado || sincronizacaoInicialFeitaRef.current) return
+    sincronizacaoInicialFeitaRef.current = true
+    void sincronizarAutomaticamente()
+  }, [googleConectado, sincronizarAutomaticamente])
 
   useEffect(() => {
     let ativo = true
@@ -401,6 +414,25 @@ export default function AgendaPage() {
     setDialogAberto(false)
   }
 
+  function abrirReagendamento(revisao: CardRevisao) {
+    setRevisaoEditando(revisao)
+    setNovaDataRevisao(revisao.proxima_revisao)
+  }
+
+  async function salvarReagendamento(event: React.FormEvent) {
+    event.preventDefault()
+    if (!revisaoEditando || !novaDataRevisao) return
+    setSalvando(true)
+    const reagendada = await reagendarRevisao(revisaoEditando.uuid, novaDataRevisao)
+    if (!reagendada) setErro('Não foi possível reagendar a revisão.')
+    else {
+      setMensagem('Revisão reagendada. Para parar definitivamente, arquive o card em Revisão Espaçada.')
+      setRevisaoEditando(null)
+      await carregar()
+    }
+    setSalvando(false)
+  }
+
   async function exportarGoogleCalendar(evento: EventoAgenda) {
     setExportandoUuid(evento.uuid)
     setErro('')
@@ -483,7 +515,7 @@ export default function AgendaPage() {
       <div className="mb-5"><BackLink href="/">Voltar ao início</BackLink></div>
       <PageHeader
         title="Agenda"
-        description="Mês completo e semana selecionada, sincronizados automaticamente com o Google Calendar."
+        description="Mês completo e semana selecionada. O Google Calendar sincroniza ao abrir esta Agenda ou ao usar Atualizar."
         actions={<><Button type="button" variant="outline" disabled={!googleConectado || importandoCalendar} onClick={() => void sincronizarAutomaticamente(true)} title={googleConectado ? 'Sincronizar agora com o Google Calendar' : 'Conecte o Calendar em Configurações'}><RefreshCw className={importandoCalendar ? 'animate-spin' : ''} />{importandoCalendar ? 'Sincronizando...' : 'Sincronizar agora'}</Button><Button type="button" onClick={() => abrirNovo(dataReferencia)}><Plus />Novo compromisso</Button></>}
       />
 
@@ -530,10 +562,11 @@ export default function AgendaPage() {
               const data = isoLocal(dia)
               const eventosDoDia = eventos.filter((evento) => evento.data === data)
               const provasDoDia = provas.filter((prova) => prova.data === data)
+              const revisoesDoDia = revisoes.filter((revisao) => revisao.proxima_revisao === data)
               const foraDoMes = dia.getMonth() !== mesCalendario.mes
               const selecionado = data === dataReferencia
               const passado = data < hojeLocal()
-              return <section key={data} className={`relative min-h-28 cursor-pointer border-b border-r border-border p-2 transition-colors hover:bg-muted/35 ${foraDoMes ? 'bg-muted/25 text-muted-foreground' : 'bg-card'} ${selecionado ? 'ring-2 ring-inset ring-primary' : ''}`} onClick={() => { setDataReferencia(data); setDiaAberto(data) }} aria-label={`Abrir agenda de ${data}`}><div className="flex items-center justify-between"><span className={`flex size-7 items-center justify-center rounded-full text-xs font-semibold ${data === hojeLocal() ? 'bg-primary text-primary-foreground' : ''}`}>{dia.getDate()}</span><Button type="button" size="icon-xs" variant="ghost" onClick={(event) => { event.stopPropagation(); abrirNovo(data) }} aria-label={`Adicionar compromisso em ${data}`}><Plus /></Button></div><div className="mt-2 space-y-1">{provasDoDia.slice(0, 2).map((prova) => <div key={prova.uuid} className="truncate rounded bg-primary/10 px-1.5 py-1 text-[11px] text-primary" title={prova.titulo || 'Prova'}>{prova.titulo || 'Prova'}</div>)}{eventosDoDia.slice(0, 3).map((evento) => <button type="button" key={evento.uuid} className={`flex w-full items-center gap-1 truncate rounded px-1.5 py-1 text-left text-[11px] ${evento.concluido ? 'bg-muted line-through' : 'bg-secondary'}`} title={`${PRIORIDADE_LABEL[evento.prioridade]} · ${evento.titulo}`} aria-label={`${evento.titulo}, prioridade ${PRIORIDADE_LABEL[evento.prioridade].toLowerCase()}`} onClick={(event) => { event.stopPropagation(); abrirEdicao(evento) }}><span aria-hidden="true" className={`size-1.5 shrink-0 rounded-full ${evento.prioridade === 'alta' ? 'bg-warning' : evento.prioridade === 'baixa' ? 'bg-primary/45' : 'bg-muted-foreground/55'}`} /><span className="truncate">{evento.hora_inicio ? `${evento.hora_inicio.slice(0, 5)} ` : ''}{evento.titulo}</span></button>)}{eventosDoDia.length + provasDoDia.length > 5 ? <p className="text-[10px] text-muted-foreground">+{eventosDoDia.length + provasDoDia.length - 5} itens</p> : null}</div>{passado ? <span aria-hidden="true" className="pointer-events-none absolute inset-0 z-10" style={{ background: 'linear-gradient(to top right, transparent calc(50% - 0.75px), color-mix(in oklch, var(--muted-foreground) 65%, transparent) 50%, transparent calc(50% + 0.75px))' }} /> : null}</section>
+              return <section key={data} className={`relative min-h-28 cursor-pointer border-b border-r border-border p-2 transition-colors hover:bg-muted/35 ${foraDoMes ? 'bg-muted/25 text-muted-foreground' : 'bg-card'} ${selecionado ? 'ring-2 ring-inset ring-primary' : ''}`} onClick={() => { setDataReferencia(data); setDiaAberto(data) }} aria-label={`Abrir agenda de ${data}`}><div className="flex items-center justify-between"><span className={`flex size-7 items-center justify-center rounded-full text-xs font-semibold ${data === hojeLocal() ? 'bg-primary text-primary-foreground' : ''}`}>{dia.getDate()}</span><Button type="button" size="icon-xs" variant="ghost" onClick={(event) => { event.stopPropagation(); abrirNovo(data) }} aria-label={`Adicionar compromisso em ${data}`}><Plus /></Button></div><div className="mt-2 space-y-1">{provasDoDia.slice(0, 2).map((prova) => <div key={prova.uuid} className="truncate rounded bg-primary/10 px-1.5 py-1 text-[11px] text-primary" title={prova.titulo || 'Prova'}>{prova.titulo || 'Prova'}</div>)}{revisoesDoDia.slice(0, 2).map((revisao) => <button type="button" key={revisao.uuid} className="block w-full truncate rounded bg-success-muted px-1.5 py-1 text-left text-[11px] text-foreground" title={`Revisão: ${revisao.pergunta}`} onClick={(event) => { event.stopPropagation(); abrirReagendamento(revisao) }}>Revisão · {revisao.pergunta}</button>)}{eventosDoDia.slice(0, 3).map((evento) => <button type="button" key={evento.uuid} className={`flex w-full items-center gap-1 truncate rounded px-1.5 py-1 text-left text-[11px] ${evento.concluido ? 'bg-muted line-through' : 'bg-secondary'}`} title={`${PRIORIDADE_LABEL[evento.prioridade]} · ${evento.titulo}`} aria-label={`${evento.titulo}, prioridade ${PRIORIDADE_LABEL[evento.prioridade].toLowerCase()}`} onClick={(event) => { event.stopPropagation(); abrirEdicao(evento) }}><span aria-hidden="true" className={`size-1.5 shrink-0 rounded-full ${evento.prioridade === 'alta' ? 'bg-warning' : evento.prioridade === 'baixa' ? 'bg-primary/45' : 'bg-muted-foreground/55'}`} /><span className="truncate">{evento.hora_inicio ? `${evento.hora_inicio.slice(0, 5)} ` : ''}{evento.titulo}</span></button>)}{eventosDoDia.length + provasDoDia.length + revisoesDoDia.length > 5 ? <p className="text-[10px] text-muted-foreground">+{eventosDoDia.length + provasDoDia.length + revisoesDoDia.length - 5} itens</p> : null}</div>{passado ? <span aria-hidden="true" className="pointer-events-none absolute inset-0 z-10" style={{ background: 'linear-gradient(to top right, transparent calc(50% - 0.75px), color-mix(in oklch, var(--muted-foreground) 65%, transparent) 50%, transparent calc(50% + 0.75px))' }} /> : null}</section>
             })}
           </div>
         </div>
@@ -546,7 +579,7 @@ export default function AgendaPage() {
         <AgendaSemanal dias={semana.dias} eventos={eventos} provas={provas} carregando={carregando} onAbrirDia={(data) => { setDataReferencia(data); setDiaAberto(data) }} onNovo={abrirNovo} onEditar={abrirEdicao} onAlternar={alternarConcluido} />
       </section>
 
-      {diaAberto ? <DiaAgendaDialog data={diaAberto} eventos={eventos.filter((evento) => evento.data === diaAberto)} provas={provas.filter((prova) => prova.data === diaAberto)} materiasPorUuid={materiasPorUuid} treinosPorUuid={treinosPorUuid} onClose={() => setDiaAberto(null)} onNovo={() => { setDiaAberto(null); abrirNovo(diaAberto) }} onEditar={(evento) => { setDiaAberto(null); abrirEdicao(evento) }} onApagar={(evento) => { setDiaAberto(null); setEventoParaApagar(evento) }} onAlternar={(evento) => void alternarConcluido(evento)} /> : null}
+      {diaAberto ? <DiaAgendaDialog data={diaAberto} eventos={eventos.filter((evento) => evento.data === diaAberto)} provas={provas.filter((prova) => prova.data === diaAberto)} revisoes={revisoes.filter((revisao) => revisao.proxima_revisao === diaAberto)} materiasPorUuid={materiasPorUuid} treinosPorUuid={treinosPorUuid} onClose={() => setDiaAberto(null)} onNovo={() => { setDiaAberto(null); abrirNovo(diaAberto) }} onEditar={(evento) => { setDiaAberto(null); abrirEdicao(evento) }} onReagendar={(revisao) => { setDiaAberto(null); abrirReagendamento(revisao) }} onApagar={(evento) => { setDiaAberto(null); setEventoParaApagar(evento) }} onAlternar={(evento) => void alternarConcluido(evento)} /> : null}
 
       {dialogAberto ? (
         <EventoDialog
@@ -576,6 +609,7 @@ export default function AgendaPage() {
         onOpenChange={(open) => { if (!open) setEventoParaApagar(null) }}
         onConfirm={apagarEvento}
       />
+      {revisaoEditando ? <ReagendarRevisaoDialog revisao={revisaoEditando} data={novaDataRevisao} salvando={salvando} onChange={setNovaDataRevisao} onClose={() => setRevisaoEditando(null)} onSubmit={salvarReagendamento} /> : null}
     </PageShell>
   )
 }
@@ -649,15 +683,17 @@ function AgendaSemanal({ dias, eventos, provas, carregando, onAbrirDia, onNovo, 
   )
 }
 
-function DiaAgendaDialog({ data, eventos, provas, materiasPorUuid, treinosPorUuid, onClose, onNovo, onEditar, onApagar, onAlternar }: {
+function DiaAgendaDialog({ data, eventos, provas, revisoes, materiasPorUuid, treinosPorUuid, onClose, onNovo, onEditar, onReagendar, onApagar, onAlternar }: {
   data: string
   eventos: EventoAgenda[]
   provas: Prova[]
+  revisoes: CardRevisao[]
   materiasPorUuid: Map<string, Materia>
   treinosPorUuid: Map<string, Treino>
   onClose: () => void
   onNovo: () => void
   onEditar: (evento: EventoAgenda) => void
+  onReagendar: (revisao: CardRevisao) => void
   onApagar: (evento: EventoAgenda) => void
   onAlternar: (evento: EventoAgenda) => void
 }) {
@@ -669,7 +705,15 @@ function DiaAgendaDialog({ data, eventos, provas, materiasPorUuid, treinosPorUui
 
   const tituloData = dataLocal(data).toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })
   const itens = [...eventos].sort((a, b) => (a.hora_inicio ?? '99:99').localeCompare(b.hora_inicio ?? '99:99'))
-  return <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" role="presentation" onMouseDown={onClose}><div role="dialog" aria-modal="true" aria-labelledby="dia-agenda-titulo" className="max-h-[88vh] w-full max-w-3xl overflow-y-auto rounded-xl border border-border bg-card p-5 text-card-foreground shadow-xl" onMouseDown={(event) => event.stopPropagation()}><div className="flex items-start justify-between gap-4 border-b border-border pb-4"><div><p className="text-xs font-medium uppercase text-muted-foreground">Agenda do dia</p><h2 id="dia-agenda-titulo" className="mt-1 text-xl font-semibold capitalize">{tituloData}</h2><p className="mt-1 text-sm text-muted-foreground">{eventos.length + provas.length} {eventos.length + provas.length === 1 ? 'item' : 'itens'}</p></div><Button type="button" variant="ghost" size="icon" onClick={onClose} aria-label="Fechar"><X /></Button></div><div className="mt-5 space-y-3">{provas.map((prova) => <ProvaAgenda key={prova.uuid} prova={prova} materia={prova.materia_uuid ? materiasPorUuid.get(prova.materia_uuid) : undefined} />)}{itens.map((evento) => <EventoCard key={evento.uuid} evento={evento} materia={evento.materia_uuid ? materiasPorUuid.get(evento.materia_uuid) : undefined} treino={evento.treino_uuid ? treinosPorUuid.get(evento.treino_uuid) : undefined} onEditar={() => onEditar(evento)} onApagar={() => onApagar(evento)} onAlternar={() => onAlternar(evento)} />)}{eventos.length === 0 && provas.length === 0 ? <div className="rounded-lg border border-dashed border-border px-4 py-10 text-center text-sm text-muted-foreground">Nada marcado para este dia.</div> : null}</div><div className="mt-5 flex justify-end border-t border-border pt-4"><Button type="button" onClick={onNovo}><Plus />Novo compromisso</Button></div></div></div>
+  return <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" role="presentation" onMouseDown={onClose}><div role="dialog" aria-modal="true" aria-labelledby="dia-agenda-titulo" className="max-h-[88vh] w-full max-w-3xl overflow-y-auto rounded-xl border border-border bg-card p-5 text-card-foreground shadow-xl" onMouseDown={(event) => event.stopPropagation()}><div className="flex items-start justify-between gap-4 border-b border-border pb-4"><div><p className="text-xs font-medium uppercase text-muted-foreground">Agenda do dia</p><h2 id="dia-agenda-titulo" className="mt-1 text-xl font-semibold capitalize">{tituloData}</h2><p className="mt-1 text-sm text-muted-foreground">{eventos.length + provas.length + revisoes.length} {eventos.length + provas.length + revisoes.length === 1 ? 'item' : 'itens'}</p></div><Button type="button" variant="ghost" size="icon" onClick={onClose} aria-label="Fechar"><X /></Button></div><div className="mt-5 space-y-3">{provas.map((prova) => <ProvaAgenda key={prova.uuid} prova={prova} materia={prova.materia_uuid ? materiasPorUuid.get(prova.materia_uuid) : undefined} />)}{revisoes.map((revisao) => <RevisaoAgenda key={revisao.uuid} revisao={revisao} onReagendar={() => onReagendar(revisao)} />)}{itens.map((evento) => <EventoCard key={evento.uuid} evento={evento} materia={evento.materia_uuid ? materiasPorUuid.get(evento.materia_uuid) : undefined} treino={evento.treino_uuid ? treinosPorUuid.get(evento.treino_uuid) : undefined} onEditar={() => onEditar(evento)} onApagar={() => onApagar(evento)} onAlternar={() => onAlternar(evento)} />)}{eventos.length === 0 && provas.length === 0 && revisoes.length === 0 ? <div className="rounded-lg border border-dashed border-border px-4 py-10 text-center text-sm text-muted-foreground">Nada marcado para este dia.</div> : null}</div><div className="mt-5 flex justify-end border-t border-border pt-4"><Button type="button" onClick={onNovo}><Plus />Novo compromisso</Button></div></div></div>
+}
+
+function RevisaoAgenda({ revisao, onReagendar }: { revisao: CardRevisao; onReagendar: () => void }) {
+  return <article className="rounded-lg border border-success/30 bg-success-muted p-3 text-card-foreground"><Badge variant="success">Revisão</Badge><h3 className="mt-2 break-words text-sm font-semibold">{revisao.pergunta}</h3><p className="mt-1 text-xs text-muted-foreground">A Agenda pode apenas reagendar. Para parar definitivamente, arquive em Revisão Espaçada.</p><div className="mt-3 flex justify-end border-t border-success/20 pt-2"><Button type="button" variant="outline" size="sm" onClick={onReagendar}><Edit3 />Reagendar</Button></div></article>
+}
+
+function ReagendarRevisaoDialog({ revisao, data, salvando, onChange, onClose, onSubmit }: { revisao: CardRevisao; data: string; salvando: boolean; onChange: (data: string) => void; onClose: () => void; onSubmit: (event: React.FormEvent) => void }) {
+  return <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4" role="presentation" onMouseDown={onClose}><div role="dialog" aria-modal="true" aria-labelledby="reagendar-revisao-titulo" className="w-full max-w-md rounded-lg border border-border bg-card p-5 text-card-foreground shadow-xl" onMouseDown={(event) => event.stopPropagation()}><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-medium uppercase text-muted-foreground">Revisão</p><h2 id="reagendar-revisao-titulo" className="mt-1 text-lg font-semibold">Reagendar revisão</h2></div><Button type="button" variant="ghost" size="icon" onClick={onClose} aria-label="Fechar"><X /></Button></div><p className="mt-4 break-words text-sm">{revisao.pergunta}</p><form onSubmit={onSubmit} className="mt-5 space-y-4"><Field label="Nova data" htmlFor="revisao-nova-data"><Input id="revisao-nova-data" required type="date" value={data} onChange={(event) => onChange(event.target.value)} /></Field><p className="text-xs text-muted-foreground">Para parar esta revisão definitivamente, use Arquivar em Revisão Espaçada.</p><div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={onClose} disabled={salvando}>Cancelar</Button><Button type="submit" disabled={salvando}>{salvando ? 'Salvando...' : 'Reagendar'}</Button></div></form></div></div>
 }
 
 function EventoCard({ evento, materia, treino, onEditar, onApagar, onAlternar }: {
