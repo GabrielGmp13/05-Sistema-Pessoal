@@ -12,7 +12,9 @@ lote passou em 150 testes Node, typecheck, lint e build de produção.
 No primeiro smoke autenticado após a publicação, o console mostrou que o
 sincronizador legado do Calendar ainda rodava no Início. A montagem global foi
 removida em correção posterior; validar que o Início não consulta/importa o
-Calendar e que a Agenda mantém sincronização na abertura e no botão manual.
+Calendar e que a Agenda mantém sincronização na abertura e no botão manual. O
+reteste publicado do commit `547889b` confirmou ambos, sem logs no Início;
+CI/Vercel passaram.
 
 O reset local e o teste transacional da reordenação de Biblioteca passaram:
 elenco, trilha e OP/ED são reordenados dentro de uma obra, com concorrência e

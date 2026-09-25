@@ -17,6 +17,9 @@
   ainda era montado no layout global. A montagem foi removida: a sincronização
   automática agora ocorre somente ao abrir a Agenda, mantendo também o botão
   manual, conforme E08.
+- Commit corretivo `547889b`: CI e Vercel aprovados. O reteste autenticado do
+  Início não registrou avisos/erros no console; Agenda preservou descrição e
+  botão de sincronização. Os oito caminhos pausados exibiram a tela esperada.
 
 ## 2026-09-25 — avisos, Agenda e preparação isolada de I05
 

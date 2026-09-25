@@ -12,7 +12,8 @@ typecheck, lint e build de produção aprovados.
 **Correção do smoke publicado:** a tentativa de sincronização Calendar vista no
 Início vinha do componente legado ainda montado no layout global. A montagem
 foi removida e ganhou teste de escopo; a Agenda continua sincronizando uma vez
-ao abrir ou quando a pessoa usa o botão manual.
+ao abrir ou quando a pessoa usa o botão manual. Commit `547889b` passou em CI,
+Vercel e smoke autenticado; o Início ficou sem tentativa global no console.
 
 **Atualização em 2026-09-25:** D03/D06/E08 foram implementados no candidato:
 avisos opt-in do navegador para descanso e revisões, reagendamento da revisão

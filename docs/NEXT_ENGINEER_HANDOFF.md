@@ -24,7 +24,9 @@
   `frontend/lib/modulos-pausados.ts` remove navegação/Início e reescreve a URL
   autenticada para “cômodo em pausa”, sem apagar dados ou código.
 - O candidato V2.1 passou em 150 testes Node, typecheck, lint e build de
-  produção antes do commit; confirmar CI, Vercel e smoke pelo commit publicado.
+  produção. Commits `14d85a1` e `547889b` estão publicados com CI/Vercel
+  aprovados; smoke autenticado confirmou os oito caminhos pausados, Início
+  limpo e Calendar restrito à Agenda.
 - Trabalho restante não é “implementar tudo”: usar `TASK_V2_FECHAMENTO.md`.
   Existem escolhas D03/D05/D06/D07/D12/D13/D16/D18/D21/D22, dependências
   E01–E14 e testes reais (arquivo Nubank anonimizado, celular e uso prolongado).
