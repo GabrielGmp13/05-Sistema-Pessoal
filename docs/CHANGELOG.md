@@ -8,6 +8,8 @@
 - O Início agora guarda por cinco minutos, somente na aba e separado por
   usuário, o último resumo válido. F5 mostra esse resumo imediatamente e
   revalida em segundo plano; Atualizar ignora o cache e logout o remove.
+- A limpeza ocorre apenas no evento autenticado `SIGNED_OUT`; estados nulos
+  transitórios da inicialização não descartam o resumo antes de ele ser usado.
 - O cache é apenas de experiência: Supabase continua como fonte da verdade,
   Vercel não recebe dado privado compartilhado e falha de armazenamento não
   bloqueia a página. Gates locais: 157 testes, typecheck, lint e build.

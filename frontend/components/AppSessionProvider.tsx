@@ -46,7 +46,6 @@ export function AppSessionProvider({ children }: { children: ReactNode }) {
     setSessao(session)
     setSessaoPronta(true)
     if (!session) {
-      limparCachesDaSessao()
       chavePerfilRef.current = null
       setPerfil(null)
       return
@@ -93,8 +92,9 @@ export function AppSessionProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     ativoRef.current = true
     let eventoRecebido = false
-    const { data: { subscription } } = sb.auth.onAuthStateChange((_evento, session) => {
+    const { data: { subscription } } = sb.auth.onAuthStateChange((evento, session) => {
       eventoRecebido = true
+      if (evento === 'SIGNED_OUT') limparCachesDaSessao()
       void aplicarSessao(session)
     })
     void getSession()

@@ -28,7 +28,8 @@ test('Início reutiliza resumo temporário por usuário e revalida no Supabase',
   assert.match(inicio, /VALIDADE_CACHE_INICIO_MS = 5 \* 60 \* 1000/)
   assert.match(inicio, /const dadosEmCache = forcar \? null : lerCacheInicio\(userId\)/)
   assert.match(inicio, /onClick=\{\(\) => void carregar\(true\)\}/)
-  assert.match(sessaoGlobal, /limparCachesDaSessao\(\)/)
+  assert.match(sessaoGlobal, /evento === 'SIGNED_OUT'\) limparCachesDaSessao\(\)/)
+  assert.doesNotMatch(sessaoGlobal, /if \(!session\) \{\s+limparCachesDaSessao\(\)/)
 })
 
 test('Início não consulta domínios pausados sem reativação', () => {

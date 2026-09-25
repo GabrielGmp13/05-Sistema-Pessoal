@@ -47,6 +47,9 @@ Os maiores ganhos esperados para a V2.2 estão em quatro pontos:
   minutos. Após F5, mostra o último resumo válido sem skeleton prolongado e
   revalida no Supabase em segundo plano. O botão Atualizar ignora o cache;
   falhas preservam dados válidos com aviso; logout limpa os caches da sessão.
+- O smoke publicado do primeiro candidato confirmou tema escuro em 10/10
+  recargas, mas revelou que uma sessão nula transitória descartava o cache.
+  A limpeza foi restringida ao evento real `SIGNED_OUT` antes do reteste final.
 - O Início passou de 16 operações fixas para cinco essenciais. Projetos e
   Receitas conservam o código e só consultam se forem reativados; os demais
   cômodos pausados não fazem consulta oculta.
