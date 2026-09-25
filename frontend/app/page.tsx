@@ -26,6 +26,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useModulosVisiveis } from '@/components/useModulosVisiveis'
 import { EventoAgenda, listarEventosAgenda } from '@/lib/agenda'
 import { dataLocalIso } from '@/lib/date'
 import { listarProvasNoPeriodo, listarProximasProvas, Prova } from '@/lib/provas'
@@ -159,6 +160,7 @@ function formatarDuracao(minutos: number) {
 }
 
 export default function HomePage() {
+  const modulosOcultos = useModulosVisiveis()
   const [dados, setDados] = useState<DadosHub>(DADOS_INICIAIS)
   const [carregando, setCarregando] = useState(true)
 
@@ -442,7 +444,7 @@ export default function HomePage() {
           </div>
 
           <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {modules.map((module) => {
+            {modules.filter((module) => !modulosOcultos.includes(module.href)).map((module) => {
               const Icon = module.icon
 
               return (

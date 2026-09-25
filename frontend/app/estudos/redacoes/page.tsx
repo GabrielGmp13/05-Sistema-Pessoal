@@ -16,6 +16,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { UnoptimizedExternalImage } from '@/components/UnoptimizedExternalImage'
 import { cn } from '@/lib/utils'
+import { RedacaoHistorico } from '@/components/study/redacao-historico'
 
 import {
   listarRedacoes,
@@ -533,6 +534,8 @@ function RedacaoCard({
         )}
       </div>
 
+      <RedacaoHistorico redacao={r} onAtualizado={onAtualizado} />
+
       {!editando && r.comentario && (
         <div>
           <MonoLabel>Observação / correção do professor</MonoLabel>
@@ -626,7 +629,7 @@ function RedacaoCard({
       <ConfirmDialog
         open={confirmarRemocaoImagem}
         title="Remover foto?"
-        description="A foto anexada a esta redação será removida. O registro da redação continua salvo."
+        description="A foto deixará de ser a imagem atual da redação. Ela será preservada no histórico privado de versões, junto com o registro da redação."
         confirmLabel="Remover"
         onOpenChange={setConfirmarRemocaoImagem}
         onConfirm={handleRemoverImagemConfirmada}

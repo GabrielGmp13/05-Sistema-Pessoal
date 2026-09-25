@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
 import { Clock3, ImagePlus, Loader2, PenLine, Save } from 'lucide-react'
 import {
   listarTodasMateriasEnem,
@@ -41,6 +41,9 @@ import { Badge } from '@/components/ui/badge'
 import { PrivateDocumentAction } from '@/components/PrivateDocumentAction'
 import { cn } from '@/lib/utils'
 import { resumirGabaritoEnem } from '@/lib/enem-gabarito'
+import { blocosRelogioProva } from '@/lib/relogio-prova'
+import { ResultadoEnem } from '@/components/study/resultado-enem'
+import { TentativasEnem } from '@/components/study/tentativas-enem'
 
 const LETRAS: Letra[] = ['A', 'B', 'C', 'D', 'E']
 const TAMANHO_BLOCO = 15 // 6 blocos de 15 = 90, igual ao cartão-resposta oficial
@@ -61,7 +64,16 @@ function blocos1a90(): number[][] {
 
 export default function GabaritoProvaPage() {
   const params = useParams<{ provaUuid: string }>()
+  const searchParams = useSearchParams()
+  return searchParams.get('modo') === 'prova'
+    ? <TentativasEnem key={params.provaUuid} provaUuid={params.provaUuid} />
+    : <GabaritoLegadoPage />
+}
+
+function GabaritoLegadoPage() {
+  const params = useParams<{ provaUuid: string }>()
   const provaUuid = params.provaUuid
+  const searchParams = useSearchParams()
 
   const [prova, setProva] = useState<Prova | null>(null)
   const [materiasEnem, setMateriasEnem] = useState<Materia[]>([])
@@ -76,6 +88,8 @@ export default function GabaritoProvaPage() {
   const [agora, setAgora] = useState(() => Date.now())
   const [finalizandoTempo, setFinalizandoTempo] = useState(false)
   const [tentativaAutomatica, setTentativaAutomatica] = useState(false)
+  const [relogioEmBlocos, setRelogioEmBlocos] = useState(false)
+  const ocultarCorrecao = modoProva || (searchParams.get('modo') === 'prova' && !prova?.feita)
 
   // Fase LANÇAR — grade visual, uma letra selecionada por número (ou nenhuma = branco)
   const [letrasSelecionadas, setLetrasSelecionadas] = useState<Record<number, Letra>>({})
@@ -122,7 +136,7 @@ export default function GabaritoProvaPage() {
   }, [provaUuid])
 
   useEffect(() => {
-    if (!prova || !new URLSearchParams(window.location.search).has('modo')) return
+    if (!prova || prova.feita || !new URLSearchParams(window.location.search).has('modo')) return
     if (new URLSearchParams(window.location.search).get('modo') !== 'prova') return
     const timeoutId = window.setTimeout(() => {
       const chave = `sistema-pessoal:enem-fim:${prova.uuid}`
@@ -172,10 +186,11 @@ export default function GabaritoProvaPage() {
   )
 
   const resumo = useMemo(() => {
-    return resumirGabaritoEnem(gabarito, letrasSelecionadas)
-  }, [gabarito, letrasSelecionadas])
+    return resumirGabaritoEnem(gabarito, letrasSelecionadas, 90, !prova?.feita)
+  }, [gabarito, letrasSelecionadas, prova?.feita])
 
   function toggleLetra(numero: number, letra: Letra) {
+    if (salvandoLancamento || finalizandoTempo || (ocultarCorrecao && (!fimProva || Date.now() >= fimProva))) return
     setLetrasSelecionadas((prev) => {
       const novo = { ...prev }
       if (novo[numero] === letra) {
@@ -451,7 +466,13 @@ export default function GabaritoProvaPage() {
       {modoProva && segundosRestantes !== null ? (
         <Card className="sticky top-2 z-30 mt-6 flex flex-wrap items-center gap-3 border-primary/35 bg-card/95 p-4 shadow-lg backdrop-blur">
           <Clock3 className="size-5 text-primary" />
-          <div><MonoLabel>Tempo restante</MonoLabel><strong className="font-mono text-2xl tabular-nums">{formatarCronometro(segundosRestantes)}</strong></div>
+            <div><MonoLabel>Tempo restante</MonoLabel><strong className="font-mono text-2xl tabular-nums">{formatarCronometro(segundosRestantes)}</strong></div>
+            <Button type="button" variant="outline" aria-pressed={relogioEmBlocos} onClick={() => setRelogioEmBlocos((atual) => !atual)}>{relogioEmBlocos ? 'Ocultar blocos' : 'Relógio em blocos'}</Button>
+            {relogioEmBlocos ? <ol className="order-last flex w-full flex-wrap gap-2" aria-label="Intervalos de 30 minutos da prova">
+              {blocosRelogioProva(prova.tempo_minutos ?? (prova.tipo === 'enem_dia1' ? 330 : 300), segundosRestantes).map((bloco) => <li key={bloco.inicio} aria-current={bloco.atual ? 'step' : undefined} className={cn('rounded-md border border-border px-2 py-1 font-mono text-xs', bloco.concluido && 'text-muted-foreground line-through', bloco.atual && 'bg-primary text-primary-foreground')}>
+                {bloco.inicio}–{bloco.fim} min<span className="sr-only">{bloco.concluido ? ', concluído' : bloco.atual ? ', intervalo atual' : ', pendente'}</span>
+              </li>)}
+            </ol> : null}
           <p className="min-w-48 flex-1 text-xs text-muted-foreground">
             Dia {prova.tipo === 'enem_dia1' ? '1 · 5h30 · anexo da redação disponível abaixo' : '2 · 5h'}
           </p>
@@ -475,14 +496,14 @@ export default function GabaritoProvaPage() {
           <MonoLabel>Em branco</MonoLabel>
           <p className="mt-1 text-2xl font-semibold tabular-nums text-muted-foreground">{resumo.emBranco}</p>
         </Card>
-        <Card className="p-4">
+        {!ocultarCorrecao && <Card className="p-4">
           <MonoLabel>Acertos</MonoLabel>
           <p className="mt-1 text-2xl font-semibold tabular-nums text-success">{resumo.acertos}</p>
-        </Card>
-        <Card className="p-4">
+        </Card>}
+        {!ocultarCorrecao && <Card className="p-4">
           <MonoLabel>Erros</MonoLabel>
           <p className="mt-1 text-2xl font-semibold tabular-nums text-destructive">{resumo.erros}</p>
-        </Card>
+        </Card>}
         <Card className="p-4">
           <MonoLabel>Total</MonoLabel>
           <p className="mt-1 text-2xl font-semibold tabular-nums">{resumo.total}</p>
@@ -490,6 +511,7 @@ export default function GabaritoProvaPage() {
       </div>
 
       {/* Redação — só dia 1 */}
+      {!ocultarCorrecao && prova.feita && <ResultadoEnem questoes={gabarito} />}
       {(prova.tipo === 'enem_dia1' || prova.redacao_uuid) && (
         <Card className="mt-6 p-5">
           <div className="flex items-center gap-2">
@@ -581,7 +603,7 @@ export default function GabaritoProvaPage() {
                               <button
                                 key={l}
                                 type="button"
-                                disabled={jaLancado}
+                                disabled={jaLancado || salvandoLancamento || finalizandoTempo || (ocultarCorrecao && (!fimProva || segundosRestantes === 0))}
                                 onClick={() => toggleLetra(numero, l)}
                                 aria-pressed={selecionada === l}
                                 aria-label={`Questão ${numero}, letra ${l}`}
@@ -615,7 +637,7 @@ export default function GabaritoProvaPage() {
       )}
 
       {/* FASE 2 — Corrigir (linha a linha: matéria, conteúdo, motivo, dificuldade) */}
-      {pendentesCorrecao.length > 0 && !modoProva && (
+      {pendentesCorrecao.length > 0 && !ocultarCorrecao && (
         <div className="mt-10 flex flex-col gap-4">
           <h2 className="text-base font-semibold">Corrigir ({pendentesCorrecao.length} pendentes)</h2>
           <Card className="divide-y divide-border overflow-hidden">

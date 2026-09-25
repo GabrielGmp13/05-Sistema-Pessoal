@@ -1,108 +1,47 @@
-'use client';
+'use client'
 
-import { useEffect, useState } from 'react';
-import {
-  listarTrilhaSonora,
-  criarTrilhaSonora,
-  apagarTrilhaSonora,
-  TrilhaSonoraItem,
-  TipoObraTrilha,
-} from '@/lib/trilha-sonora';
-import styles from './ListaEditavel.module.css';
+import { useCallback } from 'react'
+import { listarTrilhaSonora, criarTrilhaSonora, atualizarTrilhaSonora, apagarTrilhaSonora, type TipoObraTrilha } from '@/lib/trilha-sonora'
+import { EditorListaTextual } from './EditorListaTextual'
 
-interface Props {
-  tipoObra: TipoObraTrilha;
-  obraUuid: string;
-}
-
-const VAZIO = { nome: '', artista: '', link_spotify: '' };
-
-export default function TrilhaSonoraEditor({ tipoObra, obraUuid }: Props) {
-  const [itens, setItens] = useState<TrilhaSonoraItem[]>([]);
-  const [novo, setNovo] = useState(VAZIO);
-  const [carregando, setCarregando] = useState(true);
-  const [salvando, setSalvando] = useState(false);
-
-  async function carregar() {
-    setCarregando(true);
-    const res = await listarTrilhaSonora(tipoObra, obraUuid);
-    setItens(res ?? []);
-    setCarregando(false);
+const campos = [
+  {
+    "chave": "nome",
+    "rotulo": "Nome da faixa",
+    "obrigatorio": true,
+    "url": false
+  },
+  {
+    "chave": "artista",
+    "rotulo": "Artista (opcional)",
+    "obrigatorio": false,
+    "url": false
+  },
+  {
+    "chave": "link_spotify",
+    "rotulo": "Link Spotify (opcional)",
+    "obrigatorio": false,
+    "url": true
+  },
+  {
+    "chave": "link_youtube_music",
+    "rotulo": "Link YouTube Music (opcional)",
+    "obrigatorio": false,
+    "url": true
   }
+]
 
-  useEffect(() => {
-    let ativo = true;
-    void listarTrilhaSonora(tipoObra, obraUuid).then((res) => {
-      if (!ativo) return;
-      setItens(res ?? []);
-      setCarregando(false);
-    });
-    return () => { ativo = false; };
-  }, [tipoObra, obraUuid]);
-
-  async function adicionar() {
-    if (!novo.nome.trim()) return;
-    setSalvando(true);
-    const criado = await criarTrilhaSonora(tipoObra, obraUuid, {
-      nome: novo.nome,
-      artista: novo.artista || undefined,
-      link_spotify: novo.link_spotify || undefined,
-      ordem: itens.length,
-    });
-    if (criado) {
-      setNovo(VAZIO);
-      await carregar();
-    }
-    setSalvando(false);
+export default function TrilhaSonoraEditor({ tipoObra, obraUuid }: { tipoObra: TipoObraTrilha; obraUuid: string }) {
+  const listar = useCallback(async () => {
+    const itens = await listarTrilhaSonora(tipoObra, obraUuid)
+    return itens?.map((item) => ({ uuid: item.uuid, titulo: item.nome ?? '', detalhe: item.artista ?? '', valores: { nome: item.nome ?? '', artista: item.artista ?? '', link_spotify: item.link_spotify ?? '', link_youtube_music: item.link_youtube_music ?? '' } })) ?? null
+  }, [tipoObra, obraUuid])
+  async function salvar(uuid: string | null, valores: Record<string, string>) {
+    const dados = { nome: valores.nome, artista: valores.artista || null, link_spotify: valores.link_spotify || null, link_youtube_music: valores.link_youtube_music || null }
+    if (uuid) return Boolean(await atualizarTrilhaSonora(uuid, dados))
+    const atuais = await listarTrilhaSonora(tipoObra, obraUuid)
+    if (!atuais) return false
+    return Boolean(await criarTrilhaSonora(tipoObra, obraUuid, { ...dados, ordem: Math.max(-1, ...atuais.map((item) => item.ordem)) + 1 }))
   }
-
-  async function remover(uuid: string) {
-    await apagarTrilhaSonora(uuid);
-    await carregar();
-  }
-
-  return (
-    <div className={styles.wrapper}>
-      <h4>Trilha sonora</h4>
-      {carregando ? (
-        <p className={styles.vazio}>Carregando...</p>
-      ) : (
-        <ul className={styles.lista}>
-          {itens.map((item) => (
-            <li key={item.uuid}>
-              <span>
-                <strong>{item.nome}</strong>
-                {item.artista ? ` — ${item.artista}` : ''}
-              </span>
-              <button type="button" onClick={() => remover(item.uuid)}>
-                ✕
-              </button>
-            </li>
-          ))}
-          {itens.length === 0 && <li className={styles.vazio}>Nenhuma faixa ainda.</li>}
-        </ul>
-      )}
-
-      <div className={styles.linhaAdicionar}>
-        <input
-          placeholder="Nome da faixa"
-          value={novo.nome}
-          onChange={(e) => setNovo({ ...novo, nome: e.target.value })}
-        />
-        <input
-          placeholder="Artista (opcional)"
-          value={novo.artista}
-          onChange={(e) => setNovo({ ...novo, artista: e.target.value })}
-        />
-        <input
-          placeholder="Link Spotify (opcional)"
-          value={novo.link_spotify}
-          onChange={(e) => setNovo({ ...novo, link_spotify: e.target.value })}
-        />
-        <button type="button" onClick={adicionar} disabled={salvando}>
-          + Adicionar
-        </button>
-      </div>
-    </div>
-  );
+  return <EditorListaTextual key={tipoObra + ':' + obraUuid} titulo="Trilha sonora" campos={campos} listar={listar} salvar={salvar} apagar={apagarTrilhaSonora} />
 }

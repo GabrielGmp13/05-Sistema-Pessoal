@@ -17,6 +17,7 @@ import { GoogleConnections } from './GoogleConnections'
 import { BugReportForm } from './BugReportForm'
 import { PrivacyRequestForm } from './PrivacyRequestForm'
 import { PasswordChangeForm } from './PasswordChangeForm'
+import { ModuleVisibilityForm } from './ModuleVisibilityForm'
 
 interface PerfilForm {
   nome: string
@@ -241,6 +242,7 @@ export default function ConfiguracoesPage() {
           </div>
         )}
         <PasswordChangeForm />
+        <ModuleVisibilityForm />
         <GoogleConnections />
         <PrivacyRequestForm />
         <BugReportForm />

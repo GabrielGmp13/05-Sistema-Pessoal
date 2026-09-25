@@ -41,6 +41,8 @@ import { listarMaterias, Materia } from '@/lib/materias'
 import { listarProvasNoPeriodo, Prova } from '@/lib/provas'
 import { getUserId, sb } from '@/lib/supabase'
 import { getTodosTreinos, Treino } from '@/lib/treino'
+import { dataLocalIso } from '@/lib/date'
+import { estadoTreinoAgendado } from '@/lib/treino-presenca'
 import type { AcaoImportacaoCalendar } from '@/lib/calendar-import'
 
 interface EventoCalendarPrevia {
@@ -686,6 +688,7 @@ function EventoCard({ evento, materia, treino, onEditar, onApagar, onAlternar }:
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap gap-1">
             <Badge variant="outline">{TIPO_LABEL[evento.tipo]}</Badge>
+            {evento.tipo === 'treino' && estadoTreinoAgendado(evento.data, evento.concluido, dataLocalIso()) === 'falta' && <Badge variant="warning">Falta</Badge>}
             <Badge variant={evento.prioridade === 'alta' ? 'warning' : evento.prioridade === 'baixa' ? 'outline' : 'default'}>
               {PRIORIDADE_LABEL[evento.prioridade]}
             </Badge>

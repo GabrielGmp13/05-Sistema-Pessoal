@@ -7,6 +7,8 @@ const execucoes = readFileSync(new URL('../lib/execucoes.ts', import.meta.url), 
 const planoModulo = readFileSync(new URL('../app/treino/[moduloUuid]/page.tsx', import.meta.url), 'utf8')
 const planoTreino = readFileSync(new URL('../app/treino/[moduloUuid]/[treinoUuid]/page.tsx', import.meta.url), 'utf8')
 const academia = readFileSync(new URL('../app/treino/[moduloUuid]/[treinoUuid]/academia/page.tsx', import.meta.url), 'utf8')
+const painelTreino = readFileSync(new URL('../app/treino/page.tsx', import.meta.url), 'utf8')
+const cardio = readFileSync(new URL('../app/treino/cardio/page.tsx', import.meta.url), 'utf8')
 
 test('rotas dinâmicas de treino validam o proprietário antes de liberar formulários', () => {
   assert.match(planoModulo, /usuarioPossuiModuloTreino/)
@@ -14,7 +16,7 @@ test('rotas dinâmicas de treino validam o proprietário antes de liberar formul
   assert.match(planoTreino, /usuarioPossuiTreino/)
   assert.match(planoTreino, /if \(!permitido\) return/)
   assert.match(academia, /usuarioPossuiTreino/)
-  assert.match(academia, /if \(!permitido\) return/)
+  assert.match(academia, /if \(!permitido\) \{ setCarregando\(false\); return \}/)
 })
 test('alterações e exclusões de treino repetem o escopo do usuário', () => {
   for (const nome of ['atualizarTreino', 'softDeleteTreino', 'softDeleteExercicioForca', 'softDeleteExercicioCardio']) {
@@ -24,4 +26,13 @@ test('alterações e exclusões de treino repetem o escopo do usuário', () => {
   const finalizar = execucoes.match(/export async function finalizarSessao[\s\S]*?\n}/)?.[0] ?? ''
   assert.match(finalizar, /\.eq\('user_id', userId\)/)
   assert.match(finalizar, /\.eq\('deleted', false\)/)
+  assert.match(finalizar, /\.is\('data_fim', null\)/)
+  assert.match(finalizar, /conferir-finalizacao/)
+})
+
+test('painel de treino usa apenas dados próprios para evolução', () => {
+  assert.match(treino, /execucoes_forca'\).*\.eq\('user_id', userId\)/)
+  assert.match(treino, /execucoes_cardio'\).*\.eq\('user_id', userId\)/)
+  assert.match(painelTreino, /GraficoLinha/)
+  assert.match(cardio, /getDadosDashboardTreino/)
 })

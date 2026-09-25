@@ -11,6 +11,7 @@ import {
   apagarLivro,
 } from '@/lib/livros';
 import PainelSimples from '@/components/PainelSimples';
+import AtualizarLeitura from '@/components/AtualizarLeitura';
 import { CampoInfo } from '@/components/PainelDetalheObra';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import AnotacoesLivroEditor from '@/components/AnotacoesLivroEditor';
@@ -535,7 +536,10 @@ export default function LivrosSection({
           capaUrl={painelLivro.capa_url}
           capaPath={painelLivro.capa_path}
           infoGeral={montarInfoGeral(painelLivro)}
-        />
+        ><AtualizarLeitura key={painelLivro.uuid} livro={painelLivro} onSalvo={(atualizado) => {
+          setPainelLivro(atualizado);
+          setLivros((atuais) => atuais.map((item) => item.uuid === atualizado.uuid ? atualizado : item));
+        }} /></PainelSimples>
       )}
     </div>  
     </>

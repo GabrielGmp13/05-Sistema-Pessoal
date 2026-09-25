@@ -11,6 +11,9 @@ test('exportação inclui perfil próprio sem copiar metadados brutos do provedo
     user_metadata: {
       app_nome: 'Pessoa',
       app_subtitulo: 'Descrição',
+      app_display_name: 'Nome atual',
+      app_contexto_academico: 'Faculdade',
+      app_hidden_modules: ['/treino', '/configuracoes', 'desconhecido'],
       provider_token: 'não deve sair',
     },
   }
@@ -23,11 +26,12 @@ test('exportação inclui perfil próprio sem copiar metadados brutos do provedo
   })
 
   assert.equal(result.conta.email, 'pessoa@example.test')
-  assert.equal(result.conta.perfil.nome, 'Pessoa')
+  assert.equal(result.conta.perfil.nome, 'Nome atual')
+  assert.equal(result.conta.perfil.contexto_academico, 'Faculdade')
+  assert.deepEqual(result.conta.perfil.modulos_ocultos, ['/treino'])
   assert.doesNotMatch(JSON.stringify(result), /provider_token|não deve sair/)
 })
 
 test('nome do arquivo usa data ISO e extensão JSON', () => {
   assert.equal(privacyExportFilename(new Date('2026-09-07T23:59:00.000Z')), 'projeto-pessoal-dados-2026-09-07.json')
 })
-

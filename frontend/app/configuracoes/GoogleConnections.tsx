@@ -56,6 +56,9 @@ export function GoogleConnections() {
   const carregarStatus = useCallback(async () => {
     try {
       const response = await fetch('/api/integracoes/google/status', { cache: 'no-store' })
+      if (!response.headers.get('content-type')?.includes('application/json')) {
+        throw new Error('A conexão não pôde ser consultada. Atualize a página; se a sessão expirou, entre novamente.')
+      }
       const body = await response.json() as GoogleStatus
       if (typeof body.configurado === 'boolean' && body.conexoes) setStatus(body)
       if (!response.ok) throw new Error(body.erro || 'Não foi possível consultar a conexão.')

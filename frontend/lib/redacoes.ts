@@ -1,4 +1,5 @@
-import { sb, getUserId, sbErr, softDelete, uploadFile, getSignedUrl, deleteFile } from './supabase';
+import { sb, getUserId, sbErr, softDelete, uploadFile, getSignedUrl } from './supabase';
+import { preservarVersaoRedacao } from './redacoes-historico';
 import { otimizarImagem } from './image-optimization';
 
 export interface Redacao {
@@ -7,6 +8,7 @@ export interface Redacao {
   tema: string;
   texto: string | null; // opcional agora — pode registrar só a foto
   nota: number | null;
+  nota_oficial?: number | null;
   comentario: string | null; // observação / correção do professor
   data: string;
   competencia_1: number | null;
@@ -55,10 +57,19 @@ export async function criarRedacao(input: RedacaoInput): Promise<Redacao | null>
 }
 
 export async function atualizarRedacao(uuid: string, update: RedacaoUpdate): Promise<Redacao | null> {
+  const anterior = await buscarRedacao(uuid);
+  if (!anterior) return null;
+  if ('texto' in update || 'imagem_path' in update) {
+    try { await preservarVersaoRedacao(anterior); }
+    catch (error) { return sbErr(error, 'preservarVersaoRedacao'); }
+  }
   const { data, error } = await sb
     .from('redacoes')
     .update({ ...update, updated_at: new Date().toISOString() })
     .eq('uuid', uuid)
+    .eq('user_id', anterior.user_id)
+    .eq('updated_at', anterior.updated_at)
+    .eq('deleted', false)
     .select()
     .single();
 
@@ -101,13 +112,12 @@ export async function uploadImagemRedacao(
 
   const atualizado = await atualizarRedacao(uuid, { imagem_path: caminhoSalvo });
   if (!atualizado) {
-    await deleteFile(BUCKET_REDACOES, caminhoSalvo);
+    // Uma resposta perdida pode ocorrer após o commit. Preservar o upload.
     return null;
   }
 
-  if (imagemPathAtual && imagemPathAtual !== caminhoSalvo) {
-    await deleteFile(BUCKET_REDACOES, imagemPathAtual);
-  }
+  // Versões imutáveis podem referenciar a foto anterior.
+  void imagemPathAtual;
 
   return caminhoSalvo;
 }
@@ -117,10 +127,10 @@ export async function getUrlImagemRedacao(path: string): Promise<string | null> 
   return getSignedUrl(BUCKET_REDACOES, path);
 }
 
-/** Remove a imagem do storage e limpa imagem_path na linha. */
+/** Desvincula a foto atual, preservando o arquivo privado referenciado pelas versões. */
 export async function removerImagemRedacao(uuid: string, path: string): Promise<boolean> {
-  const removido = await deleteFile(BUCKET_REDACOES, path);
-  if (!removido) return false;
+  const anterior = await buscarRedacao(uuid);
+  if (!anterior || anterior.imagem_path !== path) return false;
 
   const atualizado = await atualizarRedacao(uuid, { imagem_path: null });
   return !!atualizado;

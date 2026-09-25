@@ -25,9 +25,12 @@ export type OpeningEndingInput = Partial<
 > & { tipo: TipoOpeningEnding; nome: string };
 
 export async function listarOpeningsEndings(animeUuid: string): Promise<OpeningEnding[] | null> {
+  const userId = await getUserId();
+  if (!userId) return null;
   const { data, error } = await sb
     .from('openings_endings')
     .select('*')
+    .eq('user_id', userId)
     .eq('anime_uuid', animeUuid)
     .eq('deleted', false)
     .order('ordem', { ascending: true });
@@ -69,10 +72,14 @@ export async function atualizarOpeningEnding(
   uuid: string,
   dados: OpeningEndingInput
 ): Promise<OpeningEnding | null> {
+  const userId = await getUserId();
+  if (!userId) return null;
   const { data, error } = await sb
     .from('openings_endings')
     .update({ ...dados, updated_at: now() })
     .eq('uuid', uuid)
+    .eq('user_id', userId)
+    .eq('deleted', false)
     .select()
     .single();
 

@@ -1,4 +1,6 @@
 import type { User } from '@supabase/supabase-js'
+import { normalizarModulosOcultos } from './modulos-visiveis.ts'
+import { rotuloAcademico } from './contexto-academico.ts'
 
 export type PrivacyDatabaseExport = {
   versao: number
@@ -18,10 +20,12 @@ export function buildPrivacyExport(user: User, database: PrivacyDatabaseExport) 
       criada_em: user.created_at,
       ultimo_login_em: user.last_sign_in_at ?? null,
       perfil: {
-        nome: user.user_metadata?.app_nome ?? null,
-        descricao: user.user_metadata?.app_subtitulo ?? null,
+        nome: user.user_metadata?.app_display_name ?? user.user_metadata?.app_nome ?? null,
+        descricao: user.user_metadata?.app_subtitle ?? user.user_metadata?.app_subtitulo ?? null,
         avatar_url: user.user_metadata?.app_avatar_url ?? null,
         background_url: user.user_metadata?.app_background_url ?? null,
+        modulos_ocultos: normalizarModulosOcultos(user.user_metadata?.app_hidden_modules),
+        contexto_academico: rotuloAcademico(user.user_metadata?.app_contexto_academico),
       },
     },
     dados: database,
@@ -36,4 +40,3 @@ export function buildPrivacyExport(user: User, database: PrivacyDatabaseExport) 
 export function privacyExportFilename(date = new Date()) {
   return `projeto-pessoal-dados-${date.toISOString().slice(0, 10)}.json`
 }
-

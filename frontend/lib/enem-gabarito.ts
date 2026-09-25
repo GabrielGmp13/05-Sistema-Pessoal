@@ -8,13 +8,16 @@ export function resumirGabaritoEnem(
   persistidas: RespostaEnemResumo[],
   selecionadas: Record<number, string>,
   total = 90,
+  usarSelecaoAtual = false,
 ) {
   const numerosPersistidos = new Set(persistidas.map((questao) => questao.numero).filter((numero): numero is number => numero !== null))
   const respondidasPersistidas = persistidas.filter((questao) => questao.letra_marcada !== null).length
   const respondidasNovas = Object.keys(selecionadas)
     .map(Number)
     .filter((numero) => !numerosPersistidos.has(numero)).length
-  const respondidas = Math.min(total, respondidasPersistidas + respondidasNovas)
+  const respondidas = usarSelecaoAtual
+    ? Object.entries(selecionadas).filter(([numero, letra]) => Number.isInteger(Number(numero)) && Number(numero) >= 1 && Number(numero) <= total && /^[A-E]$/.test(letra)).length
+    : Math.min(total, respondidasPersistidas + respondidasNovas)
   return {
     respondidas,
     emBranco: Math.max(0, total - respondidas),

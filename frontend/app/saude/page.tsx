@@ -10,7 +10,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Progress } from '@/components/ui/progress'
 import { Textarea } from '@/components/ui/textarea'
-import { dataLocalIso } from '@/lib/date'
+import { dataLocalIso, dataLocalSomandoDias } from '@/lib/date'
+import { pontosSaude } from '@/lib/saude-tendencias'
+import { GraficoLinha } from '@/components/treino/line-chart'
 import {
   buscarUltimoPeso,
   deletarHidratacao,
@@ -50,6 +52,7 @@ export default function SaudePage() {
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
   const [exclusao, setExclusao] = useState<Exclusao | null>(null)
+  const [diasTendencia, setDiasTendencia] = useState(30)
 
   const [horasSono, setHorasSono] = useState('')
   const [dormir, setDormir] = useState('')
@@ -109,6 +112,12 @@ export default function SaudePage() {
   const aguaHoje = hidratacao.find((item) => item.data === hoje)
   const humorHoje = humor.find((item) => item.data === hoje)
   const ativos = medicamentos.filter((item) => item.ativo)
+  const inicioTendencia = dataLocalSomandoDias(1 - diasTendencia)
+  const tendencias = [
+    { titulo: 'Sono', unidade: ' h', pontos: pontosSaude(sono, (item) => item.horas_dormidas, inicioTendencia, hoje) },
+    { titulo: 'Hidratação', unidade: ' copos', pontos: pontosSaude(hidratacao, (item) => item.copos, inicioTendencia, hoje) },
+    { titulo: 'Humor', unidade: '/5', pontos: pontosSaude(humor, (item) => item.humor, inicioTendencia, hoje) },
+  ]
 
   async function executar(acao: () => Promise<unknown>) {
     setSalvando(true)
@@ -193,6 +202,20 @@ export default function SaudePage() {
           <Resumo icon={Droplets} label="Hidratação" value={aguaHoje ? `${aguaHoje.copos}/${aguaHoje.meta_copos}` : '--'} detail="copos hoje" />
           <Resumo icon={HeartPulse} label="Humor" value={humorHoje ? `${humorHoje.humor}/5` : '--'} detail={humorHoje ? `Energia ${humorHoje.energia}/5` : 'Sem registro'} />
           <Resumo icon={Pill} label="Medicamentos" value={String(ativos.length)} detail="ativos" />
+        </section>
+
+        <section className="mt-8 border-t border-border pt-5" aria-label="Tendências de saúde">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <h2 className="text-xl font-semibold">Tendências dos seus registros</h2>
+            <label className="text-sm">Período <select className="ml-2 rounded-lg border border-border bg-background p-2" value={diasTendencia} onChange={(event) => setDiasTendencia(Number(event.target.value))}>
+              <option value={7}>Últimos 7 dias</option><option value={30}>Últimos 30 dias</option><option value={90}>Últimos 90 dias</option>
+            </select></label>
+          </div>
+          <p className="mt-2 text-sm text-muted-foreground">Cada ponto representa um registro, não um dia corrido. Dias sem registro não entram como zero. Estas visualizações não são uma avaliação de saúde.</p>
+          <div className="mt-4 grid gap-6 lg:grid-cols-3">{tendencias.map((serie) => <article key={serie.titulo} className="min-w-0">
+            <h3 className="font-medium">{serie.titulo}</h3>
+            {carregando ? <p>Carregando…</p> : <><p className="mt-1 text-xs text-muted-foreground">{serie.pontos.length} registros no período</p><GraficoLinha ariaLabel={`Histórico de ${serie.titulo.toLocaleLowerCase('pt-BR')}`} pontos={serie.pontos} sufixo={serie.unidade} /></>}
+          </article>)}</div>
         </section>
 
         <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(18rem,.65fr)]">

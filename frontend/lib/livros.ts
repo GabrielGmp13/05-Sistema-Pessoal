@@ -1,4 +1,5 @@
 import { sb, getUserId, now, sbErr, softDelete } from './supabase';
+import { calcularPagina } from './leitura-progresso';
 
 // Schema: 003_biblioteca.sql + 006_biblioteca_v2_base.sql + 012_biblioteca_v2_b5_livros.sql
 export type StatusLivro = 'quero_ler' | 'lendo' | 'lido' | 'pausado' | 'abandonado';
@@ -41,6 +42,19 @@ export interface Livro {
 export type LivroInput = Partial<
   Omit<Livro, 'uuid' | 'user_id' | 'updated_at' | 'deleted'>
 > & { titulo: string };
+
+export async function atualizarProgressoLivro(livro: Livro, valor: number, modo: 'adicionar' | 'definir'): Promise<Livro | null> {
+  const userId = await getUserId();
+  if (!userId || userId !== livro.user_id) return null;
+  const pagina = calcularPagina(livro.pagina_atual, valor, modo, livro.paginas_total);
+  // Compare-and-set impede que +N sobrescreva progresso salvo em outra aba.
+  const { data, error } = await sb.from('livros')
+    .update({ pagina_atual: pagina, updated_at: now() })
+    .eq('uuid', livro.uuid).eq('user_id', userId).eq('deleted', false)
+    .eq('updated_at', livro.updated_at).select().maybeSingle();
+  if (error) return sbErr(error, 'atualizarProgressoLivro');
+  return data as Livro | null;
+}
 
 export async function listarLivros(): Promise<Livro[] | null> {
   const { data, error } = await sb

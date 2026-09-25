@@ -43,10 +43,13 @@ export type AnimeTemporadaInput = Partial<
 > & { numero: number };
 
 export async function listarTemporadasAnime(animeUuid: string): Promise<AnimeTemporada[] | null> {
+  const userId = await getUserId();
+  if (!userId) return null;
   const { data, error } = await sb
     .from('animes_temporadas')
     .select('*')
     .eq('anime_uuid', animeUuid)
+    .eq('user_id', userId)
     .eq('deleted', false)
     .order('numero', { ascending: true });
 
@@ -86,10 +89,14 @@ export async function atualizarTemporadaAnime(
   uuid: string,
   dados: AnimeTemporadaInput
 ): Promise<AnimeTemporada | null> {
+  const userId = await getUserId();
+  if (!userId) return null;
   const { data, error } = await sb
     .from('animes_temporadas')
     .update({ ...dados, updated_at: now() })
     .eq('uuid', uuid)
+    .eq('user_id', userId)
+    .eq('deleted', false)
     .select()
     .single();
 

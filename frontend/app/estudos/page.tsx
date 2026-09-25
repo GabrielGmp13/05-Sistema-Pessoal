@@ -28,6 +28,7 @@ import { listarRevisoesPendentes, CardRevisao } from '../../lib/revisao'
 import { dataLocalIso } from '@/lib/date'
 import { PageHeader, PageShell } from '@/components/study/page-shell'
 import { MonoLabel } from '@/components/study/mono-label'
+import { useContextoAcademico } from '@/components/useContextoAcademico'
 import { EmptyState } from '@/components/study/empty-state'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -51,6 +52,7 @@ const destinations = [
 ]
 
 export default function EstudosHubPage() {
+  const rotuloAcademico = useContextoAcademico()
   const [provas, setProvas] = useState<Prova[]>([])
   const [atividades, setAtividades] = useState<Atividade[]>([])
   const [simulados, setSimulados] = useState<Simulado[]>([])
@@ -128,7 +130,7 @@ export default function EstudosHubPage() {
                   <d.icon className="size-5" />
                 </span>
                 <span className="flex min-w-0 flex-col">
-                  <span className="text-base font-semibold">{d.label}</span>
+                  <span className="text-base font-semibold">{d.href === '/estudos/escola' ? rotuloAcademico : d.label}</span>
                   <span className="truncate text-sm text-muted-foreground">
                     {d.description}
                   </span>
@@ -149,7 +151,7 @@ export default function EstudosHubPage() {
           empty={revisoes.length === 0}
           emptyText="Nenhuma revisão pendente por enquanto."
           action={
-            <Button render={<Link href="/revisao" />} variant="outline" size="sm">
+            <Button render={<Link href="/revisao" />} nativeButton={false} variant="outline" size="sm">
               Abrir revisão
               <ChevronRight className="size-3.5" />
             </Button>
@@ -235,9 +237,8 @@ export default function EstudosHubPage() {
           emptyText="Nenhum simulado registrado."
         >
           {simulados.slice(0, 5).map((s) => {
-            const pct = s.total_questoes > 0
-              ? Math.round((s.total_acertos / s.total_questoes) * 100)
-              : 0
+            const validas = s.total_questoes - s.total_anuladas
+            const pct = validas > 0 ? `${Math.round((s.total_acertos / validas) * 100)}%` : 'Sem questões válidas'
             return (
               <li
                 key={s.uuid}
@@ -246,10 +247,10 @@ export default function EstudosHubPage() {
                 <MonoLabel>{formatDateShort(s.data)}</MonoLabel>
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-semibold tabular-nums">
-                    {s.total_acertos}/{s.total_questoes}
+                    {s.total_acertos}/{validas} válidas
                   </span>
                   <span className="font-mono text-xs text-muted-foreground">
-                    {pct}%
+                    {pct}
                   </span>
                 </div>
               </li>

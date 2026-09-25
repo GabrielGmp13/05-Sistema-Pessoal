@@ -27,9 +27,12 @@ export async function listarElenco(
   tipoObra: TipoObraElenco,
   obraUuid: string
 ): Promise<ElencoItem[] | null> {
+  const userId = await getUserId();
+  if (!userId) return null;
   const { data, error } = await sb
     .from('elenco')
     .select('*')
+    .eq('user_id', userId)
     .eq('tipo_obra', tipoObra)
     .eq('obra_uuid', obraUuid)
     .eq('deleted', false)
@@ -74,10 +77,14 @@ export async function atualizarElenco(
   uuid: string,
   dados: ElencoInput
 ): Promise<ElencoItem | null> {
+  const userId = await getUserId();
+  if (!userId) return null;
   const { data, error } = await sb
     .from('elenco')
     .update({ ...dados, updated_at: now() })
     .eq('uuid', uuid)
+    .eq('user_id', userId)
+    .eq('deleted', false)
     .select()
     .single();
 

@@ -26,9 +26,12 @@ export async function listarTrilhaSonora(
   tipoObra: TipoObraTrilha,
   obraUuid: string
 ): Promise<TrilhaSonoraItem[] | null> {
+  const userId = await getUserId();
+  if (!userId) return null;
   const { data, error } = await sb
     .from('trilha_sonora')
     .select('*')
+    .eq('user_id', userId)
     .eq('tipo_obra', tipoObra)
     .eq('obra_uuid', obraUuid)
     .eq('deleted', false)
@@ -73,10 +76,14 @@ export async function atualizarTrilhaSonora(
   uuid: string,
   dados: TrilhaSonoraInput
 ): Promise<TrilhaSonoraItem | null> {
+  const userId = await getUserId();
+  if (!userId) return null;
   const { data, error } = await sb
     .from('trilha_sonora')
     .update({ ...dados, updated_at: now() })
     .eq('uuid', uuid)
+    .eq('user_id', userId)
+    .eq('deleted', false)
     .select()
     .single();
 

@@ -4,6 +4,7 @@ import { useEffect, useEffectEvent, useRef, useState } from 'react'
 import Link from 'next/link'
 import { createBrowserClient } from '@supabase/ssr'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { GraficoLinha } from '@/components/treino/line-chart'
 import { UnoptimizedExternalImage } from '@/components/UnoptimizedExternalImage'
 import { dataLocalIso } from '@/lib/date'
 import { otimizarImagem } from '@/lib/image-optimization'
@@ -276,6 +277,11 @@ export default function ShapePage() {
         {erro ? <p role="alert" className={styles.erro}>{erro}</p> : null}
       </form>
 
+      <section className={styles.form} aria-labelledby="evolucao-peso-titulo">
+        <h2 id="evolucao-peso-titulo">Evolução do peso</h2>
+        <p>Até 24 registros recentes com peso informado.</p>
+        <GraficoLinha ariaLabel="Evolução do peso nos registros de Shape" sufixo=" kg" pontos={registros.filter((r) => r.peso !== null).slice(0, 24).toReversed().map((r) => ({ label: new Date(`${r.data}T00:00:00`).toLocaleDateString('pt-BR'), valor: Number(r.peso) }))} />
+      </section>
       <div className={styles.grid}>
         {registros.map((r) => (
           <button key={r.uuid} type="button" className={styles.card} onClick={() => abrirEdicao(r)} aria-label={`Editar Shape de ${r.data}`}>

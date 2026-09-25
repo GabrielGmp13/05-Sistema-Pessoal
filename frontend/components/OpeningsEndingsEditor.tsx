@@ -4,11 +4,14 @@ import { useEffect, useState } from 'react';
 import {
   listarOpeningsEndings,
   criarOpeningEnding,
+  atualizarOpeningEnding,
   apagarOpeningEnding,
   OpeningEnding,
   TipoOpeningEnding,
 } from '@/lib/openings-endings';
 import styles from './ListaEditavel.module.css';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { validarCamposLista } from '@/lib/editor-lista';
 import BuscaMetadados from '@/app/biblioteca/_components/BuscaMetadados';
 
 interface Props {
@@ -23,6 +26,9 @@ export default function OpeningsEndingsEditor({ animeUuid }: Props) {
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
   const [busca, setBusca] = useState('');
+  const [editando, setEditando] = useState<string | null>(null);
+  const [exclusao, setExclusao] = useState<string | null>(null);
+  const [erro, setErro] = useState('');
 
   async function carregar() {
     setCarregando(true);
@@ -42,30 +48,42 @@ export default function OpeningsEndingsEditor({ animeUuid }: Props) {
   }, [animeUuid]);
 
   async function adicionar() {
-    if (!novo.nome.trim()) return;
+    if (salvando) return;
+    const falha = validarCamposLista([{ chave: 'nome', rotulo: 'Nome', obrigatorio: true }, { chave: 'link_video', rotulo: 'Link', url: true }], novo);
+    if (falha) { setErro(falha); return; }
     setSalvando(true);
-    const criado = await criarOpeningEnding(animeUuid, {
+    setErro('');
+    try {
+    const dados = {
       tipo: novo.tipo,
-      nome: novo.nome,
-      artista: novo.artista || undefined,
-      link_video: novo.link_video || undefined,
-      ordem: itens.length,
-    });
+      nome: novo.nome.trim(),
+      artista: novo.artista.trim() || null,
+      link_video: novo.link_video.trim() || null,
+    };
+    const criado = editando ? await atualizarOpeningEnding(editando, dados) : await criarOpeningEnding(animeUuid, { ...dados, ordem: Math.max(-1, ...itens.map((item) => item.ordem)) + 1 });
     if (criado) {
       setNovo(VAZIO);
+      setEditando(null);
       await carregar();
-    }
-    setSalvando(false);
+    } else setErro('Não foi possível salvar a faixa. Seus campos foram preservados.');
+    } catch { setErro('Não foi possível confirmar o salvamento. Reabra a lista antes de repetir.'); }
+    finally { setSalvando(false); }
   }
 
   async function remover(uuid: string) {
-    await apagarOpeningEnding(uuid);
-    await carregar();
+    setSalvando(true);
+    try {
+      if (!await apagarOpeningEnding(uuid)) { setErro('Não foi possível remover a faixa.'); return; }
+      if (editando === uuid) { setEditando(null); setNovo(VAZIO); }
+      await carregar();
+    } catch { setErro('Não foi possível confirmar a remoção.'); }
+    finally { setSalvando(false); }
   }
 
   return (
     <div className={styles.wrapper}>
       <h4>Openings / Endings</h4>
+      {erro ? <p role="alert" className={styles.erro}>{erro}</p> : null}
       <div className={styles.linhaAdicionar}>
         <input placeholder="Pesquisar música, artista ou anime" value={busca} onChange={(e) => setBusca(e.target.value)} />
       </div>
@@ -83,7 +101,8 @@ export default function OpeningsEndingsEditor({ animeUuid }: Props) {
                 <strong>{item.tipo === 'opening' ? 'OP' : item.tipo === 'ending' ? 'ED' : 'OST'}</strong> {item.nome}
                 {item.artista ? ` — ${item.artista}` : ''}
               </span>
-              <button type="button" onClick={() => remover(item.uuid)}>
+              <button type="button" disabled={salvando} aria-label={`Editar ${item.nome}`} onClick={() => { setEditando(item.uuid); setNovo({ tipo: item.tipo, nome: item.nome, artista: item.artista ?? '', link_video: item.link_video ?? '' }); }}>Editar</button>
+              <button type="button" disabled={salvando} aria-label={`Remover ${item.nome}`} onClick={() => setExclusao(item.uuid)}>
                 ✕
               </button>
             </li>
@@ -117,9 +136,11 @@ export default function OpeningsEndingsEditor({ animeUuid }: Props) {
           onChange={(e) => setNovo({ ...novo, link_video: e.target.value })}
         />
         <button type="button" onClick={adicionar} disabled={salvando}>
-          + Adicionar
+          {editando ? 'Salvar faixa' : '+ Adicionar'}
         </button>
+        {editando ? <button type="button" disabled={salvando} onClick={() => { setEditando(null); setNovo(VAZIO); }}>Cancelar edição</button> : null}
       </div>
+      <ConfirmDialog open={Boolean(exclusao)} onOpenChange={(open) => { if (!open) setExclusao(null); }} title="Remover faixa?" description="O anime e as outras faixas serão preservados." confirmLabel="Remover" onConfirm={async () => { if (exclusao) await remover(exclusao); }} />
     </div>
   );
 }

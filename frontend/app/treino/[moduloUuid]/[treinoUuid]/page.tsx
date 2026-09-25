@@ -3,11 +3,13 @@
 import { useEffect, useEffectEvent, useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
+import { ArrowDown, ArrowUp } from 'lucide-react'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { UnoptimizedExternalImage } from '@/components/UnoptimizedExternalImage'
 import {
   getExerciciosForca, criarExercicioForca, softDeleteExercicioForca,
   getExerciciosCardio, criarExercicioCardio, softDeleteExercicioCardio,
+  atualizarExercicioForca, atualizarExercicioCardio, reordenarExerciciosTreino,
   deleteImagemExercicio, getImagemExercicioUrl, uploadImagemExercicio,
   usuarioPossuiTreino,
   type ExercicioForca, type ExercicioCardio,
@@ -28,6 +30,11 @@ export default function PlanoTreinoPage() {
   const [descanso, setDescanso] = useState('60')
   const [distancia, setDistancia] = useState('')
   const [duracao, setDuracao] = useState('')
+  const [grupo, setGrupo] = useState('')
+  const [instrucoes, setInstrucoes] = useState('')
+  const [editando, setEditando] = useState<ExercicioForca | ExercicioCardio | null>(null)
+  const [removerImagem, setRemoverImagem] = useState(false)
+  const [reordenando, setReordenando] = useState(false)
   const [imagem, setImagem] = useState<File | null>(null)
   const [erroImagem, setErroImagem] = useState('')
   const [imagensUrl, setImagensUrl] = useState<Record<string, string>>({})
@@ -40,6 +47,7 @@ export default function PlanoTreinoPage() {
     tipo: 'forca' | 'cardio'
   } | null>(null)
   const inputImagemRef = useRef<HTMLInputElement>(null)
+  const inputNomeRef = useRef<HTMLInputElement>(null)
 
   const sb = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -55,14 +63,19 @@ export default function PlanoTreinoPage() {
   }
 
   const iniciarCarregamento = useEffectEvent(async () => {
+    try {
       const { data: { session } } = await sb.auth.getSession()
-      if (!session) return
+      if (!session) { router.replace('/login'); return }
       setUserId(session.user.id)
       const permitido = await usuarioPossuiTreino(sb, session.user.id, treinoUuid, moduloUuid)
       setTreinoPermitido(permitido)
-      setCarregando(false)
       if (!permitido) return
       await recarregar(session.user.id)
+    } catch {
+      setErro('Não foi possível carregar os exercícios. Recarregue a página para tentar novamente.')
+    } finally {
+      setCarregando(false)
+    }
   })
 
   useEffect(() => {
@@ -72,11 +85,20 @@ export default function PlanoTreinoPage() {
 
   async function handleAdicionar(e: React.FormEvent) {
     e.preventDefault()
-    if (!userId || !nome.trim() || erroImagem) return
+    if (!userId || salvando || !nome.trim() || erroImagem) return
+    const inteiro = (valor: string, minimo: number) => Number.isInteger(Number(valor)) && Number(valor) >= minimo
+    if (tipoNovo === 'forca'
+      ? !inteiro(series, 1) || Number(series) > 100 || !inteiro(reps, 0) || !inteiro(descanso, 0) || !Number.isFinite(Number(carga)) || Number(carga) < 0 || Number(carga) > 9999.99
+      : (distancia !== '' && (!Number.isFinite(Number(distancia)) || Number(distancia) < 0 || Number(distancia) > 999.999)) || (duracao !== '' && !inteiro(duracao, 0))) {
+      setErro('Confira as metas: séries de 1 a 100, repetições/tempo inteiros e valores não negativos.')
+      return
+    }
     setSalvando(true)
     setErro('')
-    const ordem = tipoNovo === 'forca' ? forca.length : cardio.length
-    let imagemPath: string | null = null
+    try {
+    const lista = tipoNovo === 'forca' ? forca : cardio
+    const ordem = Math.max(-1, ...lista.map((item) => item.ordem ?? 0)) + 1
+    let imagemPath: string | null = removerImagem ? null : editando?.imagem_path ?? null
     if (imagem) {
       const upload = await uploadImagemExercicio(sb, userId, imagem)
       if (upload.error || !upload.path) {
@@ -89,34 +111,79 @@ export default function PlanoTreinoPage() {
 
     let resultado: { error: string | null }
     if (tipoNovo === 'forca') {
-      resultado = await criarExercicioForca(sb, userId, treinoUuid, {
+      const dados = {
          nome: nome.trim(),
          series_alvo: Number(series) || 0,
          reps_alvo: Number(reps) || 0,
          carga_alvo: Number(carga) || 0,
          descanso_segundos: Number(descanso) || 0,
+         grupo_muscular: grupo.trim() || null,
+         instrucoes: instrucoes.trim() || null,
          imagem_path: imagemPath,
          ordem,
-      })
+      }
+      resultado = editando
+        ? await atualizarExercicioForca(sb, userId, editando.uuid, dados)
+        : await criarExercicioForca(sb, userId, treinoUuid, dados)
     } else {
-      resultado = await criarExercicioCardio(sb, userId, treinoUuid, {
+      const dados = {
         nome: nome.trim(),
         distancia_alvo_km: distancia ? Number(distancia) : null,
         duracao_alvo_minutos: duracao ? Number(duracao) : null,
         imagem_path: imagemPath,
+        instrucoes: instrucoes.trim() || null,
        ordem,
-      })
+      }
+      resultado = editando
+        ? await atualizarExercicioCardio(sb, userId, editando.uuid, dados)
+        : await criarExercicioCardio(sb, userId, treinoUuid, dados)
     }
     if (resultado.error) {
-      if (imagemPath) await deleteImagemExercicio(sb, imagemPath)
+      if (imagemPath && imagem && imagemPath !== editando?.imagem_path) await deleteImagemExercicio(sb, imagemPath)
       setErro('Não foi possível salvar o exercício.')
       setSalvando(false)
       return
     }
-    setNome('')
-    limparImagem()
+    if (editando?.imagem_path && editando.imagem_path !== imagemPath) await deleteImagemExercicio(sb, editando.imagem_path)
+    cancelarEdicao()
     await recarregar(userId)
+    } catch {
+      setErro('Não foi possível confirmar o salvamento. Confira a lista antes de tentar novamente.')
+    } finally {
     setSalvando(false)
+    }
+  }
+
+  function cancelarEdicao() {
+    setEditando(null); setNome(''); setGrupo(''); setInstrucoes(''); setRemoverImagem(false)
+    setSeries('3'); setReps('10'); setCarga(''); setDescanso('60'); setDistancia(''); setDuracao('')
+    limparImagem()
+  }
+
+  function editarExercicio(ex: ExercicioForca | ExercicioCardio, tipo: 'forca' | 'cardio') {
+    cancelarEdicao(); setEditando(ex); setTipoNovo(tipo); setNome(ex.nome); setInstrucoes(ex.instrucoes ?? '')
+    if ('series_alvo' in ex) {
+      setSeries(String(ex.series_alvo ?? 3)); setReps(String(ex.reps_alvo ?? 10))
+      setCarga(String(ex.carga_alvo ?? '')); setDescanso(String(ex.descanso_segundos ?? 60)); setGrupo(ex.grupo_muscular ?? '')
+    } else {
+      setDistancia(String(ex.distancia_alvo_km ?? '')); setDuracao(String(ex.duracao_alvo_minutos ?? ''))
+    }
+    inputNomeRef.current?.focus()
+  }
+
+  async function moverExercicio(tipo: 'forca' | 'cardio', indice: number, direcao: -1 | 1) {
+    if (reordenando || salvando) return
+    const lista = [...(tipo === 'forca' ? forca : cardio)]
+    const destino = indice + direcao
+    if (!lista[destino]) return
+    ;[lista[indice], lista[destino]] = [lista[destino], lista[indice]]
+    setReordenando(true); setErro('')
+    try {
+      const resultado = await reordenarExerciciosTreino(sb, treinoUuid, tipo, lista.map((ex) => ex.uuid))
+      if (resultado.error) setErro(resultado.error)
+      if (userId) await recarregar(userId)
+    } catch { setErro('Não foi possível confirmar a ordem. Recarregue a lista.') }
+    finally { setReordenando(false) }
   }
 
   async function handleApagarConfirmado() {
@@ -125,7 +192,9 @@ export default function PlanoTreinoPage() {
     const resultado = exercicioParaApagar.tipo === 'forca'
       ? await softDeleteExercicioForca(sb, userId, exercicioParaApagar.uuid)
       : await softDeleteExercicioCardio(sb, userId, exercicioParaApagar.uuid)
-    if (!resultado.error && exercicio?.imagem_path) {
+    if (resultado.error) { setErro('Não foi possível apagar o exercício.'); return }
+    if (editando?.uuid === exercicioParaApagar.uuid) cancelarEdicao()
+    if (exercicio?.imagem_path) {
       await deleteImagemExercicio(sb, exercicio.imagem_path)
     }
     await recarregar(userId)
@@ -156,6 +225,7 @@ export default function PlanoTreinoPage() {
   if (!treinoPermitido) return (
     <div className={styles.container}>
       <button className={styles.voltar} onClick={() => router.push('/treino')}>← Treino</button>
+      {erro ? <p role="alert" className={styles.erro}>{erro}</p> : null}
       <p className={styles.vazio}>Este conteúdo não existe ou não pertence à sua conta.</p>
     </div>
   )
@@ -167,23 +237,25 @@ export default function PlanoTreinoPage() {
       {erro ? <p role="alert" className={styles.erro}>{erro}</p> : null}
 
       <form className={styles.form} onSubmit={handleAdicionar}>
+        {editando ? <h2>Editar exercício</h2> : null}
+        <fieldset disabled={salvando || reordenando} className={styles.campos}>
         <div className={styles.tipoToggle}>
-          <button type="button" className={tipoNovo === 'forca' ? styles.tipoAtivo : styles.tipo} onClick={() => setTipoNovo('forca')}>Força</button>
-          <button type="button" className={tipoNovo === 'cardio' ? styles.tipoAtivo : styles.tipo} onClick={() => setTipoNovo('cardio')}>Cardio</button>
+          <button type="button" disabled={Boolean(editando)} className={tipoNovo === 'forca' ? styles.tipoAtivo : styles.tipo} onClick={() => setTipoNovo('forca')}>Força</button>
+          <button type="button" disabled={Boolean(editando)} className={tipoNovo === 'cardio' ? styles.tipoAtivo : styles.tipo} onClick={() => setTipoNovo('cardio')}>Cardio</button>
         </div>
 
-        <input className={styles.input} placeholder="Nome do exercício" value={nome} onChange={(e) => setNome(e.target.value)} />
+        <input ref={inputNomeRef} required aria-label="Nome do exercício" className={styles.input} placeholder="Nome do exercício" value={nome} onChange={(e) => setNome(e.target.value)} />
 
         {tipoNovo === 'forca' ? (
           <div className={styles.grid4}>
             <label>Séries<input type="number" inputMode="numeric" value={series} onChange={(e) => setSeries(e.target.value)} onFocus={(e) => e.target.select()} /></label>
             <label>Reps<input type="number" inputMode="numeric" value={reps} onChange={(e) => setReps(e.target.value)} onFocus={(e) => e.target.select()} /></label>
-            <label>Carga (kg)<input type="number" inputMode="decimal" value={carga} onChange={(e) => setCarga(e.target.value)} onFocus={(e) => e.target.select()} placeholder="0" /></label>
+            <label>Carga (kg)<input type="number" min="0" max="9999.99" step="0.01" inputMode="decimal" value={carga} onChange={(e) => setCarga(e.target.value)} onFocus={(e) => e.target.select()} placeholder="0" /></label>
             <label>Descanso (s)<input type="number" inputMode="numeric" value={descanso} onChange={(e) => setDescanso(e.target.value)} onFocus={(e) => e.target.select()} /></label>
           </div>
         ) : (
           <div className={styles.grid4}>
-            <label>Distância (km)<input type="number" inputMode="decimal" value={distancia} onChange={(e) => setDistancia(e.target.value)} onFocus={(e) => e.target.select()} placeholder="0" /></label>
+            <label>Distância (km)<input type="number" min="0" max="999.999" step="0.001" inputMode="decimal" value={distancia} onChange={(e) => setDistancia(e.target.value)} onFocus={(e) => e.target.select()} placeholder="0" /></label>
             <label>Duração (min)<input type="number" inputMode="numeric" value={duracao} onChange={(e) => setDuracao(e.target.value)} onFocus={(e) => e.target.select()} placeholder="0" /></label>
           </div>
         )}
@@ -197,21 +269,33 @@ export default function PlanoTreinoPage() {
         ) : null}
         {erroImagem ? <p role="alert" className={styles.erroImagem}>{erroImagem} Remova o arquivo ou escolha outro.</p> : null}
 
-        <button className={styles.btnSalvar} type="submit" disabled={salvando || Boolean(erroImagem)}>{salvando ? 'Salvando...' : 'Adicionar exercício'}</button>
+        {tipoNovo === 'forca' ? <label className={styles.arquivo}>Grupo muscular principal (opcional)<input className={styles.input} maxLength={80} value={grupo} onChange={(e) => setGrupo(e.target.value)} placeholder="Ex.: Pernas" /></label> : null}
+        <label className={styles.arquivo}>Instruções pessoais (opcional)<textarea className={styles.input} rows={3} maxLength={4000} value={instrucoes} onChange={(e) => setInstrucoes(e.target.value)} /></label>
+        {editando?.imagem_path ? <label><input type="checkbox" checked={removerImagem} onChange={(e) => setRemoverImagem(e.target.checked)} /> Remover imagem atual ao salvar</label> : null}
+        <button className={styles.btnSalvar} type="submit" disabled={Boolean(erroImagem)}>{salvando ? 'Salvando...' : editando ? 'Salvar alterações' : 'Adicionar exercício'}</button>
+        {editando ? <button type="button" className={styles.voltar} onClick={cancelarEdicao}>Cancelar edição</button> : null}
+        </fieldset>
       </form>
 
       {forca.length > 0 && (
         <>
           <h2 className={styles.subtitulo}>Força</h2>
           <div className={styles.lista}>
-            {forca.map((ex) => (
+            {forca.map((ex, indice) => (
               <div key={ex.uuid} className={styles.card}>
                 {imagensUrl[ex.uuid] ? <UnoptimizedExternalImage src={imagensUrl[ex.uuid]} alt="" className={styles.imagemExercicio} /> : null}
                 <div>
                   <p className={styles.nome}>{ex.nome}</p>
                   <p className={styles.meta}>{ex.series_alvo}x{ex.reps_alvo} · {ex.carga_alvo}kg · {ex.descanso_segundos}s descanso</p>
+                  {ex.grupo_muscular ? <p className={styles.meta}>{ex.grupo_muscular}</p> : null}
+                  {ex.instrucoes ? <p className={styles.instrucoes}>{ex.instrucoes}</p> : null}
                 </div>
+                <div className={styles.acoesCard}>
+                  <button type="button" className={styles.btnOrdem} disabled={salvando || reordenando || indice === 0} onClick={() => void moverExercicio('forca', indice, -1)} aria-label={`Mover ${ex.nome} para cima`}><ArrowUp /></button>
+                  <button type="button" className={styles.btnOrdem} disabled={salvando || reordenando || indice === forca.length - 1} onClick={() => void moverExercicio('forca', indice, 1)} aria-label={`Mover ${ex.nome} para baixo`}><ArrowDown /></button>
+                  <button type="button" className={styles.voltar} disabled={salvando || reordenando} onClick={() => editarExercicio(ex, 'forca')}>Editar</button>
                 <button className={styles.btnDanger} onClick={() => setExercicioParaApagar({ uuid: ex.uuid, tipo: 'forca' })}>Apagar</button>
+                </div>
               </div>
             ))}
           </div>
@@ -222,14 +306,20 @@ export default function PlanoTreinoPage() {
         <>
           <h2 className={styles.subtitulo}>Cardio</h2>
           <div className={styles.lista}>
-            {cardio.map((ex) => (
+            {cardio.map((ex, indice) => (
               <div key={ex.uuid} className={styles.card}>
                 {imagensUrl[ex.uuid] ? <UnoptimizedExternalImage src={imagensUrl[ex.uuid]} alt="" className={styles.imagemExercicio} /> : null}
                 <div>
                   <p className={styles.nome}>{ex.nome}</p>
                   <p className={styles.meta}>{ex.distancia_alvo_km ? `${ex.distancia_alvo_km}km` : ''} {ex.duracao_alvo_minutos ? `· ${ex.duracao_alvo_minutos}min` : ''}</p>
+                  {ex.instrucoes ? <p className={styles.instrucoes}>{ex.instrucoes}</p> : null}
                 </div>
+                <div className={styles.acoesCard}>
+                  <button type="button" className={styles.btnOrdem} disabled={salvando || reordenando || indice === 0} onClick={() => void moverExercicio('cardio', indice, -1)} aria-label={`Mover ${ex.nome} para cima`}><ArrowUp /></button>
+                  <button type="button" className={styles.btnOrdem} disabled={salvando || reordenando || indice === cardio.length - 1} onClick={() => void moverExercicio('cardio', indice, 1)} aria-label={`Mover ${ex.nome} para baixo`}><ArrowDown /></button>
+                  <button type="button" className={styles.voltar} disabled={salvando || reordenando} onClick={() => editarExercicio(ex, 'cardio')}>Editar</button>
                 <button className={styles.btnDanger} onClick={() => setExercicioParaApagar({ uuid: ex.uuid, tipo: 'cardio' })}>Apagar</button>
+                </div>
               </div>
             ))}
           </div>

@@ -1,5 +1,6 @@
 import { sb, getUserId, sbErr } from './supabase';
 import { avaliarCard } from './revisao'; // já existe, integração SM-2 — ver ARCHITECTURE.md
+import { resultadoSimulado } from './avaliacoes-calculo';
 
 export interface Simulado {
   uuid: string;
@@ -8,6 +9,7 @@ export interface Simulado {
   data: string;
   total_questoes: number;
   total_acertos: number;
+  total_anuladas: number;
   tempo_minutos: number | null;
   observacoes: string | null;
   conteudo_uuid: string | null;
@@ -26,6 +28,7 @@ export type SimuladoInput = Omit<Simulado, 'uuid' | 'user_id' | 'arquivo_path' |
  * 0-40% -> 0-1 | 40-60% -> 2 | 60-80% -> 3-4 | 80-100% -> 5
  */
 export async function registrarSimulado(input: SimuladoInput): Promise<Simulado | null> {
+  const resultado = resultadoSimulado(input.total_questoes, input.total_acertos, input.total_anuladas);
   const userId = await getUserId();
   if (!userId) return null;
 
@@ -37,8 +40,8 @@ export async function registrarSimulado(input: SimuladoInput): Promise<Simulado 
 
   if (error) return sbErr(error, 'registrarSimulado');
 
-  if (data && data.conteudo_uuid) {
-    const percentual = data.total_questoes > 0 ? data.total_acertos / data.total_questoes : 0;
+  if (data && data.conteudo_uuid && resultado.percentual !== null) {
+    const percentual = resultado.percentual / 100;
     const qualidade = percentualParaQualidadeSM2(percentual);
 
     // busca (ou cria, se ainda não existir) o card de revisão do conteúdo
@@ -46,6 +49,8 @@ export async function registrarSimulado(input: SimuladoInput): Promise<Simulado 
       .from('conteudos')
       .select('revisao_uuid, nome')
       .eq('uuid', data.conteudo_uuid)
+      .eq('user_id', userId)
+      .eq('deleted', false)
       .single();
 
     if (conteudo?.revisao_uuid) {

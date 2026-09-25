@@ -138,10 +138,14 @@ export async function criarMateria(input: MateriaInput): Promise<Materia | null>
 }
 
 export async function atualizarMateria(uuid: string, update: MateriaUpdate): Promise<Materia | null> {
+  const userId = await getUserId();
+  if (!userId) return null;
   const { data, error } = await sb
     .from('materias')
     .update({ ...update, updated_at: new Date().toISOString() })
     .eq('uuid', uuid)
+    .eq('user_id', userId)
+    .eq('deleted', false)
     .select()
     .single();
 
@@ -157,8 +161,8 @@ export async function deletarMateria(uuid: string): Promise<boolean> {
 // Seed — matérias fixas (Escola + ENEM), UMA linha por matéria
 // ============================================================================
 // Mesmo padrão de seedModulosSeNecessario() do Treino (DEC-022): roda uma vez
-// no primeiro carregamento (chamado no Hub de Estudos), popula só o que
-// ainda não existe (checa por nome, seguro rodar várias vezes).
+// no primeiro carregamento de uma conta sem matérias acadêmicas, em lote.
+// Personalizações posteriores, inclusive remoções, nunca disparam novo seed.
 //
 // Modelo corrigido (2026-08): matéria é ÚNICA — mostra_escola/mostra_enem
 // decidem onde ela aparece. Nada de duas linhas pra mesma matéria.
@@ -227,15 +231,22 @@ function materiaInputPadrao(s: SeedMateria): MateriaInput {
 }
 
 export async function seedMateriasEnemEscolaSeNecessario(): Promise<void> {
-  const existentes = await listarMaterias('academica');
-  if (existentes === null) return; // sem sessão ou erro — não tenta seed
+  const userId = await getUserId();
+  if (!userId) return;
+  // Inclui removidas: uma conta personalizada nunca recebe novamente o seed.
+  const { data, error } = await sb.from('materias').select('uuid')
+    .eq('user_id', userId).eq('tipo', 'academica').limit(1);
+  if (error) { sbErr(error, 'seedMaterias:leitura'); throw new Error('Não foi possível carregar as matérias.'); }
+  if (data?.length) return;
+  // Um único insert, IDs estáveis e DO NOTHING tornam concorrência idempotente.
+  const { error: insertError } = await sb.from('materias').upsert(TODAS_SEED.map((s, i) => ({
+    ...materiaInputPadrao(s), uuid: `academica-inicial:${userId}:${i}`, user_id: userId,
+  })), { onConflict: 'uuid', ignoreDuplicates: true });
+  if (insertError) { sbErr(insertError, 'seedMaterias:gravar'); throw new Error('Não foi possível preparar as matérias.'); }
+}
 
-  const nomesExistentes = new Set(existentes.map((m) => m.nome));
-  const paraCriar = TODAS_SEED.filter((s) => !nomesExistentes.has(s.nome));
-
-  if (paraCriar.length === 0) return;
-
-  for (const s of paraCriar) {
-    await criarMateria(materiaInputPadrao(s));
-  }
+export async function criarMateriaEscolar(nome: string): Promise<Materia | null> {
+  const limpo = nome.trim();
+  if (!limpo || limpo.length > 120) return null;
+  return criarMateria(materiaInputPadrao({ nome: limpo, mostra_escola: true, mostra_enem: false, area_enem: null }));
 }

@@ -100,6 +100,30 @@ export async function criarLancamentosFinanceiros(inputs: LancamentoInput[]): Pr
   if (error) return sbErr(error, 'criarLancamentosFinanceiros')
   return data as LancamentoFinanceiro[]
 }
+export async function importarLancamentosFinanceiros(inputs: (LancamentoInput & { uuid: string })[], usuarioEsperado: string): Promise<LancamentoFinanceiro[] | null> {
+  const userId = await getUserId()
+  if (!userId || userId !== usuarioEsperado || !inputs.length || inputs.length > 500) return null
+  const { data: categorias, error: erroCategorias } = await sb.from('financas_categorias')
+    .select('uuid,tipo').eq('user_id', userId).eq('deleted', false)
+  if (erroCategorias || !categorias || inputs.some((item) => !Number.isFinite(item.valor) || item.valor <= 0 ||
+    !categorias.some((categoria) => categoria.uuid === item.categoria_uuid && categoria.tipo === item.tipo))) return null
+  const { data, error } = await sb.from('financas_lancamentos').insert(inputs.map((input) => ({
+    ...input, user_id: userId, updated_at: now(),
+  }))).select()
+  if (error) return sbErr(error, 'importarLancamentosFinanceiros')
+  return data as LancamentoFinanceiro[]
+}
+export async function buscarUuidsImportados(uuids: string[]): Promise<Set<string> | null> {
+  const userId = await getUserId()
+  if (!userId) return null
+  const encontrados = new Set<string>()
+  for (let inicio = 0; inicio < uuids.length; inicio += 100) {
+    const { data, error } = await sb.from('financas_lancamentos').select('uuid').eq('user_id', userId).in('uuid', uuids.slice(inicio, inicio + 100))
+    if (error) return sbErr(error, 'buscarUuidsImportados')
+    for (const item of data ?? []) encontrados.add(item.uuid)
+  }
+  return encontrados
+}
 export const salvarOrcamentoFinanceiro = (input: OrcamentoInput, uuid?: string) => salvar<OrcamentoFinanceiro>('financas_orcamentos', input, uuid)
 export const salvarMetaEconomia = (input: MetaInput, uuid?: string) => salvar<MetaEconomia>('financas_metas_economia', input, uuid)
 export const salvarInvestimentoFinanceiro = (input: InvestimentoInput, uuid?: string) => salvar<InvestimentoFinanceiro>('financas_investimentos', input, uuid)

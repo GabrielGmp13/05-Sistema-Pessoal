@@ -25,6 +25,7 @@ import {
 import {
   buscarConteudoDeVideoNoCurso,
   criarConteudo,
+  concluirAulasDoVideo,
 } from '@/lib/conteudos';
 import BibliotecaBanner from './BibliotecaBanner';
 import BibliotecaCard from './BibliotecaCard';
@@ -93,6 +94,7 @@ export default function VideosSection({
   const [videos, setVideos] = useState<Video[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
+  const [videoConclusaoPendente, setVideoConclusaoPendente] = useState<string | null>(null);
   const [modalAberto, setModalAberto] = useState(false);
   const [editandoUuid, setEditandoUuid] = useState<string | null>(null);
   const [form, setForm] = useState<VideoInput>(FORM_VAZIO);
@@ -376,7 +378,7 @@ export default function VideosSection({
     const conteudo = await criarConteudo(
       {
         nome: videoParaCurso.titulo,
-        teoria_vista: false,
+        teoria_vista: videoParaCurso.assistido,
         dominado_manual: false,
         revisao_uuid: null,
         modulo_curso_uuid: destinoUuid,
@@ -405,6 +407,14 @@ export default function VideosSection({
     const resultado = persistencia.resultado;
     if (!resultado) setErro(persistencia.erro ?? 'Não foi possível salvar o vídeo.');
     else {
+      if (resultado.assistido) {
+        let sincronizado = false;
+        try { sincronizado = await concluirAulasDoVideo(resultado.uuid); } catch { /* Reenvio explícito abaixo. */ }
+        if (!sincronizado) {
+          setVideoConclusaoPendente(resultado.uuid);
+          setErro('O vídeo foi salvo, mas a conclusão da aula ainda não foi confirmada. Use “Concluir aula novamente”.');
+        } else { setVideoConclusaoPendente(null); setErro(null); }
+      }
       fecharModal();
       await carregar();
     }
@@ -471,6 +481,15 @@ export default function VideosSection({
       />
       <div className={styles.container}>
         {erro && <p className={styles.erro}>{erro}</p>}
+        {videoConclusaoPendente && <button type="button" disabled={salvando} onClick={async () => {
+          setSalvando(true);
+          try {
+            if (await concluirAulasDoVideo(videoConclusaoPendente)) {
+              setVideoConclusaoPendente(null); setErro(null); setMensagem('Aula marcada como vista.');
+            } else setErro('Não foi possível confirmar a aula. Confira se o vídeo continua assistido e tente novamente.');
+          } catch { setErro('Não foi possível confirmar a aula. Tente novamente quando a conexão voltar.'); }
+          finally { setSalvando(false); }
+        }}>Concluir aula novamente</button>}
         {mensagem && <p className={styles.sucesso}>{mensagem}</p>}
         <section className={styles.playlistsSection} aria-labelledby="videos-playlists-title">
           <div className={styles.playlistsHeader}>

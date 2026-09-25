@@ -15,6 +15,10 @@ export interface Prova {
   tempo_minutos: number | null;
   redacao_uuid: string | null;
   nota: number | null;
+  enem_ano?: number | null;
+  enem_aplicacao?: string | null;
+  enem_caderno?: string | null;
+  enem_lingua?: 'ingles' | 'espanhol' | null;
   feita: boolean;
   observacoes: string | null;
   arquivo_path: string | null;

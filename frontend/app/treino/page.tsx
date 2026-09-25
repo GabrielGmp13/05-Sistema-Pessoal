@@ -5,6 +5,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Activity, ArrowRight, CalendarDays, Clock3, Dumbbell, Gauge, Pencil, Plus, RefreshCw, Scale, Sparkles, Trash2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { GraficoLinha } from '@/components/treino/line-chart'
+import { PresencasTreino } from '@/components/treino/PresencasTreino'
+import { volumePorGrupo } from '@/lib/treino-estatisticas'
 import { getSession, sb } from '@/lib/supabase'
 import { getModulosTreino, ModuloTreino, seedModulosSeNecessario } from '@/lib/modulos-treinos'
 import { DadosDashboardTreino, getDadosDashboardTreino, removerPlanejamentoSemanal, salvarPlanejamentoSemanal } from '@/lib/treino'
@@ -20,6 +24,8 @@ export default function TreinoHubPage() {
   const [usuarioUuid, setUsuarioUuid] = useState('')
   const [planejamentoForm, setPlanejamentoForm] = useState({ uuid: '', dia: '1', treinoUuid: '' })
   const [salvandoPlanejamento, setSalvandoPlanejamento] = useState(false)
+  const [excluirPlanejamento, setExcluirPlanejamento] = useState<string | null>(null)
+  const [exercicioSelecionado, setExercicioSelecionado] = useState('')
 
   const carregar = useCallback(async () => {
     setCarregando(true)
@@ -40,7 +46,7 @@ export default function TreinoHubPage() {
     setModulos(modulosAtuais)
     setDados(resumo)
     if (resumo) {
-      const fotos = resumo.registrosShape.filter((registro) => registro.foto_path)
+      const fotos = resumo.registrosShape.filter((registro) => registro.foto_path).slice(0, 6)
       const urls = await Promise.all(fotos.map(async (registro) => {
         const { data } = await sb.storage.from('shape').createSignedUrl(registro.foto_path as string, 3600)
         return data?.signedUrl ?? null
@@ -67,7 +73,8 @@ export default function TreinoHubPage() {
     return () => window.clearInterval(intervalId)
   }, [fotosShape])
 
-  const sessoesSemana = dados?.sessoesSemana.length ?? 0
+  const sessoesSemana = dados?.sessoesSemana.filter((sessao) => sessao.data_fim).length ?? 0
+  const volumeSemana = useMemo(() => volumePorGrupo(dados?.seriesSemana ?? [], dados?.exerciciosForca ?? []), [dados])
   const duracaoSemanaMinutos = dados?.sessoesSemana
     .reduce((total, sessao) => total + (duracaoSessao(sessao.data_inicio, sessao.data_fim) ?? 0), 0) ?? 0
   const ultimoPeso = dados?.registrosShape.find((registro) => registro.peso !== null)
@@ -86,6 +93,24 @@ export default function TreinoHubPage() {
   }, [dados, modulos])
   const maiorPontuacao = Math.max(1, ...progressoModulos.map((modulo) => modulo.pontos))
   const diasDaSemana = useMemo(() => semanaAtual(), [])
+  const historicoPeso = useMemo(() => (dados?.registrosShape ?? [])
+    .filter((registro) => registro.peso !== null)
+    .slice(0, 24)
+    .reverse()
+    .map((registro) => ({ label: formatarDataCurta(registro.data), valor: Number(registro.peso) })), [dados])
+  const exercicioAtivo = exercicioSelecionado || dados?.exerciciosForca[0]?.uuid || ''
+  const historicoCarga = useMemo(() => (dados?.execucoesForca ?? [])
+    .filter((execucao) => execucao.exercicio_uuid === exercicioAtivo && execucao.carga_real !== null)
+    .slice(-24)
+    .map((execucao) => ({ label: formatarDataHoraCurta(execucao.data_hora), valor: Number(execucao.carga_real) })), [dados, exercicioAtivo])
+  const cardioSemana = useMemo(() => {
+    const inicio = new Date()
+    inicio.setDate(inicio.getDate() - 6)
+    inicio.setHours(0, 0, 0, 0)
+    return (dados?.execucoesCardio ?? []).filter((execucao) => new Date(execucao.data_hora) >= inicio)
+  }, [dados])
+  const distanciaCardioSemana = cardioSemana.reduce((total, execucao) => total + Number(execucao.distancia_real_km ?? 0), 0)
+  const duracaoCardioSemana = cardioSemana.reduce((total, execucao) => total + Number(execucao.duracao_real_minutos ?? 0), 0)
 
   async function salvarPlanejamento(event: React.FormEvent) {
     event.preventDefault()
@@ -102,12 +127,20 @@ export default function TreinoHubPage() {
 
   async function removerPlanejamento(uuid: string) {
     if (!usuarioUuid) return
-    if (!(await removerPlanejamentoSemanal(sb, usuarioUuid, uuid))) setErro('Não foi possível remover o item do planejamento.')
-    else await carregar()
+    try {
+      if (!(await removerPlanejamentoSemanal(sb, usuarioUuid, uuid))) setErro('Não foi possível remover o item do planejamento.')
+      else {
+        if (planejamentoForm.uuid === uuid) setPlanejamentoForm({ uuid: '', dia: '1', treinoUuid: '' })
+        await carregar()
+      }
+    } catch { setErro('Não foi possível confirmar a remoção. Atualize a página antes de tentar novamente.') }
   }
 
   return (
     <main className={styles.pagina}>
+      <ConfirmDialog open={Boolean(excluirPlanejamento)} onOpenChange={aberto => { if (!aberto) setExcluirPlanejamento(null) }}
+        title="Remover do planejamento?" description="Somente este item semanal será removido. O treino e as sessões realizadas serão preservados."
+        confirmLabel="Remover" onConfirm={async () => { if (excluirPlanejamento) await removerPlanejamento(excluirPlanejamento) }} />
       <div className={styles.container}>
         <header className={styles.cabecalho}>
           <div>
@@ -118,6 +151,7 @@ export default function TreinoHubPage() {
             <RefreshCw className={carregando ? 'animate-spin' : ''} /> Atualizar
           </Button>
         </header>
+        <PresencasTreino />
 
         {erro ? <p role="alert" className={styles.erro}>{erro}</p> : null}
 
@@ -175,7 +209,7 @@ export default function TreinoHubPage() {
               return <article key={dia.numero} className="min-w-0 rounded-xl border border-border bg-card/80 p-3 text-card-foreground shadow-sm">
                 <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{dia.nome}</p>
                 <strong className="mt-1 block text-lg">{dia.data}</strong>
-                <div className="mt-3 space-y-2">{itens.length === 0 ? <p className="text-xs text-muted-foreground">Descanso / livre</p> : itens.map((item) => <div key={item.uuid} className="rounded-lg bg-secondary/70 p-2"><p className="truncate text-xs font-medium">{treinosPorUuid.get(item.treino_uuid)?.nome ?? 'Treino'}</p><div className="mt-1 flex justify-end gap-1"><Button type="button" variant="ghost" size="icon-xs" onClick={() => setPlanejamentoForm({ uuid: item.uuid, dia: String(item.dia_semana), treinoUuid: item.treino_uuid })} aria-label="Editar planejamento"><Pencil /></Button><Button type="button" variant="ghost" size="icon-xs" onClick={() => void removerPlanejamento(item.uuid)} aria-label="Remover planejamento"><Trash2 /></Button></div></div>)}</div>
+                <div className="mt-3 space-y-2">{itens.length === 0 ? <p className="text-xs text-muted-foreground">Descanso / livre</p> : itens.map((item) => <div key={item.uuid} className="rounded-lg bg-secondary/70 p-2"><p className="truncate text-xs font-medium">{treinosPorUuid.get(item.treino_uuid)?.nome ?? 'Treino'}</p><div className="mt-1 flex justify-end gap-1"><Button type="button" variant="ghost" size="icon-xs" onClick={() => setPlanejamentoForm({ uuid: item.uuid, dia: String(item.dia_semana), treinoUuid: item.treino_uuid })} aria-label="Editar planejamento"><Pencil /></Button><Button type="button" variant="ghost" size="icon-xs" onClick={() => setExcluirPlanejamento(item.uuid)} aria-label="Remover planejamento"><Trash2 /></Button></div></div>)}</div>
               </article>
             })}
           </div>
@@ -185,6 +219,39 @@ export default function TreinoHubPage() {
             <Button type="submit" disabled={salvandoPlanejamento || !planejamentoForm.treinoUuid}><Plus />{planejamentoForm.uuid ? 'Atualizar' : 'Adicionar'}</Button>
             {planejamentoForm.uuid ? <Button type="button" variant="ghost" onClick={() => setPlanejamentoForm({ uuid: '', dia: '1', treinoUuid: '' })}>Cancelar</Button> : null}
           </form>
+        </section>
+
+        <section className={styles.secao}>
+          <div className={styles.secaoCabecalho}>
+            <div><p className={styles.eyebrow}>Evolução</p><h2>Dados que acompanham seu treino</h2></div>
+            <span>Histórico pessoal, sem estimativas</span>
+          </div>
+          <div className={styles.graficos}>
+            <article className={styles.grafico}>
+              <div className={styles.graficoCabecalho}><div><h3>Peso corporal</h3><p>Registros de Shape</p></div><Link href="/treino/shape">Registrar <ArrowRight /></Link></div>
+              <GraficoLinha ariaLabel="Evolução do peso corporal" pontos={historicoPeso} sufixo=" kg" />
+            </article>
+            <article className={styles.grafico}>
+              <div className={styles.graficoCabecalho}><div><h3>Carga por exercício</h3><p>Até 24 séries deste exercício, entre as 360 séries concluídas mais recentes.</p></div></div>
+              {dados?.exerciciosForca.length ? <label className={styles.seletorGrafico}>Exercício<select value={exercicioAtivo} onChange={(event) => setExercicioSelecionado(event.target.value)}>{dados.exerciciosForca.map((exercicio) => <option key={exercicio.uuid} value={exercicio.uuid}>{exercicio.nome}</option>)}</select></label> : null}
+              <GraficoLinha ariaLabel="Evolução de carga do exercício selecionado" pontos={historicoCarga} sufixo=" kg" />
+            </article>
+            <article className={styles.grafico}>
+              <div className={styles.graficoCabecalho}><div><h3>Cardio nos últimos 7 dias</h3><p>Dentro das 360 atividades concluídas mais recentes.</p></div><Link href="/treino/cardio">Ver histórico <ArrowRight /></Link></div>
+              <div className={styles.cardioResumo}><strong>{formatarDecimal(distanciaCardioSemana)} km</strong><span>{formatarDuracao(duracaoCardioSemana)} · {cardioSemana.length} {cardioSemana.length === 1 ? 'atividade' : 'atividades'}</span></div>
+            </article>
+          </div>
+        </section>
+
+        <section className={styles.secao}>
+          <div className={styles.secaoCabecalho}>
+            <div><p className={styles.eyebrow}>Semana atual</p><h2>Volume por grupo muscular</h2></div>
+          </div>
+          <p>Somente séries de sessões finalizadas. A classificação usa o grupo atual do exercício.</p>
+          {volumeSemana.length ? <ul className={styles.sessoes}>{volumeSemana.map((item) => <li key={item.grupo}>
+            <span className={styles.sessaoTexto}><strong>{item.grupo}</strong><small>{item.series} séries concluídas · {item.seriesComVolume} com carga e repetições informadas</small></span>
+            <span>{item.seriesComVolume ? `${formatarDecimal(item.volume)} kg × reps` : 'Volume não informado'}</span>
+          </li>)}</ul> : <p className={styles.vazio}>Nenhuma série concluída nesta semana.</p>}
         </section>
 
         <section className={styles.secao}>
@@ -239,6 +306,18 @@ function Metrica({ icon: Icon, label, valor }: { icon: typeof Dumbbell; label: s
 
 function formatarData(data: string) {
   return new Date(`${data}T00:00:00`).toLocaleDateString('pt-BR')
+}
+
+function formatarDataCurta(data: string) {
+  return new Date(`${data}T00:00:00`).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
+}
+
+function formatarDataHoraCurta(data: string) {
+  return new Date(data).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
+}
+
+function formatarDecimal(valor: number) {
+  return new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2 }).format(valor)
 }
 
 function formatarDataHora(data: string) {

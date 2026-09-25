@@ -64,13 +64,17 @@ export async function criarEventoAgenda(input: EventoAgendaInput): Promise<Event
 export async function atualizarEventoAgenda(
   uuid: string,
   update: EventoAgendaUpdate,
+  anterior?: EventoAgenda,
 ): Promise<EventoAgenda | null> {
-  const { data, error } = await sb
+  const userId = await getUserId()
+  if (!userId || (anterior && anterior.user_id !== userId)) return null
+  let query = sb
     .from('agenda')
     .update({ ...update, updated_at: new Date().toISOString() })
     .eq('uuid', uuid)
-    .select()
-    .single()
+    .eq('user_id', userId).eq('deleted', false)
+  if (anterior) query = query.eq('updated_at', anterior.updated_at)
+  const { data, error } = await query.select().single()
 
   if (error) return sbErr(error, 'atualizarEventoAgenda')
   return data

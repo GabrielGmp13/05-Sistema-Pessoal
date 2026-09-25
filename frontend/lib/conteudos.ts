@@ -139,3 +139,18 @@ export async function vincularConteudoAMateria(
 export async function deletarConteudo(uuid: string): Promise<boolean> {
   return softDelete('conteudos', uuid);
 }
+
+/** Propagação idempotente: visto conclui teoria das aulas, nunca domínio/SM-2. */
+export async function concluirAulasDoVideo(videoUuid: string): Promise<boolean> {
+  const userId = await getUserId();
+  if (!userId) return false;
+  const { data: video, error: erroVideo } = await sb.from('videos').select('assistido')
+    .eq('uuid', videoUuid).eq('user_id', userId).eq('deleted', false).maybeSingle();
+  if (erroVideo || !video?.assistido) return false;
+  const { error } = await sb.from('conteudos')
+    .update({ teoria_vista: true, updated_at: new Date().toISOString() })
+    .eq('user_id', userId).eq('video_uuid', videoUuid).eq('deleted', false)
+    .not('modulo_curso_uuid', 'is', null).eq('teoria_vista', false);
+  if (error) { sbErr(error, 'concluirAulasDoVideo'); return false; }
+  return true;
+}

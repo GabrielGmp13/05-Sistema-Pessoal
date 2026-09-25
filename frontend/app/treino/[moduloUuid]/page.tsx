@@ -1,15 +1,16 @@
 'use client'
 
 import { useEffect, useEffectEvent, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createBrowserClient } from '@supabase/ssr'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
-import { getTreinosPorModulo, criarTreino, softDeleteTreino, usuarioPossuiModuloTreino, type Treino } from '@/lib/treino'
+import { getTreinosPorModulo, criarTreino, atualizarTreino, softDeleteTreino, usuarioPossuiModuloTreino, type Treino } from '@/lib/treino'
 import styles from './page.module.css'
 
 export default function PlanoModuloPage() {
   const { moduloUuid } = useParams<{ moduloUuid: string }>()
+  const router = useRouter()
   const [userId, setUserId] = useState<string | null>(null)
   const [treinos, setTreinos] = useState<Treino[]>([])
   const [carregando, setCarregando] = useState(true)
@@ -17,6 +18,9 @@ export default function PlanoModuloPage() {
   const [nomeNovo, setNomeNovo] = useState('')
   const [descNova, setDescNova] = useState('')
   const [treinoParaApagar, setTreinoParaApagar] = useState<string | null>(null)
+  const [editando, setEditando] = useState<string | null>(null)
+  const [salvando, setSalvando] = useState(false)
+  const [erro, setErro] = useState('')
 
   const sb = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -29,8 +33,9 @@ export default function PlanoModuloPage() {
   }
 
   const iniciarCarregamento = useEffectEvent(async () => {
+    try {
       const { data: { session } } = await sb.auth.getSession()
-      if (!session) return
+      if (!session) { router.replace('/login'); return }
       setUserId(session.user.id)
       const permitido = await usuarioPossuiModuloTreino(sb, session.user.id, moduloUuid)
       setModuloPermitido(permitido)
@@ -39,7 +44,10 @@ export default function PlanoModuloPage() {
         return
       }
       await recarregar(session.user.id)
+    } catch { setErro('Não foi possível carregar os treinos.') }
+    finally {
       setCarregando(false)
+    }
   })
 
   useEffect(() => {
@@ -49,18 +57,27 @@ export default function PlanoModuloPage() {
 
   async function handleCriar(e: React.FormEvent) {
     e.preventDefault()
-    if (!userId || !nomeNovo.trim()) return
-    const { error } = await criarTreino(sb, userId, moduloUuid, nomeNovo.trim(), descNova.trim())
+    if (!userId || salvando || !nomeNovo.trim()) return
+    setSalvando(true); setErro('')
+    try {
+    const { error } = editando
+      ? await atualizarTreino(sb, userId, editando, nomeNovo.trim(), descNova.trim())
+      : await criarTreino(sb, userId, moduloUuid, nomeNovo.trim(), descNova.trim())
     if (!error) {
       setNomeNovo('')
       setDescNova('')
+      setEditando(null)
       await recarregar(userId)
-    }
+    } else setErro('Não foi possível salvar o treino.')
+    } catch { setErro('Não foi possível confirmar o salvamento. Recarregue para conferir.') }
+    finally { setSalvando(false) }
   }
 
   async function handleApagarConfirmado() {
     if (!userId || !treinoParaApagar) return
-    await softDeleteTreino(sb, userId, treinoParaApagar)
+    const resultado = await softDeleteTreino(sb, userId, treinoParaApagar)
+    if (resultado.error) { setErro('Não foi possível apagar o treino.'); return }
+    if (editando === treinoParaApagar) { setEditando(null); setNomeNovo(''); setDescNova('') }
     await recarregar(userId)
   }
 
@@ -77,21 +94,25 @@ export default function PlanoModuloPage() {
     <div className={styles.container}>
       <Link href="/treino" className={styles.voltar}>← Treino</Link>
       <h1 className={styles.titulo}>Treinos</h1>
+      {erro ? <p role="alert">{erro}</p> : null}
 
       <form className={styles.formNovo} onSubmit={handleCriar}>
         <input
           className={styles.input}
           placeholder="Nome do treino"
+          aria-label="Nome do treino" required disabled={salvando}
           value={nomeNovo}
           onChange={(e) => setNomeNovo(e.target.value)}
         />
         <input
           className={styles.input}
           placeholder="Descrição (opcional)"
+          aria-label="Descrição do treino" disabled={salvando}
           value={descNova}
           onChange={(e) => setDescNova(e.target.value)}
         />
-        <button className={styles.btnSalvar} type="submit">Adicionar</button>
+        <button className={styles.btnSalvar} disabled={salvando} type="submit">{salvando ? 'Salvando…' : editando ? 'Salvar alterações' : 'Adicionar'}</button>
+        {editando ? <button type="button" className={styles.btnGhost} disabled={salvando} onClick={() => { setEditando(null); setNomeNovo(''); setDescNova('') }}>Cancelar edição</button> : null}
       </form>
 
       {treinos.length === 0 && <p className={styles.vazio}>Nenhum treino ainda. Crie o primeiro acima.</p>}
@@ -104,6 +125,7 @@ export default function PlanoModuloPage() {
               {t.descricao && <p className={styles.desc}>{t.descricao}</p>}
             </div>
             <div className={styles.acoes}>
+              <button type="button" className={styles.btnGhost} disabled={salvando} onClick={() => { setEditando(t.uuid); setNomeNovo(t.nome); setDescNova(t.descricao ?? '') }}>Editar treino</button>
               <Link href={`/treino/${moduloUuid}/${t.uuid}`} className={styles.btnGhost}>
                 Exercícios
               </Link>

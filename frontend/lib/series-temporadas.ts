@@ -22,9 +22,12 @@ export type SerieTemporadaInput = Partial<
 > & { numero: number };
 
 export async function listarTemporadas(serieUuid: string): Promise<SerieTemporada[] | null> {
+  const userId = await getUserId();
+  if (!userId) return null;
   const { data, error } = await sb
     .from('series_temporadas')
     .select('*')
+    .eq('user_id', userId)
     .eq('serie_uuid', serieUuid)
     .eq('deleted', false)
     .order('numero', { ascending: true });
@@ -65,10 +68,14 @@ export async function atualizarTemporada(
   uuid: string,
   dados: SerieTemporadaInput
 ): Promise<SerieTemporada | null> {
+  const userId = await getUserId();
+  if (!userId) return null;
   const { data, error } = await sb
     .from('series_temporadas')
     .update({ ...dados, updated_at: now() })
     .eq('uuid', uuid)
+    .eq('user_id', userId)
+    .eq('deleted', false)
     .select()
     .single();
 

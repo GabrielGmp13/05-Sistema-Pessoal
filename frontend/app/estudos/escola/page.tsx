@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { CalendarClock, ChevronRight, ListTodo, School } from 'lucide-react'
 
@@ -11,7 +11,9 @@ import { MonoLabel } from '@/components/study/mono-label'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 
-import { listarMateriasEscola, Materia } from '../../../lib/materias'
+import { listarMaterias, seedMateriasEnemEscolaSeNecessario, Materia } from '../../../lib/materias'
+import { GerenciarMaterias } from './GerenciarMaterias'
+import { useContextoAcademico } from '@/components/useContextoAcademico'
 import { listarProximasProvas, Prova } from '../../../lib/provas'
 import { listarAtividadesPendentes, Atividade } from '../../../lib/atividades'
 
@@ -29,20 +31,33 @@ export default function EscolaPage() {
   const [provas, setProvas] = useState<Prova[]>([])
   const [atividades, setAtividades] = useState<Atividade[]>([])
   const [carregando, setCarregando] = useState(true)
+  const [erro, setErro] = useState('')
+  const rotulo = useContextoAcademico()
+  const visiveis = materias.filter(m => m.mostra_escola)
+  const uuidsVisiveis = new Set(visiveis.map(m => m.uuid))
+  const provasVisiveis = provas.filter(p => p.materia_uuid && uuidsVisiveis.has(p.materia_uuid))
+  const atividadesVisiveis = atividades.filter(a => uuidsVisiveis.has(a.materia_uuid))
+
+  const recarregar = useCallback(async () => {
+    const m = await listarMaterias('academica')
+    if (m === null) throw new Error('leitura')
+    setMaterias(m)
+  }, [])
 
   useEffect(() => {
     let ativo = true
-    void Promise.all([
-      listarMateriasEscola(),
+    void seedMateriasEnemEscolaSeNecessario().then(() => Promise.all([
+      listarMaterias('academica'),
       listarProximasProvas('escola'),
       listarAtividadesPendentes(),
-    ]).then(([m, p, a]) => {
+    ])).then(([m, p, a]) => {
     if (!ativo) return
-    setMaterias(m ?? [])
-    setProvas(p ?? [])
-    setAtividades(a ?? [])
-    setCarregando(false)
-    })
+    if (m === null || p === null || a === null) throw new Error('leitura')
+    setMaterias(m)
+    setProvas(p)
+    setAtividades(a)
+    }).catch(() => { if (ativo) setErro('Não foi possível carregar este contexto. Recarregue a página antes de editar.') })
+      .finally(() => { if (ativo) setCarregando(false) })
     return () => { ativo = false }
   }, [])
 
@@ -52,24 +67,25 @@ export default function EscolaPage() {
         <BackLink href="/estudos">Voltar ao Hub</BackLink>
       </div>
       <PageHeader
-        title="Escola"
-        description="Matérias fixas da escola. Provas, atividades e simulados ficam dentro de cada matéria."
+        title={rotulo}
+        description="Organize suas matérias. Provas, atividades e simulados ficam dentro de cada matéria."
       />
 
-      {carregando ? (
+      {erro ? <p role="alert" className="text-destructive">{erro}</p> : carregando ? (
         <LoadingState />
       ) : (
         <div className="mt-8 flex flex-col gap-10">
-          <Section label="Bloco 1" title="Matérias" count={materias.length}>
-            {materias.length === 0 ? (
+          <GerenciarMaterias materias={materias} rotulo={rotulo} recarregar={recarregar} />
+          <Section label="Bloco 1" title="Matérias" count={visiveis.length}>
+            {visiveis.length === 0 ? (
               <EmptyState
                 icon={School}
                 title="Nenhuma matéria cadastrada"
-                description="As matérias fixas são criadas automaticamente pelo sistema."
+                description="Crie uma matéria ou reinclua uma existente no painel acima."
               />
             ) : (
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {materias.map((m) => (
+                {visiveis.map((m) => (
                   <Link
                     key={m.uuid}
                     href={`/estudos/materia/${m.uuid}?from=escola`}
@@ -86,8 +102,8 @@ export default function EscolaPage() {
           </Section>
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <Section label="Bloco 2" title="Próximas provas" count={provas.length}>
-              {provas.length === 0 ? (
+            <Section label="Bloco 2" title="Próximas provas" count={provasVisiveis.length}>
+              {provasVisiveis.length === 0 ? (
                 <EmptyState
                   icon={CalendarClock}
                   title="Nenhuma prova agendada"
@@ -95,7 +111,7 @@ export default function EscolaPage() {
                 />
               ) : (
                 <Card className="divide-y divide-border overflow-hidden">
-                  {provas.map((p) => (
+                  {provasVisiveis.map((p) => (
                     <div
                       key={p.uuid}
                       className="flex items-center justify-between gap-3 px-5 py-3.5"
@@ -115,13 +131,13 @@ export default function EscolaPage() {
             <Section
               label="Bloco 3"
               title="Atividades pendentes"
-              count={atividades.length}
+              count={atividadesVisiveis.length}
             >
-              {atividades.length === 0 ? (
+              {atividadesVisiveis.length === 0 ? (
                 <EmptyState icon={ListTodo} title="Tudo em dia" compact />
               ) : (
                 <Card className="divide-y divide-border overflow-hidden">
-                  {atividades.map((a) => (
+                  {atividadesVisiveis.map((a) => (
                     <div
                       key={a.uuid}
                       className="flex items-center justify-between gap-3 px-5 py-3.5"

@@ -16,7 +16,7 @@ import {
   AREA_ENEM_LABELS,
   ORDEM_AREAS_ENEM,
 } from '../../../lib/materias'
-import { listarProvasEnem, listarTentativasEnem, criarProva, iniciarNovaTentativaEnem, Prova, TentativaProvaEnem, TipoProva } from '../../../lib/provas'
+import { listarProvasEnem, listarTentativasEnem, criarProva, Prova, TentativaProvaEnem, TipoProva } from '../../../lib/provas'
 import {
   BackLink,
   PageHeader,
@@ -49,6 +49,8 @@ export default function EnemPage() {
   const [provas, setProvas] = useState<Prova[]>([])
   const [tentativas, setTentativas] = useState<TentativaProvaEnem[]>([])
   const [novaProva, setNovaProva] = useState({ titulo: '', data: '', tipo: 'enem_dia1' as TipoProva })
+  const [identidade, setIdentidade] = useState({ ano: '', aplicacao: '', caderno: '', lingua: '' })
+  const [criando, setCriando] = useState(false)
   const [carregando, setCarregando] = useState(true)
   const [refazendoUuid, setRefazendoUuid] = useState<string | null>(null)
   const [erro, setErro] = useState('')
@@ -68,12 +70,6 @@ export default function EnemPage() {
   async function refazerProva(prova: Prova) {
     setRefazendoUuid(prova.uuid)
     setErro('')
-    const pronta = await iniciarNovaTentativaEnem(prova.uuid)
-    if (!pronta) {
-      setErro('Não foi possível preparar uma nova tentativa sem perder o resultado anterior.')
-      setRefazendoUuid(null)
-      return
-    }
     router.push(`/estudos/enem/gabarito/${prova.uuid}?modo=prova`)
   }
 
@@ -83,8 +79,9 @@ export default function EnemPage() {
   }, [])
 
   async function handleCriarProva() {
-    if (!novaProva.data) return
-    await criarProva({
+    if (!novaProva.data || criando) return
+    setCriando(true)
+    const criada = await criarProva({
       materia_uuid: null,
       tipo: novaProva.tipo,
       conteudo_uuid: null,
@@ -95,8 +92,16 @@ export default function EnemPage() {
       nota: null,
       feita: false,
       observacoes: null,
+      enem_ano: identidade.ano ? Number(identidade.ano) : null,
+      enem_aplicacao: identidade.aplicacao.trim() || null,
+      enem_caderno: identidade.caderno.trim() || null,
+      enem_lingua: novaProva.tipo === 'enem_dia1' && identidade.lingua ? identidade.lingua as 'ingles' | 'espanhol' : null,
     })
+    setCriando(false)
+    if (!criada) { setErro('Não foi possível confirmar a criação. Confira a lista antes de reenviar.'); return }
+    setErro('')
     setNovaProva({ titulo: '', data: '', tipo: 'enem_dia1' })
+    setIdentidade({ ano: '', aplicacao: '', caderno: '', lingua: '' })
     carregar()
   }
 
@@ -213,8 +218,14 @@ export default function EnemPage() {
                       />
                     </Field>
                   </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <Field label="Ano da edição" htmlFor="enem-ano" optional><Input id="enem-ano" type="number" min="1998" max="2200" value={identidade.ano} onChange={(e) => setIdentidade({ ...identidade, ano: e.target.value })} /></Field>
+                    <Field label="Aplicação" htmlFor="enem-aplicacao" optional><Input id="enem-aplicacao" maxLength={80} placeholder="Regular, reaplicação, PPL…" value={identidade.aplicacao} onChange={(e) => setIdentidade({ ...identidade, aplicacao: e.target.value })} /></Field>
+                    <Field label="Caderno" htmlFor="enem-caderno" optional><Input id="enem-caderno" maxLength={80} value={identidade.caderno} onChange={(e) => setIdentidade({ ...identidade, caderno: e.target.value })} /></Field>
+                    {novaProva.tipo === 'enem_dia1' && <Field label="Língua estrangeira" htmlFor="enem-lingua" optional><Select id="enem-lingua" value={identidade.lingua} onChange={(e) => setIdentidade({ ...identidade, lingua: e.target.value })}><option value="">Não informada</option><option value="ingles">Inglês</option><option value="espanhol">Espanhol</option></Select></Field>}
+                  </div>
                   <div className="flex justify-end">
-                    <Button type="submit" size="lg">
+                    <Button type="submit" size="lg" disabled={criando}>
                       <Plus className="size-4" />
                       Agendar prova
                     </Button>

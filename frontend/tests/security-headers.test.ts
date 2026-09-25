@@ -36,3 +36,17 @@ test('CSP permite CAPTCHA sem liberar eval na produção', async () => {
     assert.equal(csp.includes("'unsafe-eval'"), env === 'development')
   }
 })
+
+test('Supabase HTTP local só é liberado em desenvolvimento com origem exata', async () => {
+  const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText
+  for (const env of ['production', 'development']) {
+    for (const url of ['http://127.0.0.1:54321', 'http://example.com']) {
+      const exports: { default?: { headers: () => Promise<Array<{ headers: Array<{ key: string; value: string }> }>> } } = {}
+      runInNewContext(compiled, { exports, process: { env: { NODE_ENV: env, NEXT_PUBLIC_SUPABASE_URL: url } } })
+      const routes = await exports.default!.headers()
+      const csp = routes[0].headers.find(h => h.key === 'Content-Security-Policy')!.value
+      assert.equal(csp.includes('http://127.0.0.1:54321'), env === 'development' && url === 'http://127.0.0.1:54321')
+      assert.equal(csp.includes('http://example.com'), false)
+    }
+  }
+})

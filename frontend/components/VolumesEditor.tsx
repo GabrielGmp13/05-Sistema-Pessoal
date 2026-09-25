@@ -9,6 +9,7 @@ import {
   MangaVolume,
 } from '@/lib/mangas-volumes';
 import styles from './ListaEditavel.module.css';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 
 interface Props {
   mangaUuid: string;
@@ -21,6 +22,9 @@ export default function VolumesEditor({ mangaUuid }: Props) {
   const [novo, setNovo] = useState(VAZIO);
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
+  const [editando, setEditando] = useState<string | null>(null);
+  const [exclusao, setExclusao] = useState<string | null>(null);
+  const [erro, setErro] = useState('');
 
   async function carregar() {
     setCarregando(true);
@@ -41,33 +45,50 @@ export default function VolumesEditor({ mangaUuid }: Props) {
 
   async function adicionar() {
     const numero = Number(novo.numero);
-    if (!numero || numero < 1) return;
+    if (!Number.isInteger(numero) || numero < 1 || numero > 2147483647) { setErro('Informe um número inteiro positivo.'); return; }
+    if (itens.some((item) => item.numero === numero && item.uuid !== editando)) { setErro('Este número de volume já está cadastrado.'); return; }
     setSalvando(true);
-    const criado = await criarVolume(mangaUuid, {
+    setErro('');
+    try {
+    const dados = {
       numero,
-      arco: novo.arco || undefined,
-      cor: novo.cor || undefined,
-    });
+      arco: novo.arco.trim() || null,
+      cor: novo.cor || null,
+    };
+    const criado = editando ? await atualizarVolume(editando, dados) : await criarVolume(mangaUuid, dados);
     if (criado) {
       setNovo(VAZIO);
+      setEditando(null);
       await carregar();
-    }
-    setSalvando(false);
+    } else setErro('Não foi possível salvar o volume. Seus campos foram preservados.');
+    } catch { setErro('Não foi possível confirmar o salvamento. Reabra a lista antes de repetir.'); }
+    finally { setSalvando(false); }
   }
 
   async function alternarLido(vol: MangaVolume) {
-    await atualizarVolume(vol.uuid, { lido: !vol.lido });
-    await carregar();
+    setSalvando(true);
+    setErro('');
+    try {
+      if (!await atualizarVolume(vol.uuid, { lido: !vol.lido })) { setErro('Não foi possível atualizar a leitura.'); return; }
+      await carregar();
+    } catch { setErro('Não foi possível confirmar a leitura.'); }
+    finally { setSalvando(false); }
   }
 
   async function remover(uuid: string) {
-    await apagarVolume(uuid);
-    await carregar();
+    setSalvando(true);
+    try {
+      if (!await apagarVolume(uuid)) { setErro('Não foi possível remover o volume.'); return; }
+      if (editando === uuid) { setEditando(null); setNovo(VAZIO); }
+      await carregar();
+    } catch { setErro('Não foi possível confirmar a remoção.'); }
+    finally { setSalvando(false); }
   }
 
   return (
     <div className={styles.wrapper}>
       <h4>Volumes</h4>
+      {erro ? <p role="alert" className={styles.erro}>{erro}</p> : null}
       {carregando ? (
         <p className={styles.vazio}>Carregando...</p>
       ) : (
@@ -91,10 +112,11 @@ export default function VolumesEditor({ mangaUuid }: Props) {
               </span>
               <span style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                 <label style={{ fontSize: '0.72rem', color: 'var(--texto-secundario)' }}>
-                  <input type="checkbox" checked={vol.lido} onChange={() => alternarLido(vol)} />{' '}
+                  <input type="checkbox" disabled={salvando} checked={vol.lido} onChange={() => alternarLido(vol)} />{' '}
                   lido
                 </label>
-                <button type="button" onClick={() => remover(vol.uuid)}>
+                <button type="button" disabled={salvando} aria-label={`Editar volume ${vol.numero}`} onClick={() => { setEditando(vol.uuid); setNovo({ numero: String(vol.numero), arco: vol.arco ?? '', cor: vol.cor ?? '#808080' }); }}>Editar</button>
+                <button type="button" disabled={salvando} aria-label={`Remover volume ${vol.numero}`} onClick={() => setExclusao(vol.uuid)}>
                   ✕
                 </button>
               </span>
@@ -104,9 +126,10 @@ export default function VolumesEditor({ mangaUuid }: Props) {
         </ul>
       )}
 
-      <div className={styles.linhaAdicionar}>
+      <fieldset className={styles.linhaAdicionar} disabled={salvando || carregando} style={{ border: 0, padding: 0, margin: 0 }}>
         <input
           placeholder="Número"
+          aria-label="Número do volume" min={1} step={1}
           type="number"
           inputMode="numeric"
           value={novo.numero}
@@ -114,6 +137,7 @@ export default function VolumesEditor({ mangaUuid }: Props) {
         />
         <input
           placeholder="Arco (opcional)"
+          aria-label="Arco (opcional)"
           value={novo.arco}
           onChange={(e) => setNovo({ ...novo, arco: e.target.value })}
         />
@@ -125,9 +149,11 @@ export default function VolumesEditor({ mangaUuid }: Props) {
           style={{ width: '2.2rem', padding: '0.15rem', flex: '0 0 auto' }}
         />
         <button type="button" onClick={adicionar} disabled={salvando}>
-          + Adicionar
+          {editando ? 'Salvar volume' : '+ Adicionar'}
         </button>
-      </div>
+        {editando ? <button type="button" onClick={() => { setEditando(null); setNovo(VAZIO); }}>Cancelar edição</button> : null}
+      </fieldset>
+      <ConfirmDialog open={Boolean(exclusao)} onOpenChange={(open) => { if (!open) setExclusao(null); }} title="Remover volume?" description="O mangá e os outros volumes serão preservados." confirmLabel="Remover" onConfirm={async () => { if (exclusao) await remover(exclusao); }} />
     </div>
   );
 }

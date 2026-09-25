@@ -22,6 +22,8 @@ export interface ExercicioForca {
   reps_alvo: number | null
   carga_alvo: number | null
   descanso_segundos: number | null
+  grupo_muscular: string | null
+  instrucoes: string | null
   imagem_path: string | null
   ordem: number
 }
@@ -32,6 +34,7 @@ export interface ExercicioCardio {
   nome: string
   distancia_alvo_km: number | null
   duracao_alvo_minutos: number | null
+  instrucoes: string | null
   imagem_path: string | null
   ordem: number
 }
@@ -51,6 +54,23 @@ export interface RegistroShapeResumo {
   updated_at: string
 }
 
+export interface ExecucaoForcaResumo {
+  sessao_uuid: string
+  exercicio_uuid: string
+  carga_real: number | null
+  reps_real: number | null
+  concluida: boolean
+  data_hora: string
+}
+
+export interface ExecucaoCardioResumo {
+  exercicio_uuid: string
+  distancia_real_km: number | null
+  duracao_real_minutos: number | null
+  concluido: boolean
+  data_hora: string
+}
+
 export interface PlanejamentoSemanalTreino {
   uuid: string
   treino_uuid: string
@@ -66,6 +86,10 @@ export interface DadosDashboardTreino {
   registrosShape: RegistroShapeResumo[]
   planejamentoSemanal: PlanejamentoSemanalTreino[]
   totalExercicios: number
+  exerciciosForca: Array<Pick<ExercicioForca, 'uuid' | 'nome' | 'grupo_muscular'>>
+  execucoesForca: ExecucaoForcaResumo[]
+  seriesSemana: ExecucaoForcaResumo[]
+  execucoesCardio: ExecucaoCardioResumo[]
 }
 
 // ---------- Treinos ----------
@@ -147,7 +171,7 @@ export async function softDeleteTreino(sb: SB, userId: string, treinoUuid: strin
 export async function getExerciciosForca(sb: SB, userId: string, treinoUuid: string): Promise<ExercicioForca[]> {
   const { data, error } = await sb
     .from('exercicios_forca')
-    .select('uuid, treino_uuid, nome, series_alvo, reps_alvo, carga_alvo, descanso_segundos, imagem_path, ordem')
+    .select('uuid, treino_uuid, nome, series_alvo, reps_alvo, carga_alvo, descanso_segundos, grupo_muscular, instrucoes, imagem_path, ordem')
     .eq('user_id', userId)
     .eq('treino_uuid', treinoUuid)
     .eq('deleted', false)
@@ -155,14 +179,14 @@ export async function getExerciciosForca(sb: SB, userId: string, treinoUuid: str
 
   if (error) {
     logDiagnostic('treino/listar-exercicios-forca', error)
-    return []
+    throw new Error('Não foi possível carregar os exercícios de força.')
   }
   return data ?? []
 }
 
 export async function criarExercicioForca(
   sb: SB, userId: string, treinoUuid: string,
-  dados: { nome: string; series_alvo: number; reps_alvo: number; carga_alvo: number; descanso_segundos: number; imagem_path?: string | null; ordem: number }
+  dados: { nome: string; series_alvo: number; reps_alvo: number; carga_alvo: number; descanso_segundos: number; grupo_muscular?: string | null; instrucoes?: string | null; imagem_path?: string | null; ordem: number }
 ): Promise<{ error: string | null }> {
   const { error } = await sb.from('exercicios_forca').insert({
     uuid: crypto.randomUUID(),
@@ -187,10 +211,47 @@ export async function softDeleteExercicioForca(sb: SB, userId: string, uuid: str
 
 // ---------- Exercícios (cardio) ----------
 
+export async function atualizarExercicioForca(
+  sb: SB, userId: string, uuid: string,
+  dados: Omit<ExercicioForca, 'uuid' | 'treino_uuid' | 'ordem'>,
+): Promise<{ error: string | null }> {
+  const { data, error } = await sb.from('exercicios_forca').update({
+    nome: dados.nome, series_alvo: dados.series_alvo, reps_alvo: dados.reps_alvo,
+    carga_alvo: dados.carga_alvo, descanso_segundos: dados.descanso_segundos,
+    grupo_muscular: dados.grupo_muscular, instrucoes: dados.instrucoes,
+    imagem_path: dados.imagem_path, updated_at: new Date().toISOString(),
+  }).eq('uuid', uuid).eq('user_id', userId).eq('deleted', false).select('uuid').maybeSingle()
+  if (error) logDiagnostic('treino/editar-exercicio-forca', error)
+  return { error: error?.message ?? (data ? null : 'Exercício indisponível.') }
+}
+
+export async function atualizarExercicioCardio(
+  sb: SB, userId: string, uuid: string,
+  dados: Omit<ExercicioCardio, 'uuid' | 'treino_uuid' | 'ordem'>,
+): Promise<{ error: string | null }> {
+  const { data, error } = await sb.from('exercicios_cardio').update({
+    nome: dados.nome, distancia_alvo_km: dados.distancia_alvo_km,
+    duracao_alvo_minutos: dados.duracao_alvo_minutos, instrucoes: dados.instrucoes,
+    imagem_path: dados.imagem_path, updated_at: new Date().toISOString(),
+  }).eq('uuid', uuid).eq('user_id', userId).eq('deleted', false).select('uuid').maybeSingle()
+  if (error) logDiagnostic('treino/editar-exercicio-cardio', error)
+  return { error: error?.message ?? (data ? null : 'Exercício indisponível.') }
+}
+
+export async function reordenarExerciciosTreino(
+  sb: SB, treinoUuid: string, tipo: 'forca' | 'cardio', ordem: string[],
+): Promise<{ error: string | null }> {
+  const { error } = await sb.rpc('reordenar_exercicios_treino', {
+    p_treino_uuid: treinoUuid, p_tipo: tipo, p_ordem: ordem,
+  })
+  if (error) logDiagnostic('treino/reordenar', error)
+  return { error: error ? 'Não foi possível reordenar. Recarregue a lista e tente novamente.' : null }
+}
+
 export async function getExerciciosCardio(sb: SB, userId: string, treinoUuid: string): Promise<ExercicioCardio[]> {
   const { data, error } = await sb
     .from('exercicios_cardio')
-    .select('uuid, treino_uuid, nome, distancia_alvo_km, duracao_alvo_minutos, imagem_path, ordem')
+    .select('uuid, treino_uuid, nome, distancia_alvo_km, duracao_alvo_minutos, instrucoes, imagem_path, ordem')
     .eq('user_id', userId)
     .eq('treino_uuid', treinoUuid)
     .eq('deleted', false)
@@ -198,14 +259,14 @@ export async function getExerciciosCardio(sb: SB, userId: string, treinoUuid: st
 
   if (error) {
     logDiagnostic('treino/listar-exercicios-cardio', error)
-    return []
+    throw new Error('Não foi possível carregar os exercícios de cardio.')
   }
   return data ?? []
 }
 
 export async function criarExercicioCardio(
   sb: SB, userId: string, treinoUuid: string,
-  dados: { nome: string; distancia_alvo_km: number | null; duracao_alvo_minutos: number | null; imagem_path?: string | null; ordem: number }
+  dados: { nome: string; distancia_alvo_km: number | null; duracao_alvo_minutos: number | null; instrucoes?: string | null; imagem_path?: string | null; ordem: number }
 ): Promise<{ error: string | null }> {
   const { error } = await sb.from('exercicios_cardio').insert({
     uuid: crypto.randomUUID(),
@@ -302,18 +363,21 @@ export async function getDadosDashboardTreino(
   inicioSemana.setDate(inicioSemana.getDate() - ((inicioSemana.getDay() + 6) % 7))
   inicioSemana.setHours(0, 0, 0, 0)
 
-  const [treinos, sessoes, sessoesSemana, sessoesConcluidas, shape, planejamento, forca, cardio] = await Promise.all([
+  const [treinos, sessoes, sessoesSemana, sessoesConcluidas, shape, planejamento, forca, cardio, execucoesForca, execucoesCardio, seriesSemana] = await Promise.all([
     sb.from('treinos').select('uuid, nome, descricao, modulo_uuid').eq('user_id', userId).eq('deleted', false).order('nome'),
     sb.from('sessoes_treino').select('uuid, treino_uuid, data_inicio, data_fim').eq('user_id', userId).eq('deleted', false).order('data_inicio', { ascending: false }).limit(12),
     sb.from('sessoes_treino').select('uuid, treino_uuid, data_inicio, data_fim').eq('user_id', userId).eq('deleted', false).gte('data_inicio', inicioSemana.toISOString()).order('data_inicio', { ascending: false }),
     sb.from('sessoes_treino').select('treino_uuid').eq('user_id', userId).eq('deleted', false).not('data_fim', 'is', null),
-    sb.from('shape').select('uuid, data, peso, foto_path, updated_at').eq('user_id', userId).eq('deleted', false).order('data', { ascending: false }).order('updated_at', { ascending: false }).limit(6),
+    sb.from('shape').select('uuid, data, peso, foto_path, updated_at').eq('user_id', userId).eq('deleted', false).order('data', { ascending: false }).order('updated_at', { ascending: false }).limit(60),
     sb.from('treinos_planejamento_semanal').select('uuid, treino_uuid, dia_semana, updated_at').eq('user_id', userId).eq('deleted', false).order('dia_semana'),
-    sb.from('exercicios_forca').select('uuid').eq('user_id', userId).eq('deleted', false),
+    sb.from('exercicios_forca').select('uuid, nome, grupo_muscular').eq('user_id', userId).eq('deleted', false),
     sb.from('exercicios_cardio').select('uuid').eq('user_id', userId).eq('deleted', false),
+    sb.from('execucoes_forca').select('sessao_uuid, exercicio_uuid, carga_real, reps_real, concluida, data_hora, sessoes_treino!inner(data_fim, deleted)').eq('user_id', userId).eq('deleted', false).eq('concluida', true).eq('sessoes_treino.deleted', false).not('sessoes_treino.data_fim', 'is', null).not('carga_real', 'is', null).order('data_hora', { ascending: false }).order('uuid').limit(360),
+    sb.from('execucoes_cardio').select('exercicio_uuid, distancia_real_km, duracao_real_minutos, concluido, data_hora, sessoes_treino!inner(data_fim, deleted)').eq('user_id', userId).eq('deleted', false).eq('concluido', true).eq('sessoes_treino.deleted', false).not('sessoes_treino.data_fim', 'is', null).order('data_hora', { ascending: false }).order('uuid').limit(360),
+    getSeriesSemana(sb, userId, inicioSemana.toISOString()),
   ])
 
-  const erro = treinos.error ?? sessoes.error ?? sessoesSemana.error ?? sessoesConcluidas.error ?? shape.error ?? planejamento.error ?? forca.error ?? cardio.error
+  const erro = treinos.error ?? sessoes.error ?? sessoesSemana.error ?? sessoesConcluidas.error ?? shape.error ?? planejamento.error ?? forca.error ?? cardio.error ?? execucoesForca.error ?? execucoesCardio.error ?? seriesSemana.error
   if (erro) {
     logDiagnostic('treino/dados-dashboard', erro)
     return null
@@ -327,5 +391,23 @@ export async function getDadosDashboardTreino(
     registrosShape: shape.data ?? [],
     planejamentoSemanal: planejamento.data ?? [],
     totalExercicios: (forca.data?.length ?? 0) + (cardio.data?.length ?? 0),
+    exerciciosForca: forca.data ?? [],
+    execucoesForca: (execucoesForca.data ?? []).toReversed(),
+    seriesSemana: seriesSemana.data ?? [],
+    execucoesCardio: (execucoesCardio.data ?? []).toReversed(),
+  }
+}
+
+async function getSeriesSemana(sb: SB, userId: string, inicio: string) {
+  const linhas: ExecucaoForcaResumo[] = []
+  for (let offset = 0; ; offset += 1000) {
+    const { data, error } = await sb.from('execucoes_forca')
+      .select('sessao_uuid, exercicio_uuid, carga_real, reps_real, concluida, data_hora, sessoes_treino!inner(data_fim, deleted)')
+      .eq('user_id', userId).eq('deleted', false).eq('concluida', true)
+      .eq('sessoes_treino.deleted', false).not('sessoes_treino.data_fim', 'is', null)
+      .gte('data_hora', inicio).order('uuid').range(offset, offset + 999)
+    if (error) return { data: null, error }
+    linhas.push(...(data ?? []))
+    if (!data || data.length < 1000) return { data: linhas, error: null }
   }
 }

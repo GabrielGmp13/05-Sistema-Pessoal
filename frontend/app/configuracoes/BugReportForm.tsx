@@ -41,7 +41,7 @@ export function BugReportForm() {
       if (!response.ok) throw new Error(result.erro || 'Não foi possível carregar seus pedidos.')
       setTickets(result.chamados ?? [])
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Não foi possível carregar seus pedidos.')
+      setError(cause instanceof SyntaxError ? 'O servidor não respondeu corretamente. Atualize os pedidos ou entre novamente.' : cause instanceof Error ? cause.message : 'Não foi possível carregar seus pedidos.')
     } finally { setLoading(false) }
   }, [])
 
@@ -79,7 +79,7 @@ export function BugReportForm() {
       }
       setForm(EMPTY); setFiles([]); setMessage(`Pedido enviado. Guarde o protocolo ${result.protocolo}.`); await load()
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Não foi possível registrar o pedido.')
+      setError(cause instanceof SyntaxError ? 'Não foi possível confirmar o envio. Atualize seus pedidos antes de reenviar.' : cause instanceof Error ? cause.message : 'Não foi possível registrar o pedido.')
     } finally { setSending(false) }
   }
 

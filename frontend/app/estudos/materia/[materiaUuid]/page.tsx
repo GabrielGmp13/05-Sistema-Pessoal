@@ -19,11 +19,13 @@ import {
 } from 'lucide-react'
 
 import { BackLink, PageHeader, PageShell } from '@/components/study/page-shell'
+import { useContextoAcademico } from '@/components/useContextoAcademico'
 import { Section } from '@/components/study/section'
 import { MonoLabel } from '@/components/study/mono-label'
 import { EmptyState } from '@/components/study/empty-state'
 import { Field } from '@/components/study/field'
 import { StudyRecords } from '@/components/study/study-records'
+import { AvaliacoesMateria } from '@/components/study/avaliacoes-materia'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -115,6 +117,7 @@ export default function MateriaDetalhePage() {
   const params = useParams<{ materiaUuid: string }>()
   const materiaUuid = params.materiaUuid
   const searchParams = useSearchParams()
+  const rotuloAcademico = useContextoAcademico()
   // Contexto de onde a matéria foi acessada — decide o que a página mostra.
   // A matéria em si é uma linha única (mostra_escola/mostra_enem só marcam
   // ONDE ela aparece na navegação); o que é exibido AQUI é decidido pela
@@ -142,9 +145,12 @@ export default function MateriaDetalhePage() {
   const [novoSimulado, setNovoSimulado] = useState({
     total_questoes: '',
     total_acertos: '',
+    total_anuladas: '0',
     conteudo_uuid: '',
   })
   const [confirmacao, setConfirmacao] = useState<Confirmacao | null>(null)
+  const [salvandoSimulado, setSalvandoSimulado] = useState(false)
+  const [erroSimulado, setErroSimulado] = useState('')
   const [vinculoPendente, setVinculoPendente] = useState<VinculoPendente | null>(null)
 
   async function carregar() {
@@ -347,22 +353,32 @@ export default function MateriaDetalhePage() {
     e.preventDefault()
     const total = Number(novoSimulado.total_questoes)
     const acertos = Number(novoSimulado.total_acertos)
+    const anuladas = Number(novoSimulado.total_anuladas)
+    if (salvandoSimulado) return
     if (
-      !Number.isInteger(total) || total <= 0 ||
-      !Number.isInteger(acertos) || acertos < 0 || acertos > total
+      !Number.isInteger(total) || total < 0 ||
+      !Number.isInteger(anuladas) || anuladas < 0 || anuladas > total ||
+      !Number.isInteger(acertos) || acertos < 0 || acertos > total - anuladas
     ) return
-    await registrarSimulado({
+    setSalvandoSimulado(true)
+    setErroSimulado('')
+    try {
+    const salvo = await registrarSimulado({
       materia_uuid: materiaUuid,
       data: dataLocalIso(),
       total_questoes: total,
       total_acertos: acertos,
+      total_anuladas: anuladas,
       tempo_minutos: null,
       observacoes: null,
       conteudo_uuid: novoSimulado.conteudo_uuid || null,
       redacao_uuid: null,
     })
-    setNovoSimulado({ total_questoes: '', total_acertos: '', conteudo_uuid: '' })
+    if (!salvo) { setErroSimulado('Registro não confirmado. Confira a lista antes de reenviar.'); return }
+    setNovoSimulado({ total_questoes: '', total_acertos: '', total_anuladas: '0', conteudo_uuid: '' })
     await carregar()
+    } catch { setErroSimulado('Não foi possível concluir. Confira a lista antes de reenviar.') }
+    finally { setSalvandoSimulado(false) }
   }
 
   if (carregando) {
@@ -397,7 +413,7 @@ export default function MateriaDetalhePage() {
     )
   }
 
-  const origem = ORIGENS_MATERIA[from]
+  const origem = from === 'escola' ? { ...ORIGENS_MATERIA.escola, label: rotuloAcademico } : ORIGENS_MATERIA[from]
   const mostrarProvasEAtividades = from !== 'enem'
 
   return (
@@ -743,7 +759,7 @@ export default function MateriaDetalhePage() {
                     <li key={s.uuid} className="flex flex-col gap-2 px-4 py-3">
                       <div className="flex items-center gap-3"><MonoLabel>{formatDate(s.data)}</MonoLabel>
                       <span className="ml-auto font-mono text-sm tabular-nums">
-                        {s.total_acertos}/{s.total_questoes}
+                        {s.total_acertos}/{s.total_questoes - s.total_anuladas} válidas · {s.total_anuladas} anuladas
                       </span></div>
                       <PrivateDocumentAction path={s.arquivo_path} scope={`simulados/${s.uuid}`} onPersist={(path) => handleArquivoSimulado(s, path)} />
                     </li>
@@ -753,10 +769,11 @@ export default function MateriaDetalhePage() {
 
               <Card className="p-3">
                 <form onSubmit={handleRegistrarSimulado} className="flex flex-col gap-2">
+                  {erroSimulado && <p role="alert">{erroSimulado}</p>}
                   <div className="flex items-center gap-2">
                     <Input
                       type="number"
-                      min="1"
+                      min="0"
                       step="1"
                       required
                       value={novoSimulado.total_questoes}
@@ -764,13 +781,14 @@ export default function MateriaDetalhePage() {
                         setNovoSimulado((s) => ({ ...s, total_questoes: e.target.value }))
                       }
                       placeholder="Total"
+                      aria-label="Total de questões"
                       inputMode="numeric"
                       className="h-8 text-sm"
                     />
                     <Input
                       type="number"
                       min="0"
-                      max={novoSimulado.total_questoes || undefined}
+                      max={Math.max(0, Number(novoSimulado.total_questoes) - Number(novoSimulado.total_anuladas))}
                       step="1"
                       required
                       value={novoSimulado.total_acertos}
@@ -778,10 +796,14 @@ export default function MateriaDetalhePage() {
                         setNovoSimulado((s) => ({ ...s, total_acertos: e.target.value }))
                       }
                       placeholder="Acertos"
+                      aria-label="Acertos"
                       inputMode="numeric"
                       className="h-8 text-sm"
                     />
                   </div>
+                  <Field label="Questões anuladas" htmlFor="simulado-anuladas" hint="Anuladas não contam no percentual nem na revisão. Sem questões válidas, não há avaliação SM-2.">
+                    <Input id="simulado-anuladas" type="number" min="0" max={novoSimulado.total_questoes || 0} step="1" required value={novoSimulado.total_anuladas} onChange={(e) => setNovoSimulado((s) => ({ ...s, total_anuladas: e.target.value }))} />
+                  </Field>
                   <Select
                     value={novoSimulado.conteudo_uuid}
                     onChange={(e) =>
@@ -796,7 +818,7 @@ export default function MateriaDetalhePage() {
                       </option>
                     ))}
                   </Select>
-                  <Button type="submit" size="sm">
+                  <Button type="submit" size="sm" disabled={salvandoSimulado}>
                     <Plus className="size-3.5" />
                     Registrar simulado
                   </Button>
@@ -806,7 +828,10 @@ export default function MateriaDetalhePage() {
           </Section>
         </div>
 
-        <StudyRecords materiaUuid={materiaUuid} conteudos={conteudos} />
+        <div className="flex flex-col gap-6">
+          {mostrarProvasEAtividades && <AvaliacoesMateria key={materiaUuid} materiaUuid={materiaUuid} />}
+          <StudyRecords materiaUuid={materiaUuid} conteudos={conteudos} />
+        </div>
       </div>
 
       <ConfirmDialog

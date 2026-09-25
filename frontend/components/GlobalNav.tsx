@@ -15,6 +15,7 @@ import { ThemeToggle } from './ThemeToggle'
 import { SeasonalDecor } from './SeasonalDecor'
 import { useTema } from './ThemeProvider'
 import { usePersonalRail } from './PersonalRailProvider'
+import { useModulosVisiveis } from './useModulosVisiveis'
 import styles from './GlobalNav.module.css'
 
 type CaixaPerfil = {
@@ -62,6 +63,7 @@ function usaTelaInteira(pathname: string) {
 }
 
 export function GlobalNav() {
+  const modulosOcultos = useModulosVisiveis()
   const { corAmbiente, definirCorAmbiente } = useTema()
   const pathname = usePathname()
   const router = useRouter()
@@ -467,7 +469,7 @@ export function GlobalNav() {
 
         <nav ref={navegacaoRef} aria-label="Navegação principal" className={styles.navegacao}>
           <span aria-hidden="true" className={styles.indicadorAtivo} />
-          {links.map((link) => {
+          {links.filter((link) => !modulosOcultos.includes(link.href)).map((link) => {
             const Icon = link.icon
             const active = isActive(pathname, link.href)
 

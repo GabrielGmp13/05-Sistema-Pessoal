@@ -26,9 +26,12 @@ export type MangaVolumeUpdate = Partial<
 >;
 
 export async function listarVolumes(mangaUuid: string): Promise<MangaVolume[] | null> {
+  const userId = await getUserId();
+  if (!userId) return null;
   const { data, error } = await sb
     .from('mangas_volumes')
     .select('*')
+    .eq('user_id', userId)
     .eq('manga_uuid', mangaUuid)
     .eq('deleted', false)
     .order('numero', { ascending: true });
@@ -70,10 +73,14 @@ export async function atualizarVolume(
   uuid: string,
   dados: MangaVolumeUpdate
 ): Promise<MangaVolume | null> {
+  const userId = await getUserId();
+  if (!userId) return null;
   const { data, error } = await sb
     .from('mangas_volumes')
     .update({ ...dados, updated_at: now() })
     .eq('uuid', uuid)
+    .eq('user_id', userId)
+    .eq('deleted', false)
     .select()
     .single();
 

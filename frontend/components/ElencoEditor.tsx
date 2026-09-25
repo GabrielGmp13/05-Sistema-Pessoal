@@ -1,118 +1,41 @@
-'use client';
+'use client'
 
-import { useEffect, useState } from 'react';
-import {
-  listarElenco,
-  criarElenco,
-  apagarElenco,
-  ElencoItem,
-  TipoObraElenco,
-} from '@/lib/elenco';
-import styles from './ListaEditavel.module.css';
+import { useCallback } from 'react'
+import { listarElenco, criarElenco, atualizarElenco, apagarElenco, type TipoObraElenco } from '@/lib/elenco'
+import { EditorListaTextual } from './EditorListaTextual'
 
-interface Props {
-  tipoObra: Exclude<TipoObraElenco, 'anime'>;
-  obraUuid: string;
-}
-
-const VAZIO = {
-  ator: '',
-  personagem: '',
-  foto_url: '',
-};
-
-export default function ElencoEditor({ tipoObra, obraUuid }: Props) {
-  const [itens, setItens] = useState<ElencoItem[]>([]);
-  const [novo, setNovo] = useState(VAZIO);
-  const [carregando, setCarregando] = useState(true);
-  const [salvando, setSalvando] = useState(false);
-
-  async function carregar() {
-    setCarregando(true);
-    const res = await listarElenco(tipoObra, obraUuid);
-    setItens(res ?? []);
-    setCarregando(false);
+const campos = [
+  {
+    "chave": "ator",
+    "rotulo": "Ator",
+    "obrigatorio": true,
+    "url": false
+  },
+  {
+    "chave": "personagem",
+    "rotulo": "Personagem (opcional)",
+    "obrigatorio": false,
+    "url": false
+  },
+  {
+    "chave": "foto_url",
+    "rotulo": "URL da foto (opcional)",
+    "obrigatorio": false,
+    "url": true
   }
+]
 
-  useEffect(() => {
-    let ativo = true;
-    void listarElenco(tipoObra, obraUuid).then((res) => {
-      if (!ativo) return;
-      setItens(res ?? []);
-      setCarregando(false);
-    });
-    return () => { ativo = false; };
-  }, [tipoObra, obraUuid]);
-
-  async function adicionar() {
-    if (!novo.ator.trim()) return;
-    setSalvando(true);
-    const criado = await criarElenco(tipoObra, obraUuid, {
-      ator: novo.ator,
-      personagem: novo.personagem || undefined,
-      foto_url: novo.foto_url || undefined,
-      ordem: itens.length,
-    });
-    if (criado) {
-      setNovo(VAZIO);
-      await carregar();
-    }
-    setSalvando(false);
+export default function ElencoEditor({ tipoObra, obraUuid }: { tipoObra: Exclude<TipoObraElenco, 'anime'>; obraUuid: string }) {
+  const listar = useCallback(async () => {
+    const itens = await listarElenco(tipoObra, obraUuid)
+    return itens?.map((item) => ({ uuid: item.uuid, titulo: item.ator ?? '', detalhe: item.personagem ?? '', valores: { ator: item.ator ?? '', personagem: item.personagem ?? '', foto_url: item.foto_url ?? '' } })) ?? null
+  }, [tipoObra, obraUuid])
+  async function salvar(uuid: string | null, valores: Record<string, string>) {
+    const dados = { ator: valores.ator, personagem: valores.personagem || null, foto_url: valores.foto_url || null }
+    if (uuid) return Boolean(await atualizarElenco(uuid, dados))
+    const atuais = await listarElenco(tipoObra, obraUuid)
+    if (!atuais) return false
+    return Boolean(await criarElenco(tipoObra, obraUuid, { ...dados, ordem: Math.max(-1, ...atuais.map((item) => item.ordem)) + 1 }))
   }
-
-  async function remover(uuid: string) {
-    await apagarElenco(uuid);
-    await carregar();
-  }
-
-  return (
-    <div className={styles.wrapper}>
-      <h4>Elenco</h4>
-      {carregando ? (
-        <p className={styles.vazio}>Carregando...</p>
-      ) : (
-        <ul className={styles.lista}>
-          {itens.map((item) => (
-            <li key={item.uuid}>
-              <span>
-                <strong>
-                  {item.ator}
-                </strong>
-                {item.personagem ? ` — ${item.personagem}` : ''}
-              </span>
-              <button type="button" onClick={() => remover(item.uuid)}>
-                ✕
-              </button>
-            </li>
-          ))}
-          {itens.length === 0 && (
-            <li className={styles.vazio}>
-              Nenhum ator ainda.
-            </li>
-          )}
-        </ul>
-      )}
-
-      <div className={styles.linhaAdicionar}>
-        <input
-          placeholder="Ator"
-          value={novo.ator}
-          onChange={(e) => setNovo({ ...novo, ator: e.target.value })}
-        />
-        <input
-          placeholder="Personagem (opcional)"
-          value={novo.personagem}
-          onChange={(e) => setNovo({ ...novo, personagem: e.target.value })}
-        />
-        <input
-          placeholder="URL da foto (opcional)"
-          value={novo.foto_url}
-          onChange={(e) => setNovo({ ...novo, foto_url: e.target.value })}
-        />
-        <button type="button" onClick={adicionar} disabled={salvando}>
-          + Adicionar
-        </button>
-      </div>
-    </div>
-  );
+  return <EditorListaTextual key={tipoObra + ':' + obraUuid} titulo="Elenco" campos={campos} listar={listar} salvar={salvar} apagar={apagarElenco} />
 }

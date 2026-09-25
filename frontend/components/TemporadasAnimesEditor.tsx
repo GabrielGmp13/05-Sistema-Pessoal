@@ -14,6 +14,8 @@ import { completarResultadoAniList, type ResultadoMetadados } from '@/lib/biblio
 import { UnoptimizedExternalImage } from '@/components/UnoptimizedExternalImage';
 import styles from './ListaEditavel.module.css';
 import StarRating from './StarRating';
+import { ConfirmDialog } from './ui/confirm-dialog';
+import { camposTemporada, dadosEdicaoTemporada, validarEdicaoTemporada, valoresEdicaoTemporada } from '@/lib/temporada-edicao';
 
 interface Props {
   animeUuid: string;
@@ -39,14 +41,25 @@ function EditorTemporadas({ animeUuid, anilistId, onChanged }: Props) {
   const [buscaObra, setBuscaObra] = useState('');
   const [erro, setErro] = useState('');
   const [completando, setCompletando] = useState(false);
+  const [editando, setEditando] = useState<string | null>(null);
+  const [edicao, setEdicao] = useState<Record<string, string>>({});
+  const [excluindo, setExcluindo] = useState<AnimeTemporada | null>(null);
+  const [listaPronta, setListaPronta] = useState(false);
+  const operacao = useRef(false);
   const versaoSelecao = useRef(0);
   useEffect(() => () => { versaoSelecao.current += 1; }, []);
 
   async function carregar() {
     setCarregando(true);
-    const res = await listarTemporadasAnime(animeUuid);
-    setItens(res ?? []);
-    setCarregando(false);
+    try {
+      const res = await listarTemporadasAnime(animeUuid);
+      if (!res) throw new Error('leitura');
+      setItens(res);
+      setListaPronta(true);
+    } catch {
+      setListaPronta(false);
+      setErro('Não foi possível carregar as temporadas. Reabra a lista antes de editar.');
+    } finally { setCarregando(false); }
   }
 
   useEffect(() => {
@@ -57,9 +70,12 @@ function EditorTemporadas({ animeUuid, anilistId, onChanged }: Props) {
 
   async function adicionar() {
     const numero = Number(novo.numero);
-    if (!relacaoSelecionada || !numero || numero < 1 || completando || salvando || carregando) return;
+    if (!relacaoSelecionada || !Number.isInteger(numero) || numero < 1 || completando || salvando || carregando || !listaPronta || operacao.current) return;
+    if (itens.some(item => item.numero === numero)) { setErro('Já existe uma temporada com esse número.'); return; }
+    operacao.current = true;
     setErro('');
     setSalvando(true);
+    try {
     const criada = await criarTemporadaAnime(animeUuid, {
       numero,
       numero_episodios: novo.numero_episodios ? Number(novo.numero_episodios) : undefined,
@@ -93,7 +109,10 @@ function EditorTemporadas({ animeUuid, anilistId, onChanged }: Props) {
     } else {
       setErro('Não foi possível adicionar esta temporada. A atualização do banco pode ainda não ter sido aplicada.');
     }
-    setSalvando(false);
+    } catch {
+      setListaPronta(false);
+      setErro('Não foi possível confirmar a inclusão. Reabra a lista antes de tentar novamente.');
+    } finally { setSalvando(false); operacao.current = false; }
   }
 
   async function selecionarObra(resultado: ResultadoMetadados) {
@@ -120,16 +139,38 @@ function EditorTemporadas({ animeUuid, anilistId, onChanged }: Props) {
   }
 
   async function remover(uuid: string) {
-    await apagarTemporadaAnime(uuid);
+    await executar(async () => Boolean(await apagarTemporadaAnime(uuid)));
     if (expandidaUuid === uuid) setExpandidaUuid(null);
-    await carregar();
-    await onChanged?.();
   }
 
   async function avaliar(item: AnimeTemporada, nota: number | null) {
-    await atualizarTemporadaAnime(item.uuid, { numero: item.numero, minha_nota: nota });
-    await carregar();
-    await onChanged?.();
+    await executar(async () => Boolean(await atualizarTemporadaAnime(item.uuid, { numero: item.numero, minha_nota: nota })));
+  }
+
+  async function executar(acao: () => Promise<boolean>) {
+    if (operacao.current || !listaPronta) return;
+    operacao.current = true;
+    setSalvando(true);
+    setErro('');
+    try {
+      if (!await acao()) { setErro('Não foi possível salvar a alteração.'); return; }
+      setEditando(null);
+      await carregar();
+      await onChanged?.();
+    } catch {
+      setListaPronta(false);
+      setErro('Não foi possível confirmar a alteração. Reabra a lista antes de tentar novamente.');
+    } finally { operacao.current = false; setSalvando(false); }
+  }
+
+  async function salvarEdicao() {
+    if (!editando) return;
+    const erroCampo = validarEdicaoTemporada(edicao);
+    if (erroCampo) { setErro(erroCampo); return; }
+    if (itens.some(item => item.uuid !== editando && item.numero === Number(edicao.numero))) {
+      setErro('Já existe uma temporada com esse número.'); return;
+    }
+    await executar(async () => Boolean(await atualizarTemporadaAnime(editando, dadosEdicaoTemporada(edicao))));
   }
 
   return (
@@ -185,19 +226,34 @@ function EditorTemporadas({ animeUuid, anilistId, onChanged }: Props) {
                   >
                     {expandidaUuid === item.uuid ? 'Fechar episódios' : 'Ver episódios'}
                   </button>
-                  <button type="button" onClick={() => remover(item.uuid)}>
+                  <button type="button" disabled={salvando || !listaPronta} onClick={() => {
+                    setErro(''); setEditando(item.uuid);
+                    setEdicao(valoresEdicaoTemporada(item));
+                  }}>Editar</button>
+                  <button type="button" disabled={salvando || !listaPronta} aria-label={`Remover temporada ${item.numero}`} onClick={() => setExcluindo(item)}>
                     ✕
                   </button>
                 </span>
               </div>
               {expandidaUuid === item.uuid && <EpisodiosEditor temporadaUuid={item.uuid} />}
-              <StarRating label="Minha nota" value={item.minha_nota} onChange={(nota) => void avaliar(item, nota)} />
+              {editando === item.uuid && <fieldset disabled={salvando}>
+                <legend>Editar temporada</legend>
+                {camposTemporada.map(campo => <label key={campo.chave}>
+                  {campo.rotulo}
+                  <input type={campo.numero ? 'number' : campo.url ? 'url' : 'text'} min={campo.min} max={campo.max} step={campo.passo} maxLength={2000} value={edicao[campo.chave] ?? ''} onChange={event => setEdicao(atual => ({ ...atual, [campo.chave]: event.target.value }))} />
+                </label>)}
+                <label>Data em que assisti<input type="date" value={edicao.data_assisti ?? ''} onChange={event => setEdicao(atual => ({ ...atual, data_assisti: event.target.value }))} /></label>
+                <label>Sinopse<textarea value={edicao.sinopse} onChange={event => setEdicao(atual => ({ ...atual, sinopse: event.target.value }))} /></label>
+                <button type="button" onClick={() => void salvarEdicao()}>Salvar alterações</button>
+                <button type="button" onClick={() => setEditando(null)}>Cancelar</button>
+              </fieldset>}
+              <StarRating disabled={salvando || !listaPronta || editando !== null} label="Minha nota" value={item.minha_nota} onChange={(nota) => void avaliar(item, nota)} />
             </li>
           ))}
           {itens.length === 0 && <li className={styles.vazio}>Nenhuma temporada ainda.</li>}
         </ul>
       )}
-
+      <ConfirmDialog open={Boolean(excluindo)} title="Remover temporada?" description="A temporada será retirada da lista. Esta ação não exclui permanentemente seus episódios." confirmLabel="Remover" onOpenChange={aberto => { if (!aberto && !salvando) setExcluindo(null); }} onConfirm={async () => { if (excluindo) await remover(excluindo.uuid); setExcluindo(null); }} />
     </div>
   );
 }
