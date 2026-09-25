@@ -1,5 +1,16 @@
 # Supabase — operação do banco
 
+**Estado em 2026-09-24:** aplicação isolada de `20260917000200` e
+`20260917000300` concluída em produção. Histórico, RLS/GRANTs nas quatro tabelas
+e dry-run final conferidos. Reset e 26 testes SQL locais aprovados antes da aplicação.
+`../scripts/v2-academico.ps1` lê `SUPABASE_DB_URL` do ambiente, confere alvo,
+executa precheck e prepara cadeia temporária sem Biblioteca. Modos Precheck
+(padrão), Simular e Aplicar. Não usar Aplicar antes de revisão e testes locais.
+O script de aplicação exige ambas as migrations ainda pendentes; portanto não
+reexecutar Aplicar agora. Aplicação parcial exige
+reconciliação, não repetição cega. Pós-check completo de schema/RLS/GRANTs
+continua obrigatório. Credencial nunca deve ser colocada no arquivo.
+
 Esta pasta separa três finalidades que não devem ser misturadas:
 
 - `migrations/`: cadeia operacional ativa do Supabase CLI;
@@ -8,6 +19,14 @@ Esta pasta separa três finalidades que não devem ser misturadas:
 - `snapshots/`: evidência diagnóstica datada de produção, nunca migration.
 
 ## Histórico ativo
+
+**Estado em 2026-09-24:** Treino `20260915000100` está aplicado em
+produção (ver DATABASE). Biblioteca `20260917000100` foi mantida SOMENTE LOCAL
+por ordem de Gabriel. Estudos `20260917000200` e ENEM/Redações
+`20260917000300` estão aplicadas em produção; interface integrada no candidato
+local. Não executar push da cadeia inteira: ele incluiria Biblioteca,
+cuja aplicação remota não está autorizada. As quatro tabelas acadêmicas novas
+foram verificadas; contagens históricas de funções não substituem inspeção atual.
 
 O ponto inicial oficial da cadeia CLI é:
 
