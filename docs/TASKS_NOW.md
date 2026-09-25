@@ -1,5 +1,12 @@
 # Tarefas atuais — preparação funcional da versão 2
 
+**Publicado em 2026-09-24:** lote funcional parcial nos commits `c862edb`,
+`dde129e` e `af05990` em `main`; CI e deploy Vercel de `af05990` aprovados.
+Smoke público de login, proteção da rota Treino/Cardio e recusa de exportação
+sem sessão aprovado. O PDF avulso do usuário não entrou no Git. A V2 ampliada
+continua aberta pelos itens D/E de `TASK_V2_FECHAMENTO.md` e pelos retestes
+indicados abaixo; não iniciar redesign como se todos estivessem encerrados.
+
 **Atualização prioritária 2026-09-24:** conexão resolvida; migrations
 `20260917000200`/`00300` aplicadas em produção após precheck/dry-run exclusivo,
 com histórico, RLS/GRANT e dry-run final conferidos. Biblioteca segue local.

@@ -2,6 +2,14 @@
 
 ## Validação mais recente — 2026-09-24
 
+Publicação funcional parcial: commits `c862edb`, `dde129e` e `af05990`
+enviados a `main`; CI concluiu com sucesso e Vercel marcou deploy de produção
+como `success` para `af05990`. Smoke público: `/login` 200,
+`/treino/cardio` 307 para login sem sessão e exportação privada 401 sem sessão.
+Isso **não** significa V2 integral concluída: escolhas D/E, QA física/arquivos
+reais e reteste de foto histórica permanecem em `TASK_V2_FECHAMENTO.md`.
+`guia-amigos-sistema-pessoal.pdf` solto na raiz ficou fora do stage.
+
 Rodada final desta continuação: typecheck, **147 testes Node** e lint completo
 aprovados; build de produção com 49 páginas aprovado. A inspeção do código confirmou que nenhuma
 tela chama `reordenar_lista_biblioteca`: a migration `00100` pode permanecer

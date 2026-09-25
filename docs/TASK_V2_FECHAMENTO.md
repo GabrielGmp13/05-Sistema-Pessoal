@@ -1,5 +1,12 @@
 # V2 — pendências consolidadas para finalização
 
+**Marco posterior ao inventário:** o lote definido foi publicado em `main`
+(`c862edb`, `dde129e`, `af05990`), CI e Vercel aprovados. A migration de
+reordenação da Biblioteca permanece **sem aplicação** em produção; nenhuma UI
+publicada chama sua função. Esta publicação parcial não resolve as escolhas de
+produto D/E nem a homologação física/arquivos reais listadas neste documento.
+Os estados “sem commit/push” abaixo retratam a fotografia anterior ao marco.
+
 **Atualizado em 2026-09-24. Documento único de encaminhamento.** Este é o
 quadro vigente de pendências da V2 expandida. Substitui, para **triagem e
 priorização**, as listas dispersas em `TASK_V2_IMPLEMENTACAO.md`,

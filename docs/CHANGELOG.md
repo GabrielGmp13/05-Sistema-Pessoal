@@ -2,6 +2,10 @@
 
 ## 2026-09-24 — modelo acadêmico aplicado e fluxos integrados
 
+- Lote funcional enviado em três commits (`c862edb`, `dde129e`, `af05990`);
+  CI e deploy Vercel aprovados. Smoke sem sessão: login 200, Treino/Cardio
+  redireciona para login, exportação privada 401. Publicação parcial, sem
+  declarar fechamento integral da V2 ampliada.
 - Candidato funcional passou typecheck, 147 testes Node, lint e build de 49
   páginas. O pacote contém importação sintética de OFX/CSV, progresso de
   leitura e controles de treino/Estudos; isso não encerra as escolhas D/E do
