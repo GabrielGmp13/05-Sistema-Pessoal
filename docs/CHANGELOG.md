@@ -6,6 +6,9 @@
   CI e deploy Vercel aprovados. Smoke sem sessão: login 200, Treino/Cardio
   redireciona para login, exportação privada 401. Publicação parcial, sem
   declarar fechamento integral da V2 ampliada.
+- Storage local revalidado após reinício: foto histórica de redação abre com
+  URL assinada para a conta dona; segunda conta e acesso bruto sem sessão são
+  recusados. O caminho de testes não alterou dados dos amigos.
 - Candidato funcional passou typecheck, 147 testes Node, lint e build de 49
   páginas. O pacote contém importação sintética de OFX/CSV, progresso de
   leitura e controles de treino/Estudos; isso não encerra as escolhas D/E do

@@ -7,17 +7,22 @@ enviados a `main`; CI concluiu com sucesso e Vercel marcou deploy de produção
 como `success` para `af05990`. Smoke público: `/login` 200,
 `/treino/cardio` 307 para login sem sessão e exportação privada 401 sem sessão.
 Isso **não** significa V2 integral concluída: escolhas D/E, QA física/arquivos
-reais e reteste de foto histórica permanecem em `TASK_V2_FECHAMENTO.md`.
+reais permanecem em `TASK_V2_FECHAMENTO.md`.
 `guia-amigos-sistema-pessoal.pdf` solto na raiz ficou fora do stage.
+
+Rerun do Storage local após reiniciar Docker: foto atual da redação está vazia,
+versão 3 preserva o path, conta dona gera URL assinada e abre JPEG (200),
+segunda conta não consegue assinar (400), acesso bruto sem sessão falha (400).
+O primeiro 404 do ensaio veio de compor manualmente o prefixo incorreto na URL
+REST; com `/storage/v1` a URL assinada abriu. Este teste não substitui
+homologação visual do link no site de produção.
 
 Rodada final desta continuação: typecheck, **147 testes Node** e lint completo
 aprovados; build de produção com 49 páginas aprovado. A inspeção do código confirmou que nenhuma
 tela chama `reordenar_lista_biblioteca`: a migration `00100` pode permanecer
 não aplicada em produção sem impedir os editores atuais. A QA local de foto
-comprovou o upload e a exibição da imagem privada; a conferência de abertura
-da versão histórica depois de remover a foto foi interrompida pelo encerramento
-externo do Docker/navegador e não está marcada como aprovada. Retomar esse caso
-quando o ambiente estiver disponível. Não inferir aprovação de arquivo Nubank
+comprovou o upload e a exibição da imagem privada, e o histórico passou no
+reteste acima. Não inferir aprovação de arquivo Nubank
 real a partir dos arquivos sintéticos.
 
 Rodadas anteriores de testes (146 Node) são histórico, não substituem a

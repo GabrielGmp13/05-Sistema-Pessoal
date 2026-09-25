@@ -15,11 +15,12 @@ ENEM integrada localmente; validação autenticada em andamento. As falhas de
 credencial abaixo são histórico, não bloqueio atual. Cursor: `RETOMADA_V2.md`.
 
 **Conferência final mais recente:** 147 testes Node, typecheck, lint e build
-de produção com 49 páginas passaram.
+de produção com 49 páginas passaram. Foto histórica de redação abriu por URL
+assinada na conta dona (200), não foi assinada por outra conta (400) nem aberta
+bruta sem sessão (400).
 A migration de reordenação da Biblioteca permanece somente local; a UI atual
-não chama sua função. Upload e exibição da foto privada de redação passaram
-localmente, mas reabrir essa foto pelo histórico após removê-la da versão atual
-precisa de reteste: o Docker/navegador encerrou antes dessa última conferência.
+não chama sua função. Upload, exibição e abertura histórica da foto privada
+de redação passaram localmente; falta ensaio visual completo em produção.
 O inventário de decisões e dependências ainda aberto segue em
 `TASK_V2_FECHAMENTO.md`; não declarar a V2 100% concluída por essa rodada.
 
