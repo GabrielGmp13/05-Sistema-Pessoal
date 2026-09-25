@@ -10,6 +10,7 @@ export function AvisoDescanso({ prazo }: { prazo: number | null }) {
   const [ativo, setAtivo] = useState(false)
   const [erro, setErro] = useState('')
   const [ocupado, setOcupado] = useState(false)
+  const [descansoPronto, setDescansoPronto] = useState(false)
 
   function tocar(ctx: AudioContext) {
     const oscilador = ctx.createOscillator()
@@ -56,6 +57,16 @@ export function AvisoDescanso({ prazo }: { prazo: number | null }) {
     return () => window.clearInterval(intervalo)
   }, [ativo, prazo])
 
+  useEffect(() => {
+    const verificar = () => setDescansoPronto(prazo !== null && Date.now() >= prazo)
+    const inicio = window.setTimeout(verificar, 0)
+    const intervalo = prazo === null ? null : window.setInterval(verificar, 250)
+    return () => {
+      window.clearTimeout(inicio)
+      if (intervalo !== null) window.clearInterval(intervalo)
+    }
+  }, [prazo])
+
   useEffect(() => () => { void contexto.current?.close().catch(() => {}) }, [])
 
   return <div>
@@ -67,7 +78,7 @@ export function AvisoDescanso({ prazo }: { prazo: number | null }) {
       chave="descanso"
       titulo="Descanso concluído"
       corpo="Você pode iniciar a próxima série."
-      pronto={prazo !== null && Date.now() >= prazo}
+      pronto={descansoPronto}
       disparador={prazo}
     />
     {erro && <p role="status">{erro}</p>}

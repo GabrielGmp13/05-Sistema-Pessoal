@@ -7,7 +7,12 @@ superfície sem apagar dados: navegação/Início não os oferecem e URLs mostra
 “cômodo em pausa”. A lista central está em `frontend/lib/modulos-pausados.ts`.
 O inventário V3 de 404, erros, rede, permissões e estados transversais está em
 `docs/V3_CATALOGO_DE_TELAS.md`; é planejamento, não código desta rodada. O
-lote passou em 149 testes Node, typecheck, lint e build de produção.
+lote passou em 150 testes Node, typecheck, lint e build de produção.
+
+No primeiro smoke autenticado após a publicação, o console mostrou que o
+sincronizador legado do Calendar ainda rodava no Início. A montagem global foi
+removida em correção posterior; validar que o Início não consulta/importa o
+Calendar e que a Agenda mantém sincronização na abertura e no botão manual.
 
 O reset local e o teste transacional da reordenação de Biblioteca passaram:
 elenco, trilha e OP/ED são reordenados dentro de uma obra, com concorrência e

@@ -6,8 +6,13 @@ sumiram de navegação/Início e as URLs autenticadas exibem tela de pausa, sem
 apagar código, dados ou schema. A reativação futura é centralizada em
 `lib/modulos-pausados.ts`. O catálogo V3 de telas transversais, incluindo 404,
 erros, rede e integrações, está em `V3_CATALOGO_DE_TELAS.md`; não implementar
-essas telas antes da V3. Validação local deste lote: 149 testes Node,
+essas telas antes da V3. Validação local deste lote: 150 testes Node,
 typecheck, lint e build de produção aprovados.
+
+**Correção do smoke publicado:** a tentativa de sincronização Calendar vista no
+Início vinha do componente legado ainda montado no layout global. A montagem
+foi removida e ganhou teste de escopo; a Agenda continua sincronizando uma vez
+ao abrir ou quando a pessoa usa o botão manual.
 
 **Atualização em 2026-09-25:** D03/D06/E08 foram implementados no candidato:
 avisos opt-in do navegador para descanso e revisões, reagendamento da revisão

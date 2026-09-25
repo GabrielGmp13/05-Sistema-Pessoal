@@ -11,8 +11,12 @@
 - Criado `V3_CATALOGO_DE_TELAS.md`: inventário de 404, erro por rota/global,
   indisponibilidade, rede, acesso, sessão, formulários, integrações e demais
   estados transversais. É planejamento V3, sem implementação antecipada.
-- Validação do lote: 149 testes Node, typecheck, lint e build de produção
+- Validação do lote: 150 testes Node, typecheck, lint e build de produção
   aprovados; o proxy preserva a URL e entrega a pausa autenticada.
+- O smoke autenticado publicado revelou que o sincronizador legado do Calendar
+  ainda era montado no layout global. A montagem foi removida: a sincronização
+  automática agora ocorre somente ao abrir a Agenda, mantendo também o botão
+  manual, conforme E08.
 
 ## 2026-09-25 — avisos, Agenda e preparação isolada de I05
 

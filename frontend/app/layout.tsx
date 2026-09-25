@@ -4,7 +4,6 @@ import './globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { AppChrome } from '@/components/AppChrome';
 import { GlobalNav } from '@/components/GlobalNav';
-import { CalendarAutoSync } from '@/components/CalendarAutoSync';
 import { PersonalRailProvider } from '@/components/PersonalRailProvider';
 
 export const metadata: Metadata = {
@@ -52,7 +51,6 @@ export default function RootLayout({
       <body>
         <ThemeProvider>
           <PersonalRailProvider>
-            <CalendarAutoSync />
             <GlobalNav />
             <AppChrome>{children}</AppChrome>
           </PersonalRailProvider>

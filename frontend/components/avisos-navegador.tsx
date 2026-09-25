@@ -24,7 +24,10 @@ export function AvisoNavegador({ chave, titulo, corpo, pronto, disparador }: Avi
 
   useEffect(() => {
     if (typeof Notification === 'undefined') return
-    setAtivo(window.localStorage.getItem(storageKey) === 'ativo' && Notification.permission === 'granted')
+    const inicio = window.setTimeout(() => {
+      setAtivo(window.localStorage.getItem(storageKey) === 'ativo' && Notification.permission === 'granted')
+    }, 0)
+    return () => window.clearTimeout(inicio)
   }, [storageKey])
 
   async function ativar() {

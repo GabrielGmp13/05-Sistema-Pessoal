@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import test from 'node:test'
 
 import { classificarImportacaoCalendar, dataHoraRecife, type EventoGoogleImportacao } from '../lib/calendar-import.ts'
@@ -19,4 +20,14 @@ test('classifica novo, atualização, cancelamento e conflito sem sobrescrever e
 
 test('normaliza data e hora do Calendar para America/Recife', () => {
   assert.deepEqual(dataHoraRecife('2026-08-27T15:30:00Z'), { data: '2026-08-27', hora: '12:30' })
+})
+
+test('sincronização automática fica restrita à abertura da Agenda', () => {
+  const layout = readFileSync(new URL('../app/layout.tsx', import.meta.url), 'utf8')
+  const agenda = readFileSync(new URL('../app/agenda/page.tsx', import.meta.url), 'utf8')
+
+  assert.doesNotMatch(layout, /CalendarAutoSync/)
+  assert.match(agenda, /sincronizacaoInicialFeitaRef/)
+  assert.match(agenda, /void sincronizarAutomaticamente\(\)/)
+  assert.match(agenda, /onClick=\{\(\) => void sincronizarAutomaticamente\(true\)\}/)
 })
