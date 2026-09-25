@@ -15,6 +15,13 @@ Consultas de domínio continuam nos módulos que as usam e dados privados não
 ganham cache compartilhado. Animações de navegação não podem atrasar a troca de
 rota; devem acompanhar a navegação e respeitar movimento reduzido.
 
+O resumo do Início pode usar `sessionStorage` como cache privado de percepção,
+sempre separado pelo UUID da conta, com validade curta de cinco minutos,
+limpeza no logout e revalidação imediata no Supabase. Ele sobrevive ao F5 da
+mesma aba, não é compartilhado pela Vercel, não substitui o banco e nunca
+autoriza acesso. Preferências visuais permanecem no `localStorage`; dados do
+resumo não recebem persistência longa.
+
 **Motivo:** eliminar o flash de tema preservando o prerender público, reduzir
 trabalho duplicado no shell e melhorar o tempo percebido sem adicionar cookies,
 rastreamento, serviço pago ou risco de cache entre usuários.

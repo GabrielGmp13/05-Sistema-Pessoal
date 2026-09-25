@@ -6,6 +6,7 @@ export type Tema = 'claro' | 'suave' | 'nublado' | 'estrelado' | 'escuro'
 export type Decoracao = 'primavera' | 'verao' | 'outono' | 'inverno' | 'nenhum'
 
 interface TemaContextValue {
+  pronto: boolean
   tema: Tema
   definirTema: (tema: Tema) => void
   decoracao: Decoracao
@@ -26,6 +27,7 @@ function isDecoracao(valor: string | null): valor is Decoracao {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
+  const [preferenciasProntas, setPreferenciasProntas] = useState(false)
   const [tema, setTema] = useState<Tema>('claro')
   const [decoracao, setDecoracao] = useState<Decoracao>('primavera')
   const [corAmbiente, setCorAmbiente] = useState<string | null>(null)
@@ -49,23 +51,27 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     // Reconcilia as preferências locais com o script anti-flash.
     setDecoracao(isDecoracao(decoracaoMigrada) ? decoracaoMigrada : 'primavera')
     setCorAmbiente(corSalva && COR_HEX.test(corSalva) ? corSalva : null)
+    setPreferenciasProntas(true)
   }, [])
 
   useEffect(() => {
+    if (!preferenciasProntas) return
     document.documentElement.classList.toggle('dark', tema === 'escuro' || tema === 'estrelado')
     document.documentElement.classList.toggle('soft', tema === 'suave')
     document.documentElement.classList.toggle('cloudy', tema === 'nublado')
     document.documentElement.classList.toggle('starry', tema === 'estrelado')
-  }, [tema])
+  }, [preferenciasProntas, tema])
 
   useEffect(() => {
+    if (!preferenciasProntas) return
     document.documentElement.dataset.decoracao = decoracao
-  }, [decoracao])
+  }, [decoracao, preferenciasProntas])
 
   useEffect(() => {
+    if (!preferenciasProntas) return
     if (corAmbiente) document.documentElement.style.setProperty('--ambient-color', corAmbiente)
     else document.documentElement.style.removeProperty('--ambient-color')
-  }, [corAmbiente])
+  }, [corAmbiente, preferenciasProntas])
 
   function definirTema(proximo: Tema) {
     localStorage.setItem(CHAVE_STORAGE, proximo)
@@ -87,6 +93,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   return (
     <TemaContext.Provider value={{
+      pronto: preferenciasProntas,
       tema,
       definirTema,
       decoracao,

@@ -2,7 +2,7 @@
 
 **Data da auditoria:** 2026-09-25
 
-**Estado:** implementada e publicada no commit `79dce60`
+**Estado:** correção complementar validada localmente; publicação em andamento
 
 **Escopo preservado:** V2.1 essencial, sem reativar cômodos pausados e sem
 antecipar itens de V3
@@ -38,6 +38,15 @@ Os maiores ganhos esperados para a V2.2 estão em quatro pontos:
 - O bootstrap de tema agora é um `<script>` nativo no HTML. Build local
   confirmou que ele não passa mais por `self.__next_s`; recarga com Lua salva
   manteve `html.dark`, `color-scheme: dark` e zero aviso/erro no console.
+- O ensaio repetido de F5 revelou uma segunda troca: na hidratação, o estado
+  inicial claro do `ThemeProvider` removia a classe escura já aplicada e só a
+  recolocava após ler `localStorage`. Os efeitos agora aguardam a reconciliação
+  das preferências; o seletor fica invisível, preservando espaço, durante esse
+  intervalo mínimo para não exibir rótulo incorreto.
+- O resumo do Início usa `sessionStorage` por conta e por aba durante cinco
+  minutos. Após F5, mostra o último resumo válido sem skeleton prolongado e
+  revalida no Supabase em segundo plano. O botão Atualizar ignora o cache;
+  falhas preservam dados válidos com aviso; logout limpa os caches da sessão.
 - O Início passou de 16 operações fixas para cinco essenciais. Projetos e
   Receitas conservam o código e só consultam se forem reativados; os demais
   cômodos pausados não fazem consulta oculta.
@@ -56,8 +65,8 @@ Os maiores ganhos esperados para a V2.2 estão em quatro pontos:
   sem fonte variável medida poderia antecipar mais downloads, portanto não há
   alteração tipográfica neste lote.
 
-Validação local até este ponto: 155 testes Node, typecheck, lint, build de 49
-páginas, `/login` ainda estático e QA de tema escuro sem aviso de hidratação.
+Validação local complementar: 157 testes Node, typecheck, lint e build de 49
+páginas; `/`, `/login` e demais páginas estáticas continuam prerenderizadas.
 
 Validação publicada: CI `Validate repository` aprovada; Vercel concluiu o
 deploy; `/login` respondeu 200 com `X-Vercel-Cache: PRERENDER` e bootstrap
@@ -79,6 +88,9 @@ fluxo retornou ao Início.
   `self.__next_s.push(...)`, e não como o bootstrap nativo esperado.
 - Na sessão autenticada inspecionada, o estado final estava correto (`dark`), o
   que confirma que o problema é de ordem/primeira pintura, não de persistência.
+- O `ThemeProvider` ainda iniciava com `tema='claro'`. Seu efeito de escrita
+  removia `.dark` enquanto o efeito de leitura agendava o estado salvo; essa
+  janela explica o flash intermitente mesmo depois do bootstrap nativo.
 
 ### Excesso de trabalho no Início — prioridade P0
 

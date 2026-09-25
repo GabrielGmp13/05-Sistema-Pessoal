@@ -17,15 +17,26 @@ export type PerfilResumo = {
 }
 
 type AppSessionContextValue = {
+  userId: string | null
+  sessaoPronta: boolean
   perfil: PerfilResumo | null
   modulosOcultos: string[]
   recarregarPerfil: () => Promise<void>
 }
 
 const AppSessionContext = createContext<AppSessionContextValue | null>(null)
+const PREFIXO_CACHE_SESSAO = 'sistema-pessoal:cache:'
+
+function limparCachesDaSessao() {
+  for (let indice = sessionStorage.length - 1; indice >= 0; indice -= 1) {
+    const chave = sessionStorage.key(indice)
+    if (chave?.startsWith(PREFIXO_CACHE_SESSAO)) sessionStorage.removeItem(chave)
+  }
+}
 
 export function AppSessionProvider({ children }: { children: ReactNode }) {
   const [sessao, setSessao] = useState<Session | null>(null)
+  const [sessaoPronta, setSessaoPronta] = useState(false)
   const [perfil, setPerfil] = useState<PerfilResumo | null>(null)
   const ativoRef = useRef(true)
   const chavePerfilRef = useRef<string | null>(null)
@@ -33,7 +44,9 @@ export function AppSessionProvider({ children }: { children: ReactNode }) {
   const aplicarSessao = useCallback(async (session: Session | null, forcar = false) => {
     if (!ativoRef.current) return
     setSessao(session)
+    setSessaoPronta(true)
     if (!session) {
+      limparCachesDaSessao()
       chavePerfilRef.current = null
       setPerfil(null)
       return
@@ -102,7 +115,13 @@ export function AppSessionProvider({ children }: { children: ReactNode }) {
   ])], [sessao])
 
   return (
-    <AppSessionContext.Provider value={{ perfil, modulosOcultos, recarregarPerfil }}>
+    <AppSessionContext.Provider value={{
+      userId: sessao?.user.id ?? null,
+      sessaoPronta,
+      perfil,
+      modulosOcultos,
+      recarregarPerfil,
+    }}>
       {children}
     </AppSessionContext.Provider>
   )

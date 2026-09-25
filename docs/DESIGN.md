@@ -111,6 +111,9 @@ Todas self-hosted em `.woff2` — nunca carregar de CDN externo.
   relógio digital, calendário do mês, linha temporal da Agenda/provas e resumo
   de perfil/tema herdam `--glass-background`, `--page-glow`,
   `--season-accent` e demais tokens globais.
+- Na primeira hidratação, o controle de atmosfera preserva seu espaço, mas só
+  fica visível depois que a preferência local foi reconciliada. Nunca exibir
+  Sol/Primavera provisoriamente quando o documento já abriu em outro tema.
 - Perfil e o card de controles (editar, atmosfera e sair) são blocos fixos no
   topo e no rodapé da coluna. Entre eles há uma única área rolável contendo
   relógio, calendário e o card completo da Agenda. Assim, todos os compromissos

@@ -30,7 +30,7 @@ const decoracoes: Array<{ valor: Decoracao; label: string; icon: typeof Sun }> =
 ]
 
 export function ThemeToggle({ className, open, onOpenChange }: ThemeToggleProps) {
-  const { tema, definirTema, decoracao, definirDecoracao } = useTema()
+  const { pronto, tema, definirTema, decoracao, definirDecoracao } = useTema()
   const [abertoInterno, setAbertoInterno] = useState(false)
   const raizRef = useRef<HTMLDivElement>(null)
   const gatilhoRef = useRef<HTMLButtonElement>(null)
@@ -72,7 +72,7 @@ export function ThemeToggle({ className, open, onOpenChange }: ThemeToggleProps)
   }, [aberto, onOpenChange])
 
   return (
-    <div ref={raizRef} className={cn(styles.raiz, className)}>
+    <div ref={raizRef} className={cn(styles.raiz, !pronto && styles.pendente, className)}>
       <button
         ref={gatilhoRef}
         type="button"

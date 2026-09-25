@@ -7,6 +7,12 @@
 > Vercel e smoke público/autenticado aprovados. Detalhes em
 > `TASK_V2_2_DESEMPENHO.md`; DEC-093.
 
+> **Correção complementar V2.2:** F5 repetido revelou que o `ThemeProvider`
+> ainda desfazia `.dark` durante a hidratação. O provider agora espera a leitura
+> local antes de escrever classes. O Início reutiliza resumo de cinco minutos
+> por conta/aba e revalida no Supabase; logout limpa e Atualizar ignora o cache.
+> 157 testes, typecheck, lint e build passaram; falta publicar e repetir smoke.
+
 ## Atualização em 2026-09-25 — I05 aplicada isoladamente
 
 Na V2.1, Idiomas, Projetos, Programação e o conjunto Diário foram retirados da

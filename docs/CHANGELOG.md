@@ -2,6 +2,15 @@
 
 ## 2026-09-25 — desempenho V2.2
 
+- Corrigida a segunda causa do flash escuro → claro → escuro: efeitos do
+  `ThemeProvider` não removem mais as classes do bootstrap antes de ler as
+  preferências locais; o seletor não mostra um estado provisório incorreto.
+- O Início agora guarda por cinco minutos, somente na aba e separado por
+  usuário, o último resumo válido. F5 mostra esse resumo imediatamente e
+  revalida em segundo plano; Atualizar ignora o cache e logout o remove.
+- O cache é apenas de experiência: Supabase continua como fonte da verdade,
+  Vercel não recebe dado privado compartilhado e falha de armazenamento não
+  bloqueia a página. Gates locais: 157 testes, typecheck, lint e build.
 - Documentada a causa do flash de tema: HTML/CSS começam claros e o script
   atual de preferência é enfileirado pelo Next.js antes de aplicar a classe
   final no cliente.

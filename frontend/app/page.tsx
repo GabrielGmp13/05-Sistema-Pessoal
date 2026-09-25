@@ -26,6 +26,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useAppSession } from '@/components/AppSessionProvider'
 import { useModulosVisiveis } from '@/components/useModulosVisiveis'
 import { EventoAgenda, listarEventosAgenda } from '@/lib/agenda'
 import { dataLocalIso } from '@/lib/date'
@@ -131,6 +132,51 @@ const DADOS_INICIAIS: DadosHub = {
   insights: null,
 }
 
+const VERSAO_CACHE_INICIO = 1
+const VALIDADE_CACHE_INICIO_MS = 5 * 60 * 1000
+
+function chaveCacheInicio(userId: string) {
+  return `sistema-pessoal:cache:inicio:${userId}`
+}
+
+function dadosHubValidos(valor: unknown): valor is DadosHub {
+  if (!valor || typeof valor !== 'object') return false
+  const dados = valor as Record<string, unknown>
+  return (dados.tempo === null || typeof dados.tempo === 'object') &&
+    ['eventos', 'provas', 'proximasProvas', 'revisoes', 'projetos', 'receitas']
+      .every((chave) => dados[chave] === null || Array.isArray(dados[chave])) &&
+    (dados.insights === null || typeof dados.insights === 'object')
+}
+
+function lerCacheInicio(userId: string): DadosHub | null {
+  try {
+    const bruto = sessionStorage.getItem(chaveCacheInicio(userId))
+    if (!bruto) return null
+    const cache = JSON.parse(bruto) as { versao?: unknown; salvoEm?: unknown; dados?: unknown }
+    if (cache.versao !== VERSAO_CACHE_INICIO || typeof cache.salvoEm !== 'number' ||
+      Date.now() - cache.salvoEm > VALIDADE_CACHE_INICIO_MS || !dadosHubValidos(cache.dados)) {
+      sessionStorage.removeItem(chaveCacheInicio(userId))
+      return null
+    }
+    return cache.dados
+  } catch {
+    sessionStorage.removeItem(chaveCacheInicio(userId))
+    return null
+  }
+}
+
+function salvarCacheInicio(userId: string, dados: DadosHub) {
+  try {
+    sessionStorage.setItem(chaveCacheInicio(userId), JSON.stringify({
+      versao: VERSAO_CACHE_INICIO,
+      salvoEm: Date.now(),
+      dados,
+    }))
+  } catch {
+    // Cache é apenas uma melhoria de experiência; falta de espaço não bloqueia o Início.
+  }
+}
+
 function formatarDuracao(minutos: number) {
   if (minutos < 60) return `${minutos} min`
   const horas = Math.floor(minutos / 60)
@@ -139,14 +185,24 @@ function formatarDuracao(minutos: number) {
 }
 
 export default function HomePage() {
+  const { userId, sessaoPronta } = useAppSession()
   const modulosOcultos = useModulosVisiveis()
   const carregarProjetos = !modulosOcultos.includes('/projetos')
   const carregarReceitas = !modulosOcultos.includes('/receitas')
   const [dados, setDados] = useState<DadosHub>(DADOS_INICIAIS)
   const [carregando, setCarregando] = useState(true)
+  const [falhaAtualizacao, setFalhaAtualizacao] = useState(false)
 
-  const carregar = useCallback(async () => {
-    setCarregando(true)
+  const carregar = useCallback(async (forcar = false) => {
+    if (!userId) return
+    const dadosEmCache = forcar ? null : lerCacheInicio(userId)
+    if (dadosEmCache) {
+      setDados(dadosEmCache)
+      setCarregando(false)
+    } else {
+      setCarregando(true)
+    }
+    setFalhaAtualizacao(false)
     const dataHoje = dataLocalIso()
     const resultados = await Promise.allSettled([
       buscarResumoTempoEstudo(),
@@ -158,7 +214,7 @@ export default function HomePage() {
       carregarReceitas ? listarReceitas() : Promise.resolve([]),
     ])
     const proximasProvas = resultados[2].status === 'fulfilled' ? resultados[2].value : null
-    setDados({
+    const dadosAtualizados: DadosHub = {
       tempo: resultados[0].status === 'fulfilled' ? resultados[0].value : null,
       eventos: resultados[1].status === 'fulfilled' ? resultados[1].value : null,
       provas: proximasProvas?.filter((prova) => prova.data === dataHoje) ?? proximasProvas,
@@ -167,14 +223,28 @@ export default function HomePage() {
       insights: resultados[4].status === 'fulfilled' ? resultados[4].value : null,
       projetos: resultados[5].status === 'fulfilled' ? resultados[5].value : null,
       receitas: resultados[6].status === 'fulfilled' ? resultados[6].value : null,
-    })
+    }
+    const houveFalha = Object.values(dadosAtualizados).some((valor) => valor === null)
+    setFalhaAtualizacao(houveFalha)
+    if (dadosEmCache && houveFalha) {
+      setDados(Object.fromEntries(
+        Object.entries(dadosAtualizados).map(([chave, valor]) => [
+          chave,
+          valor === null ? dadosEmCache[chave as keyof DadosHub] : valor,
+        ]),
+      ) as unknown as DadosHub)
+    } else {
+      setDados(dadosAtualizados)
+    }
+    if (!houveFalha) salvarCacheInicio(userId, dadosAtualizados)
     setCarregando(false)
-  }, [carregarProjetos, carregarReceitas])
+  }, [carregarProjetos, carregarReceitas, userId])
 
   useEffect(() => {
+    if (!sessaoPronta || !userId) return
     const timeoutId = window.setTimeout(() => void carregar(), 0)
     return () => window.clearTimeout(timeoutId)
-  }, [carregar])
+  }, [carregar, sessaoPronta, userId])
 
   const dataHoje = dataLocalIso()
   const revisoesPendentes = useMemo(
@@ -184,7 +254,6 @@ export default function HomePage() {
   const compromissosPendentes = dados.eventos?.filter((evento) => !evento.concluido) ?? []
   const provasPendentes = dados.provas?.filter((prova) => !prova.feita) ?? []
   const provasFuturas = dados.proximasProvas?.filter((prova) => prova.data > dataHoje) ?? []
-  const houveFalha = Object.values(dados).some((valor) => valor === null)
   const projetosAtivos = dados.projetos?.filter((projeto) => projeto.status !== 'concluido') ?? []
   const receitasDestaque = dados.receitas
     ? [...dados.receitas].sort((a, b) => Number(b.favorito) - Number(a.favorito)).slice(0, 3)
@@ -207,7 +276,7 @@ export default function HomePage() {
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => void carregar()}
+            onClick={() => void carregar(true)}
             disabled={carregando}
           >
             <RefreshCw className={carregando ? 'animate-spin' : ''} />
@@ -215,7 +284,7 @@ export default function HomePage() {
           </Button>
         </header>
 
-        {houveFalha && !carregando ? (
+        {falhaAtualizacao && !carregando ? (
           <p
             role="alert"
             className="mt-6 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-foreground"

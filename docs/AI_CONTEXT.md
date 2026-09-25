@@ -38,6 +38,10 @@ essenciais (Projetos/Receitas só quando ativos), compartilha sessão/perfil no
 shell, isola o relógio por segundo e remove atrasos artificiais de navegação.
 CI, Vercel e smoke público/autenticado passaram. Plano e evidências:
 `TASK_V2_2_DESEMPENHO.md`; decisão: DEC-093.
+Um ensaio posterior de F5 encontrou uma segunda causa no `ThemeProvider`: ele
+removia a classe escura durante a hidratação. A correção complementar aguarda a
+preferência local e adiciona cache curto, por conta e por aba, ao resumo do
+Início com revalidação no Supabase. Está validada localmente e aguarda publicação.
 
 **Sistema Pessoal** — gestão pessoal online, multi-dispositivo, para uso individual de longo prazo.
 **Desenvolvedor:** Gabriel, estudante (Pernambuco, BR).

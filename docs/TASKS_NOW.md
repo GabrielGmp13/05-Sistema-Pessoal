@@ -1,6 +1,14 @@
 # Tarefas atuais — preparação funcional da versão 2
 
-**V2.2 publicada em 2026-09-25:** o plano de `TASK_V2_2_DESEMPENHO.md` foi aplicado
+**V2.2 — correção complementar em 2026-09-25:** o ensaio repetido de F5 mostrou
+que o provider React ainda removia temporariamente o tema escuro aplicado pelo
+bootstrap. Os efeitos agora aguardam a preferência local estar reconciliada.
+O Início também reutiliza por até cinco minutos o último resumo válido da mesma
+conta/aba e revalida no Supabase, reduzindo skeleton após F5; logout limpa o
+cache e Atualizar força leitura nova. 157 testes, typecheck, lint e build de 49
+páginas passaram localmente; publicação e smoke repetido são a próxima ação.
+
+**V2.2 publicada inicialmente em 2026-09-25:** o plano de `TASK_V2_2_DESEMPENHO.md` foi aplicado
 ao gargalo medido. Bootstrap de tema é nativo; Início caiu de 16 operações
 fixas para cinco essenciais e não consulta cômodos pausados; perfil/sessão e
 módulos ocultos são compartilhados; relógio foi isolado; navegação não espera

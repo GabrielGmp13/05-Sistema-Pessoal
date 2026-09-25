@@ -21,6 +21,10 @@
   compartilhou sessão/perfil e removeu espera artificial de navegação; smoke
   público/autenticado passou. QA anterior confirmou Treino/Agenda, avaliações,
   ENEM, Redações, progresso de leitura, OFX/CSV sintéticos e Storage privado.
+- Correção complementar local: o React não remove mais o tema do bootstrap
+  durante a hidratação; o Início usa resumo temporário de cinco minutos por
+  conta/aba e revalida no Supabase. 157 testes, typecheck, lint e build passaram.
+  Publicar e repetir F5 autenticado antes de declarar o flash encerrado.
 - V2.1 pausa Idiomas, Projetos, Programação e o conjunto Diário (Saúde,
   Finanças, Lugares e Receitas). A lista central em
   `frontend/lib/modulos-pausados.ts` remove navegação/Início e reescreve a URL
