@@ -10,6 +10,10 @@
   revalida em segundo plano; Atualizar ignora o cache e logout o remove.
 - A limpeza ocorre apenas no evento autenticado `SIGNED_OUT`; estados nulos
   transitórios da inicialização não descartam o resumo antes de ele ser usado.
+- Commits `b075da2` e `442b94e`: CI e deploy Vercel aprovados. Smoke autenticado
+  preservou o tema escuro em 15/15 recargas dos dois candidatos e não encontrou
+  erros de console. A sessão ainda impõe 1,4–2,1 s antes do cache; a limitação
+  ficou registrada para comparação futura com resposta agregada/SSR autenticado.
 - O cache é apenas de experiência: Supabase continua como fonte da verdade,
   Vercel não recebe dado privado compartilhado e falha de armazenamento não
   bloqueia a página. Gates locais: 157 testes, typecheck, lint e build.

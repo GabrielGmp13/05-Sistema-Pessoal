@@ -11,7 +11,9 @@
 > ainda desfazia `.dark` durante a hidratação. O provider agora espera a leitura
 > local antes de escrever classes. O Início reutiliza resumo de cinco minutos
 > por conta/aba e revalida no Supabase; logout limpa e Atualizar ignora o cache.
-> 157 testes, typecheck, lint e build passaram; falta publicar e repetir smoke.
+> 157 testes, typecheck, lint e build passaram. Commits `b075da2`/`442b94e`,
+> CI e Vercel aprovados; 15/15 recargas escuras, sem erros. A sessão ainda
+> antecede o cache em 1,4–2,1 s; medir agregação/SSR no próximo lote.
 
 ## Atualização em 2026-09-25 — I05 aplicada isoladamente
 

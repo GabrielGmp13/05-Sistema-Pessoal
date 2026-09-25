@@ -2,7 +2,7 @@
 
 **Data da auditoria:** 2026-09-25
 
-**Estado:** correção complementar validada localmente; publicação em andamento
+**Estado:** correção complementar publicada nos commits `b075da2` e `442b94e`
 
 **Escopo preservado:** V2.1 essencial, sem reativar cômodos pausados e sem
 antecipar itens de V3
@@ -44,7 +44,7 @@ Os maiores ganhos esperados para a V2.2 estão em quatro pontos:
   das preferências; o seletor fica invisível, preservando espaço, durante esse
   intervalo mínimo para não exibir rótulo incorreto.
 - O resumo do Início usa `sessionStorage` por conta e por aba durante cinco
-  minutos. Após F5, mostra o último resumo válido sem skeleton prolongado e
+  minutos. Após a confirmação da sessão, mostra o último resumo válido e
   revalida no Supabase em segundo plano. O botão Atualizar ignora o cache;
   falhas preservam dados válidos com aviso; logout limpa os caches da sessão.
 - O smoke publicado do primeiro candidato confirmou tema escuro em 10/10
@@ -70,6 +70,15 @@ Os maiores ganhos esperados para a V2.2 estão em quatro pontos:
 
 Validação local complementar: 157 testes Node, typecheck, lint e build de 49
 páginas; `/`, `/login` e demais páginas estáticas continuam prerenderizadas.
+CI e deploy Vercel dos dois commits passaram.
+
+No smoke autenticado, o tema permaneceu escuro em 10/10 recargas do primeiro
+candidato e 5/5 do candidato final, sempre sem aviso/erro no console. O cache
+não elimina a espera inicial: confirmar a sessão/hidratar ainda levou cerca de
+1,4–2,1 s após o evento de carga nas cinco amostras finais. Portanto ele reduz
+a espera adicional do Supabase quando esta é maior, mas não equivale ao HTML
+personalizado já entregue pelo servidor. Próximo lote deve medir uma resposta
+agregada ou renderização autenticada no servidor antes de mudar a arquitetura.
 
 Validação publicada: CI `Validate repository` aprovada; Vercel concluiu o
 deploy; `/login` respondeu 200 com `X-Vercel-Cache: PRERENDER` e bootstrap

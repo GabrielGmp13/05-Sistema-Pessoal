@@ -24,7 +24,9 @@
 - Correção complementar local: o React não remove mais o tema do bootstrap
   durante a hidratação; o Início usa resumo temporário de cinco minutos por
   conta/aba e revalida no Supabase. 157 testes, typecheck, lint e build passaram.
-  Publicar e repetir F5 autenticado antes de declarar o flash encerrado.
+  Publicada em `b075da2`/`442b94e`; CI/Vercel e 15/15 recargas escuras passaram,
+  sem erros. O cache aguarda sessão por 1,4–2,1 s; próximo ensaio de desempenho
+  deve comparar resposta agregada/SSR autenticado, não ampliar storage às cegas.
 - V2.1 pausa Idiomas, Projetos, Programação e o conjunto Diário (Saúde,
   Finanças, Lugares e Receitas). A lista central em
   `frontend/lib/modulos-pausados.ts` remove navegação/Início e reescreve a URL

@@ -41,7 +41,11 @@ CI, Vercel e smoke público/autenticado passaram. Plano e evidências:
 Um ensaio posterior de F5 encontrou uma segunda causa no `ThemeProvider`: ele
 removia a classe escura durante a hidratação. A correção complementar aguarda a
 preferência local e adiciona cache curto, por conta e por aba, ao resumo do
-Início com revalidação no Supabase. Está validada localmente e aguarda publicação.
+Início com revalidação no Supabase. Foi publicada nos commits `b075da2` e
+`442b94e`; CI/Vercel e smoke autenticado
+passaram. O tema ficou escuro em 15/15 recargas. O cache aguarda confirmação da
+sessão (1,4–2,1 s medidos), portanto o próximo ensaio deve comparar agregação ou
+renderização autenticada no servidor, não adicionar cookies/localStorage sem medida.
 
 **Sistema Pessoal** — gestão pessoal online, multi-dispositivo, para uso individual de longo prazo.
 **Desenvolvedor:** Gabriel, estudante (Pernambuco, BR).

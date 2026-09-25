@@ -6,7 +6,11 @@ bootstrap. Os efeitos agora aguardam a preferência local estar reconciliada.
 O Início também reutiliza por até cinco minutos o último resumo válido da mesma
 conta/aba e revalida no Supabase, reduzindo skeleton após F5; logout limpa o
 cache e Atualizar força leitura nova. 157 testes, typecheck, lint e build de 49
-páginas passaram localmente; publicação e smoke repetido são a próxima ação.
+páginas passaram. Commits `b075da2` e `442b94e`, CI e Vercel aprovados. Smoke
+autenticado manteve o escuro em 15/15 recargas somando os dois candidatos e não
+registrou erros. O cache só aparece após confirmar a sessão (1,4–2,1 s nas cinco
+amostras finais); próximo lote de desempenho deve comparar resposta agregada e
+renderização autenticada no servidor, sem assumir que armazenamento local basta.
 
 **V2.2 publicada inicialmente em 2026-09-25:** o plano de `TASK_V2_2_DESEMPENHO.md` foi aplicado
 ao gargalo medido. Bootstrap de tema é nativo; Início caiu de 16 operações
