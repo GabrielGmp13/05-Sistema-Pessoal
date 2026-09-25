@@ -8,20 +8,13 @@ import { useEffect, useMemo, useState } from 'react'
 import { listarEventosAgenda, type EventoAgenda } from '@/lib/agenda'
 import { dataLocalIso } from '@/lib/date'
 import { listarProvasNoPeriodo, type Prova } from '@/lib/provas'
-import { getSignedUrl, getSession, sb } from '@/lib/supabase'
+import { sb } from '@/lib/supabase'
 import { logDiagnostic } from '@/lib/safe-diagnostics'
 import { cn } from '@/lib/utils'
 import { ThemeToggle } from './ThemeToggle'
 import { SeasonalDecor } from './SeasonalDecor'
 import styles from './RightRail.module.css'
-
-type PerfilResumo = {
-  nome: string
-  email: string | null
-  descricao: string | null
-  avatarUrl: string | null
-  backgroundUrl: string | null
-}
+import { useAppSession } from './AppSessionProvider'
 
 type ItemLinhaTempo = {
   id: string
@@ -104,6 +97,24 @@ function criarItemProva(prova: Prova): ItemLinhaTempo {
   }
 }
 
+function Relogio() {
+  const [agora, setAgora] = useState(() => new Date())
+  useEffect(() => {
+    const timer = window.setInterval(() => setAgora(new Date()), 1000)
+    return () => window.clearInterval(timer)
+  }, [])
+  return (
+    <section className={cn(styles.card, styles.relogioCard)} aria-label="Relógio">
+      <span className={styles.eyebrow}>Agora</span>
+      <strong className={styles.hora} suppressHydrationWarning>
+        {agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+      </strong>
+      <span className={styles.segundos} suppressHydrationWarning>{agora.toLocaleTimeString('pt-BR', { second: '2-digit' })}s</span>
+      <p suppressHydrationWarning>{FORMATADOR_DATA.format(agora)}</p>
+    </section>
+  )
+}
+
 export function RightRail({
   recolhendo = false,
   movelAberto = false,
@@ -114,12 +125,12 @@ export function RightRail({
   ocultoAcessibilidade?: boolean
 }) {
   const router = useRouter()
+  const { perfil } = useAppSession()
   const [agora, setAgora] = useState(() => new Date())
   const [carregando, setCarregando] = useState(true)
   const [saindo, setSaindo] = useState(false)
   const [eventos, setEventos] = useState<EventoAgenda[]>([])
   const [provas, setProvas] = useState<Prova[]>([])
-  const [perfil, setPerfil] = useState<PerfilResumo | null>(null)
   const [aviso, setAviso] = useState<string | null>(null)
 
   const hoje = dataLocalIso(agora)
@@ -143,42 +154,20 @@ export function RightRail({
     setAviso(null)
 
     try {
-      const [eventosResultado, provasResultado, sessaoResultado] = await Promise.allSettled([
+      const [eventosResultado, provasResultado] = await Promise.allSettled([
         listarEventosAgenda(inicioPainel, fimPainel),
         listarProvasNoPeriodo(inicioPainel, fimPainel),
-        getSession(),
       ])
       const eventosData = eventosResultado.status === 'fulfilled' ? eventosResultado.value : null
       const provasData = provasResultado.status === 'fulfilled' ? provasResultado.value : null
-      const session = sessaoResultado.status === 'fulfilled' ? sessaoResultado.value : null
 
       setEventos(eventosData ?? [])
       setProvas(provasData ?? [])
 
-      if (session) {
-        const meta = session.user.user_metadata
-        const [avatarResultado, backgroundResultado] = await Promise.allSettled([
-          meta?.avatar_path ? getSignedUrl('midias-pessoais', meta.avatar_path) : null,
-          meta?.background_path ? getSignedUrl('midias-pessoais', meta.background_path) : null,
-        ])
-        const avatarSigned = avatarResultado.status === 'fulfilled' ? avatarResultado.value : null
-        const backgroundSigned = backgroundResultado.status === 'fulfilled' ? backgroundResultado.value : null
-
-        setPerfil({
-          nome: meta?.app_display_name || meta?.full_name || meta?.name || session.user.email?.split('@')[0] || 'Usuário',
-          email: session.user.email ?? null,
-          descricao: meta?.app_subtitle || meta?.subtitle || null,
-          avatarUrl: avatarSigned || meta?.app_avatar_url || meta?.avatar_url || null,
-          backgroundUrl: backgroundSigned || meta?.app_background_url || meta?.background_url || null,
-        })
-      } else {
-        setPerfil(null)
-      }
-
       const houveFalha = eventosResultado.status === 'rejected'
         || provasResultado.status === 'rejected'
-        || sessaoResultado.status === 'rejected'
-        || (Boolean(session) && (eventosData === null || provasData === null))
+        || eventosData === null
+        || provasData === null
       if (houveFalha) setAviso('Parte dos dados não pôde ser carregada. Tente atualizar.')
     } catch (error) {
       logDiagnostic('coluna-pessoal/carregar', error)
@@ -189,19 +178,16 @@ export function RightRail({
   }
 
   useEffect(() => {
-    const timer = window.setInterval(() => setAgora(new Date()), 1000)
+    const timer = window.setInterval(() => setAgora(new Date()), 60_000)
     return () => window.clearInterval(timer)
   }, [])
 
   useEffect(() => {
     const timeout = window.setTimeout(() => void carregar(), 0)
-    const atualizarPerfil = () => void carregar()
     const atualizarAgenda = () => void carregar()
-    window.addEventListener('perfil-atualizado', atualizarPerfil)
     window.addEventListener('agenda-atualizada', atualizarAgenda)
     return () => {
       window.clearTimeout(timeout)
-      window.removeEventListener('perfil-atualizado', atualizarPerfil)
       window.removeEventListener('agenda-atualizada', atualizarAgenda)
     }
     // Recarrega quando o dia muda; os demais dados podem ser atualizados pelo botão.
@@ -263,14 +249,7 @@ export function RightRail({
       </section>
 
       <div className={styles.mioloScroll}>
-        <section className={cn(styles.card, styles.relogioCard)} aria-label="Relógio">
-          <span className={styles.eyebrow}>Agora</span>
-          <strong className={styles.hora} suppressHydrationWarning>
-            {agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-          </strong>
-          <span className={styles.segundos} suppressHydrationWarning>{agora.toLocaleTimeString('pt-BR', { second: '2-digit' })}s</span>
-          <p suppressHydrationWarning>{FORMATADOR_DATA.format(agora)}</p>
-        </section>
+        <Relogio />
 
         <section className={styles.card} aria-label="Calendário do mês">
           <div className={styles.cardTopo}>

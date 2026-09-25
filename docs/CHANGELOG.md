@@ -1,5 +1,30 @@
 # CHANGELOG.md
 
+## 2026-09-25 — desempenho V2.2
+
+- Documentada a causa do flash de tema: HTML/CSS começam claros e o script
+  atual de preferência é enfileirado pelo Next.js antes de aplicar a classe
+  final no cliente.
+- Confirmado que autenticação Supabase e OAuth Google já usam cookies; cookies
+  extras não foram propostos como aceleração genérica.
+- Inventário registrou 16 operações no carregamento do Início, incluindo
+  cômodos pausados; sessão/perfil/Agenda/Provas duplicados no shell; atrasos de
+  navegação de 360 ms e 2,45 s; 10 fontes (174 KB) e 32 ocorrências de imagens
+  potencialmente não otimizadas.
+- Criado `TASK_V2_2_DESEMPENHO.md` com lotes, métricas, critérios de aceite,
+  riscos de cache privado e exclusões explícitas.
+- Tema passou a usar bootstrap nativo antes da hidratação, preservando o
+  prerender de `/login` e sem criar cookie de preferência.
+- Início caiu de 16 operações fixas para cinco essenciais; Projetos/Receitas
+  consultam somente se reativados. Provas de hoje reutilizam próximas provas.
+- Sessão, perfil, URLs assinadas e módulos ocultos foram centralizados; relógio
+  por segundo foi isolado e navegação deixou de esperar 360 ms/2,45 s.
+- Mídias externas/assinadas ganharam decodificação assíncrona sem passar por
+  cache compartilhado. Fontes foram medidas e preservadas por ainda usarem os
+  pesos atuais sob demanda.
+- Gates locais: 155 testes Node, typecheck, lint, build de 49 páginas e QA de
+  recarga escura sem avisos de hidratação.
+
 ## 2026-09-25 — V2.1: superfície essencial e catálogo V3
 
 - Idiomas, Projetos, Programação e todo o conjunto Diário foram retirados da

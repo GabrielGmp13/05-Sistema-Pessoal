@@ -4,7 +4,7 @@ import type { ComponentProps } from 'react'
 // otimizador do servidor, que não encaminha autenticação e exige allowlist.
 type UnoptimizedExternalImageProps = Omit<ComponentProps<'img'>, 'alt'> & { alt: string }
 
-export function UnoptimizedExternalImage({ alt, ...props }: UnoptimizedExternalImageProps) {
+export function UnoptimizedExternalImage({ alt, decoding = 'async', ...props }: UnoptimizedExternalImageProps) {
   // eslint-disable-next-line @next/next/no-img-element -- política centralizada acima
-  return <img alt={alt} {...props} />
+  return <img alt={alt} decoding={decoding} {...props} />
 }

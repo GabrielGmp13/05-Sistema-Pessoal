@@ -35,7 +35,18 @@ export async function getSignedUrl(
   path: string,
   expiresIn = 3600
 ): Promise<string | null> {
-  if (!await currentUserOwnsStoragePath(path)) return null;
+  const userId = await getUserId();
+  if (!userId) return null;
+  return getSignedUrlForUser(bucket, path, userId, expiresIn);
+}
+
+export async function getSignedUrlForUser(
+  bucket: string,
+  path: string,
+  userId: string,
+  expiresIn = 3600
+): Promise<string | null> {
+  if (!isUserOwnedStoragePath(path, userId)) return null;
   const { data, error } = await sb.storage.from(bucket).createSignedUrl(path, expiresIn);
   if (error) {
     sbErr(error, `getSignedUrl(${bucket}, ${path})`);

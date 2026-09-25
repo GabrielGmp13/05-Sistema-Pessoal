@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
-import Script from 'next/script';
 import './globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { AppChrome } from '@/components/AppChrome';
 import { GlobalNav } from '@/components/GlobalNav';
 import { PersonalRailProvider } from '@/components/PersonalRailProvider';
+import { AppSessionProvider } from '@/components/AppSessionProvider';
 
 export const metadata: Metadata = {
   title: 'Sistema Pessoal',
@@ -46,14 +46,18 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
-        <Script id="tema-anti-flash" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: SCRIPT_ANTI_FLASH }} />
+        {/* Precisa ser um script nativo: next/script serializa beforeInteractive
+            em uma fila e pode aplicar o tema somente depois da primeira pintura. */}
+        <script id="tema-anti-flash" dangerouslySetInnerHTML={{ __html: SCRIPT_ANTI_FLASH }} />
       </head>
       <body>
         <ThemeProvider>
-          <PersonalRailProvider>
-            <GlobalNav />
-            <AppChrome>{children}</AppChrome>
-          </PersonalRailProvider>
+          <AppSessionProvider>
+            <PersonalRailProvider>
+              <GlobalNav />
+              <AppChrome>{children}</AppChrome>
+            </PersonalRailProvider>
+          </AppSessionProvider>
         </ThemeProvider>
       </body>
     </html>

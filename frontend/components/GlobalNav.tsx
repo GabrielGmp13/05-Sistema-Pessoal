@@ -7,7 +7,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { CSSProperties, MouseEvent as ReactMouseEvent } from 'react'
 import { createPortal } from 'react-dom'
 
-import { getSession, getSignedUrl, sb } from '@/lib/supabase'
+import { sb } from '@/lib/supabase'
 import { isUnauthenticatedPage } from '@/lib/route-access'
 import { logDiagnostic } from '@/lib/safe-diagnostics'
 import { cn } from '@/lib/utils'
@@ -17,6 +17,7 @@ import { useTema } from './ThemeProvider'
 import { usePersonalRail } from './PersonalRailProvider'
 import { useModulosVisiveis } from './useModulosVisiveis'
 import styles from './GlobalNav.module.css'
+import { useAppSession } from './AppSessionProvider'
 
 type CaixaPerfil = {
   left: number
@@ -64,6 +65,7 @@ function usaTelaInteira(pathname: string) {
 
 export function GlobalNav() {
   const modulosOcultos = useModulosVisiveis()
+  const { perfil } = useAppSession()
   const { corAmbiente, definirCorAmbiente } = useTema()
   const pathname = usePathname()
   const router = useRouter()
@@ -83,49 +85,7 @@ export function GlobalNav() {
   const destinoTransicaoRef = useRef<string | null>(null)
   const destinoPaginaRef = useRef<string | null>(null)
   const entradaPaginaRef = useRef<'esquerda' | 'direita'>('direita')
-  const saidaPaginaTimeoutRef = useRef<number | null>(null)
-  const navegacaoPaginaTimeoutRef = useRef<number | null>(null)
   const limpezaPaginaTimeoutRef = useRef<number | null>(null)
-  const [perfil, setPerfil] = useState<{
-    nome: string
-    descricao: string | null
-    email: string | null
-    avatarUrl: string | null
-    backgroundUrl: string | null
-  } | null>(null)
-
-  useEffect(() => {
-    let ativo = true
-    async function carregarPerfil() {
-      try {
-        const session = await getSession()
-        const meta = session?.user.user_metadata
-        const [avatarResultado, backgroundResultado] = await Promise.allSettled([
-          meta?.avatar_path ? getSignedUrl('midias-pessoais', meta.avatar_path) : null,
-          meta?.background_path ? getSignedUrl('midias-pessoais', meta.background_path) : null,
-        ])
-        if (!ativo) return
-        const avatarSigned = avatarResultado.status === 'fulfilled' ? avatarResultado.value : null
-        const backgroundSigned = backgroundResultado.status === 'fulfilled' ? backgroundResultado.value : null
-        setPerfil({
-          nome: meta?.app_display_name || meta?.full_name || meta?.name || session?.user.email?.split('@')[0] || 'Usuário',
-          descricao: meta?.app_subtitle || meta?.subtitle || null,
-          email: session?.user.email || null,
-          avatarUrl: avatarSigned || meta?.app_avatar_url || meta?.avatar_url || null,
-          backgroundUrl: backgroundSigned || meta?.app_background_url || meta?.background_url || null,
-        })
-      } catch (error) {
-        logDiagnostic('navegacao/carregar-perfil-compacto', error)
-      }
-    }
-    void carregarPerfil()
-    window.addEventListener('perfil-atualizado', carregarPerfil)
-    return () => {
-      ativo = false
-      window.removeEventListener('perfil-atualizado', carregarPerfil)
-    }
-  }, [])
-
   useEffect(() => {
     const timeout = window.setTimeout(() => setPainelAberto(null), 0)
     return () => window.clearTimeout(timeout)
@@ -133,8 +93,6 @@ export function GlobalNav() {
 
   useEffect(() => () => {
     if (rotaTimeoutRef.current !== null) window.clearTimeout(rotaTimeoutRef.current)
-    if (saidaPaginaTimeoutRef.current !== null) window.clearTimeout(saidaPaginaTimeoutRef.current)
-    if (navegacaoPaginaTimeoutRef.current !== null) window.clearTimeout(navegacaoPaginaTimeoutRef.current)
     if (limpezaPaginaTimeoutRef.current !== null) window.clearTimeout(limpezaPaginaTimeoutRef.current)
     delete document.documentElement.dataset.paginaSaida
     delete document.documentElement.dataset.paginaEntrada
@@ -144,10 +102,6 @@ export function GlobalNav() {
   useLayoutEffect(() => {
     if (pathname !== destinoPaginaRef.current) return
 
-    if (saidaPaginaTimeoutRef.current !== null) {
-      window.clearTimeout(saidaPaginaTimeoutRef.current)
-      saidaPaginaTimeoutRef.current = null
-    }
     document.documentElement.dataset.paginaEntrada = entradaPaginaRef.current
     delete document.documentElement.dataset.paginaSaida
     delete document.documentElement.dataset.paginaEntradaPronta
@@ -159,7 +113,6 @@ export function GlobalNav() {
       delete document.documentElement.dataset.paginaEntrada
       delete document.documentElement.dataset.paginaEntradaPronta
       destinoPaginaRef.current = null
-      navegacaoPaginaTimeoutRef.current = null
       limpezaPaginaTimeoutRef.current = null
     }, 540)
     return () => window.cancelAnimationFrame(frame)
@@ -267,7 +220,7 @@ export function GlobalNav() {
     }
   }
 
-  function prepararMovimentoPagina(destino: string, atrasoSaida = 0) {
+  function prepararMovimentoPagina(destino: string) {
     const indiceAtual = links.findIndex((link) => isActive(pathname, link.href))
     const indiceDestino = links.findIndex((link) => link.href === destino)
     if (indiceAtual < 0 || indiceDestino < 0 || indiceAtual === indiceDestino) return false
@@ -279,11 +232,7 @@ export function GlobalNav() {
 
     destinoPaginaRef.current = destino
     entradaPaginaRef.current = destinoFicaADireita ? 'direita' : 'esquerda'
-    if (atrasoSaida > 0) {
-      saidaPaginaTimeoutRef.current = window.setTimeout(iniciarSaida, atrasoSaida)
-    } else {
-      iniciarSaida()
-    }
+    iniciarSaida()
     return true
   }
 
@@ -303,7 +252,7 @@ export function GlobalNav() {
       }
       if (!prepararMovimentoPagina(destino)) return
       event.preventDefault()
-      navegacaoPaginaTimeoutRef.current = window.setTimeout(() => router.push(destino), 360)
+      router.push(destino)
       return
     }
 
@@ -316,7 +265,7 @@ export function GlobalNav() {
       }
       if (!prepararMovimentoPagina(destino)) return
       event.preventDefault()
-      navegacaoPaginaTimeoutRef.current = window.setTimeout(() => router.push(destino), 360)
+      router.push(destino)
       return
     }
     const coluna = document.querySelector<HTMLElement>('[aria-label="Painel lateral pessoal"]')
@@ -357,11 +306,8 @@ export function GlobalNav() {
     })
     setRotaTransicao(entrando ? 'entrando-biblioteca' : 'saindo-biblioteca')
     destinoTransicaoRef.current = destino
-    prepararMovimentoPagina(destino, 1880)
-
-    rotaTimeoutRef.current = window.setTimeout(() => {
-      router.push(destino)
-    }, 2450)
+    prepararMovimentoPagina(destino)
+    router.push(destino)
   }
 
   const inicial = perfil?.nome.charAt(0).toUpperCase() || 'U'

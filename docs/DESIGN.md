@@ -422,3 +422,11 @@ e os formulários de criação/edição não são redesenhados neste lote.
   do `transform` do AppChrome, com foco modal, Escape, botão fechar, clique fora
   e restauração de foco/rolagem ao fechar. Substitui o portal específico anterior.
 - Entrada discreta de 180 ms; `prefers-reduced-motion` remove o movimento.
+
+### Movimento e navegação percebida (V2.2, 2026-09-25)
+
+Uma animação nunca segura a troca de rota. Links internos iniciam a navegação
+imediatamente; saída, entrada e transformação da Biblioteca acompanham o estado
+novo, sem `setTimeout` antes de `router.push`. O objetivo de resposta ao gesto é
+até 100 ms. Abrir em nova guia e modificadores do teclado continuam nativos.
+`prefers-reduced-motion` permanece obrigatório para qualquer movimento.

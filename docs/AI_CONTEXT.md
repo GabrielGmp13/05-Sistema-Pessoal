@@ -32,6 +32,12 @@ Finanças, Lugares e Receitas) estão pausados na superfície; dados e código
 permanecem. URLs autenticadas mostram tela de pausa. O catálogo futuro de telas
 de sistema, incluindo 404 e erros, está em `V3_CATALOGO_DE_TELAS.md`.
 
+**V2.2 de desempenho em 2026-09-25:** o lote local corrige a primeira pintura
+do tema com bootstrap nativo, reduz o Início de 16 operações fixas para cinco
+essenciais (Projetos/Receitas só quando ativos), compartilha sessão/perfil no
+shell, isola o relógio por segundo e remove atrasos artificiais de navegação.
+Plano e evidências: `TASK_V2_2_DESEMPENHO.md`; decisão: DEC-093.
+
 **Sistema Pessoal** — gestão pessoal online, multi-dispositivo, para uso individual de longo prazo.
 **Desenvolvedor:** Gabriel, estudante (Pernambuco, BR).
 **Editor:** VS Code · Windows

@@ -1,5 +1,24 @@
 # DECISIONS.md
 
+## DEC-093 — Tema local antes da pintura e sessão visual compartilhada (2026-09-25)
+
+A preferência de atmosfera continua local ao navegador e não ganha cookie de
+tema por padrão. O bootstrap é um `<script>` nativo, pequeno e síncrono no
+`<head>`, pois `next/script` com `beforeInteractive` foi serializado em uma fila
+na saída publicada e permitiu a primeira pintura clara. Ler `cookies()` no
+layout raiz foi rejeitado porque tornaria rotas hoje estáticas em dinâmicas sem
+necessidade funcional comprovada.
+
+Sessão, perfil, URLs assinadas de avatar/capa e lista de módulos ocultos passam
+por um provider global. Navegação e coluna pessoal não repetem essas resoluções.
+Consultas de domínio continuam nos módulos que as usam e dados privados não
+ganham cache compartilhado. Animações de navegação não podem atrasar a troca de
+rota; devem acompanhar a navegação e respeitar movimento reduzido.
+
+**Motivo:** eliminar o flash de tema preservando o prerender público, reduzir
+trabalho duplicado no shell e melhorar o tempo percebido sem adicionar cookies,
+rastreamento, serviço pago ou risco de cache entre usuários.
+
 ## DEC-092 — Pausa centralizada de cômodos na V2.1 (2026-09-25)
 
 Idiomas, Projetos, Programação e todo o conjunto Diário (Diário, Saúde,

@@ -29,17 +29,12 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useModulosVisiveis } from '@/components/useModulosVisiveis'
 import { EventoAgenda, listarEventosAgenda } from '@/lib/agenda'
 import { dataLocalIso } from '@/lib/date'
-import { listarProvasNoPeriodo, listarProximasProvas, Prova } from '@/lib/provas'
+import { listarProximasProvas, Prova } from '@/lib/provas'
 import { CardRevisao, listarRevisoesPendentes } from '@/lib/revisao'
 import { buscarResumoTempoEstudo, ResumoTempoEstudo } from '@/lib/sessoes-estudo'
-import { listarProjetos, listarTodasTarefasProjetos, Projeto, TarefaProjeto } from '@/lib/projetos'
+import { listarProjetos, Projeto } from '@/lib/projetos'
 import { listarReceitas, Receita } from '@/lib/receitas'
 import { buscarDadosInsights, DadosInsights } from '@/lib/insights'
-import { listarHumor, RegistroHumor } from '@/lib/saude'
-import { InvestimentoFinanceiro, LancamentoFinanceiro, listarInvestimentosFinanceiros, listarLancamentosFinanceiros } from '@/lib/financas'
-import { listarLugares, Lugar } from '@/lib/lugares'
-import { buscarResumoIdiomasHub, ResumoIdiomasHub } from '@/lib/idiomas'
-import { listarAtividadeAnual, ResumoAtividadeAnual } from '@/lib/atividade'
 
 const modules = [
   {
@@ -117,39 +112,23 @@ const modules = [
 interface DadosHub {
   tempo: ResumoTempoEstudo | null
   eventos: EventoAgenda[] | null
-  proximosEventos: EventoAgenda[] | null
   provas: Prova[] | null
   proximasProvas: Prova[] | null
   revisoes: CardRevisao[] | null
   projetos: Projeto[] | null
   receitas: Receita[] | null
   insights: DadosInsights | null
-  tarefasProjetos: TarefaProjeto[] | null
-  humor: RegistroHumor[] | null
-  lancamentos: LancamentoFinanceiro[] | null
-  investimentos: InvestimentoFinanceiro[] | null
-  lugares: Lugar[] | null
-  idiomas: ResumoIdiomasHub | null
-  atividade: ResumoAtividadeAnual | null
 }
 
 const DADOS_INICIAIS: DadosHub = {
   tempo: null,
   eventos: null,
-  proximosEventos: null,
   provas: null,
   proximasProvas: null,
   revisoes: null,
   projetos: null,
   receitas: null,
   insights: null,
-  tarefasProjetos: null,
-  humor: null,
-  lancamentos: null,
-  investimentos: null,
-  lugares: null,
-  idiomas: null,
-  atividade: null,
 }
 
 function formatarDuracao(minutos: number) {
@@ -161,51 +140,36 @@ function formatarDuracao(minutos: number) {
 
 export default function HomePage() {
   const modulosOcultos = useModulosVisiveis()
+  const carregarProjetos = !modulosOcultos.includes('/projetos')
+  const carregarReceitas = !modulosOcultos.includes('/receitas')
   const [dados, setDados] = useState<DadosHub>(DADOS_INICIAIS)
   const [carregando, setCarregando] = useState(true)
 
   const carregar = useCallback(async () => {
     setCarregando(true)
     const dataHoje = dataLocalIso()
-    const daquiSeteDias = adicionarDias(dataHoje, 7)
     const resultados = await Promise.allSettled([
       buscarResumoTempoEstudo(),
       listarEventosAgenda(dataHoje, dataHoje),
-      listarEventosAgenda(dataHoje, daquiSeteDias),
-      listarProvasNoPeriodo(dataHoje, dataHoje),
       listarProximasProvas(),
       listarRevisoesPendentes(0),
-      listarProjetos(),
-      listarReceitas(),
       buscarDadosInsights(),
-      listarTodasTarefasProjetos(),
-      listarHumor(),
-      listarLancamentosFinanceiros(),
-      listarLugares(),
-      buscarResumoIdiomasHub(),
-      listarAtividadeAnual(Number(dataHoje.slice(0, 4))),
-      listarInvestimentosFinanceiros(),
+      carregarProjetos ? listarProjetos() : Promise.resolve([]),
+      carregarReceitas ? listarReceitas() : Promise.resolve([]),
     ])
+    const proximasProvas = resultados[2].status === 'fulfilled' ? resultados[2].value : null
     setDados({
       tempo: resultados[0].status === 'fulfilled' ? resultados[0].value : null,
       eventos: resultados[1].status === 'fulfilled' ? resultados[1].value : null,
-      proximosEventos: resultados[2].status === 'fulfilled' ? resultados[2].value : null,
-      provas: resultados[3].status === 'fulfilled' ? resultados[3].value : null,
-      proximasProvas: resultados[4].status === 'fulfilled' ? resultados[4].value : null,
-      revisoes: resultados[5].status === 'fulfilled' ? resultados[5].value : null,
-      projetos: resultados[6].status === 'fulfilled' ? resultados[6].value : null,
-      receitas: resultados[7].status === 'fulfilled' ? resultados[7].value : null,
-      insights: resultados[8].status === 'fulfilled' ? resultados[8].value : null,
-      tarefasProjetos: resultados[9].status === 'fulfilled' ? resultados[9].value : null,
-      humor: resultados[10].status === 'fulfilled' ? resultados[10].value : null,
-      lancamentos: resultados[11].status === 'fulfilled' ? resultados[11].value : null,
-      lugares: resultados[12].status === 'fulfilled' ? resultados[12].value : null,
-      idiomas: resultados[13].status === 'fulfilled' ? resultados[13].value : null,
-      atividade: resultados[14].status === 'fulfilled' ? resultados[14].value : null,
-      investimentos: resultados[15].status === 'fulfilled' ? resultados[15].value : null,
+      provas: proximasProvas?.filter((prova) => prova.data === dataHoje) ?? proximasProvas,
+      proximasProvas,
+      revisoes: resultados[3].status === 'fulfilled' ? resultados[3].value : null,
+      insights: resultados[4].status === 'fulfilled' ? resultados[4].value : null,
+      projetos: resultados[5].status === 'fulfilled' ? resultados[5].value : null,
+      receitas: resultados[6].status === 'fulfilled' ? resultados[6].value : null,
     })
     setCarregando(false)
-  }, [])
+  }, [carregarProjetos, carregarReceitas])
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => void carregar(), 0)
@@ -675,12 +639,6 @@ function diferencaDias(inicio: string, fim: string) {
     return Date.UTC(ano, mes - 1, dia)
   }
   return Math.max(0, Math.round((paraUtc(fim) - paraUtc(inicio)) / 86_400_000))
-}
-
-function adicionarDias(data: string, dias: number) {
-  const [ano, mes, dia] = data.split('-').map(Number)
-  const valor = new Date(Date.UTC(ano, mes - 1, dia + dias))
-  return valor.toISOString().slice(0, 10)
 }
 
 function ListaSkeleton() {
