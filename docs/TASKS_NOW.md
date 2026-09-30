@@ -1,14 +1,16 @@
 # Tarefas atuais — preparação funcional da versão 2
 
-**Ajuste solicitado em 2026-09-29 — candidato local:** Olimpíadas,
+**Ajuste solicitado em 2026-09-29 — publicado:** Olimpíadas,
 Vestibulares e Outros estudos ficam em pausa, com URL preservada e card
 removido do Hub de Estudos. Cada área fixa do ENEM permite criar matéria ou
 vincular uma acadêmica existente; erro de leitura deixa de ser exibido como
 zero matérias. Descrições introdutórias de cabeçalho podem ser ocultadas por
 rota neste navegador e restauradas em Configurações. Sem migration. Gates
 locais: 158 testes Node, typecheck, lint e build de 49 páginas passaram.
-Ainda falta validar a experiência com uma conta autenticada real ou descartável
-antes de afirmar que o caso observado por Gabriel foi resolvido em produção.
+Commit `df91767` em `main`, CI e deploy Vercel aprovados. Smoke público deu
+200 em `/ajuda` e 307 para `/login` nas rotas protegidas. Ainda falta validar
+a experiência com uma conta autenticada real ou descartável antes de afirmar
+que o caso observado por Gabriel foi resolvido em produção.
 O conteúdo de cada matéria continua sendo cadastrado manualmente; curadoria
 automática de tópicos e catálogo de PDFs de provas seguem sem implementação.
 Diagnóstico do caso “0 matérias”: o ENEM lê somente linhas acadêmicas com

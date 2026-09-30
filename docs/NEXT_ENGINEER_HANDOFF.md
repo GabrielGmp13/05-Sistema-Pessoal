@@ -1,11 +1,11 @@
 # Handoff — continuidade da V2 após publicação parcial
 
-> **Candidato local de 2026-09-29:** pausar Olimpíadas/Vestibulares/Outros
+> **Publicado em 2026-09-29:** pausar Olimpíadas/Vestibulares/Outros
 > estudos, criar ou vincular matéria nas áreas ENEM e ocultar/restaurar
-> descrições introdutórias está implementado localmente, sem migration. 158
-> testes, typecheck, lint e build passaram. Falta conferir o fluxo autenticado
-> e publicar este lote; não interpretar os textos históricos abaixo como
-> confirmação de deploy desta mudança. O checkout atual foi encontrado em
+> descrições introdutórias está implementado, sem migration. Commit `df91767`,
+> 158 testes, typecheck, lint, build, CI e Vercel passaram. Falta conferir o
+> fluxo autenticado; os textos históricos abaixo não representam este lote.
+> O checkout atual foi encontrado em
 > `C:\Gabriel Oliveira\01-Projetos\05-Sistema-Pessoal`.
 > Arquivos pessoais grandes: Gabriel relatou erros no Drive e considera R2;
 > decidir quotas, upload retomável e custo na V3 antes de integrar.

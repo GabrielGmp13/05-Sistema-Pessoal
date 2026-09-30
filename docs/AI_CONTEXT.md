@@ -1,10 +1,10 @@
 # AI_CONTEXT.md
 
-> **Candidato local de 2026-09-29:** três áreas opcionais de Estudos foram
+> **Publicado em 2026-09-29:** três áreas opcionais de Estudos foram
 > pausadas; ENEM agora oferece criação/vínculo de matéria em cada área; a
 > descrição introdutória de página pode ser ocultada por rota e restaurada em
-> Configurações. Gates locais passaram, mas este lote ainda não foi publicado
-> nem validado com a conta de Gabriel. Ver DEC-096 e `TASKS_NOW.md`.
+> Configurações. Commit `df91767`, CI e Vercel aprovados; ainda não validado
+> com a conta de Gabriel. Ver DEC-096 e `TASKS_NOW.md`.
 > O destino futuro de arquivos pessoais de estudo está em reavaliação entre
 > Drive e R2 após erros de upload grande; nenhum serviço novo foi ativado.
 

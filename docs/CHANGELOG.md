@@ -1,6 +1,6 @@
 # CHANGELOG.md
 
-## 2026-09-29 — Estudos essenciais e descrições ocultáveis (candidato local)
+## 2026-09-29 — Estudos essenciais e descrições ocultáveis
 
 - Olimpíadas, Vestibulares e Outros estudos saíram do Hub; suas URLs usam a
   tela de pausa sem excluir código, schema ou dados.
@@ -10,8 +10,9 @@
 - Introduzido “Não mostrar novamente” ao lado das descrições introdutórias de
   páginas. A escolha é por rota e navegador, reversível em Configurações.
   Instruções essenciais de senha/termos e conteúdo dos cards não são ocultados.
-- Validação local: 158 testes, typecheck, lint e build de 49 páginas. Ainda
-  não houve deploy nem homologação autenticada deste candidato.
+- Commit `df91767` publicado: 158 testes, typecheck, lint, build de 49
+  páginas, CI e Vercel aprovados. Smoke público passou; homologação
+  autenticada da criação de matéria ainda não foi realizada nesta rodada.
 
 
 ## 2026-09-25 — encerramento funcional da V2
