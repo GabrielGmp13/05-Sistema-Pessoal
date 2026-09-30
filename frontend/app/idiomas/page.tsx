@@ -5,6 +5,7 @@ import { BookOpenCheck, Check, Clock3, Languages, Loader2, Plus, Save, Trash2 } 
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { PageDescription } from '@/components/PageDescription'
 import { Card } from '@/components/ui/card'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Input } from '@/components/ui/input'
@@ -206,7 +207,7 @@ export default function IdiomasPage() {
       <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
         <header>
           <h1 className="text-3xl font-semibold">Idiomas</h1>
-          <p className="mt-2 text-sm text-muted-foreground">Organize vocabulário, práticas e tempo dedicado sem depender de serviços externos.</p>
+          <PageDescription className="mt-2">Organize vocabulário, práticas e tempo dedicado sem depender de serviços externos.</PageDescription>
         </header>
 
         {erro ? <p role="alert" className="mt-5 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">{erro}</p> : null}

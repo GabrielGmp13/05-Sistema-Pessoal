@@ -14,9 +14,7 @@ import {
   CalendarDays,
   ChevronRight,
   GraduationCap,
-  Languages,
   ListTodo,
-  Medal,
   PenLine,
   School,
 } from 'lucide-react'
@@ -45,10 +43,6 @@ const destinations = [
   { href: '/estudos/redacoes', label: 'Redações', description: 'Treinos com nota por competência', icon: PenLine },
   { href: '/estudos/curso', label: 'Curso', description: 'Cursos livres em módulos e aulas', icon: BookOpen },
   { href: '/estudos/escola', label: 'Escola', description: 'Matérias, provas e atividades', icon: School },
-  { href: '/estudos/areas/olimpiada', label: 'Olimpíadas', description: 'Matérias e conteúdos para competições científicas', icon: Medal },
-  { href: '/estudos/areas/vestibular', label: 'Vestibulares', description: 'Preparação além do fluxo específico do ENEM', icon: GraduationCap },
-  { href: '/estudos/areas/outro', label: 'Outros estudos', description: 'Assuntos independentes no mesmo modelo de conteúdos', icon: BookMarked },
-  { href: '/idiomas', label: 'Idiomas', description: 'Vocabulário, práticas, metas e tempo dedicado', icon: Languages },
 ]
 
 export default function EstudosHubPage() {

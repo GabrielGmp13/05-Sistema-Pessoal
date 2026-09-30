@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ArrowDownLeft, ArrowRight, ArrowUpRight, BedDouble, CircleDollarSign, Droplets, HeartPulse, MapPinned, NotebookTabs, Pill, RefreshCw, Star, Utensils } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
+import { PageDescription } from '@/components/PageDescription'
 import { Skeleton } from '@/components/ui/skeleton'
 import { dataLocalIso } from '@/lib/date'
 import { InvestimentoFinanceiro, LancamentoFinanceiro, listarInvestimentosFinanceiros, listarLancamentosFinanceiros, listarMetasEconomia, MetaEconomia } from '@/lib/financas'
@@ -110,7 +111,7 @@ export default function DiarioPage() {
     <main className="min-h-[calc(100vh-3.5rem)] bg-background text-foreground">
       <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
         <header className="flex flex-wrap items-end justify-between gap-4">
-          <div><h1 className="text-3xl font-semibold sm:text-4xl">Diário</h1><p className="mt-3 max-w-2xl text-muted-foreground">O retrato atual da sua saúde, organização financeira, lugares e cozinha.</p></div>
+          <div><h1 className="text-3xl font-semibold sm:text-4xl">Diário</h1><PageDescription className="mt-3">O retrato atual da sua saúde, organização financeira, lugares e cozinha.</PageDescription></div>
           <Button type="button" variant="outline" size="sm" onClick={() => void carregar()} disabled={carregando}><RefreshCw className={carregando ? 'animate-spin' : ''} />Atualizar</Button>
         </header>
 

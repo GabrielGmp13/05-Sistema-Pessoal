@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { ExternalLink, Loader2, MapPin, Pencil, Plus, Search, Star, Trash2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
+import { PageDescription } from '@/components/PageDescription'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -141,7 +142,7 @@ export default function LugaresPage() {
 
   return (
     <main className="min-h-[calc(100vh-3.5rem)] bg-background text-foreground"><div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
-      <header><h1 className="text-3xl font-semibold">Lugares</h1><p className="mt-2 text-muted-foreground">Cadastre destinos visitados e desejados. A busca Google Places está desativada neste piloto gratuito.</p></header>
+      <header><h1 className="text-3xl font-semibold">Lugares</h1><PageDescription className="mt-2">Cadastre destinos visitados e desejados. A busca Google Places está desativada neste piloto gratuito.</PageDescription></header>
       {erro ? <p role="alert" className="mt-5 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm">{erro}</p> : null}
 
       {GOOGLE_PLACES_HABILITADO ? <section className="mt-8 rounded-xl border border-border bg-card p-4 text-card-foreground shadow-sm">

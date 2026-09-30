@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { PageDescription } from '@/components/PageDescription'
 
 const questions = [
   ['O que é o Sistema Pessoal?', 'Um espaço para organizar áreas pessoais como estudos, agenda, treino e biblioteca. Cada conta deve acessar somente os próprios dados.'],
@@ -12,5 +13,5 @@ const questions = [
 ]
 
 export default function AjudaPage() {
-  return <main className="min-h-dvh bg-background px-4 py-10 text-foreground"><div className="mx-auto max-w-2xl space-y-6"><header className="space-y-2"><h1 className="text-3xl font-semibold">Dúvidas frequentes</h1><p className="text-sm text-muted-foreground">Informações gerais, sem expor páginas internas ou detalhes de segurança.</p></header><div className="space-y-3">{questions.map(([question, answer]) => <details key={question} className="rounded-xl border border-border bg-card p-4"><summary className="cursor-pointer font-semibold">{question}</summary><p className="mt-3 text-sm leading-relaxed text-muted-foreground">{answer}</p></details>)}</div><div className="flex flex-wrap gap-4"><Link href="/login" className="text-sm text-primary underline underline-offset-4">Voltar para entrar</Link><Link href="/privacidade" className="text-sm text-primary underline underline-offset-4">Aviso de privacidade</Link></div></div></main>
+  return <main className="min-h-dvh bg-background px-4 py-10 text-foreground"><div className="mx-auto max-w-2xl space-y-6"><header className="space-y-2"><h1 className="text-3xl font-semibold">Dúvidas frequentes</h1><PageDescription>Informações gerais, sem expor páginas internas ou detalhes de segurança.</PageDescription></header><div className="space-y-3">{questions.map(([question, answer]) => <details key={question} className="rounded-xl border border-border bg-card p-4"><summary className="cursor-pointer font-semibold">{question}</summary><p className="mt-3 text-sm leading-relaxed text-muted-foreground">{answer}</p></details>)}</div><div className="flex flex-wrap gap-4"><Link href="/login" className="text-sm text-primary underline underline-offset-4">Voltar para entrar</Link><Link href="/privacidade" className="text-sm text-primary underline underline-offset-4">Aviso de privacidade</Link></div></div></main>
 }

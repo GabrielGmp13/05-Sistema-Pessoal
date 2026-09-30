@@ -25,6 +25,7 @@ import {
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { PageDescription } from '@/components/PageDescription'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAppSession } from '@/components/AppSessionProvider'
 import { useModulosVisiveis } from '@/components/useModulosVisiveis'
@@ -268,9 +269,9 @@ export default function HomePage() {
             <h1 className="text-3xl font-semibold leading-tight sm:text-4xl">
               Visão geral
             </h1>
-            <p className="mt-3 max-w-2xl text-base leading-relaxed text-muted-foreground">
+            <PageDescription className="mt-3" textClassName="max-w-2xl text-base">
               O que pede atenção hoje e o tempo dedicado aos estudos.
-            </p>
+            </PageDescription>
           </div>
           <Button
             type="button"

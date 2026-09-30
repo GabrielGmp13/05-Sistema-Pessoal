@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ArrowLeft, ArrowRight, FolderKanban, Loader2, Plus, Save, Trash2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
+import { PageDescription } from '@/components/PageDescription'
 import { Card } from '@/components/ui/card'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Input } from '@/components/ui/input'
@@ -180,7 +181,7 @@ export default function ProjetosPage() {
       <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
         <header>
           <h1 className="text-3xl font-semibold">Projetos</h1>
-          <p className="mt-2 text-sm text-muted-foreground">Acompanhe iniciativas e mova tarefas entre etapas simples.</p>
+          <PageDescription className="mt-2">Acompanhe iniciativas e mova tarefas entre etapas simples.</PageDescription>
         </header>
 
         {erro ? <p role="alert" className="mt-5 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">{erro}</p> : null}

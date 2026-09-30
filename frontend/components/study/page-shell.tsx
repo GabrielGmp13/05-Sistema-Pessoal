@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
+import { PageDescription } from '@/components/PageDescription'
 
 export function PageShell({
   children,
@@ -60,9 +61,9 @@ export function PageHeader({
           {title}
         </h1>
         {description ? (
-          <p className="max-w-xl text-pretty text-sm leading-relaxed text-muted-foreground">
+          <PageDescription>
             {description}
-          </p>
+          </PageDescription>
         ) : null}
       </div>
       {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}

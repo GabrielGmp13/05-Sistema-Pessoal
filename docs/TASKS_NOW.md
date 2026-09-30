@@ -1,5 +1,38 @@
 # Tarefas atuais — preparação funcional da versão 2
 
+**Ajuste solicitado em 2026-09-29 — candidato local:** Olimpíadas,
+Vestibulares e Outros estudos ficam em pausa, com URL preservada e card
+removido do Hub de Estudos. Cada área fixa do ENEM permite criar matéria ou
+vincular uma acadêmica existente; erro de leitura deixa de ser exibido como
+zero matérias. Descrições introdutórias de cabeçalho podem ser ocultadas por
+rota neste navegador e restauradas em Configurações. Sem migration. Gates
+locais: 158 testes Node, typecheck, lint e build de 49 páginas passaram.
+Ainda falta validar a experiência com uma conta autenticada real ou descartável
+antes de afirmar que o caso observado por Gabriel foi resolvido em produção.
+O conteúdo de cada matéria continua sendo cadastrado manualmente; curadoria
+automática de tópicos e catálogo de PDFs de provas seguem sem implementação.
+Diagnóstico do caso “0 matérias”: o ENEM lê somente linhas acadêmicas com
+`mostra_enem=true` e `area_enem` correspondente. O seed roda apenas em conta
+sem nenhuma matéria acadêmica anterior; isso preserva personalizações, mas
+não repõe a lista para conta que já possua apenas matérias de Escola/Faculdade.
+Sem consulta autenticada à conta de Gabriel, não há como afirmar qual dessas
+situações ocorreu em produção. Após criar uma matéria, a página de detalhe já
+oferece “Adicionar” conteúdo; a plataforma não fornece ementa automaticamente.
+Auditoria adicional encontrou que a criação de conteúdo nessa página limpa o
+campo mesmo se a gravação falhar e que conteúdo e vínculo são duas operações
+separadas. Registrar correção transacional/UX como pendência técnica para um
+próximo lote antes de importação em volume; não reenvie após erro sem conferir
+o estado persistido.
+
+
+**Fechamento de escopo em 2026-09-25:** Gabriel confirmou que a homologação
+ENEM já foi feita e transferiu todas as pendências residuais de V2/V2.1/V2.2
+para V3. A V2 publicada não possui bloqueador funcional aberto. O próximo
+trabalho somente começa sob planejamento V3: catálogo de provas com storage
+separado, Drive pessoal para uploads, redesign, QA/polimentos e demais itens
+anteriores. Não ativar Cloudflare R2, Google Drive ou serviço pago sem decisão
+V3 específica.
+
 **V2.2 — correção complementar em 2026-09-25:** o ensaio repetido de F5 mostrou
 que o provider React ainda removia temporariamente o tema escuro aplicado pelo
 bootstrap. Os efeitos agora aguardam a preferência local estar reconciliada.

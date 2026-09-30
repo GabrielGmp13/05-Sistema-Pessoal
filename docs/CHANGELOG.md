@@ -1,5 +1,29 @@
 # CHANGELOG.md
 
+## 2026-09-29 — Estudos essenciais e descrições ocultáveis (candidato local)
+
+- Olimpíadas, Vestibulares e Outros estudos saíram do Hub; suas URLs usam a
+  tela de pausa sem excluir código, schema ou dados.
+- As quatro áreas ENEM agora oferecem criação de matéria e vínculo de uma
+  matéria acadêmica existente. Falha de leitura é mostrada como erro, sem
+  simular lista vazia. O seed não é reaplicado a contas personalizadas.
+- Introduzido “Não mostrar novamente” ao lado das descrições introdutórias de
+  páginas. A escolha é por rota e navegador, reversível em Configurações.
+  Instruções essenciais de senha/termos e conteúdo dos cards não são ocultados.
+- Validação local: 158 testes, typecheck, lint e build de 49 páginas. Ainda
+  não houve deploy nem homologação autenticada deste candidato.
+
+
+## 2026-09-25 — encerramento funcional da V2
+
+- Homologação do ENEM confirmada por Gabriel como realizada anteriormente.
+- Pendências residuais de V2/V2.1/V2.2 foram transferidas para V3 sem apagar
+  código, banco, migrations ou dados.
+- Registrada a arquitetura futura de provas: Supabase para metadados; R2 como
+  candidato para catálogo comum de PDFs; Google Drive da própria conta para
+  arquivos pessoais via escopo restrito `drive.file`. Nenhum serviço novo foi
+  ativado e nenhum custo foi contratado.
+
 ## 2026-09-25 — desempenho V2.2
 
 - Corrigida a segunda causa do flash escuro → claro → escuro: efeitos do

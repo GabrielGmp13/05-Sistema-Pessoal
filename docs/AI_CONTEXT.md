@@ -1,5 +1,14 @@
 # AI_CONTEXT.md
 
+> **Candidato local de 2026-09-29:** três áreas opcionais de Estudos foram
+> pausadas; ENEM agora oferece criação/vínculo de matéria em cada área; a
+> descrição introdutória de página pode ser ocultada por rota e restaurada em
+> Configurações. Gates locais passaram, mas este lote ainda não foi publicado
+> nem validado com a conta de Gabriel. Ver DEC-096 e `TASKS_NOW.md`.
+> O destino futuro de arquivos pessoais de estudo está em reavaliação entre
+> Drive e R2 após erros de upload grande; nenhum serviço novo foi ativado.
+
+
 > Cursor atual de execução: `RETOMADA_V2.md` (2026-09-25). Contém o estado
 > publicado, as validações e a ordem dos próximos lotes.
 
@@ -8,6 +17,12 @@
 > **Retomada rápida:** depois deste arquivo, leia `docs/NEXT_ENGINEER_HANDOFF.md`
 > para obter o estado operacional curto, o bug ativo conhecido e o prompt de
 > continuidade sem carregar toda a documentação longa.
+
+> **Escopo vigente desde 2026-09-25:** a V2 foi encerrada funcionalmente por
+> decisão de Gabriel; a homologação ENEM já havia sido concluída. Qualquer
+> pendência residual passa a ser V3. O catálogo comum de provas será estudado
+> com R2 separado; arquivos pessoais devem ir ao Drive da própria conta.
+> Nenhum serviço novo está ativado ou autorizado nesta fase.
 
 ---
 

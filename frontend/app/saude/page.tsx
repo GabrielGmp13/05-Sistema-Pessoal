@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BedDouble, Check, Droplets, Dumbbell, HeartPulse, Package, Pencil, Pill, Plus, Trash2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
+import { PageDescription } from '@/components/PageDescription'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -193,7 +194,7 @@ export default function SaudePage() {
   return (
     <main className="min-h-[calc(100vh-3.5rem)] bg-background text-foreground">
       <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
-        <header><h1 className="text-3xl font-semibold">Saúde</h1><p className="mt-2 text-muted-foreground">Registros manuais para acompanhar o que muda no dia a dia.</p></header>
+        <header><h1 className="text-3xl font-semibold">Saúde</h1><PageDescription className="mt-2">Registros manuais para acompanhar o que muda no dia a dia.</PageDescription></header>
         {erro ? <p role="alert" className="mt-5 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm">{erro}</p> : null}
 
         <section className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-5" aria-label="Resumo de saúde">

@@ -56,15 +56,22 @@ export default function EnemPage() {
   const [erro, setErro] = useState('')
 
   async function carregar() {
-    const [m, p, historico] = await Promise.all([
-      listarTodasMateriasEnem(),
-      listarProvasEnem(),
-      listarTentativasEnem(),
-    ])
-    setMaterias(m ?? [])
-    setProvas((p ?? []).filter((pr) => pr.tipo === 'enem_dia1' || pr.tipo === 'enem_dia2'))
-    setTentativas(historico ?? [])
-    setCarregando(false)
+    try {
+      const [m, p, historico] = await Promise.all([
+        listarTodasMateriasEnem(),
+        listarProvasEnem(),
+        listarTentativasEnem(),
+      ])
+      if (m === null || p === null || historico === null) throw new Error('leitura')
+      setMaterias(m)
+      setProvas(p.filter((pr) => pr.tipo === 'enem_dia1' || pr.tipo === 'enem_dia2'))
+      setTentativas(historico)
+      setErro('')
+    } catch {
+      setErro('Não foi possível carregar os dados do ENEM. Atualize a página antes de editar.')
+    } finally {
+      setCarregando(false)
+    }
   }
 
   async function refazerProva(prova: Prova) {
@@ -112,14 +119,14 @@ export default function EnemPage() {
       </div>
       <PageHeader
         title="ENEM"
-        description="Áreas de conhecimento fixas do exame. Entre em uma área pra ver suas matérias, ou gerencie a prova oficial aqui embaixo."
+        description="Entre em uma área para criar ou organizar matérias. As provas oficiais ficam nesta página."
       />
 
       {erro ? <p role="alert" className="mt-5 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">{erro}</p> : null}
 
       {carregando ? (
         <LoadingState />
-      ) : (
+      ) : erro.startsWith('Não foi possível carregar os dados') ? null : (
         <div className="mt-8 flex flex-col gap-10">
           <Section label="Bloco 1" title="Áreas de conhecimento">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">

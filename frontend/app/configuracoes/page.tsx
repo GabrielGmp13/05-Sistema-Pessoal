@@ -10,9 +10,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { PrivateMediaField } from '@/components/PrivateMediaField'
+import { PageDescription } from '@/components/PageDescription'
 import { UnoptimizedExternalImage } from '@/components/UnoptimizedExternalImage'
 import { apagarMidiaPessoal, uploadMidiaPessoal, urlMidiaPessoal, validarImagemPessoal } from '@/lib/midias-pessoais'
 import { getSession, sb } from '@/lib/supabase'
+import { restaurarDescricoes } from '@/lib/page-descriptions'
 import { GoogleConnections } from './GoogleConnections'
 import { BugReportForm } from './BugReportForm'
 import { PrivacyRequestForm } from './PrivacyRequestForm'
@@ -174,7 +176,7 @@ export default function ConfiguracoesPage() {
       <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 sm:py-10">
         <header>
           <h1 className="text-3xl font-semibold">Perfil e configurações</h1>
-          <p className="mt-2 text-sm text-muted-foreground">Personalize seu perfil, conecte suas contas e reporte problemas.</p>
+          <PageDescription className="mt-2">Personalize seu perfil, conecte suas contas e reporte problemas.</PageDescription>
         </header>
 
         {carregando ? (
@@ -243,6 +245,19 @@ export default function ConfiguracoesPage() {
         )}
         <PasswordChangeForm />
         <ModuleVisibilityForm />
+        <section className="mt-6 rounded-xl border border-border p-4">
+          <h2 className="font-semibold">Descrições das páginas</h2>
+          <p className="mt-1 text-sm text-muted-foreground">As descrições ocultas ficam salvas somente neste navegador.</p>
+          <Button type="button" variant="outline" className="mt-3" onClick={() => {
+            try {
+              restaurarDescricoes(window.localStorage)
+              window.dispatchEvent(new Event('descricoes-alteradas'))
+              setMensagem('Descrições restauradas neste navegador.')
+            } catch {
+              setErro('O navegador não permitiu restaurar as descrições.')
+            }
+          }}>Mostrar todas as descrições novamente</Button>
+        </section>
         <GoogleConnections />
         <PrivacyRequestForm />
         <BugReportForm />

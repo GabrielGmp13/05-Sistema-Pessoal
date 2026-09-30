@@ -1,5 +1,16 @@
 # DESIGN.md
 
+## Descrições introdutórias de página (2026-09-29)
+
+O texto explicativo diretamente abaixo do título principal usa o componente
+`PageDescription`: texto e ação discreta “Não mostrar novamente” lado a lado,
+com quebra natural no celular. A ocultação é por rota no navegador e pode ser
+revertida em Perfil e configurações. Enquanto a preferência local é lida, o
+texto aguarda a hidratação para evitar aparecer brevemente em páginas já
+ocultadas. Não aplicar este controle a mensagens de erro, instruções de
+formulários, termos legais, versão de documentos ou dados de registros.
+
+
 Referência visual para qualquer IA ou dev gerar páginas novas sem quebrar a consistência do sistema. As regras aqui refletem o que já está implementado — não são aspiracionais.
 
 ---

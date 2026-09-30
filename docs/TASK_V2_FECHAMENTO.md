@@ -1,5 +1,14 @@
 # V2 — pendências consolidadas para finalização
 
+> **Substituição de escopo em 2026-09-25:** Gabriel confirmou a homologação
+> ENEM já realizada e moveu todas as pendências residuais desta lista para a
+> V3, inclusive integração visual da reordenação da Biblioteca, QA restante,
+> backup/retenção, auditorias de integrações, polimentos, redesign e evolução
+> de desempenho. A V2 deixa de ter bloqueadores funcionais. O catálogo de PDFs
+> também é V3: R2 é candidato para acervo comum; Google Drive da própria conta
+> é a direção para uploads pessoais. Este documento abaixo fica como evidência
+> histórica e não deve reabrir itens como pendências V2.
+
 **Marco posterior ao inventário:** o lote definido foi publicado em `main`
 (`c862edb`, `dde129e`, `af05990`), CI e Vercel aprovados. Foto histórica
 privada foi reaberta por URL assinada no ambiente local após remoção da foto

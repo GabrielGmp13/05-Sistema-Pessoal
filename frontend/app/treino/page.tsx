@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Activity, ArrowRight, CalendarDays, Clock3, Dumbbell, Gauge, Pencil, Plus, RefreshCw, Scale, Sparkles, Trash2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
+import { PageDescription } from '@/components/PageDescription'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { GraficoLinha } from '@/components/treino/line-chart'
 import { PresencasTreino } from '@/components/treino/PresencasTreino'
@@ -145,7 +146,7 @@ export default function TreinoHubPage() {
         <header className={styles.cabecalho}>
           <div>
             <h1 className={styles.titulo}>Treino</h1>
-            <p className={styles.subtitulo}>Planos, sessões recentes e evolução corporal em uma única visão.</p>
+            <PageDescription className="mt-2" textClassName={styles.subtitulo}>Planos, sessões recentes e evolução corporal em uma única visão.</PageDescription>
           </div>
           <Button type="button" variant="outline" size="sm" onClick={() => void carregar()} disabled={carregando}>
             <RefreshCw className={carregando ? 'animate-spin' : ''} /> Atualizar

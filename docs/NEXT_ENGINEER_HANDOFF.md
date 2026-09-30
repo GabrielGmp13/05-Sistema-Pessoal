@@ -1,11 +1,29 @@
 # Handoff — continuidade da V2 após publicação parcial
 
+> **Candidato local de 2026-09-29:** pausar Olimpíadas/Vestibulares/Outros
+> estudos, criar ou vincular matéria nas áreas ENEM e ocultar/restaurar
+> descrições introdutórias está implementado localmente, sem migration. 158
+> testes, typecheck, lint e build passaram. Falta conferir o fluxo autenticado
+> e publicar este lote; não interpretar os textos históricos abaixo como
+> confirmação de deploy desta mudança. O checkout atual foi encontrado em
+> `C:\Gabriel Oliveira\01-Projetos\05-Sistema-Pessoal`.
+> Arquivos pessoais grandes: Gabriel relatou erros no Drive e considera R2;
+> decidir quotas, upload retomável e custo na V3 antes de integrar.
+
+
 > **Estado vigente — 2026-09-25.** Siga primeiro a ordem obrigatória de leitura
 > do `AGENTS.md`. Depois consulte este documento, `RETOMADA_V2.md` e
 > `TASK_V2_FECHAMENTO.md`. Os parágrafos abaixo do bloco vigente são evidência
 > histórica.
 
 ## Ponto de retomada único
+
+- **V2 encerrada funcionalmente por decisão de Gabriel em 2026-09-25.** A
+  homologação ENEM já ocorreu. Toda pendência residual está em V3; não retomar
+  I05/I08/I10, redesign, QA ou desempenho como bloqueador V2.
+- V3 deverá decidir o catálogo compartilhado de provas (R2 como candidato) e
+  upload pessoal no Drive da própria conta (`drive.file`). Nenhum provider foi
+  ativado, nenhuma credencial foi criada e nenhum custo foi autorizado.
 
 - Repositório: `C:\Gabriel Oliveira\05-Sistema-Pessoal`; frontend único em
   `frontend/`; produção em `https://expansiondominionpersonaledition.vercel.app`.

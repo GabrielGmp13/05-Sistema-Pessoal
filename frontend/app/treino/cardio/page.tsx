@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Activity, ArrowLeft, Clock3, MapPinned, RefreshCw } from 'lucide-react'
 
 import { GraficoLinha } from '@/components/treino/line-chart'
+import { PageDescription } from '@/components/PageDescription'
 import { getSession, sb } from '@/lib/supabase'
 import { DadosDashboardTreino, getDadosDashboardTreino } from '@/lib/treino'
 import { consolidarCardioPorDia } from '@/lib/treino-estatisticas'
@@ -45,7 +46,7 @@ export default function CardioPage() {
     <main className={styles.pagina}>
       <div className={styles.container}>
         <div className={styles.cabecalho}>
-          <div><Link href="/treino" className={styles.voltar}><ArrowLeft /> Treino</Link><h1>Cardio</h1><p>Distância e duração nas últimas 360 atividades concluídas. Os gráficos mostram até 30 dias com registros.</p></div>
+          <div><Link href="/treino" className={styles.voltar}><ArrowLeft /> Treino</Link><h1>Cardio</h1><PageDescription>Distância e duração nas últimas 360 atividades concluídas. Os gráficos mostram até 30 dias com registros.</PageDescription></div>
           <button type="button" className={styles.atualizar} onClick={() => void carregar()} disabled={carregando}><RefreshCw className={carregando ? styles.girando : ''} /> Atualizar</button>
         </div>
         {erro ? <p role="alert" className={styles.erro}>{erro}</p> : null}

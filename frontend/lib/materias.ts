@@ -250,3 +250,9 @@ export async function criarMateriaEscolar(nome: string): Promise<Materia | null>
   if (!limpo || limpo.length > 120) return null;
   return criarMateria(materiaInputPadrao({ nome: limpo, mostra_escola: true, mostra_enem: false, area_enem: null }));
 }
+
+export async function criarMateriaEnem(nome: string, area: AreaEnem): Promise<Materia | null> {
+  const limpo = nome.trim();
+  if (!limpo || limpo.length > 120 || !ORDEM_AREAS_ENEM.includes(area)) return null;
+  return criarMateria(materiaInputPadrao({ nome: limpo, mostra_escola: false, mostra_enem: true, area_enem: area }));
+}

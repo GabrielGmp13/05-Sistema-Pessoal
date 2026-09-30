@@ -6,6 +6,14 @@
 
 ## Objetivo
 
+Olimpíadas, Vestibulares e Outros estudos passaram à tela de pausa em
+2026-09-29. Antes de reabri-los, definir público, organização das matérias,
+conteúdos iniciais, provas e fluxos próprios de cada área; a pausa não apaga
+registros já existentes. ENEM mantém quatro áreas ativas, mas não possui
+ementa automática de conteúdos: avaliar na V3 curadoria inicial por matéria
+sem preencher contas personalizadas à força.
+
+
 Toda experiência importante precisa de uma resposta humana, acessível e
 coerente quando algo não existe, falha, demora, exige permissão ou está em
 manutenção. O sistema atual já tem estados locais de carregamento, vazio e
@@ -42,6 +50,24 @@ novos cômodos ou integrações.
   aceite pendente, protocolo criado, erro de geração e acompanhamento seguro.
 - Ajuda e reporte de problema: sucesso, limite de envios, anexo inválido,
   armazenamento indisponível e retorno sem expor detalhes administrativos.
+
+## Acervo de provas e arquivos pessoais
+
+- Catálogo comum: tela para localizar prova por banca, ano, etapa e área,
+  abrir PDF hospedado em storage separado e mostrar origem/licença. O Supabase
+  fica com metadados; R2 é somente candidato de objetos, ainda não ativado.
+- Arquivo pessoal: enviar para uma pasta do Google Drive da própria pessoa por
+  OAuth `drive.file`; o sistema guarda metadados/ID e oferece abrir/remover,
+  sem acesso ao restante do Drive. Erros de quota, permissão ou token vencido
+  usam o estado transversal de Integração externa.
+- Gabriel relatou erros do Drive com arquivos grandes/compactados e considera
+  R2 também para arquivos pessoais. Comparar upload retomável, cotas por conta,
+  armazenamento total, acesso privado e custo antes de escolher o destino;
+  a solução anterior com Drive não está fechada.
+- Antes de importar qualquer acervo, validar direitos de redistribuição por
+  banca/documento, limite de tamanho, deduplicação, revisão manual e teto de
+  gasto/uso. Não publicar links permanentes nem transformar PDFs pessoais em
+  arquivos públicos.
 
 ## Regras de implementação futura
 

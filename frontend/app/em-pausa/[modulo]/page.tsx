@@ -24,7 +24,7 @@ export default async function ModuloEmPausaPage({
         <p className="mt-5 font-mono text-xs font-medium uppercase tracking-wide text-muted-foreground">Cômodo em pausa</p>
         <h1 className="mt-2 text-2xl font-semibold sm:text-3xl">{modulo.nome} está temporariamente desativado</h1>
         <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
-          Nesta V2.1, o foco está nos cômodos essenciais. Seus dados e o código deste módulo continuam preservados para quando ele for liberado novamente.
+          Neste momento, o foco está nos cômodos essenciais. Seus dados e o código deste módulo continuam preservados para quando ele for liberado novamente.
         </p>
         <Link href="/" className={cn(buttonVariants(), 'mt-6')}>
           <Home aria-hidden="true" />Voltar ao Início

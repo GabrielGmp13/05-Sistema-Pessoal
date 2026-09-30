@@ -82,13 +82,24 @@ test('proxy exige aceite antes de liberar páginas ou APIs autenticadas', async 
   }
 })
 
-test('proxy mantém a URL e mostra pausa para os cômodos V2.1 autorizados', async () => {
+test('proxy mantém a URL e mostra pausa para os cômodos autorizados', async () => {
   const response = await proxyWithUser(true)(new next.NextRequest('https://example.invalid/financas?mes=2026-09'))
   assert.equal(response.status, 200)
   assert.match(response.headers.get('x-middleware-rewrite') ?? '', /\/em-pausa\/diario$/)
   assert.equal(response.headers.get('cache-control'), 'private, no-store')
 
+  for (const [rota, slug] of [
+    ['/estudos/areas/olimpiada', 'olimpiadas'],
+    ['/estudos/areas/vestibular', 'vestibulares'],
+    ['/estudos/areas/outro', 'outros-estudos'],
+  ]) {
+    const pausada = await proxyWithUser(true)(new next.NextRequest(`https://example.invalid${rota}`))
+    assert.match(pausada.headers.get('x-middleware-rewrite') ?? '', new RegExp(`/em-pausa/${slug}$`))
+  }
+
   const ativo = await proxyWithUser(true)(new next.NextRequest('https://example.invalid/estudos'))
   assert.equal(ativo.status, 200)
   assert.equal(ativo.headers.get('x-middleware-rewrite'), null)
+  const enem = await proxyWithUser(true)(new next.NextRequest('https://example.invalid/estudos/enem/matematica'))
+  assert.equal(enem.headers.get('x-middleware-rewrite'), null)
 })

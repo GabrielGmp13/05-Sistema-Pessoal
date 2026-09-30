@@ -1,5 +1,10 @@
 # Retomada operacional — 2026-09-24
 
+> **Encerramento de escopo:** a homologação ENEM foi confirmada por Gabriel
+> como já realizada. Todas as pendências residuais foram transferidas à V3.
+> Não iniciar QA, redesign, R2, Drive ou nova alteração V2 sem pedido V3
+> explícito. DEC-094/095 registram catálogo de provas e o fechamento.
+
 > **V2.2 publicada em 2026-09-25:** commit `79dce60` elimina o flash de tema
 > com bootstrap nativo, reduz as operações fixas do Início de 16 para cinco,
 > compartilha sessão/perfil no shell, isola o relógio e remove espera artificial

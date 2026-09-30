@@ -5,6 +5,7 @@ import { Check, Clock3, Loader2, Plus, Save, Star, Trash2, Utensils } from 'luci
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { PageDescription } from '@/components/PageDescription'
 import { Card } from '@/components/ui/card'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Input } from '@/components/ui/input'
@@ -199,7 +200,7 @@ export default function ReceitasPage() {
     <main className="min-h-[calc(100vh-3.5rem)] bg-background text-foreground">
       <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
         <header className="flex flex-wrap items-end justify-between gap-4">
-          <div><h1 className="text-3xl font-semibold">Receitas</h1><p className="mt-2 text-sm text-muted-foreground">Guarde preparos, favoritos e o que você já fez.</p></div>
+          <div><h1 className="text-3xl font-semibold">Receitas</h1><PageDescription className="mt-2">Guarde preparos, favoritos e o que você já fez.</PageDescription></div>
           <Button type="button" onClick={novaReceita}><Plus />Nova receita</Button>
         </header>
 

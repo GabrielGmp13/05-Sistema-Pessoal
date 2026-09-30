@@ -5,6 +5,7 @@ import { Code2, ExternalLink, Loader2, Pencil, Plus, Save, Star, Trash2, X } fro
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { PageDescription } from '@/components/PageDescription'
 import { Card } from '@/components/ui/card'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Input } from '@/components/ui/input'
@@ -127,7 +128,7 @@ export default function ProgramacaoPage() {
       <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
         <header>
           <h1 className="text-3xl font-semibold">Programação</h1>
-          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">Acompanhe projetos de software, linguagem principal, repositório e status sem criar um catálogo paralelo.</p>
+          <PageDescription className="mt-2">Acompanhe projetos de software, linguagem principal, repositório e status sem criar um catálogo paralelo.</PageDescription>
         </header>
 
         {erro ? <p role="alert" className="mt-5 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">{erro}</p> : null}

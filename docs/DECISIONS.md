@@ -1,5 +1,60 @@
 # DECISIONS.md
 
+## DEC-096 — Áreas opcionais de Estudos em pausa e matérias do ENEM editáveis (2026-09-29)
+
+Olimpíadas, Vestibulares e Outros estudos saem do Hub de Estudos. Suas URLs
+autenticadas mostram a tela existente de cômodo em pausa; código, tabelas e
+dados permanecem. A pausa é centralizada com os demais módulos em
+`frontend/lib/modulos-pausados.ts`.
+
+As quatro áreas fixas do ENEM continuam ativas. Cada área permite criar uma
+matéria acadêmica exclusiva do ENEM ou vincular uma matéria acadêmica já
+existente, preservando a linha única compartilhada com Escola/Faculdade
+(DEC-040). O seed inicial não repõe automaticamente matérias personalizadas
+ou retiradas. Erro de leitura não deve parecer lista vazia.
+
+A descrição introdutória abaixo do título pode ser ocultada por rota. A
+preferência fica no `localStorage` deste navegador e pode ser revertida em
+Configurações. Textos obrigatórios de senha, termos e privacidade não são
+tratados como decoração ocultável.
+
+## DEC-095 — V2 encerrada funcionalmente; pendências residuais passam à V3 (2026-09-25)
+
+Gabriel confirmou que a homologação do ENEM já foi realizada antes desta
+retomada. Ela deixa de ser pendência aberta. As validações residuais, interface
+de reordenação da Biblioteca, auditorias de integração/backup, polimentos,
+redesign Astra e experimentos restantes de desempenho deixam de bloquear a V2
+e passam para a V3, onde poderão ser retomados, priorizados ou adiados de novo.
+
+O código, schema, migrations e rotas atuais permanecem preservados. Esta
+decisão não reativa os cômodos pausados nem altera dados de produção.
+
+## DEC-094 — Provas: catálogo separado e arquivos pessoais no Drive da conta (2026-09-25)
+
+O Supabase atual continua sendo banco de dados, autenticação, metadados e
+arquivos privados pequenos; não será usado para um acervo compartilhado de
+cerca de 5 GB de PDFs. O plano gratuito oferece 1 GB de Storage e 5 GB de
+egress, portanto não comporta o acervo nem uma única circulação equivalente.
+
+Na V3, o catálogo compartilhado de provas deve separar metadados no Supabase de
+objetos PDF em um storage próprio. Cloudflare R2 é o candidato a investigar:
+na consulta de 2026-09-25, inclui 10 GB-mês, 1 milhão de escritas, 10 milhões
+de leituras e egress sem custo. Nada será ativado enquanto não houver conta,
+controle de gasto, limites, licenças/direitos de redistribuição e teste de
+acesso privado definidos.
+
+Arquivos enviados por cada pessoa não entram nesse acervo comum: devem ir ao
+Google Drive da própria conta via OAuth `drive.file`, em pasta criada/aberta
+pelo sistema. O Supabase guarda só metadados e o identificador do arquivo.
+Esse escopo é restrito aos arquivos que o sistema cria ou que a pessoa escolhe,
+evitando acesso geral ao Drive. A integração é V3 e não foi ativada.
+
+**Reavaliação posterior de Gabriel:** o Drive apresentou erros com arquivos
+grandes e compactados; R2 passou a ser candidato também para material pessoal
+de estudos. O destino final desses uploads está em aberto. A hipótese de uso
+gratuito exige limites por conta, teto de armazenamento e monitoramento de
+cobrança antes de qualquer ativação. Não tratar o Drive como decisão final.
+
 ## DEC-093 — Tema local antes da pintura e sessão visual compartilhada (2026-09-25)
 
 A preferência de atmosfera continua local ao navegador e não ganha cookie de
