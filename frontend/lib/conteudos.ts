@@ -11,6 +11,7 @@ export interface Conteudo {
   teoria_vista: boolean; // primeiro contato (aula/leitura), separado de revisão
   dominado_manual: boolean;
   revisao_uuid: string | null;
+  topico_uuid: string | null;
   modulo_curso_uuid: string | null; // só usado quando o conteúdo é aula de curso
   video_uuid: string | null;
   video?: {
@@ -24,8 +25,9 @@ export interface Conteudo {
   deleted: boolean;
 }
 
-export type ConteudoInput = Omit<Conteudo, 'uuid' | 'user_id' | 'updated_at' | 'deleted' | 'video' | 'video_uuid'> & {
+export type ConteudoInput = Omit<Conteudo, 'uuid' | 'user_id' | 'updated_at' | 'deleted' | 'video' | 'video_uuid' | 'topico_uuid'> & {
   video_uuid?: string | null;
+  topico_uuid?: string | null;
 };
 export type ConteudoUpdate = Partial<ConteudoInput>;
 

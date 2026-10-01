@@ -579,7 +579,7 @@ function GabaritoLegadoPage() {
               return (
                 <Card key={iBloco} className="overflow-hidden">
                   <div className="bg-secondary/40 px-3 py-1.5">
-                    <MonoLabel>Bloco {iBloco + 1} · {bloco[0]}–{bloco[bloco.length - 1]}</MonoLabel>
+                    <MonoLabel>Questões {bloco[0]}–{bloco[bloco.length - 1]}</MonoLabel>
                   </div>
                   <div className="divide-y divide-border">
                     {bloco.map((numero) => {

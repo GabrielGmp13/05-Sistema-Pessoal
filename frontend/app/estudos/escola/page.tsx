@@ -76,7 +76,7 @@ export default function EscolaPage() {
       ) : (
         <div className="mt-8 flex flex-col gap-10">
           <GerenciarMaterias materias={materias} rotulo={rotulo} recarregar={recarregar} />
-          <Section label="Bloco 1" title="Matérias" count={visiveis.length}>
+          <Section title="Matérias" count={visiveis.length}>
             {visiveis.length === 0 ? (
               <EmptyState
                 icon={School}
@@ -102,7 +102,7 @@ export default function EscolaPage() {
           </Section>
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <Section label="Bloco 2" title="Próximas provas" count={provasVisiveis.length}>
+            <Section title="Próximas provas" count={provasVisiveis.length}>
               {provasVisiveis.length === 0 ? (
                 <EmptyState
                   icon={CalendarClock}
@@ -129,7 +129,6 @@ export default function EscolaPage() {
             </Section>
 
             <Section
-              label="Bloco 3"
               title="Atividades pendentes"
               count={atividadesVisiveis.length}
             >

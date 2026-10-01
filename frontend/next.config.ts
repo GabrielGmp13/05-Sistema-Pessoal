@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
-// Exclusivo para homologação com Supabase local. Produção nunca libera HTTP.
-const origemLocal = process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_SUPABASE_URL === 'http://127.0.0.1:54321'
+// Exclusivo para homologação com Supabase local. Produção publicada nunca
+// define LOCAL_SUPABASE_QA; a exceção exige também a origem local exata.
+const permiteQaLocal = process.env.NODE_ENV === 'development' || process.env.LOCAL_SUPABASE_QA === 'true'
+const origemLocal = permiteQaLocal && process.env.NEXT_PUBLIC_SUPABASE_URL === 'http://127.0.0.1:54321'
   ? ' http://127.0.0.1:54321' : '';
 
 const contentSecurityPolicy = [

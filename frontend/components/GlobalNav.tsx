@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { BookOpen, Brain, CalendarDays, CalendarRange, ChevronDown, Code2, Dumbbell, FolderKanban, GraduationCap, Home, Languages, LogOut, Mail, Menu, NotebookTabs, Pencil } from 'lucide-react'
+import { BookOpen, CalendarDays, CalendarRange, ChevronDown, Code2, Dumbbell, FolderKanban, GraduationCap, Home, Languages, LogOut, Mail, Menu, NotebookTabs, Pencil } from 'lucide-react'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { CSSProperties, MouseEvent as ReactMouseEvent } from 'react'
 import { createPortal } from 'react-dom'
@@ -40,7 +40,6 @@ const links = [
   { href: '/biblioteca', label: 'Biblioteca', icon: BookOpen },
   { href: '/estudos', label: 'Estudos', icon: GraduationCap },
   { href: '/idiomas', label: 'Idiomas', icon: Languages },
-  { href: '/revisao', label: 'Revisão', icon: Brain },
   { href: '/agenda', label: 'Agenda', icon: CalendarDays },
   { href: '/historico', label: 'Histórico', icon: CalendarRange },
   { href: '/projetos', label: 'Projetos', icon: FolderKanban },

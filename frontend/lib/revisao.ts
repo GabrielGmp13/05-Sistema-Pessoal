@@ -101,47 +101,13 @@ export async function avaliarCard(
   cardUuid: string,
   qualidade: number
 ): Promise<CardRevisao | null> {
-  const userId = await getUserId()
-  if (!userId) return null
-
-  const { data: card, error: erroBusca } = await sb
-    .from('revisao_espacada')
-    .select('*')
-    .eq('uuid', cardUuid)
-    .eq('user_id', userId)
-    .eq('deleted', false)
-    .single()
-
-  if (erroBusca || !card) {
-    return sbErr(erroBusca, 'avaliarCard')
-  }
-
-  const resultado = calcularSM2(
-    card.ef,
-    card.repeticoes,
-    card.intervalo_dias,
-    qualidade
-  )
-
-  const { data: atualizado, error: erroUpdate } = await sb
-    .from('revisao_espacada')
-    .update({
-      ef: resultado.ef,
-      repeticoes: resultado.repeticoes,
-      intervalo_dias: resultado.intervaloDias,
-      proxima_revisao: resultado.proximaRevisao,
-      updated_at: now(),
-    })
-    .eq('uuid', cardUuid)
-    .eq('user_id', userId)
-    .select()
-    .single()
-
-  if (erroUpdate) {
-    return sbErr(erroUpdate, 'avaliarCard')
-  }
-
-  return atualizado as CardRevisao
+  if (!Number.isInteger(qualidade) || qualidade < 0 || qualidade > 5) return null
+  const { data, error } = await sb.rpc('avaliar_revisao_v23', {
+    p_revisao_uuid: cardUuid,
+    p_qualidade: qualidade,
+  }).single()
+  if (error) return sbErr(error, 'avaliarCard')
+  return data as CardRevisao
 }
 
 // ---------------------------------------------------------------------------

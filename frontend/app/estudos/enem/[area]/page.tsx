@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronRight, GraduationCap } from 'lucide-react'
 import {
@@ -21,6 +21,7 @@ const AREAS_VALIDAS: AreaEnem[] = ['linguagens', 'humanas', 'natureza', 'matemat
 
 export default function AreaEnemPage() {
   const params = useParams<{ area: string }>()
+  const router = useRouter()
   const areaParam = params.area as AreaEnem
 
   const [materias, setMaterias] = useState<Materia[]>([])
@@ -29,6 +30,7 @@ export default function AreaEnemPage() {
 
   const areaValida = AREAS_VALIDAS.includes(areaParam)
   const materiasDaArea = materias.filter((materia) => materia.mostra_enem && materia.area_enem === areaParam)
+  const materiaUnica = materiasDaArea.length === 1 ? materiasDaArea[0] : null
 
   const recarregar = useCallback(async () => {
     const resultado = await listarMaterias('academica')
@@ -44,6 +46,11 @@ export default function AreaEnemPage() {
       .finally(() => { if (ativo) setCarregando(false) })
     return () => { ativo = false }
   }, [areaValida, recarregar])
+
+  useEffect(() => {
+    if (carregando || erro || !areaValida || !materiaUnica) return
+    router.replace(`/estudos/materia/${materiaUnica.uuid}?from=enem`)
+  }, [areaValida, carregando, erro, materiaUnica, router])
 
   if (!areaValida) {
     return (
@@ -68,7 +75,7 @@ export default function AreaEnemPage() {
 
       <div className="mt-8">
         {erro ? <p role="alert" className="mb-5 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">{erro}</p> : null}
-        {carregando ? (
+        {carregando || materiaUnica ? (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {[0, 1, 2].map((i) => <Skeleton key={i} className="h-16 w-full" />)}
           </div>

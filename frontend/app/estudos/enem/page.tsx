@@ -128,7 +128,7 @@ export default function EnemPage() {
         <LoadingState />
       ) : erro.startsWith('Não foi possível carregar os dados') ? null : (
         <div className="mt-8 flex flex-col gap-10">
-          <Section label="Bloco 1" title="Áreas de conhecimento">
+          <Section title="Áreas de conhecimento">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {ORDEM_AREAS_ENEM.map((area) => {
                 const count = materias.filter((m) => m.area_enem === area).length
@@ -147,7 +147,7 @@ export default function EnemPage() {
             </div>
           </Section>
 
-          <Section label="Bloco 2" title="Provas ENEM" count={provas.length}>
+          <Section title="Provas ENEM" count={provas.length}>
             <div className="flex flex-col gap-4">
               {provas.length === 0 ? (
                 <EmptyState
