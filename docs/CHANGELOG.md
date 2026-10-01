@@ -1,6 +1,6 @@
 # CHANGELOG.md
 
-## 2026-10-01 — Validação local integral da V2.3
+## 2026-10-01 — Validação integral e schema remoto da V2.3
 
 - Docker Desktop e Supabase CLI `2.112.0` foram recuperados. O banco foi
   reconstruído até `20260917000300`, o precheck V2.3 passou e a migration
@@ -12,10 +12,14 @@
 - QA autenticada local com conta fictícia passou 21/21: Escola, redirecionamento
   ENEM, cartões e métricas, modal/foco/Escape, detalhe interceptado e direto,
   histórico do navegador, Revisão e persistência da tentativa pela RPC.
+- Em produção, um backup lógico local foi criado antes do precheck. O dry-run
+  listou somente `20260930000100`; a aplicação e o teste SQL remoto passaram.
+  O contrato final confirmou 3 tabelas, 2 RPCs, 57 tópicos, 57 vínculos e 57
+  conteúdos associados, sem criar tentativas históricas.
 - Um opt-in server-only `LOCAL_SUPABASE_QA=true`, restrito à URL exata
   `http://127.0.0.1:54321`, permite build local de produção contra o Supabase
-  isolado sem ampliar a CSP publicada. Produção, Git remoto e Vercel não foram
-  alterados.
+  isolado sem ampliar a CSP publicada. Git remoto e Vercel ainda não foram
+  alterados nesta etapa; somente o schema remoto autorizado foi atualizado.
 
 ## 2026-09-30 — V2.3 estrutural de Estudos (somente local)
 

@@ -1,11 +1,12 @@
 # Retomada operacional — 2026-09-30
 
-> **V2.3 validada localmente em 2026-10-01:** reset até a baseline
+> **V2.3 com schema aplicado em produção em 2026-10-01:** reset até a baseline
 > `20260917000300`, precheck, aplicação isolada da `20260930000100`, reset
 > integral e 27 testes SQL passaram. QA autenticada local passou 21/21; 165
-> testes Node, typecheck, lint e build também passaram. Nenhuma operação remota.
-> Próximo passo: revisar o lote e pedir autorização específica antes de qualquer
-> aplicação/publicação; escopos reais só podem ser auditados após a migration.
+> testes Node, typecheck, lint e build também passaram. Após backup lógico,
+> precheck e dry-run exclusivo, a migration foi aplicada remotamente; o
+> pós-check confirmou 3 tabelas, 2 RPCs e os 57 conteúdos vinculados, sem
+> ambiguidades. Próximo passo: publicar o frontend e confirmar o deploy.
 
 > **Atualização de dados em 2026-09-30:** a conta de Gabriel tinha as áreas
 > ENEM vazias por não receber o seed inicial após já possuir matérias

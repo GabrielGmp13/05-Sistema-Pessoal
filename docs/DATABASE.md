@@ -1,6 +1,6 @@
 # DATABASE.md
 
-> **V2.3 validada somente localmente — 2026-10-01:**
+> **V2.3 aplicada em produção — 2026-10-01:**
 > `20260930000100_estudos_topicos_subtopicos.sql` cria `topicos_estudo`,
 > `topicos_materias`, `revisoes_tentativas`, `conteudos.topico_uuid` e as
 > funções invoker `criar_topico_estudo_v23`/`avaliar_revisao_v23`. O backfill
@@ -8,8 +8,10 @@
 > `conteudos`. Reset até `20260917000300`, precheck, aplicação isolada, reset
 > integral e 27/27 testes SQL passaram. A RPC de avaliação recebe `integer`;
 > `revisoes_tentativas` mantém CRUD concedido conforme a convenção, mas RLS
-> restritiva impede UPDATE/DELETE. A migration não está aplicada em produção.
-> Não integrar/publicar o frontend V2.3 contra produção sem autorização.
+> restritiva impede UPDATE/DELETE. Após backup lógico, precheck e dry-run
+> exclusivo, a migration foi aplicada em produção. O pós-check remoto confirmou
+> 3 tabelas, 2 RPCs, 57 tópicos, 57 vínculos matéria–tópico e 57 conteúdos
+> vinculados; `revisoes_tentativas` permaneceu vazia.
 
 > **I05 em 2026-09-25:** reset local e
 > `validate_biblioteca_reordenacao.sql` passaram. Após precheck e dry-run
@@ -18,7 +20,7 @@
 > seguro, RLS e GRANTs; o dry-run final está vazio. Os roteiros I05 aceitam
 > exclusivamente essa versão e preservam 00200/00300.
 
-## Estado remoto confirmado em 2026-09-24
+## Estado remoto confirmado até 2026-10-01
 
 Aplicadas nesta rodada exclusivamente `20260917000200` (avaliações/anuladas) e
 `20260917000300` (tentativas ENEM/versões e avaliações de redações), após
@@ -27,7 +29,9 @@ tabelas novas com RLS, CRUD authenticated e sem SELECT anon; dry-run final
 da cadeia isolada vazio. Os contratos abaixo antes marcados como locais
 dessas duas versões agora estão disponíveis em produção. Em 2026-09-25, a
 Biblioteca `20260917000100` também foi aplicada isoladamente. As baselines não
-foram reexecutadas.
+foram reexecutadas. Em 2026-10-01, `20260930000100` foi aplicada isoladamente
+após backup lógico, precheck e dry-run exclusivo; nenhuma migration anterior
+foi reaplicada.
 
 Documento único de referência para o banco de dados. Qualquer dúvida sobre nome de tabela, coluna ou relacionamento é resolvida aqui — não em memória, não por suposição.
 
@@ -976,10 +980,10 @@ updated_at    TIMESTAMPTZ DEFAULT NOW(),
 deleted       BOOLEAN DEFAULT FALSE
 ```
 
-### V2.3 local — `topicos_estudo`, `topicos_materias` e subtópicos
+### V2.3 — `topicos_estudo`, `topicos_materias` e subtópicos
 
-> Objetos abaixo existem somente na migration local `20260930000100`; ainda
-> não estão disponíveis em produção.
+> Objetos abaixo existem na migration `20260930000100` e em produção desde
+> 2026-10-01.
 
 ```sql
 -- topicos_estudo
@@ -1012,7 +1016,7 @@ conteúdo vira um subtópico do tópico temporário de mesmo UUID/nome; cursos e
 inferência e sinaliza como ambíguo o conteúdo cuja matéria aparecia ao mesmo
 tempo em Escola e ENEM.
 
-### V2.3 local — `revisoes_tentativas`
+### V2.3 — `revisoes_tentativas`
 
 ```sql
 uuid          TEXT PRIMARY KEY,

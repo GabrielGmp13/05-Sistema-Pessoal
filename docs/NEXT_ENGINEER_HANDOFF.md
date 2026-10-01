@@ -1,12 +1,12 @@
 # Handoff — continuidade da V2 após publicação parcial
 
-> **V2.3 validada somente localmente em 2026-10-01:** tópicos/subtópicos, escopos por
+> **V2.3 com schema aplicado em produção em 2026-10-01:** tópicos/subtópicos, escopos por
 > contexto, métricas, rota interceptada, navegação ENEM direta e histórico
-> futuro de revisão foram implementados. A migration `20260930000100` não foi
-> aplicada em produção. Localmente passaram precheck na baseline, aplicação
+> futuro de revisão foram implementados. A migration `20260930000100` foi
+> aplicada isoladamente após backup, precheck e dry-run exclusivo. Localmente passaram precheck na baseline, aplicação
 > isolada, reset integral, 27/27 testes SQL e QA autenticada 21/21. Gates do
-> frontend: 165 testes, typecheck, lint e build. Não publicar o frontend antes
-> da aplicação do schema pelo rito explicitamente autorizado.
+> frontend: 165 testes, typecheck, lint e build. O pós-check remoto confirmou
+> 3 tabelas, 2 RPCs e os 57 conteúdos vinculados. O frontend aguarda push/deploy.
 
 > **Atualização de dados em 2026-09-30:** a conta de Gabriel recebeu 11
 > matérias ENEM e 57 conteúdos, organizados nas quatro áreas. O pós-check

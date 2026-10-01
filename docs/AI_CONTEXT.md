@@ -1,12 +1,13 @@
 # AI_CONTEXT.md
 
-> **V2.3 validada localmente — 2026-10-01:** a área de Estudos ganhou uma
+> **V2.3 com schema aplicado em produção — 2026-10-01:** a área de Estudos ganhou uma
 > camada aditiva de tópicos principais e subtópicos, escopo por contexto,
 > métricas agregadas e detalhe por rota interceptada. Reset completo, precheck
 > na baseline `20260917000300`, migration `20260930000100`, 27 testes SQL e QA
 > autenticada local 21/21 passaram. Frontend: 165 testes, typecheck, lint e
-> build aprovados. A migration continua fora de produção; não publicar o
-> frontend antes da aplicação remota explicitamente autorizada do schema.
+> build aprovados. Após backup lógico, precheck e dry-run exclusivo, a migration
+> foi aplicada em produção; o pós-check confirmou 3 tabelas, 2 RPCs, 57 tópicos,
+> 57 vínculos e 57 conteúdos associados. O frontend ainda aguarda publicação.
 
 > **Atualização operacional em 2026-09-30:** após o lote publicado de 29/09,
 > a conta de Gabriel recebeu 11 matérias ENEM e 57 conteúdos organizados nas

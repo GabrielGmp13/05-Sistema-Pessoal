@@ -1,15 +1,15 @@
 # Tarefas atuais — preparação funcional da versão 2
 
-**V2.3 — validação local concluída em 2026-10-01:** criada a hierarquia aditiva
+**V2.3 — schema aplicado em produção em 2026-10-01:** criada a hierarquia aditiva
 escopo → matéria → tópico principal → subtópico. Os conteúdos existentes não
 são reescritos: tornam-se subtópicos de compatibilidade e conservam revisão,
 questões, provas, simulados, sessões, materiais e anotações. Relações herdadas
 de matéria compartilhada ficam marcadas como escopo ambíguo até confirmação.
-A migration `20260930000100` continua somente local. O rito aprovado foi
-reproduzido: reset até `20260917000300`, precheck limpo, aplicação isolada,
-reset integral e 27/27 scripts SQL. As três tabelas, `conteudos.topico_uuid` e
-as duas RPCs existem após a migration. A conexão remota segue fora de escopo;
-não aplicar nem publicar sem autorização explícita.
+A migration `20260930000100` foi aplicada isoladamente após backup lógico,
+precheck remoto e dry-run que listou somente esse arquivo. O pós-check remoto
+confirmou as três tabelas, `conteudos.topico_uuid`, as duas RPCs, 57 tópicos,
+57 vínculos matéria–tópico e 57 conteúdos vinculados. O frontend ainda aguarda
+push e confirmação do deploy Vercel.
 
 Interface local: Revisão saiu da navegação global mas continua em Estudos;
 área ENEM com uma matéria redireciona ao detalhe; rótulos “Bloco N” foram
@@ -19,8 +19,7 @@ completo” está preparado com placeholder. Gates aprovados: 165 testes Node,
 typecheck, lint e build. QA autenticada local passou 21/21 com conta fictícia:
 ENEM, Escola, tópico/subtópicos, Revisão, modal, foco/Escape, rota
 interceptada/direta, histórico e persistência da RPC. O reset vazio produziu
-zero escopos ambíguos; os dados reais de produção ainda não foram auditados
-pela migration.
+zero escopos ambíguos; o precheck remoto também encontrou zero ambiguidades.
 
 **Ajuste solicitado em 2026-09-29 — publicado:** Olimpíadas,
 Vestibulares e Outros estudos ficam em pausa, com URL preservada e card
