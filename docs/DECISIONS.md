@@ -1,5 +1,49 @@
 # DECISIONS.md
 
+## DEC-098 — Opt-in estrito para QA local em build de produção (2026-10-01)
+
+**Status:** implementada somente no código local; nenhuma variável remota criada.
+
+O build de produção aplica CSP sem HTTP local, corretamente, mas isso impedia
+homologar o candidato compilado contra o Supabase Docker. `LOCAL_SUPABASE_QA`
+passa a liberar a origem somente quando vale `true` e
+`NEXT_PUBLIC_SUPABASE_URL` é exatamente `http://127.0.0.1:54321`. A variável é
+server-only, não existe na Vercel e não libera outra origem. Desenvolvimento
+continua permitindo o mesmo endpoint local sem esse opt-in.
+
+Essa exceção serve exclusivamente a QA isolada. Não autoriza banco remoto,
+deploy, serviço externo nem relaxamento da CSP publicada.
+
+## DEC-097 — Tópicos principais aditivos e conteúdos preservados como subtópicos (2026-09-30)
+
+**Status:** implementada somente localmente; migration não aplicada em produção.
+
+A V2.3 acrescenta `topicos_estudo` e `topicos_materias` sem substituir nem
+renumerar registros de `conteudos`. Conteúdos acadêmicos existentes recebem um
+tópico temporário de mesmo nome e continuam sendo a unidade ligada a revisão,
+questões, provas, simulados, sessões, materiais e anotações. Essa equivalência
+um-para-um é compatibilidade, não organização pedagógica definitiva.
+
+O vínculo tópico/matéria guarda `mostra_escola` e `mostra_enem`. O backfill
+herda os sinais da matéria, registra `escopo_origem='inferido_materia'` e marca
+como ambíguo todo vínculo cuja matéria aparecia nos dois contextos. A pessoa
+precisa confirmar esses casos; o sistema não transforma a abrangência da
+matéria em fato sobre cada tópico.
+
+`revisoes_tentativas` registra somente avaliações futuras e é imutável para a
+conta autenticada. Não há backfill: `repeticoes` é sequência SM-2 e zera após
+falha, portanto não representa o total histórico. A função invoker
+`avaliar_revisao_v23` atualiza o card e grava a tentativa atomicamente. A
+semântica confirmada no código vigente é 0–2 falhou, 3 difícil mas lembrou,
+4 bom e 5 fácil; a interface mantém qualidade de recordação separada de
+resultado objetivo de questão.
+
+Progresso é teoria vista sobre subtópicos ativos. Percentuais ignoram itens
+neutros no denominador; o gráfico ainda os identifica separadamente. O geral
+soma corretas/incorretas de revisão, prova e simulado antes de dividir, sem
+tirar média entre percentuais e sem mostrar 0% quando não existe tentativa
+avaliável.
+
 ## DEC-096 — Áreas opcionais de Estudos em pausa e matérias do ENEM editáveis (2026-09-29)
 
 Olimpíadas, Vestibulares e Outros estudos saem do Hub de Estudos. Suas URLs

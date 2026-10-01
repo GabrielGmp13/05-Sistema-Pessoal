@@ -1,10 +1,19 @@
 # AI_CONTEXT.md
 
-> **Publicado em 2026-09-29:** três áreas opcionais de Estudos foram
-> pausadas; ENEM agora oferece criação/vínculo de matéria em cada área; a
-> descrição introdutória de página pode ser ocultada por rota e restaurada em
-> Configurações. Commit `df91767`, CI e Vercel aprovados; ainda não validado
-> com a conta de Gabriel. Ver DEC-096 e `TASKS_NOW.md`.
+> **V2.3 validada localmente — 2026-10-01:** a área de Estudos ganhou uma
+> camada aditiva de tópicos principais e subtópicos, escopo por contexto,
+> métricas agregadas e detalhe por rota interceptada. Reset completo, precheck
+> na baseline `20260917000300`, migration `20260930000100`, 27 testes SQL e QA
+> autenticada local 21/21 passaram. Frontend: 165 testes, typecheck, lint e
+> build aprovados. A migration continua fora de produção; não publicar o
+> frontend antes da aplicação remota explicitamente autorizada do schema.
+
+> **Atualização operacional em 2026-09-30:** após o lote publicado de 29/09,
+> a conta de Gabriel recebeu 11 matérias ENEM e 57 conteúdos organizados nas
+> quatro áreas. O pós-check direto no banco confirmou todos os vínculos, sem
+> duplicatas ou pendências. A visualização autenticada desses itens na produção
+> ainda não foi registrada. O código do lote é `df91767`; o registro de CI e
+> deploy é `4ce9b21`. Ver DEC-096 e `TASKS_NOW.md`.
 > O destino futuro de arquivos pessoais de estudo está em reavaliação entre
 > Drive e R2 após erros de upload grande; nenhum serviço novo foi ativado.
 

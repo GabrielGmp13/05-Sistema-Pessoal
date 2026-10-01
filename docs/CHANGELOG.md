@@ -1,5 +1,50 @@
 # CHANGELOG.md
 
+## 2026-10-01 — Validação local integral da V2.3
+
+- Docker Desktop e Supabase CLI `2.112.0` foram recuperados. O banco foi
+  reconstruído até `20260917000300`, o precheck V2.3 passou e a migration
+  `20260930000100` foi aplicada isoladamente antes de novo reset integral.
+- 27/27 scripts SQL passaram. A validação corrigiu a assinatura da RPC de
+  revisão para `integer`, atualizou as contagens da baseline para 78 tabelas e
+  12 funções e comprovou a imutabilidade de `revisoes_tentativas` por RLS,
+  mantendo os quatro grants obrigatórios.
+- QA autenticada local com conta fictícia passou 21/21: Escola, redirecionamento
+  ENEM, cartões e métricas, modal/foco/Escape, detalhe interceptado e direto,
+  histórico do navegador, Revisão e persistência da tentativa pela RPC.
+- Um opt-in server-only `LOCAL_SUPABASE_QA=true`, restrito à URL exata
+  `http://127.0.0.1:54321`, permite build local de produção contra o Supabase
+  isolado sem ampliar a CSP publicada. Produção, Git remoto e Vercel não foram
+  alterados.
+
+## 2026-09-30 — V2.3 estrutural de Estudos (somente local)
+
+- Adicionada migration incremental de tópicos principais, escopos por matéria,
+  subtópicos compatíveis e tentativas futuras de revisão, sem reescrever dados
+  históricos. Escopos herdados ficam auditáveis e os casos compartilhados são
+  marcados como ambíguos.
+- Página de matéria passou a cards com progresso, agenda de revisão e métricas
+  reais de revisão/provas/simulados; ausência de tentativas não vira 0%.
+- Detalhe do tópico ganhou rota canônica e interceptada, tabela responsiva de
+  subtópicos, foco/teclado e confirmação de escopo. O modal de revisão completa
+  foi preparado com placeholder.
+- Revisão saiu somente da navegação global, continuando acessível em Estudos;
+  áreas ENEM com uma matéria redirecionam diretamente; rótulos “Bloco N” foram
+  removidos.
+- 165 testes Node, typecheck, lint e build aprovados. O estado inicial ainda
+  aguardava Docker; a validação integral posterior está registrada acima.
+
+## 2026-09-30 — Curadoria inicial do ENEM da conta Gabriel
+
+- Após precheck somente leitura e dry-run, a conta identificada como Gabriel
+  recebeu 11 matérias ENEM e 57 conteúdos organizados: Matemática (13),
+  Ciências da Natureza (17), Ciências Humanas (18) e Linguagens (9).
+- O pós-check no banco confirmou 57 vínculos ativos e zero itens pendentes ou
+  duplicados. “Interpretação em inglês” foi incluída somente em Inglês.
+- Esta é uma curadoria de dados da conta, não uma migration, seed global,
+  alteração de código, catálogo automático ou integração de PDFs. A
+  conferência visual autenticada dos registros publicados permanece pendente.
+
 ## 2026-09-29 — Estudos essenciais e descrições ocultáveis
 
 - Olimpíadas, Vestibulares e Outros estudos saíram do Hub; suas URLs usam a

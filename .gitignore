@@ -23,3 +23,7 @@ frontend/out/
 frontend/tsconfig.tsbuildinfo
 frontend/.env*
 !frontend/.env.example
+
+# Artefatos pessoais do usuário; nunca versionar.
+guia-amigos-sistema-pessoal.pdf
+ENEM_2026_Pesquisa_Completaastra6.xlsx

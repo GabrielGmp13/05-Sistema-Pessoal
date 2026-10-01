@@ -1,5 +1,16 @@
 # DATABASE.md
 
+> **V2.3 validada somente localmente — 2026-10-01:**
+> `20260930000100_estudos_topicos_subtopicos.sql` cria `topicos_estudo`,
+> `topicos_materias`, `revisoes_tentativas`, `conteudos.topico_uuid` e as
+> funções invoker `criar_topico_estudo_v23`/`avaliar_revisao_v23`. O backfill
+> é aditivo e auditável; nenhuma FK histórica deixa de apontar para
+> `conteudos`. Reset até `20260917000300`, precheck, aplicação isolada, reset
+> integral e 27/27 testes SQL passaram. A RPC de avaliação recebe `integer`;
+> `revisoes_tentativas` mantém CRUD concedido conforme a convenção, mas RLS
+> restritiva impede UPDATE/DELETE. A migration não está aplicada em produção.
+> Não integrar/publicar o frontend V2.3 contra produção sem autorização.
+
 > **I05 em 2026-09-25:** reset local e
 > `validate_biblioteca_reordenacao.sql` passaram. Após precheck e dry-run
 > isolados, `20260917000100_biblioteca_reordenacao.sql` foi aplicada em
@@ -964,6 +975,59 @@ materia_uuid  TEXT NOT NULL REFERENCES materias(uuid),
 updated_at    TIMESTAMPTZ DEFAULT NOW(),
 deleted       BOOLEAN DEFAULT FALSE
 ```
+
+### V2.3 local — `topicos_estudo`, `topicos_materias` e subtópicos
+
+> Objetos abaixo existem somente na migration local `20260930000100`; ainda
+> não estão disponíveis em produção.
+
+```sql
+-- topicos_estudo
+uuid       TEXT PRIMARY KEY,
+user_id    UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+nome       TEXT NOT NULL,
+updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+deleted    BOOLEAN NOT NULL DEFAULT FALSE,
+UNIQUE (user_id, uuid)
+
+-- topicos_materias
+uuid            TEXT PRIMARY KEY,
+user_id         UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+topico_uuid     TEXT NOT NULL,
+materia_uuid    TEXT NOT NULL,
+mostra_escola   BOOLEAN NOT NULL DEFAULT FALSE,
+mostra_enem     BOOLEAN NOT NULL DEFAULT FALSE,
+escopo_origem   TEXT NOT NULL, -- manual | inferido_materia
+escopo_ambiguo  BOOLEAN NOT NULL DEFAULT FALSE,
+updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+deleted         BOOLEAN NOT NULL DEFAULT FALSE
+
+-- conteudos recebe FK composta e nullable; registros permanecem canônicos.
+conteudos.topico_uuid TEXT REFERENCES topicos_estudo(uuid)
+```
+
+O backfill abrange conteúdos ligados a matérias acadêmicas ativas. Cada
+conteúdo vira um subtópico do tópico temporário de mesmo UUID/nome; cursos e
+áreas antigas continuam no fluxo legado. `topicos_materias` guarda a origem da
+inferência e sinaliza como ambíguo o conteúdo cuja matéria aparecia ao mesmo
+tempo em Escola e ENEM.
+
+### V2.3 local — `revisoes_tentativas`
+
+```sql
+uuid          TEXT PRIMARY KEY,
+user_id       UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+revisao_uuid  TEXT NOT NULL,
+conteudo_uuid TEXT,
+qualidade     SMALLINT NOT NULL CHECK (qualidade BETWEEN 0 AND 5),
+resultado     TEXT NOT NULL, -- falhou | dificil | bom | facil
+respondida_em TIMESTAMPTZ NOT NULL DEFAULT NOW()
+```
+
+A tabela não recebe backfill e bloqueia UPDATE/DELETE por RLS. A função invoker
+`avaliar_revisao_v23(text,smallint)` bloqueia o card da conta, aplica SM-2 e
+insere a tentativa na mesma transação. `criar_topico_estudo_v23` cria tópico,
+escopo, subtópico inicial e vínculo legado atomicamente.
 
 ### `modulos_curso`
 ```sql

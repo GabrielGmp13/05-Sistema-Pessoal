@@ -1,5 +1,21 @@
 # DESIGN.md
 
+## Tópicos de Estudos e painel flutuante (V2.3, 2026-09-30)
+
+Tópicos principais usam um card único, sem fileira de pequenos botões. O card
+mostra nome, resumo de subtópicos, progresso de teoria, próxima revisão e quatro
+indicadores compactos: revisão, provas, simulados e geral. Cor primária indica
+acerto, `destructive` indica erro e `muted` indica pendente/anulada/neutra. Sem
+tentativa avaliável, escrever “Sem dados ainda”; nunca representar ausência de
+dado como 0%.
+
+A área não acionável do card abre a rota canônica do tópico como painel
+interceptado. O painel é central, arredondado, tem margem do viewport, rolagem
+interna, fecha por Escape, prende o foco e o devolve ao elemento de origem.
+Botões internos não disparam a abertura do detalhe. A ação principal do card é
+“Revisar conteúdo completo”; enquanto o fluxo não for especificado, o diálogo
+mostra apenas o placeholder aprovado. Ações destrutivas não ficam no card.
+
 ## Descrições introdutórias de página (2026-09-29)
 
 O texto explicativo diretamente abaixo do título principal usa o componente

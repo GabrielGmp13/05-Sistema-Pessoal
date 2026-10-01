@@ -1,4 +1,25 @@
-# Retomada operacional — 2026-09-24
+# Retomada operacional — 2026-09-30
+
+> **V2.3 validada localmente em 2026-10-01:** reset até a baseline
+> `20260917000300`, precheck, aplicação isolada da `20260930000100`, reset
+> integral e 27 testes SQL passaram. QA autenticada local passou 21/21; 165
+> testes Node, typecheck, lint e build também passaram. Nenhuma operação remota.
+> Próximo passo: revisar o lote e pedir autorização específica antes de qualquer
+> aplicação/publicação; escopos reais só podem ser auditados após a migration.
+
+> **Atualização de dados em 2026-09-30:** a conta de Gabriel tinha as áreas
+> ENEM vazias por não receber o seed inicial após já possuir matérias
+> acadêmicas. Foram criadas, em transação isolada, 11 matérias e 57 conteúdos
+> das listas fornecidas: Matemática 13, Natureza 17, Humanas 18 e Linguagens 9.
+> O pós-check confirmou 57 vínculos ativos, nenhum item novo pendente e
+> “Interpretação em inglês” somente em Inglês. A gravação no banco foi
+> confirmada; falta apenas conferência visual autenticada no site publicado.
+> Não há migration, código ou catálogo de provas envolvidos nesta operação.
+
+> **Lote publicado em 2026-09-29:** `df91767` pausou Olimpíadas, Vestibulares e
+> Outros estudos, permitiu criar/vincular matérias nas áreas ENEM e tornou
+> ocultáveis as descrições introdutórias. O registro `4ce9b21` confirma CI e
+> Vercel aprovados (158 testes, typecheck, lint e build de 49 páginas).
 
 > **Encerramento de escopo:** a homologação ENEM foi confirmada por Gabriel
 > como já realizada. Todas as pendências residuais foram transferidas à V3.

@@ -1,12 +1,26 @@
 # Handoff — continuidade da V2 após publicação parcial
 
+> **V2.3 validada somente localmente em 2026-10-01:** tópicos/subtópicos, escopos por
+> contexto, métricas, rota interceptada, navegação ENEM direta e histórico
+> futuro de revisão foram implementados. A migration `20260930000100` não foi
+> aplicada em produção. Localmente passaram precheck na baseline, aplicação
+> isolada, reset integral, 27/27 testes SQL e QA autenticada 21/21. Gates do
+> frontend: 165 testes, typecheck, lint e build. Não publicar o frontend antes
+> da aplicação do schema pelo rito explicitamente autorizado.
+
+> **Atualização de dados em 2026-09-30:** a conta de Gabriel recebeu 11
+> matérias ENEM e 57 conteúdos, organizados nas quatro áreas. O pós-check
+> direto confirmou 57 vínculos ativos e nenhum item pendente; falta somente a
+> inspeção visual autenticada na produção. Nenhum código, migration ou serviço
+> externo foi alterado.
+
 > **Publicado em 2026-09-29:** pausar Olimpíadas/Vestibulares/Outros
 > estudos, criar ou vincular matéria nas áreas ENEM e ocultar/restaurar
 > descrições introdutórias está implementado, sem migration. Commit `df91767`,
 > 158 testes, typecheck, lint, build, CI e Vercel passaram. Falta conferir o
 > fluxo autenticado; os textos históricos abaixo não representam este lote.
 > O checkout atual foi encontrado em
-> `C:\Gabriel Oliveira\01-Projetos\05-Sistema-Pessoal`.
+> `C:\Gabriel Oliveira\05-Sistema-Pessoal`.
 > Arquivos pessoais grandes: Gabriel relatou erros no Drive e considera R2;
 > decidir quotas, upload retomável e custo na V3 antes de integrar.
 
@@ -27,15 +41,17 @@
 
 - Repositório: `C:\Gabriel Oliveira\05-Sistema-Pessoal`; frontend único em
   `frontend/`; produção em `https://expansiondominionpersonaledition.vercel.app`.
-- Último lote funcional em `main`: `79dce60` (V2.2 de desempenho), após
-  `14d85a1`, `547889b` e `bdc4ac5`. CI e deploy Vercel passaram. O PDF avulso
-  na raiz pertence ao usuário e segue fora do Git.
+- Último lote funcional em `main`: `df91767` (Estudos/ENEM), documentado por
+  `4ce9b21`; ele sucede `79dce60` (V2.2 de desempenho), `14d85a1`, `547889b`
+  e `bdc4ac5`. CI e deploy Vercel passaram. O PDF avulso na raiz pertence ao
+  usuário e segue fora do Git.
 - Banco: `20260915000100`, `20260917000100`, `20260917000200` e
   `20260917000300` estão aplicadas em produção. A `00100` foi aplicada por
   rito isolado em 2026-09-25; não executar `db push` genérico. A função só
   reordena elenco/trilha/OP-ED dentro de uma obra e a UI ainda não a chama.
-- Validação atual: 155 testes Node, typecheck, lint e build de 49 páginas
-  passaram. V2.2 eliminou o flash de tema, reduziu operações do Início,
+- Validação mais recente de código: 158 testes Node, typecheck, lint e build
+  de 49 páginas passaram no lote `df91767`; CI/Vercel também passaram. V2.2
+  eliminou o flash de tema, reduziu operações do Início,
   compartilhou sessão/perfil e removeu espera artificial de navegação; smoke
   público/autenticado passou. QA anterior confirmou Treino/Agenda, avaliações,
   ENEM, Redações, progresso de leitura, OFX/CSV sintéticos e Storage privado.

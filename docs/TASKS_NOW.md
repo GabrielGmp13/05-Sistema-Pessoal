@@ -1,5 +1,27 @@
 # Tarefas atuais — preparação funcional da versão 2
 
+**V2.3 — validação local concluída em 2026-10-01:** criada a hierarquia aditiva
+escopo → matéria → tópico principal → subtópico. Os conteúdos existentes não
+são reescritos: tornam-se subtópicos de compatibilidade e conservam revisão,
+questões, provas, simulados, sessões, materiais e anotações. Relações herdadas
+de matéria compartilhada ficam marcadas como escopo ambíguo até confirmação.
+A migration `20260930000100` continua somente local. O rito aprovado foi
+reproduzido: reset até `20260917000300`, precheck limpo, aplicação isolada,
+reset integral e 27/27 scripts SQL. As três tabelas, `conteudos.topico_uuid` e
+as duas RPCs existem após a migration. A conexão remota segue fora de escopo;
+não aplicar nem publicar sem autorização explícita.
+
+Interface local: Revisão saiu da navegação global mas continua em Estudos;
+área ENEM com uma matéria redireciona ao detalhe; rótulos “Bloco N” foram
+removidos; matérias mostram cards de tópicos com progresso, revisão e
+desempenho; o detalhe usa rota canônica/interceptada e o modal “Revisar conteúdo
+completo” está preparado com placeholder. Gates aprovados: 165 testes Node,
+typecheck, lint e build. QA autenticada local passou 21/21 com conta fictícia:
+ENEM, Escola, tópico/subtópicos, Revisão, modal, foco/Escape, rota
+interceptada/direta, histórico e persistência da RPC. O reset vazio produziu
+zero escopos ambíguos; os dados reais de produção ainda não foram auditados
+pela migration.
+
 **Ajuste solicitado em 2026-09-29 — publicado:** Olimpíadas,
 Vestibulares e Outros estudos ficam em pausa, com URL preservada e card
 removido do Hub de Estudos. Cada área fixa do ENEM permite criar matéria ou
@@ -7,24 +29,32 @@ vincular uma acadêmica existente; erro de leitura deixa de ser exibido como
 zero matérias. Descrições introdutórias de cabeçalho podem ser ocultadas por
 rota neste navegador e restauradas em Configurações. Sem migration. Gates
 locais: 158 testes Node, typecheck, lint e build de 49 páginas passaram.
-Commit `df91767` em `main`, CI e deploy Vercel aprovados. Smoke público deu
-200 em `/ajuda` e 307 para `/login` nas rotas protegidas. Ainda falta validar
-a experiência com uma conta autenticada real ou descartável antes de afirmar
-que o caso observado por Gabriel foi resolvido em produção.
-O conteúdo de cada matéria continua sendo cadastrado manualmente; curadoria
-automática de tópicos e catálogo de PDFs de provas seguem sem implementação.
+Commit `df91767` em `main`, CI e deploy Vercel aprovados; o registro posterior
+é `4ce9b21`. Smoke público deu 200 em `/ajuda` e 307 para `/login` nas rotas
+protegidas. A experiência com uma conta autenticada real ou descartável ainda
+precisa ser visualmente registrada antes de afirmar que o caso observado por
+Gabriel foi resolvido em produção.
+
+**Curadoria da conta Gabriel em 2026-09-30:** por operação transacional direta
+e limitada à conta identificada como Gabriel, foram criadas 11 matérias ENEM e
+57 conteúdos: Matemática (13), Natureza (17), Humanas (18) e Linguagens (9).
+O pós-check confirmou as 57 associações, sem matéria ou conteúdo pendente;
+“Interpretação em inglês” ficou somente em Inglês. Isso não é um catálogo
+automático nem um seed para outras contas. O catálogo de PDFs de provas segue
+sem implementação. Falta somente conferir visualmente os registros na sessão
+publicada de Gabriel.
+
 Diagnóstico do caso “0 matérias”: o ENEM lê somente linhas acadêmicas com
 `mostra_enem=true` e `area_enem` correspondente. O seed roda apenas em conta
 sem nenhuma matéria acadêmica anterior; isso preserva personalizações, mas
 não repõe a lista para conta que já possua apenas matérias de Escola/Faculdade.
-Sem consulta autenticada à conta de Gabriel, não há como afirmar qual dessas
-situações ocorreu em produção. Após criar uma matéria, a página de detalhe já
+Esse foi o cenário confirmado na conta de Gabriel. A página de detalhe já
 oferece “Adicionar” conteúdo; a plataforma não fornece ementa automaticamente.
 Auditoria adicional encontrou que a criação de conteúdo nessa página limpa o
 campo mesmo se a gravação falhar e que conteúdo e vínculo são duas operações
-separadas. Registrar correção transacional/UX como pendência técnica para um
-próximo lote antes de importação em volume; não reenvie após erro sem conferir
-o estado persistido.
+separadas. Registrar correção transacional/UX como pendência técnica de V3
+antes de importação em volume; não reenviar após erro sem conferir o estado
+persistido.
 
 
 **Fechamento de escopo em 2026-09-25:** Gabriel confirmou que a homologação
