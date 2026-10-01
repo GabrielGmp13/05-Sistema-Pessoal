@@ -15,27 +15,27 @@ $$;
 
 -- Estrutura do schema public.
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 75
+  (SELECT count(*) = 78
    FROM pg_class c
    JOIN pg_namespace n ON n.oid = c.relnamespace
    WHERE n.nspname = 'public' AND c.relkind = 'r'),
-  'public deve conter exatamente 75 tabelas locais'
+  'public deve conter exatamente 78 tabelas locais'
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 75
+  (SELECT count(*) = 78
    FROM pg_constraint c
    JOIN pg_namespace n ON n.oid = c.connamespace
    WHERE n.nspname = 'public' AND c.contype = 'p'),
-  'public deve conter exatamente 75 PKs locais'
+  'public deve conter exatamente 78 PKs locais'
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 146
+  (SELECT count(*) = 154
    FROM pg_constraint c
    JOIN pg_namespace n ON n.oid = c.connamespace
    WHERE n.nspname = 'public' AND c.contype = 'f'),
-  'public deve conter exatamente 146 FKs locais'
+  'public deve conter exatamente 154 FKs locais'
 );
 
 SELECT pg_temp.assert_true(
@@ -61,15 +61,15 @@ SELECT pg_temp.assert_true(
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 133
+  (SELECT count(*) = 138
    FROM pg_constraint c
    JOIN pg_namespace n ON n.oid = c.connamespace
    WHERE n.nspname = 'public' AND c.contype = 'c'),
-  'public deve conter exatamente 133 checks locais'
+  'public deve conter exatamente 138 checks locais'
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 81
+  (SELECT count(*) = 85
    FROM pg_index i
    JOIN pg_class t ON t.oid = i.indrelid
    JOIN pg_namespace n ON n.oid = t.relnamespace
@@ -77,17 +77,17 @@ SELECT pg_temp.assert_true(
    WHERE n.nspname = 'public'
      AND t.relkind = 'r'
      AND con.oid IS NULL),
-  'public deve conter exatamente 81 indices explicitos locais'
+  'public deve conter exatamente 85 indices explicitos locais'
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 75
+  (SELECT count(*) = 78
    FROM pg_class c
    JOIN pg_namespace n ON n.oid = c.relnamespace
    WHERE n.nspname = 'public'
      AND c.relkind = 'r'
      AND c.relrowsecurity),
-  'as 75 tabelas public locais devem ter RLS habilitada'
+  'as 78 tabelas public locais devem ter RLS habilitada'
 );
 
 SELECT pg_temp.assert_true(
@@ -153,8 +153,9 @@ SELECT pg_temp.assert_true(
    JOIN pg_namespace n ON n.oid = c.relnamespace
    WHERE n.nspname = 'public'
      AND c.relkind = 'r'
-     AND c.relname NOT IN ('projetos', 'projetos_tarefas', 'receitas', 'lancamentos_nota',
-       'enem_tentativas', 'redacoes_versoes', 'redacoes_avaliacoes')),
+    AND c.relname NOT IN ('projetos', 'projetos_tarefas', 'receitas', 'lancamentos_nota',
+      'enem_tentativas', 'redacoes_versoes', 'redacoes_avaliacoes',
+      'topicos_estudo', 'topicos_materias', 'revisoes_tentativas')),
   'authenticated deve preservar GRANT ALL nas tabelas historicas'
 );
 
@@ -218,10 +219,10 @@ SELECT pg_temp.assert_true(
 );
 
 SELECT pg_temp.assert_true(
-  (SELECT count(*) = 10
+  (SELECT count(*) = 12
    FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
    WHERE n.nspname = 'public'),
-  'public deve conter as dez funcoes locais documentadas'
+  'public deve conter as doze funcoes locais documentadas'
 );
 
 -- Comportamento do event trigger: criação descartável em public habilita RLS.
