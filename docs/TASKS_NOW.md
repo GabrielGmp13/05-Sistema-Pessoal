@@ -8,8 +8,10 @@ de matéria compartilhada ficam marcadas como escopo ambíguo até confirmação
 A migration `20260930000100` foi aplicada isoladamente após backup lógico,
 precheck remoto e dry-run que listou somente esse arquivo. O pós-check remoto
 confirmou as três tabelas, `conteudos.topico_uuid`, as duas RPCs, 57 tópicos,
-57 vínculos matéria–tópico e 57 conteúdos vinculados. O frontend ainda aguarda
-push e confirmação do deploy Vercel.
+57 vínculos matéria–tópico e 57 conteúdos vinculados. O frontend foi publicado
+em `abf2e52`; CI e Vercel passaram. O QA autenticado confirmou as quatro áreas
+ENEM, 11 matérias, 13 tópicos de Matemática, Escola, Revisão, modal, Escape,
+rota interceptada/direta e histórico do navegador, sem gravar dados.
 
 Interface local: Revisão saiu da navegação global mas continua em Estudos;
 área ENEM com uma matéria redireciona ao detalhe; rótulos “Bloco N” foram

@@ -6,7 +6,9 @@
 > testes Node, typecheck, lint e build também passaram. Após backup lógico,
 > precheck e dry-run exclusivo, a migration foi aplicada remotamente; o
 > pós-check confirmou 3 tabelas, 2 RPCs e os 57 conteúdos vinculados, sem
-> ambiguidades. Próximo passo: publicar o frontend e confirmar o deploy.
+> ambiguidades. O frontend foi publicado em `abf2e52`; CI, Vercel e QA
+> autenticado em produção passaram sem gravar dados. Próximo passo: iniciar a
+> documentação pré-V3 em branch isolada.
 
 > **Atualização de dados em 2026-09-30:** a conta de Gabriel tinha as áreas
 > ENEM vazias por não receber o seed inicial após já possuir matérias

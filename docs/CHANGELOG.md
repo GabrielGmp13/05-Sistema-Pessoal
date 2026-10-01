@@ -16,10 +16,13 @@
   listou somente `20260930000100`; a aplicação e o teste SQL remoto passaram.
   O contrato final confirmou 3 tabelas, 2 RPCs, 57 tópicos, 57 vínculos e 57
   conteúdos associados, sem criar tentativas históricas.
+- O commit `abf2e52` foi publicado em `main`; CI e deploy Vercel passaram. O
+  QA autenticado em produção confirmou ENEM, Escola, tópicos/subtópicos,
+  Revisão, modal, Escape, rotas direta/interceptada e histórico, sem gravar
+  dados da conta.
 - Um opt-in server-only `LOCAL_SUPABASE_QA=true`, restrito à URL exata
   `http://127.0.0.1:54321`, permite build local de produção contra o Supabase
-  isolado sem ampliar a CSP publicada. Git remoto e Vercel ainda não foram
-  alterados nesta etapa; somente o schema remoto autorizado foi atualizado.
+  isolado sem ampliar a CSP publicada.
 
 ## 2026-09-30 — V2.3 estrutural de Estudos (somente local)
 

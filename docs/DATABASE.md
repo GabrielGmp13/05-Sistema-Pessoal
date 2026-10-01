@@ -12,6 +12,7 @@
 > exclusivo, a migration foi aplicada em produção. O pós-check remoto confirmou
 > 3 tabelas, 2 RPCs, 57 tópicos, 57 vínculos matéria–tópico e 57 conteúdos
 > vinculados; `revisoes_tentativas` permaneceu vazia.
+> O frontend dependente foi publicado em `abf2e52` após essa confirmação.
 
 > **I05 em 2026-09-25:** reset local e
 > `validate_biblioteca_reordenacao.sql` passaram. Após precheck e dry-run

@@ -16,7 +16,7 @@ deploy, serviço externo nem relaxamento da CSP publicada.
 
 ## DEC-097 — Tópicos principais aditivos e conteúdos preservados como subtópicos (2026-09-30)
 
-**Status:** implementada; migration aplicada em produção em 2026-10-01; frontend aguardando publicação.
+**Status:** implementada e publicada; migration aplicada em produção em 2026-10-01.
 
 A V2.3 acrescenta `topicos_estudo` e `topicos_materias` sem substituir nem
 renumerar registros de `conteudos`. Conteúdos acadêmicos existentes recebem um

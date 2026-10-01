@@ -6,7 +6,8 @@
 > aplicada isoladamente após backup, precheck e dry-run exclusivo. Localmente passaram precheck na baseline, aplicação
 > isolada, reset integral, 27/27 testes SQL e QA autenticada 21/21. Gates do
 > frontend: 165 testes, typecheck, lint e build. O pós-check remoto confirmou
-> 3 tabelas, 2 RPCs e os 57 conteúdos vinculados. O frontend aguarda push/deploy.
+> 3 tabelas, 2 RPCs e os 57 conteúdos vinculados. O frontend foi publicado em
+> `abf2e52`; CI, Vercel e QA autenticado em produção passaram.
 
 > **Atualização de dados em 2026-09-30:** a conta de Gabriel recebeu 11
 > matérias ENEM e 57 conteúdos, organizados nas quatro áreas. O pós-check
@@ -41,9 +42,9 @@
 
 - Repositório: `C:\Gabriel Oliveira\05-Sistema-Pessoal`; frontend único em
   `frontend/`; produção em `https://expansiondominionpersonaledition.vercel.app`.
-- Último lote funcional em `main`: `df91767` (Estudos/ENEM), documentado por
-  `4ce9b21`; ele sucede `79dce60` (V2.2 de desempenho), `14d85a1`, `547889b`
-  e `bdc4ac5`. CI e deploy Vercel passaram. O PDF avulso na raiz pertence ao
+- Último lote funcional em `main`: `abf2e52` (V2.3 de tópicos/subtópicos);
+  `df91767`/`4ce9b21` registram o lote ENEM anterior. CI e deploy Vercel da
+  V2.3 passaram. O PDF avulso na raiz pertence ao
   usuário e segue fora do Git.
 - Banco: `20260915000100`, `20260917000100`, `20260917000200` e
   `20260917000300` estão aplicadas em produção. A `00100` foi aplicada por

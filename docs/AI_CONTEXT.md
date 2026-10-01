@@ -7,7 +7,8 @@
 > autenticada local 21/21 passaram. Frontend: 165 testes, typecheck, lint e
 > build aprovados. Após backup lógico, precheck e dry-run exclusivo, a migration
 > foi aplicada em produção; o pós-check confirmou 3 tabelas, 2 RPCs, 57 tópicos,
-> 57 vínculos e 57 conteúdos associados. O frontend ainda aguarda publicação.
+> 57 vínculos e 57 conteúdos associados. O frontend foi publicado em
+> `abf2e52`; CI, Vercel e QA autenticado em produção passaram.
 
 > **Atualização operacional em 2026-09-30:** após o lote publicado de 29/09,
 > a conta de Gabriel recebeu 11 matérias ENEM e 57 conteúdos organizados nas
